@@ -1,7 +1,7 @@
 /** Display-space colors; engineering materials remain physically lit and unchanged. */
 export const APPEARANCE_PROFILES = Object.freeze({
-  light: Object.freeze({ background:'#f3f3f1', contour:'#303337', feature:'#74797f', context:'#73777c', keyline:'#242629', gridMajor:'#85898d', gridMinor:'#b8bbbd', gridOpacity:.30 }),
-  dark: Object.freeze({ background:'#1b1b1b', contour:'#e5e8eb', feature:'#969da5', context:'#bcc2c8', keyline:'#101215', gridMajor:'#7f858c', gridMinor:'#555c63', gridOpacity:.28 })
+  light: Object.freeze({ background:'#f3f3f1', contour:'#303337', feature:'#74797f', context:'#73777c', keyline:'#242629', gridMajor:'#72777c', gridMinor:'#a3a7ac', gridOpacity:.46 }),
+  dark: Object.freeze({ background:'#1b1b1b', contour:'#e5e8eb', feature:'#969da5', context:'#bcc2c8', keyline:'#101215', gridMajor:'#a1a7ae', gridMinor:'#727981', gridOpacity:.42 })
 });
 export const getAppearanceProfile = mode => APPEARANCE_PROFILES[mode] || APPEARANCE_PROFILES.light;
 /** Shader overlays operate after the output transform; their uniforms are display sRGB. */

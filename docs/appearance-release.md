@@ -143,3 +143,16 @@ assertions and is not evidence of a browser-page runtime failure.
 Open Appearance at the top right of the viewer for Light/Dark, accent presets and
 a custom hex color. Open the render-style Display dropdown for Reference grid.
 In Studio on a narrow screen, open Product model to mount the interactive preview.
+
+## Grid contrast refinement
+
+The reference grid uses darker grays in Light and brighter silver grays in Dark.
+Main lines remain stronger than subdivision lines. The shared palette increases
+grid opacity from 0.30 to 0.46 in Light and from 0.28 to 0.42 in Dark, preserving
+the same geometry, occlusion, toggle and saved preferences across all three
+viewer hosts.
+
+The production build passed six desktop style/theme combinations and two mobile
+Engineering theme checks. Grid on/off remained functional; sampled opaque model
+faces did not change when toggling the grid. No overflow or browser errors were
+observed. Repository verification passed again (564 passed, one existing skip).
