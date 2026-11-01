@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "sheets": {
+    "sheet-1": [
+      "sk08-technical-front-v1:front:sheet-1",
+      "sk08-technical-top-v1:top:sheet-1",
+      "sk08-technical-side-v1:side:sheet-1",
+      "sk08-technical-iso-v1:iso:sheet-1"
+    ],
+    "sheet-2": [
+      "sk08-technical-front-v1:bore:sheet-2",
+      "sk08-technical-footprint-v1:footprint:sheet-2",
+      "sk08-technical-side-v1:side:sheet-2"
+    ]
+  }
+}

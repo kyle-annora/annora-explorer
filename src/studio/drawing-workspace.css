@@ -168,8 +168,8 @@
 .sd-preview-controls .ar-actions { flex-wrap: wrap; justify-content: flex-end; }
 .sd-review-meta strong, .sd-history-row > div { overflow-wrap: anywhere; min-width: 0; }
 .sd-stage > .drawing-preview-surface { border:0; border-radius:0; }
-.sd-stage .drawing-preview-canvas { height:clamp(400px,43vw,570px); }
+.sd-stage .drawing-preview-canvas:not(.drawing-preview-overview) { height:clamp(400px,43vw,570px); }
 .sd-review-drawing { margin:8px 0 24px; }
 .sd-review-drawing > .ar-field { max-width:540px; margin-bottom:12px; }
 .sd-authoring-tools .ar-button { min-height:44px; }
-@media(max-width:700px) { .sd-stage .drawing-preview-canvas { height:365px; } }
+@media(max-width:700px) { .sd-stage .drawing-preview-canvas:not(.drawing-preview-overview) { height:365px; } }

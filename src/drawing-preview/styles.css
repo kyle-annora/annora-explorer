@@ -695,3 +695,26 @@
   .dp-technical-context .dp-kicker {display:none}
   .dp-zoom-presets {margin-left:auto}
 }
+
+/* The prepared sheet is the primary reading surface. Source access is a
+   utility action, separate from composition and feature selection. */
+.dp-presentation .dp-reading-heading {align-items:center;min-width:0}
+.dp-reading-heading strong {font-size:13px;font-weight:500;white-space:nowrap}
+.dp-presentation .dp-reading-tools {display:flex;align-items:center;gap:12px;width:auto}
+.dp-reading-tools #dp-technical-unit {font:10px var(--mono);color:#74797d;white-space:nowrap}
+.dp-reading-tools select {min-height:44px;max-width:130px;border:1px solid #c9ccce;border-radius:3px;background:#fff;color:#34383c;font:12px var(--sans,Arial,sans-serif);padding:0 8px}
+.dp-presentation #dp-source-pdf {font-size:12px;color:#656b70;text-decoration:underline;text-underline-offset:3px;flex:none}
+.dp-presentation #dp-back-overview {padding-inline:0;font-size:12px;font-weight:500;flex:none}
+.dp-presentation #dp-back-overview:hover {background:transparent;text-decoration:underline;text-underline-offset:3px}
+.dp-drawing-pane[data-presentation=overview] #dp-sheet {min-height:520px}
+.dp-stage:has(.dp-drawing-pane[data-presentation=overview]) {min-height:640px}
+@media(max-width:850px) {
+  .dp-presentation {padding:5px 12px;gap:8px;flex-wrap:wrap}
+  .dp-presentation .dp-reading-heading {width:auto;flex:1}
+  .dp-presentation .dp-reading-tools {width:auto;gap:6px}
+  .dp-reading-tools #dp-technical-unit {display:none}
+  .dp-reading-heading strong {font-size:12px}
+  .dp-reading-tools select {max-width:108px;font-size:11px}
+  .dp-drawing-pane[data-presentation=overview] #dp-sheet {min-height:370px}
+  .dp-stage:has(.dp-drawing-pane[data-presentation=overview]) {min-height:510px}
+}

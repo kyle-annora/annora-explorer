@@ -1,5 +1,8 @@
 # Technical reading views across Drawings, Studio and Product Room
 
+The subsequent [Drawing overview release](drawing-overview-review.md) replaces
+the primary original-sheet mode with composed views and secondary Source PDF access.
+
 ## Delivered scope
 
 The approved SK08 reading style now covers both paired products and the existing

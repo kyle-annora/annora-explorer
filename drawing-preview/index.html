@@ -101,11 +101,15 @@
             aria-label="Engineering drawing"
           >
             <div class="dp-presentation" id="dp-presentation" hidden>
-              <div role="group" aria-label="Drawing presentation">
-                <button id="dp-presentation-technical" data-presentation="technical" aria-pressed="false">Technical view</button>
-                <button data-presentation="source" aria-pressed="false">Original sheet</button>
+              <div class="dp-reading-heading">
+                <button id="dp-back-overview" data-presentation="overview" hidden>← Drawing overview</button>
+                <strong id="dp-overview-title">Drawing overview</strong>
               </div>
-              <span id="dp-technical-unit"></span>
+              <div class="dp-reading-tools">
+                <select id="dp-overview-sheet" aria-label="Overview sheet"></select>
+                <span id="dp-technical-unit"></span>
+                <button id="dp-source-pdf" data-presentation="source">Source PDF</button>
+              </div>
             </div>
             <div class="dp-drawing-toolbar">
               <select id="dp-sheet-select" aria-label="Drawing sheet"></select>

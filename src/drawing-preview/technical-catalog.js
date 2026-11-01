@@ -3,6 +3,7 @@ import { matchesTechnicalBinding } from './technical-policy.js';
 const sources = import.meta.glob('../../content/drawings/*/package.json', { eager: true, import: 'default' });
 const profiles = import.meta.glob('../../content/drawings/*/technical-*.json', { eager: true, import: 'default' });
 const artwork = import.meta.glob('../../content/drawings/*/technical-*.svg', { eager: true, query: '?raw', import: 'default' });
+const overviewDefinitions = import.meta.glob('../../content/drawings/*/overview-views.json', { eager: true, import: 'default' });
 const extraBindings = Object.values(profiles).flatMap(value => value.bindings || []);
 const prepared = Object.entries(profiles).filter(([, profile]) => profile.id && profile.viewBox && profile.regions).flatMap(([path, profile]) => {
   const folder = path.slice(0, path.lastIndexOf('/') + 1);
@@ -51,3 +52,13 @@ export function technicalEntriesFor(drawing, { sheetId, regionId, unavailable = 
 
 export const technicalEntryFor = (drawing, unavailable = false) => technicalEntriesFor(drawing, { unavailable })[0];
 export const supportsTechnicalDetail = (entry, sheetId, regionId) => Boolean(entry && entry.sheetId === sheetId && entry.regionIds.includes(regionId));
+
+/** Curated compositions never relax source/binding eligibility. Missing or
+ * changed views are omitted; an overview cannot stand in for a new PDF. */
+export function overviewEntriesFor(drawing, { sheetId, unavailable = false } = {}) {
+  const definition = Object.entries(overviewDefinitions).find(([path]) =>
+    sources[path.replace('overview-views.json', 'package.json')]?.id === drawing?.id)?.[1];
+  const ids = definition?.sheets?.[sheetId] || [];
+  const eligible = technicalEntriesFor(drawing, { sheetId, unavailable });
+  return ids.flatMap(id => eligible.find(entry => entry.id === id) || []);
+}

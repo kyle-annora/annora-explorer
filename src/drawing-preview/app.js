@@ -15,8 +15,10 @@ import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.
 import { readBuyerRoute, buyerRouteHash } from "../product-room/navigation.js";
 import { createDrawingContext } from "./context.js";
 import { focusDrawingRegion } from "./model-views.js";
-import { technicalEntriesFor, supportsTechnicalDetail } from "./technical-catalog.js";
+import { technicalEntriesFor, overviewEntriesFor, supportsTechnicalDetail } from "./technical-catalog.js";
 import { createTechnicalDrawingView } from "./technical-view.js";
+import { createDrawingOverview } from "../drawings/drawing-overview.js";
+import "../drawings/drawing-overview.css";
 
 const $ = (id) => document.getElementById(id),
   mobile = matchMedia("(max-width:850px)");
@@ -37,8 +39,9 @@ let entry,
   view = mobile.matches ? "3d" : "compare",
   page = "explore",
   drawingView;
-let presentation = "technical", technicalId = null;
+let presentation = "overview", technicalId = null;
 const preparedViews = () => technicalEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion });
+const overviewViews = () => overviewEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion });
 const selectedTechnicalView = () => {
   const entries = preparedViews().filter(item => supportsTechnicalDetail(item, sheet.id, regionId));
   return entries.find(item => item.id === technicalId) || entries[0];
@@ -140,6 +143,7 @@ function renderPackage() {
     ]),
     sheet.id,
   );
+  selectOptions($("dp-overview-sheet"), drawing.sheets.map((item, i) => [item.id, `Sheet ${i + 1} / ${drawing.sheets.length}`]), sheet.id);
   selectOptions(
     $("dp-detail"),
     sheet.regions.map((region) => [region.id, region.label]),
@@ -167,24 +171,29 @@ function renderPackage() {
   renderPresentation();
 }
 function renderPresentation() {
-  const entries = preparedViews(), prepared = selectedTechnicalView();
+  const entries = preparedViews(), prepared = selectedTechnicalView(), overview = overviewViews();
   document.body.dataset.technicalAvailable = String(Boolean(entries.length));
-  if (!prepared) presentation = "source";
-  else technicalId = prepared.id;
+  if (presentation === "overview" && !overview.length || presentation === "technical" && !prepared) presentation = "source";
+  if (prepared) technicalId = prepared.id;
   const technical = Boolean(prepared && presentation === "technical");
-  $("dp-presentation").hidden = !entries.length;
-  $("dp-presentation-technical").disabled = !prepared;
-  $("dp-drawing-pane").dataset.technical = String(technical);
+  $("dp-presentation").hidden = false;
+  $("dp-back-overview").hidden = presentation === "overview" || !overview.length;
+  $("dp-overview-title").hidden = presentation !== "overview" && overview.length > 0;
+  $("dp-overview-title").textContent = presentation === "source" ? "Source PDF" : "Drawing overview";
+  $("dp-overview-sheet").hidden = presentation !== "overview" || drawing.sheets.length < 2;
+  $("dp-source-pdf").hidden = presentation === "source";
+  $("dp-drawing-pane").dataset.presentation = presentation;
+  $("dp-drawing-pane").dataset.technical = String(presentation !== "source");
   $("dp-technical-context").hidden = !technical;
-  $("dp-technical-legend").hidden = !technical;
+  $("dp-technical-legend").hidden = presentation === "source";
   $("dp-technical-view-label").hidden = !technical;
   selectOptions($("dp-technical-view-select"), entries.map(item => [item.id, item.title]), technicalId);
-  $("dp-technical-unit").textContent = `${drawing.number || entry.title} / ${prepared?.profile.notToScale ? "NTS" : drawing.units}`;
+  $("dp-technical-unit").textContent = `${drawing.number || entry.title} / ${technical && prepared?.profile.notToScale ? "NTS" : drawing.units}`;
   $("dp-technical-kicker").textContent = `${drawing.number || entry.title} / TECHNICAL VIEW`;
   $("dp-technical-title").textContent = prepared?.title || entry.title;
   $("dp-fit").textContent = "Fit sheet";
   const note = regions.get(regionId)?.note;
-  $("dp-detail-note").textContent = technical
+  $("dp-detail-note").textContent = presentation !== "source"
     ? `${regions.get(regionId)?.dimension || regions.get(regionId)?.label || "Selected detail"}. Linked to the original source and saved drawing version.`
     : note || "Select a source detail to locate its linked model part.";
   for (const button of document.querySelectorAll("button[data-presentation]"))
@@ -215,7 +224,11 @@ function mountReader({ focus = false } = {}) {
       if (generation === readerGeneration) $("dp-sheet-error").hidden = false;
     },
   };
-  drawingView = technical ? createTechnicalDrawingView({
+  drawingView = presentation === "overview" ? createDrawingOverview({
+    mount: $("dp-sheet"), entries: overviewViews(), selectedId: regionId,
+    onOpen: selection => void openPreparedView(selection).catch(error => notice(error.message)),
+    onError: options.onError,
+  }) : technical ? createTechnicalDrawingView({
     ...options,
     profile: prepared.profile,
     artwork: prepared.artwork,
@@ -228,6 +241,22 @@ function mountReader({ focus = false } = {}) {
       if (view === "3d" || page !== "explore") instance.pause?.();
     })
     .catch(() => {});
+}
+async function openPreparedView({ entryId, regionId: id, focus = false }) {
+  const target = preparedViews().find(item => item.id === entryId);
+  if (!target) return;
+  const nextId = target.regionIds.includes(id) ? id : target.defaultRegionId;
+  technicalId = target.id;
+  presentation = "technical";
+  const selection = selectRegion(nextId, { origin: "drawing" });
+  mountReader();
+  const instance = drawingView;
+  await instance.ready;
+  if (instance !== drawingView) return;
+  if (focus) instance.setZoom?.(2);
+  updateURL({ replace: true });
+  requestAnimationFrame(() => { if (instance === drawingView) $("dp-technical-view-select").focus({ preventScroll: true }); });
+  await selection;
 }
 const viewer = createRoomViewer({
   mount: $("dp-viewer"),
@@ -299,6 +328,9 @@ async function selectRegion(id, { origin = "controls", focus = false } = {}) {
       if (!next) presentation = "source";
       mountReader({ focus });
     } else drawingView?.select(id, { focus });
+  } else if (presentation === "overview" && focus && !overviewViews().some(item => item.regionIds.includes(id))) {
+    presentation = "source";
+    mountReader({ focus });
   } else drawingView?.select(id, { focus });
   renderPresentation();
   updateURL({ replace: true });
@@ -494,20 +526,32 @@ $("dp-detail").addEventListener(
   "change",
   act(() => selectRegion($("dp-detail").value, { focus: true })),
 );
-$("dp-sheet-select").addEventListener("change", () => {
-  sheet = drawing.sheets.find((item) => item.id === $("dp-sheet-select").value);
+function changeSheet(id) {
+  sheet = drawing.sheets.find((item) => item.id === id);
   regions = new Map(sheet.regions.map((item) => [item.id, item]));
   regionId = sheet.regions[0]?.id;
-  presentation = "source";
+  technicalId = null;
+  if (presentation !== "source") presentation = "overview";
   renderPackage();
   mountReader();
   updateURL({ replace: true });
-});
+}
+$("dp-sheet-select").addEventListener("change", () => changeSheet($("dp-sheet-select").value));
+$("dp-overview-sheet").addEventListener("change", () => changeSheet($("dp-overview-sheet").value));
 for (const button of document.querySelectorAll("button[data-presentation]"))
   button.addEventListener("click", act(() => {
-    if (button.dataset.presentation === "technical" && !selectedTechnicalView()) return;
+    if (button.dataset.presentation === "overview" && !overviewViews().length) return;
     presentation = button.dataset.presentation;
     renderPackage(); mountReader(); updateURL({ replace: true });
+    const instance = drawingView;
+    requestAnimationFrame(() => {
+      if (instance !== drawingView) return;
+      if (presentation === "overview") {
+        const root = instance.element;
+        const opener = [...(root?.querySelectorAll("[data-overview-entry]") || [])].find(tile => tile.dataset.overviewEntry === technicalId)?.querySelector("button");
+        (root?.dataset.layout === "single" ? root.querySelector("select") : opener || root?.querySelector("button"))?.focus({ preventScroll: true });
+      } else if (presentation === "source") ($("dp-back-overview").hidden ? $("dp-fit") : $("dp-back-overview")).focus({ preventScroll: true });
+    });
   }));
 $("dp-technical-view-select").addEventListener("change", act(() => {
   const prepared = preparedViews().find(item => item.id === $("dp-technical-view-select").value);
@@ -535,6 +579,14 @@ $("dp-show-drawing").addEventListener(
   act(async () => {
     if (view === "3d") await setView("drawings");
     await drawingView.ready;
+    if (presentation === "overview") {
+      const target = overviewViews().find(item => item.regionIds.includes(regionId));
+      if (target) return openPreparedView({ entryId: target.id, regionId, focus: true });
+      presentation = "source";
+      mountReader();
+      await drawingView.ready;
+      updateURL({ replace: true });
+    }
     drawingView.select(regionId, { focus: true });
   }),
 );
@@ -666,12 +718,13 @@ function readSelection(query) {
     view = query.get("view");
   if (mobile.matches && view === "compare") view = "3d";
   if (!entry.available) view = "drawings";
-  presentation = query.get("presentation") === "source" ? "source" : "technical";
+  const requested = query.get("presentation");
+  presentation = requested === "source" ? "source" : ["technical", "front", "bore"].includes(requested) ? "technical" : "overview";
   technicalId = query.get("technicalView");
   if (["front", "bore"].includes(query.get("presentation"))) {
     technicalId = preparedViews().find(item => item.legacyPresentation === query.get("presentation") && item.regionIds.includes(regionId))?.id || technicalId;
   }
-  if (!selectedTechnicalView()) presentation = "source";
+  if (presentation === "overview" && !overviewViews().length || presentation === "technical" && !selectedTechnicalView()) presentation = "source";
 }
 async function start() {
   const query = new URLSearchParams(location.search);
