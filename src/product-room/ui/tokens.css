@@ -1,22 +1,23 @@
-/* Product Room host only. The embedded Explorer keeps its own rendering and UI. */
+@import '../../shared/workspace-tokens.css';
+/* Stable component aliases shared by the buyer and seller workspaces. */
 .room-ui {
-  --ar-canvas: #f4f4f3;
-  --ar-surface: #fff;
-  --ar-subtle: #eceeed;
-  --ar-ink: #292b2e;
-  --ar-muted: #64686c;
-  --ar-line: #d4d5d6;
-  --ar-line-strong: #9ba0a4;
+  --ar-canvas: var(--aw-canvas);
+  --ar-surface: var(--aw-surface);
+  --ar-subtle: var(--aw-subtle);
+  --ar-ink: var(--aw-ink);
+  --ar-muted: var(--aw-muted);
+  --ar-line: var(--aw-border);
+  --ar-line-strong: var(--aw-border-strong);
   --ar-accent: var(--accent, #ff6840);
-  --ar-accent-hover: #ff8969;
-  --ar-accent-ink: #241610;
+  --ar-accent-hover: var(--aw-accent-hover);
+  --ar-accent-ink: var(--aw-accent-ink);
   --ar-champagne: #eee8dc;
   --ar-champagne-ink: #60543d;
   --ar-error: #9c3419;
   --ar-error-surface: #fff4ef;
-  --ar-radius: 4px;
-  --ar-control-height: 44px;
-  --ar-font: Inter, "Helvetica Neue", Arial, sans-serif;
+  --ar-radius: var(--aw-radius);
+  --ar-control-height: var(--aw-control);
+  --ar-font: var(--aw-font);
   --ar-mono: "SFMono-Regular", Consolas, monospace;
   font-family: var(--ar-font);
   color: var(--ar-ink);

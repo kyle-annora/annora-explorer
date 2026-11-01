@@ -13,7 +13,7 @@
   padding: 11px 18px;
   border: 1px solid transparent;
   border-radius: var(--ar-radius);
-  font: 600 13px/1.45 var(--ar-font);
+  font: 500 13px/1.45 var(--ar-font);
   text-align: center;
   cursor: pointer;
   transition:
@@ -322,11 +322,11 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 .room-ui .ar-section-header h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.25;
   font-weight: 500;
   letter-spacing: -0.025em;
@@ -344,7 +344,7 @@
 }
 .room-ui .ar-eyebrow {
   margin: 0 0 10px;
-  font: 10px/1.5 var(--ar-mono);
+  font: 500 10px/1.5 var(--ar-font);
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--ar-muted);

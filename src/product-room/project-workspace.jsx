@@ -1,6 +1,6 @@
 import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   reviewInquiry,
@@ -33,6 +33,7 @@ import {
   Comparison,
 } from "./ui/components.jsx";
 import "./project-workspace.css";
+import "./workspace-presentation.css";
 import { updateBuyerLocation } from "./navigation.js";
 import { readWalkthroughSession, withWalkthroughSession } from "../walkthrough/session.js";
 import { registerWalkthroughAction } from "../walkthrough/actions.js";
@@ -208,6 +209,21 @@ function ContextSummary({
       )}
     </div>
   );
+}
+
+/** A mobile disclosure changes presentation only; the saved context is unchanged. */
+function InquiryReference({ context, children }) {
+  const [expanded, setExpanded] = useState(false);
+  const contentId = useId();
+  return <div className={`pw-inquiry-reference ${expanded ? "is-open" : ""}`}>
+    <button type="button" className="pw-reference-toggle" aria-expanded={expanded}
+      aria-controls={contentId} onClick={() => setExpanded(value => !value)}>
+      <span><small>Product reference</small><strong>{context.drawing?.regionLabel || context.part?.title || context.productTitle}</strong>
+        <small>{context.drawing ? `${context.drawing.title} · ${context.drawing.revisionLabel || context.drawing.revision}` : context.roomSnapshot ? `Product version ${context.roomSnapshot.version}` : context.modelRevision}</small></span>
+      <span aria-hidden="true">{expanded ? "−" : "+"}</span>
+    </button>
+    <div id={contentId} className="pw-inquiry-reference-content">{children}</div>
+  </div>;
 }
 
 function InquiryDocument({ draft, onExplore }) {
@@ -1371,6 +1387,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             )}
           </div>
           <aside className="pw-sidebar">
+            <InquiryReference context={draft.context}>
             <ContextSummary
               context={draft.context}
               disabled={Boolean(pending) || leaving}
@@ -1411,6 +1428,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
               </p>
               <Evidence kind="review">Engineering review required</Evidence>
             </div>
+            </InquiryReference>
           </aside>
         </div>
         <div className="pw-bottom-actions">

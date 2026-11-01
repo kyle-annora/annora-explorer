@@ -1,13 +1,14 @@
+@import '../shared/workspace-tokens.css';
 :root {
-  font-family:Inter,"Helvetica Neue",Arial,sans-serif;
+  font-family:var(--aw-font);
   color:#292b2e;
-  background:#f4f4f3;
+  background:var(--aw-canvas);
   font-synthesis:none;
   --accent:#ff6840;
   --graphite:#181a1c;
   --muted:#64686c;
   --line:#d4d5d6;
-  --header:72px;
+  --header:var(--aw-header);
   --mono:"SFMono-Regular",Consolas,monospace;
 }
 * {
@@ -75,10 +76,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   display:flex;
   align-items:center;
   gap:24px;
-  padding:0 24px;
-  background:var(--graphite);
-  color:#eef0f2;
-  border-bottom:1px solid #33363a;
+  padding:0 28px;
+  background:var(--aw-surface);
+  color:var(--aw-ink);
+  border-bottom:1px solid #e8e8e6;
   position:sticky;
   top:0;
   z-index:10;
@@ -87,28 +88,33 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   display:flex;
   align-items:center;
   gap:10px;
-  font:12px var(--mono);
-  letter-spacing:.05em;
+  font:500 22px var(--aw-font);
+  letter-spacing:-1px;
   flex-shrink:0;
 }
 .room-brand small {
   display:block;
-  color:#aeb4bb;
+  color:var(--aw-muted);
   font-size:9px;
-  letter-spacing:.12em;
-  margin-top:4px;
+  letter-spacing:.02em;
+  margin-top:2px;
 }
 .room-mark {
-  font:italic 700 24px Arial;
-  color:var(--accent);
-  letter-spacing:-5px;
-  width:25px;
-  display:block;
+  font:500 24px/1 var(--aw-font);
+  color:#fff;
+  background:var(--aw-ink);
+  letter-spacing:-2px;
+  width:23px;
+  height:26px;
+  padding-right:3px;
+  display:grid;
+  place-items:center;
+  border-radius:2px;
 }
 .room-product select {
-  background:#25282c;
-  color:#e5e7e9;
-  border:1px solid #43474d;
+  background:var(--aw-canvas);
+  color:var(--aw-ink);
+  border:1px solid transparent;
   border-radius:4px;
   min-height:40px;
   padding:0 30px 0 12px;
@@ -131,34 +137,34 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   font-size:13px;
   padding:0 14px;
   border-radius:4px;
-  color:#b5bbc2;
+  color:var(--aw-muted);
   white-space:nowrap;
 }
 .room-nav a:hover {
-  background:#292d31;
-  color:#fff;
+  background:var(--aw-subtle);
+  color:var(--aw-ink);
 }
 .room-nav a[aria-current] {
-  background:#303439;
-  color:#fff;
+  background:var(--aw-subtle);
+  color:var(--aw-ink);
 }
 .room-nav a.room-projects-link {
-  border:1px solid #565b62;
-  color:#eef0f2;
+  border:1px solid var(--aw-border);
+  color:var(--aw-ink);
   margin-left:8px;
 }
 .room-nav a.room-projects-link:hover {
-  border-color:#92979d;
-  background:#33373b;
+  border-color:var(--aw-border-strong);
+  background:var(--aw-subtle);
 }
 .room-nav a.room-projects-link[aria-current] {
-  border-color:#bdafa4;
-  background:#383631;
+  border-color:var(--aw-border-strong);
+  background:var(--aw-subtle);
 }
 .room-nav a span {
   font:9px var(--mono);
-  color:#d6b9ae;
-  border:1px solid #57504c;
+  color:var(--aw-muted);
+  border:1px solid var(--aw-border);
   border-radius:3px;
   padding:2px 3px;
 }
@@ -172,7 +178,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   border:1px solid transparent;
   border-radius:4px;
   font-size:13px;
-  font-weight:600;
+  font-weight:500;
   text-align:center;
   line-height:1.4;
 }
@@ -182,8 +188,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   border-color:var(--accent);
 }
 .room-button-primary:hover {
-  background:#ff8969;
-  border-color:#ff8969;
+  background:var(--aw-accent-hover);
+  border-color:var(--aw-accent-hover);
 }
 .room-button-secondary {
   background:transparent;
@@ -206,7 +212,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   height:calc(100svh - var(--header));
   min-height:320px;
   position:relative;
-  background:#1b1b1b;
+  background:var(--aw-canvas);
 }
 .room-viewer,.room-viewer iframe {
   display:block;
@@ -223,8 +229,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   align-items:center;
   text-align:center;
   padding:32px;
-  background:#1b1b1b;
-  color:#eef0f2;
+  background:var(--aw-canvas);
+  color:var(--aw-ink);
   z-index:2;
 }
 .room-loading h1 {
@@ -234,7 +240,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 }
 .room-loading p {
   font-size:14px;
-  color:#b5bbc2;
+  color:var(--aw-muted);
   max-width:480px;
   line-height:1.6;
 }
@@ -253,15 +259,15 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   justify-content:center;
 }
 .room-loading .room-button-secondary:hover {
-  background:#353535;
+  background:var(--aw-subtle);
 }
 .room-page {
-  background:#f4f4f3;
+  background:var(--aw-canvas);
   min-height:calc(100svh - var(--header));
 }
 .room-content {
   max-width:1380px;
-  padding:64px 56px 32px;
+  padding:44px 40px 28px;
   margin:auto;
 }
 .room-overview-hero {
@@ -271,7 +277,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   align-items:center;
 }
 .room-eyebrow {
-  font:10px/1.5 var(--mono);
+  font:500 10px/1.5 var(--aw-font);
   letter-spacing:.12em;
   color:var(--muted);
   text-transform:uppercase;
@@ -326,7 +332,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .room-highlights {
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  margin:48px 0 72px;
+  margin:36px 0 48px;
   padding:26px 0;
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
@@ -352,7 +358,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .room-questions {
   display:grid;
   grid-template-columns:1fr 1.4fr;
-  gap:80px;
+  gap:56px;
 }
 .room-questions h2,.room-documents h2 {
   font-size:28px;
@@ -852,7 +858,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     padding-inline:32px;
   }
   .room-content {
-    padding-top:80px;
+    padding-top:48px;
   }
 }
 @media(max-width:1000px) {
@@ -890,18 +896,18 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 }
 @media(max-width:850px) {
   :root {
-    --header:108px;
+    --header:104px;
   }
   .room-header {
     height:var(--header);
     display:grid;
     grid-template-columns:auto 1fr auto;
-    grid-template-rows:60px 48px;
+    grid-template-rows:56px 48px;
     gap:0 12px;
     padding:0 16px;
   }
   .room-brand {
-    font-size:11px;
+    font-size:20px;
     gap:8px;
   }
   .room-brand small {
@@ -934,7 +940,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     justify-content:space-around;
     margin:0;
     gap:2px;
-    border-top:1px solid #303338;
+    border-top:1px solid #ededeb;
     min-width:0;
   }
   .room-nav a {
@@ -1105,7 +1111,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     column-gap:8px;
   }
   .room-brand>span:last-child {
-    font-size:10px;
+    font-size:17px;
   }
   .room-brand small {
     font-size:7px;
@@ -1165,12 +1171,12 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 }
 
 /* Product authoring context stays outside the unchanged Explorer iframe. */
-.room-version-banner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 28px; border-bottom:1px solid #d4d5d6; background:#eee8dc; color:#46403a; font-size:12px; }
+.room-version-banner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:5px 28px; border-bottom:1px solid #e4ded3; background:#f1ede5; color:#46403a; font-size:11px; }
 .room-version-banner[hidden],.room-part-information[hidden] { display:none; }
 .room-version-banner a { flex-shrink:0; display:inline-flex; align-items:center; min-height:36px; color:inherit; text-underline-offset:4px; }
 .room-version-banner strong { color:#292b2e; }
-.room-part-information { padding:0 28px; border-bottom:1px solid #d4d5d6; background:#f4f4f3; font-size:13px; }
-.room-part-information summary { min-height:44px; display:list-item; padding:12px 0; cursor:pointer; font-weight:600; }
+.room-part-information { padding:0 28px; border-bottom:1px solid #e8e8e6; background:var(--aw-surface); font-size:12px; }
+.room-part-information summary { min-height:40px; display:list-item; padding:11px 0; cursor:pointer; font-weight:500; }
 .room-part-information details>p { margin:0 0 12px; max-width:85ch; color:#64686c; }
 .room-part-information details>a { display:inline-flex; min-height:44px; align-items:center; margin-right:20px; text-underline-offset:4px; }
 .room-explore { height:calc(100svh - var(--header) - var(--room-host-chrome,0px)); }
@@ -1183,7 +1189,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .pw-release-evidence summary { min-height:44px; cursor:pointer; padding:12px 0; }
 .pw-release-evidence small { display:block; color:#64686c; margin-top:4px; }
 .pw-release-evidence .pw-facts { margin-block:12px; }
-@media (max-width:600px) { .room-version-banner { align-items:flex-start; flex-direction:column; gap:0; padding:10px 16px; } .room-part-information { padding-inline:16px; } }
+@media (max-width:600px) { .room-version-banner { align-items:flex-start; flex-direction:column; gap:0; padding:7px 16px; } .room-part-information { padding-inline:16px; } }
 
 .room-workspace .pw-context { flex-wrap:wrap; }
 .room-workspace .pw-context>.pw-release-reference,.room-workspace .pw-context>.pw-release-evidence { flex-basis:100%; margin-block:0; }

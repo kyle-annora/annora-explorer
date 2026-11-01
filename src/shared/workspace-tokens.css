@@ -1,0 +1,18 @@
+/* Approved product-workspace language. Semantic host tokens remain compatible. */
+:root {
+  --aw-canvas: #f3f3f1;
+  --aw-surface: #fff;
+  --aw-subtle: #ededea;
+  --aw-ink: #292b2e;
+  --aw-muted: #65696d;
+  --aw-border: #d7d8d7;
+  --aw-border-strong: #a3a6a7;
+  --aw-accent: #ff6840;
+  --aw-accent-hover: #ed5c35;
+  --aw-accent-ink: #281b16;
+  --aw-radius: 4px;
+  --aw-shadow: 0 4px 24px #00000005;
+  --aw-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --aw-header: 64px;
+  --aw-control: 44px;
+}

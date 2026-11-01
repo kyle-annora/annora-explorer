@@ -169,6 +169,13 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   const [draft, setDraft] = useState(null), [saved, setSaved] = useState(null), [selection, setSelection] = useState({}), [form, setForm] = useState(regionForm());
   const [stage, setStage] = useState('edit'), [mode, setMode] = useState('drawings'), [previewPackage, setPreviewPackage] = useState(null);
   const [workspaceSection, setWorkspaceSection] = useState('overview');
+  const [sourceOptionsOpen, setSourceOptionsOpen] = useState(() => window.innerWidth > 700);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 700px)');
+    const change = () => setSourceOptionsOpen(!media.matches);
+    media.addEventListener('change', change);
+    return () => media.removeEventListener('change', change);
+  }, []);
   const [busy, setBusy] = useState(null), [error, setError] = useState(null), [message, setMessage] = useState(null), [review, setReview] = useState(null);
   const [history, setHistory] = useState([]), [release, setRelease] = useState(null), [confirmed, setConfirmed] = useState(false), [evidence, setEvidence] = useState('');
   const [sourceVersions, setSourceVersions] = useState([]), [importOpen, setImportOpen] = useState(false), [importFile, setImportFile] = useState(null), [revisionLabel, setRevisionLabel] = useState('');
@@ -334,7 +341,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   const removalPrompt = removeIntent && <Notice title={`Remove “${removeIntent.label}” from this draft?`}><p>Earlier versions keep their original details.</p><ActionGroup><Button variant="secondary" onClick={() => setRemoveIntent(null)} disabled={!!busy}>Keep detail</Button><Button variant="secondary" onClick={removeRegion} pending={busy === 'remove'} disabled={!!busy && busy !== 'remove'}>Remove from draft</Button></ActionGroup></Notice>;
   return <main className="room-ui sd-workspace" aria-busy={busy === 'load' || undefined}>
     <header className="sd-header">
-      <div><p className="ar-eyebrow">STUDIO / DRAWINGS</p><h1 ref={heading} tabIndex="-1">{stage === 'review' ? 'Review this release.' : stage === 'published' ? 'Drawing release ready.' : stage === 'history' ? `Release ${release?.version}` : 'Prepare the drawing experience.'}</h1>
+      <div><p className="ar-eyebrow">STUDIO / DRAWINGS</p><h1 ref={heading} tabIndex="-1">{stage === 'review' ? 'Review this release.' : stage === 'published' ? 'Drawing release ready.' : stage === 'history' ? `Release ${release?.version}` : 'Drawing workspace'}</h1>
         <p>{stage === 'edit' ? 'Arrange the views, connect their details, then preview and publish.' : 'The overview, source drawing and confirmed associations stay together in this release.'}</p></div>
       {onBack && <Button variant="quiet" icon="back" disabled={!!busy} onClick={async () => { if (await guard()) onBack(); }}>Back to Studio</Button>}
     </header>
@@ -343,13 +350,13 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     {message && <Notice role="status">{message}</Notice>}
     {!draft && !error && <p role="status">Opening the prepared product…</p>}
     {draft && stage === 'edit' && <>
-      <div className="sd-source-bar">
+      <details className="sd-source-options" open={sourceOptionsOpen} onToggle={event => setSourceOptionsOpen(event.currentTarget.open)}><summary><span>Source & version<strong>{entry.title}</strong></span><span>{sourceVersions.find(item => item.id === draft.sourceVersionId)?.label || pkg.revision}<Glyph name="info"/></span></summary><div className="sd-source-bar">
         <Field label="Product" value={productId} options={packages.map(item => [item.id, item.title])} onChange={event => void changeProduct(event.target.value)} disabled={!!busy} />
         <Field label="Source version" value={draft.sourceVersionId || sourceVersions[0]?.id || ''} options={sourceVersions.map(item => [item.id, `${item.label || item.revision}${item.kind === 'local-pdf' ? ' · imported PDF' : ' · prepared source'}`])} onChange={event => void changeSourceVersion(event.target.value)} disabled={!!busy} />
         <div className="sd-source-meta"><strong>{summary.confirmed - (formChanged && region?.mappingStatus === 'confirmed' ? 1 : 0)} of {summary.total} associations confirmed</strong><span>{dirty ? 'Unsaved changes' : draft.revision ? `Draft ${draft.revision} · saved ${dateLabel(draft.updatedAt)}` : 'New drawing draft'}</span></div>
         <Button variant="secondary" onClick={() => setImportOpen(value => !value)} disabled={!!busy} aria-expanded={importOpen}>Import new PDF</Button>
         <a href={pkg.sourceURL} target="_blank" rel="noreferrer">{pkg.sourceOrigin?.kind === "local-pdf" ? "Prepared model source" : "Source provenance"} <Glyph name="external" /></a>
-      </div>
+      </div></details>
       {importOpen && <Section className="sd-import-panel" title="Introduce a new source version" description="Import the actual PDF. Page sizes are read from the file; every copied association will need human review.">
         {importExample && <a className="sd-import-example" href={importExample.url} download={importExample.fileName}>{importExample.title} <Glyph name="external" /></a>}
         {importExample && <p className="sd-hint">{importExample.description}</p>}

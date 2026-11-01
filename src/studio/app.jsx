@@ -29,6 +29,7 @@ import {
   InquiryFields,
 } from "./editor.jsx";
 import { Preview } from "./preview.jsx";
+import { StudioModelStage } from "./model-stage.jsx";
 import crankImage from "../product-room/assets/crank.png";
 import "./styles.css";
 import { CustomerWorkspace } from "./customer-workspace.jsx";
@@ -46,6 +47,7 @@ import { createDrawingRepository } from "./drawing-repository.js";
 import { ProjectDrawingRevision } from "./project-drawing-revision.jsx";
 import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.js";
 import { createDrawingContext } from "../drawing-preview/context.js";
+import "./workspace-layout.css";
 
 const editableDrawingPackages = DRAWING_CATALOG.filter(
   (entry) =>
@@ -112,6 +114,15 @@ const drawingPreviewURL = (record) => {
 };
 
 function Studio({ repository, projectRepository }) {
+  const [selectedPartId, setSelectedPartId] = useState('rod');
+  const [mobileModel, setMobileModel] = useState(false);
+  const [smallScreen, setSmallScreen] = useState(() => window.innerWidth <= 900);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 900px)');
+    const change = () => setSmallScreen(media.matches);
+    media.addEventListener('change', change);
+    return () => media.removeEventListener('change', change);
+  }, []);
   const customerGuard = useRef(null),
     drawingGuard = useRef(null);
   const [route, setRoute] = useState(readRoute),
@@ -458,9 +469,9 @@ function Studio({ repository, projectRepository }) {
             navigate({ page: "products" });
           }}
         >
-          <span className="studio-brand-mark">///</span>
+          <span className="studio-brand-mark" aria-hidden="true">a</span>
           <span>
-            ANNORA <small>STUDIO</small>
+            annora <small>Studio</small>
           </span>
         </a>
         <nav className="studio-workspace-nav" aria-label="Studio workspaces">
@@ -766,7 +777,7 @@ function Studio({ repository, projectRepository }) {
                 </Button>
               </div>
             </div>
-            <div className="studio-editor-layout">
+            <div className="studio-editor-layout" data-mobile-view={mobileModel ? 'model' : 'fields'}>
               <aside className="studio-sidebar">
                 <nav aria-label="Product editing sections">
                   {sections.map((section, index) => (
@@ -798,9 +809,14 @@ function Studio({ repository, projectRepository }) {
                   <code title={draft.modelRevision}>
                     {draft.modelRevision.slice(0, 20)}…
                   </code>
-                  <p>The shared Explorer and model geometry stay unchanged.</p>
+                  <p>Product details and documents stay linked to this model version.</p>
                 </div>
               </aside>
+              <div className="studio-mobile-editor-tabs" aria-label="Editor view">
+                <button type="button" aria-pressed={!mobileModel} onClick={() => setMobileModel(false)}>Edit details</button>
+                <button type="button" aria-pressed={mobileModel} onClick={() => setMobileModel(true)}>Product model</button>
+              </div>
+              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} visible={!smallScreen || mobileModel} onEdit={() => { setMobileModel(false); navigate({page:'edit', section:'parts'}); }}/>
               <div className="studio-editor-body">
                 <fieldset
                   className="studio-editor-fields"
@@ -814,6 +830,9 @@ function Studio({ repository, projectRepository }) {
                       draft={draft}
                       change={change}
                       busy={Boolean(busy)}
+                      selectedPartId={selectedPartId}
+                      onSelectPart={setSelectedPartId}
+                      onOpenModel={() => { setMobileModel(true); document.getElementById('studio-model-stage')?.scrollIntoView({block:'nearest'}); }}
                     />
                   )}
                   {editSection === "presentation" && (

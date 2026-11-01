@@ -127,7 +127,7 @@ export function ProductFields({ draft, change }) {
     <>
       <Section
         eyebrow="01 / PRODUCT INFORMATION"
-        title="Give the product a clear introduction."
+        title="Product information"
         description="These details become the overview your customers read before starting an inquiry."
       >
         <div className="studio-product-top">
@@ -252,10 +252,12 @@ export function ProductFields({ draft, change }) {
   );
 }
 
-export function PartsFields({ draft, change, busy }) {
-  const [selectedId, setSelectedId] = useState("rod"),
+export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart, onOpenModel }) {
+  const [localSelectedId, setLocalSelectedId] = useState("rod"),
     [picker, setPicker] = useState(false),
     [assetId, setAssetId] = useState(STUDIO_ASSETS[0]?.id || "");
+  const selectedId = selectedPartId || localSelectedId;
+  const setSelectedId = onSelectPart || setLocalSelectedId;
   const content = draft.content;
   const selectedPart = STUDIO_PARTS.find((part) => part.id === selectedId);
   const binding = (content.partContent || []).find(
@@ -314,20 +316,20 @@ export function PartsFields({ draft, change, busy }) {
     <>
       <Section
         eyebrow="02 / PARTS & DOCUMENTS"
-        title="Put the right information beside each part."
+        title="Parts & documents"
         description="Select an existing component, add a customer-facing explanation, and connect the documents that support it."
         actions={
           <Button
             variant="secondary"
             disabled={busy}
-            onClick={() => setPicker((value) => !value)}
+            onClick={() => onOpenModel ? onOpenModel() : setPicker((value) => !value)}
             icon={picker ? "close" : "external"}
           >
-            {picker ? "Close 3D picker" : "Open 3D picker"}
+            {onOpenModel ? "View in 3D" : picker ? "Close 3D picker" : "Open 3D picker"}
           </Button>
         }
       >
-        {picker && (
+        {picker && !onOpenModel && (
           <PartViewer
             selectedLabel={selectedPart?.title || "Whole assembly"}
             onEdit={() => {
@@ -535,7 +537,7 @@ export function PresentationFields({ draft, change }) {
     <>
       <Section
         eyebrow="03 / PRESENTATION"
-        title="Choose how the product opens."
+        title="Presentation"
         description="Keep the existing Explorer controls and motion. These settings choose its starting view and the explanations linked from the Room."
       >
         <div className="studio-presentation-default">
@@ -646,7 +648,7 @@ export function InquiryFields({ draft, change }) {
     <>
       <Section
         eyebrow="04 / INQUIRY SETUP"
-        title="Ask for what moves the conversation forward."
+        title="Inquiry setup"
         description="Configure the existing inquiry fields. Their wording follows the customer from filling in the form to reviewing the saved request."
       >
         <div className="studio-inquiry-path">

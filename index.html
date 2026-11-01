@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#1b1b1b">
+  <meta name="theme-color" content="#f3f3f1">
   <meta name="description" content="Explore prepared mechanical assemblies, their components and authored motion.">
   <title>Assembly Explorer</title>
   <link rel="stylesheet" href="./src/explorer/styles.css">
+  <link rel="stylesheet" href="./src/explorer/workspace-layout.css">
 </head>
 <body data-mode="explore">
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -59,14 +60,16 @@
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span><span id="brand-name">ANNORA</span><span class="brand-divider">/</span><span id="brand-product" class="brand-product">EXPLORER</span></span>
       </a>
-      <span class="header-subject">INTERACTIVE ASSEMBLIES</span>
+      <div class="header-product-picker">
+        <label class="model-select-label" for="model-select"><svg aria-hidden="true"><use href="#i-cube"/></svg><span class="sr-only">Choose assembly</span></label>
+        <select id="model-select" aria-label="Choose assembly"><option>Loading assembly…</option></select>
+      </div>
+      <span class="header-subject">Interactive assemblies</span>
     </header>
 
     <div class="stage-heading floating-panel">
       <div class="model-context">
-        <button class="icon-button mobile-only" id="toggle-tree" type="button" aria-label="Open assembly index" aria-expanded="false" aria-controls="assembly-panel"><svg><use href="#i-layers"/></svg><span class="assembly-toggle-label">Assembly</span></button>
-        <label class="model-select-label" for="model-select"><svg aria-hidden="true"><use href="#i-cube"/></svg><span class="sr-only">Choose assembly</span></label>
-        <select id="model-select" aria-label="Choose assembly"><option>Loading assembly…</option></select>
+        <button class="icon-button mobile-only" id="toggle-tree" type="button" aria-label="Open assembly index" aria-expanded="false" aria-controls="assembly-panel"><svg><use href="#i-layers"/></svg><span class="assembly-toggle-label">Parts</span></button>
         <button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset camera view" title="Reset view"><svg><use href="#i-reset"/></svg></button>
       </div>
       <div class="scope-context"><span class="scope-label">Viewing</span><button class="icon-button" id="back-scope" type="button" aria-label="Back to parent assembly" title="Back to parent assembly" hidden><svg><use href="#i-back"/></svg></button><nav class="breadcrumbs" id="breadcrumbs" aria-label="Current viewing path"><span>Assembly</span></nav></div>
@@ -81,9 +84,36 @@
       </section>
     </div>
 
+      <div class="view-appearance-control">
+          <button id="display-trigger" class="display-trigger" type="button" aria-expanded="false" aria-controls="display-panel"><svg aria-hidden="true"><use href="#i-appearance"/></svg><span id="display-current">Engineering</span><svg class="display-chevron" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <section id="display-panel" class="display-panel floating-panel" role="dialog" aria-label="Display settings" hidden>
+          <div class="panel-heading"><h2 class="eyebrow">Display settings</h2><button id="display-close" class="icon-button" type="button" aria-label="Close display settings"><svg><use href="#i-close"/></svg></button></div>
+          <div class="display-camera"><span>Camera view</span>
+            <div class="view-controls" role="group" aria-label="Camera views">
+              <button type="button" id="view-front" aria-pressed="true">Interior</button>
+              <button type="button" id="view-rear" aria-pressed="false">Exterior</button>
+            </div>
+          </div>
+          <div id="display-options" class="display-options" role="group" aria-label="Rendering styles"></div>
+          <p id="display-legend" class="display-legend" role="status"></p>
+          <div id="display-engineering" class="display-settings">
+            <label><span>Contact shadows</span><input id="display-ambientOcclusion" type="checkbox" checked></label>
+            <label><span>Reference grid</span><input id="display-grid" type="checkbox"></label>
+            <p>Uses the current performance setting.</p>
+          </div>
+          <div id="display-linework" class="display-settings" hidden>
+            <label><span>Internal feature lines</span><input id="display-featureEdges" type="checkbox" checked></label>
+            <label><span>Selected part · Hidden edges</span><input id="display-hiddenEdges" type="checkbox"></label>
+            <label><span>Line weight</span><select id="display-lineWeight"><option value="fine">Fine</option><option value="standard" selected>Standard</option><option value="bold">Bold</option></select></label>
+            <p>Hidden edges are dashed. They appear only on the selected part.</p>
+          </div>
+          <div class="display-footer"><span>View preferences</span><button id="display-reset" type="button">Reset</button></div>
+        </section>
+      </div>
+
       <div class="assembly-region">
       <aside class="assembly-panel floating-panel" id="assembly-panel" aria-label="Assembly navigation">
-        <div class="panel-heading"><span class="eyebrow">Assembly index</span><div class="tree-tools"><button class="icon-button" id="reveal-selection" type="button" aria-label="Locate selected item" title="Locate selected item" disabled><svg><use href="#i-focus"/></svg></button><button class="icon-button" id="collapse-tree" type="button" aria-label="Collapse branches" title="Collapse branches" disabled><svg><use href="#i-collapse"/></svg></button><button class="icon-button mobile-only" id="close-tree" type="button" aria-label="Close assembly index"><svg><use href="#i-close"/></svg></button></div></div>
+        <div class="panel-heading"><span class="eyebrow">Parts & assemblies</span><div class="tree-tools"><button class="icon-button" id="reveal-selection" type="button" aria-label="Locate selected item" title="Locate selected item" disabled><svg><use href="#i-focus"/></svg></button><button class="icon-button" id="collapse-tree" type="button" aria-label="Collapse branches" title="Collapse branches" disabled><svg><use href="#i-collapse"/></svg></button><button class="icon-button mobile-only" id="close-tree" type="button" aria-label="Close assembly index"><svg><use href="#i-close"/></svg></button></div></div>
         <div class="tree-search"><svg aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="assembly-search">Search parts and assemblies</label><input id="assembly-search" type="search" placeholder="Find a part…" autocomplete="off" spellcheck="false" disabled><button class="icon-button" id="clear-search" type="button" aria-label="Clear search" title="Clear search" hidden><svg><use href="#i-close"/></svg></button></div>
         <p class="tree-search-status" id="tree-search-status" role="status" hidden></p>
         <nav id="component-tree" aria-label="Parts and assemblies"></nav>
@@ -123,32 +153,10 @@
             <button id="mode-operate" type="button" aria-pressed="false" disabled aria-describedby="operation-availability">Operate</button>
           </div>
           <span class="tool-divider" aria-hidden="true"></span>
-          <span class="dock-label">View</span><div class="view-controls" role="group" aria-label="Camera views">
-            <button type="button" id="view-front" aria-pressed="true">Interior</button>
-            <button type="button" id="view-rear" aria-pressed="false">Exterior</button>
-          </div>
           <span class="tool-divider orientation-divider" aria-hidden="true"></span>
           <label hidden class="sr-only" for="render-mode">Rendering style</label>
           <select hidden class="render-mode" id="render-mode" aria-label="Rendering style"><option value="engineering">Engineering</option><option value="linework">Linework</option><option value="flat" id="render-flat">Flat Ember</option></select>
-          <button id="display-trigger" class="display-trigger" type="button" aria-expanded="false" aria-controls="display-panel"><svg aria-hidden="true"><use href="#i-appearance"/></svg><span id="display-current">Engineering</span><svg class="display-chevron" aria-hidden="true"><use href="#i-chevron"/></svg></button>
         </div>
-        <section id="display-panel" class="display-panel floating-panel" role="dialog" aria-label="Display settings" hidden>
-          <div class="panel-heading"><h2 class="eyebrow">Display settings</h2><button id="display-close" class="icon-button" type="button" aria-label="Close display settings"><svg><use href="#i-close"/></svg></button></div>
-          <div id="display-options" class="display-options" role="group" aria-label="Rendering styles"></div>
-          <p id="display-legend" class="display-legend" role="status"></p>
-          <div id="display-engineering" class="display-settings">
-            <label><span>Contact shadows</span><input id="display-ambientOcclusion" type="checkbox" checked></label>
-            <label><span>Reference grid</span><input id="display-grid" type="checkbox"></label>
-            <p>Uses the current performance setting.</p>
-          </div>
-          <div id="display-linework" class="display-settings" hidden>
-            <label><span>Internal feature lines</span><input id="display-featureEdges" type="checkbox" checked></label>
-            <label><span>Selected part · Hidden edges</span><input id="display-hiddenEdges" type="checkbox"></label>
-            <label><span>Line weight</span><select id="display-lineWeight"><option value="fine">Fine</option><option value="standard" selected>Standard</option><option value="bold">Bold</option></select></label>
-            <p>Hidden edges are dashed. They appear only on the selected part.</p>
-          </div>
-          <div class="display-footer"><span>View preferences</span><button id="display-reset" type="button">Reset</button></div>
-        </section>
         <p id="operation-availability" class="operation-availability">This package contains a structural model without operating motion.</p>
         <div class="explosion-control" id="explode-controls" hidden>
           <button type="button" class="tool-button" id="explode-toggle" aria-pressed="false"><svg><use href="#i-expand"/></svg><span>Separate</span></button>
