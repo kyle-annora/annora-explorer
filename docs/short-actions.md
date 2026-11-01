@@ -68,8 +68,10 @@ explain the assembly; they are not a documented service/disassembly procedure.
   whole-to-latch scope transitions, manual operation and separation, pause/replay/
   scrub, final free exploration, and independent iframe-host control.
 - Desktop 1280×720, portrait 390×844 and landscape 844×390 checked. Controls remain
-  reachable; mobile tour layouts have no horizontal overflow. No runtime error or
-  warning was reported during the reviewed flows.
+  reachable; mobile tour layouts have no horizontal overflow. Standalone Explorer
+  review reported no runtime error or warning. The host tab recorded one unlocalized
+  MutationObserver error during navigation; its model loading, three-step playback,
+  chapter advancement and final return to exploration still completed successfully.
 - Built `dist/` served under `/annora-explorer/`, including `/examples/embed/`, to
   exercise the same relative asset paths used by GitHub Pages.
 - A held Apollo frame counter stayed at 921 across separate observations, confirming
