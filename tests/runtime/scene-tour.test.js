@@ -27,6 +27,37 @@ function settle(scene){for(let i=0;i<200&&scene.transformTransition;i++)scene.st
 function matrices(scene){return [...scene.meshes].map(([name,mesh])=>{mesh.updateMatrix();return [name,mesh.matrix.toArray()];});}
 function nearArray(actual,expected){assert.equal(actual.length,expected.length);actual.forEach((value,index)=>assert.ok(Math.abs(value-expected[index])<1e-7,`${value} != ${expected[index]}`));}
 
+test('overlay and viewport refits keep the last explicitly framed component instead of the whole scope',()=>{
+  const scene=fixture();scene.ready=true;
+  let insets={right:220};scene.callbacks.insets=()=>insets;
+  const part=scene.meshes.get('A');scene.fitMeshes([part],false);
+  const target=scene.controls.target.toArray();
+  insets={right:320};scene.refitLayout(false);
+  assert.deepEqual(scene.framingMeshes(),[part]);nearArray(scene.controls.target.toArray(),target);
+  scene.mount.clientWidth=390;scene.mount.clientHeight=844;insets={top:112,bottom:256};scene.refitLayout(false);
+  assert.deepEqual(scene.framedSubject.meshNames,['A']);nearArray(scene.controls.target.toArray(),target);
+  const camera=scene.cameraMotion;scene.refitLayout(false);assert.equal(scene.cameraMotion,camera,'An unchanged overlay does not restart the camera');
+});
+
+test('a changed scope never reuses a hidden framing subject and an in-flight layout refit does not jump',()=>{
+  const scene=fixture();scene.ready=true;let insets={right:100};scene.callbacks.insets=()=>insets;
+  scene.fitMeshes([scene.meshes.get('A')],true);scene.cameraMotion.step(.08);scene.applyCamera();
+  const displayed=[...scene.cameraMotion.values];insets={right:200};scene.refitLayout(true);
+  nearArray(scene.cameraMotion.values,displayed);
+  scene.scopeId='frame';scene.active=[scene.meshes.get('B')];insets={right:250};scene.refitLayout(false);
+  assert.deepEqual(scene.framedSubject,{scopeId:'frame',meshNames:['B']});
+});
+
+test('leaving a tour restores the framed subject even if mobile panels changed during playback',async()=>{
+  const scene=fixture();scene.ready=true;let insets={right:100};scene.callbacks.insets=()=>insets;
+  scene.fitMeshes([scene.meshes.get('A')],false);const snapshot=scene.capturePresentation();
+  scene.applyTourFrame(shot({scopeId:'frame',selectedId:'frame'}),{immediate:true});
+  insets={top:112,bottom:260};scene.mount.clientWidth=390;scene.mount.clientHeight=844;
+  assert.equal(await scene.restorePresentation(snapshot,{animate:false}),true);
+  assert.deepEqual(scene.framedSubject,{scopeId:'root',meshNames:['A']});
+  assert.equal(scene.operationPlayer.playing,false);
+});
+
 const shot=(overrides={})=>({key:'assembly',scopeId:'root',selectedId:'root',highlightIds:[],technical:false,explosion:0,operationProgress:null,camera:{focusId:'root',direction:[.3,.2,1],scale:1.1},...overrides});
 
 test('source sampling, exploded poses and linework remain deterministic across seeking',()=>{

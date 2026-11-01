@@ -681,4 +681,50 @@ export const MODEL_CATALOG = freeze({
 "silhouetteMetadataUrl": new URL("../../content/models/linkrods/silhouette-metadata.json", import.meta.url),
 "licenseUrl": new URL("../../content/models/linkrods/LICENSE.txt", import.meta.url)
 },
+"sk08": {
+  "id": "sk08",
+  "packageId": "sk08",
+  "rootId": "sk08",
+  "title": "SK08 shaft support reference",
+  "shortTitle": "Shaft support",
+  "capabilities": {
+    "operation": false,
+    "renderStyles": [
+      "engineering",
+      "linework",
+      "flat"
+    ]
+  },
+  "operationClipId": null,
+  "presentationPolicy": {},
+  "tour": null,
+  "defaultDirection": [
+    1.4,
+    1,
+    2.6
+  ],
+  "normalizeWidth": 4.4,
+  "viewLabels": [
+    "Isometric",
+    "Reverse"
+  ],
+  "facts": [],
+  "attribution": "SK08 shaft support by hasecilu, FreeCAD parts library, CC BY 3.0. Published reference drawing: pzfreo/dw-examples, draftwright v0.2.5. Annora prepared the display mesh and enlarged reference sheet.",
+  "sourceUrl": "https://github.com/pzfreo/dw-examples/tree/c4c72a71c6440f0c824678660b59d0474f105e71",
+  "sourceLabel": "View model source",
+  "sourceDescription": "A single rigid shaft-support body from the FreeCAD parts library, paired with a drawing generated from the identical pinned STEP source.",
+  "sourceNote": "Reference only: unreviewed automatic drawing, missing general tolerance and some chamfer annotations. No manufacturer approval or revision supplied. Display finish is illustrative. Source coordinates are millimeters; display coordinates are meters, Y up. No operating animation or fabricated assembly parts.",
+  "revision": "sha256:c1f912af43ddac4ad27f2ff99c05ed1ffa3f8bc4e7057309eca6c1194912949a"
+,
+"modelUrl": new URL("../../content/models/sk08/model.glb", import.meta.url),
+"compressedUrl": new URL("../../content/models/sk08/model.glb.gz", import.meta.url),
+"metadataUrl": new URL("../../content/models/sk08/metadata.json", import.meta.url),
+"edgesUrl": new URL("../../content/models/sk08/edges.bin", import.meta.url),
+"compressedEdgesUrl": new URL("../../content/models/sk08/edges.bin.gz", import.meta.url),
+"edgeMetadataUrl": new URL("../../content/models/sk08/edge-metadata.json", import.meta.url),
+"silhouettesUrl": new URL("../../content/models/sk08/silhouettes.bin", import.meta.url),
+"compressedSilhouettesUrl": new URL("../../content/models/sk08/silhouettes.bin.gz", import.meta.url),
+"silhouetteMetadataUrl": new URL("../../content/models/sk08/silhouette-metadata.json", import.meta.url),
+"licenseUrl": new URL("../../content/models/sk08/LICENSE.txt", import.meta.url)
+},
 });

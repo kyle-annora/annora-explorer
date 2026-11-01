@@ -37,6 +37,9 @@ export const readRoute = (hash = location.hash) => {
   const route = {
     page: [
       "products",
+      "drawings",
+      "drawing-projects",
+      "drawing-project",
       "edit",
       "preview",
       "release",
@@ -48,7 +51,9 @@ export const readRoute = (hash = location.hash) => {
     section: sections.some((s) => s.id === section) ? section : "product",
     id: params.get("id") || "",
   };
-  if (route.page === "project") {
+  if (route.page === "drawings" && params.get("product"))
+    route.product = params.get("product");
+  if (["project", "drawing-project"].includes(route.page)) {
     route.tab = customerTabs.includes(params.get("tab"))
       ? params.get("tab")
       : "inquiry";
@@ -63,7 +68,8 @@ export const readRoute = (hash = location.hash) => {
 export const routeHash = (route) => {
   const query = new URLSearchParams();
   if (route.id) query.set("id", route.id);
-  if (route.page === "project") {
+  if (route.product) query.set("product", route.product);
+  if (["project", "drawing-project"].includes(route.page)) {
     if (customerTabs.includes(route.tab)) query.set("tab", route.tab);
     if (customerModes.includes(route.mode) && route.mode !== "detail")
       query.set("mode", route.mode);

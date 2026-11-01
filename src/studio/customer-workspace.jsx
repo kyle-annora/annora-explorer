@@ -16,6 +16,7 @@ import {
   pendingClarification,
   quoteDraftErrors,
   quoteDraftPreview,
+  quoteProductTitle,
   reviewAcknowledgement,
   reviewQuote,
   reviewReply,
@@ -62,6 +63,9 @@ export function CustomerWorkspace({
   onNavigate,
   onGo,
   guardRef,
+  buyerHref = buyerURL,
+  buyerHomeHref = "../product-room/?model=kinetic-01#inquiry",
+  sampleContext = null,
 }) {
   const [projects, setProjects] = useState([]),
     [project, setProject] = useState(null),
@@ -120,7 +124,7 @@ export function CustomerWorkspace({
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
   const walkthrough = readWalkthroughSession();
   const workKey = (id) =>
-    `annora.seller.work.${walkthrough || "default"}.${id}`;
+    `annora.seller.work.${repository.mode === "drawing-preview" ? "drawing-preview" : walkthrough || "default"}.${id}`;
   function moveView(patch, replace = false) {
     const current = currentRef.current;
     const next = {
@@ -580,7 +584,7 @@ export function CustomerWorkspace({
             quantity,
             proposedLeadTime: "6–8 weeks after technical review",
             lineItems: [
-              { id: "assembly", label: "Illustrative crank-slider assembly", quantity, unitPrice: Number(quantity) >= 30 ? "175" : "185" },
+              { id: "assembly", label: `${quoteProductTitle(fresh)} - illustrative allowance`, quantity, unitPrice: Number(quantity) >= 30 ? "175" : "185" },
               { id: "setup", label: "Example setup allowance", quantity: "1", unitPrice: "250" },
               { id: "freight", label: "Freight and applicable tax", quantity: "1", unitPrice: "" },
             ],
@@ -661,6 +665,12 @@ export function CustomerWorkspace({
   });
   function sample() {
     task("sample", async () => {
+      if (repository.mode === "drawing-preview" && !sampleContext) return;
+      if (sampleContext) {
+        const result = await repository.createSampleInquiry(sampleContext);
+        onGo({ page: "project", id: result.id });
+        return;
+      }
       const release = walkthrough
         ? BUNDLED_RELEASE
         : await productRepository.getPublished("kinetic-01");
@@ -768,7 +778,7 @@ export function CustomerWorkspace({
                 moving.
               </p>
             </div>
-            <Button
+            {(repository.mode !== "drawing-preview" || sampleContext) && <Button
               variant="secondary"
               pending={busy === "sample"}
               disabled={Boolean(busy)}
@@ -776,7 +786,7 @@ export function CustomerWorkspace({
               icon="plus"
             >
               Open sample inquiry
-            </Button>
+            </Button>}
           </div>
           <div className="customer-list-toolbar">
             <div
@@ -829,12 +839,12 @@ export function CustomerWorkspace({
                     walkthrough
                       ? withWalkthroughSession(
                           new URL(
-                            "../product-room/?model=kinetic-01#inquiry",
+                            buyerHomeHref,
                             location.href,
                           ),
                           walkthrough,
                         ).href
-                      : "../product-room/?model=kinetic-01#inquiry"
+                      : buyerHomeHref
                   }
                 >
                   Open buyer inquiry
@@ -931,11 +941,11 @@ export function CustomerWorkspace({
               </div>
             </div>
             <SmallLink
-              href={buyerURL(project)}
+              href={buyerHref(project)}
               onClick={(event) => {
                 if (dirtyRef.current || busyRef.current) {
                   event.preventDefault();
-                  localGo(() => location.assign(buyerURL(project)));
+                  localGo(() => location.assign(buyerHref(project)));
                 }
               }}
             >
@@ -1073,6 +1083,8 @@ export function CustomerWorkspace({
                           )}
                           <QuoteSummary
                             quote={quote}
+                            productTitle={quoteProductTitle(project)}
+                            drawing={project.context.drawing}
                             previous={project.quotes.find(
                               (q) => q.version === quote.version - 1,
                             )}
@@ -1127,7 +1139,7 @@ export function CustomerWorkspace({
                   </div>
                 </div>
                 <aside>
-                  <ProductReference project={project} />
+                  <ProductReference project={project} buyerHref={buyerHref} />
                 </aside>
               </div>
             </>
@@ -1198,7 +1210,7 @@ export function CustomerWorkspace({
                             lineItems: [
                               {
                                 id: "assembly",
-                                label: "Illustrative crank-slider assembly",
+                                label: `${quoteProductTitle(project)} - illustrative allowance`,
                                 quantity: d.values.quantity,
                                 unitPrice:
                                   Number(d.values.quantity) >= 30
@@ -1445,7 +1457,7 @@ export function CustomerWorkspace({
                   Version {project.quotes.length + 1} · {customerName(project)}
                 </p>
               </div>
-              <QuoteSummary quote={preview} previous={project.quotes.at(-1)} />
+              <QuoteSummary quote={preview} previous={project.quotes.at(-1)} productTitle={quoteProductTitle(project)} drawing={project.context.drawing} />
               {response && <ResponseSummary value={response} />}
               <div className="customer-confirmation">
                 <Notice title="Ready to make this version visible?">

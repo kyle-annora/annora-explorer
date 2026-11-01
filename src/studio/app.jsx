@@ -40,8 +40,69 @@ import {
   walkthroughStorageKey,
 } from "../walkthrough/session.js";
 
+import { DrawingWorkspace } from "./drawing-workspace.jsx";
+import { DRAWING_CATALOG } from "../drawings/catalog.js";
+import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.js";
+import { createDrawingContext } from "../drawing-preview/context.js";
+
+const drawingProjects = createDrawingProjectRepository();
+const editableDrawingPackages = DRAWING_CATALOG.filter(
+  (entry) =>
+    entry.model?.revision &&
+    entry.package.modelRevision === entry.model.revision,
+);
+const drawingSample = DRAWING_CATALOG.filter(
+  (entry) => entry.available,
+).flatMap((entry) =>
+  entry.package.sheets.flatMap((sheet) =>
+    sheet.regions
+      .filter((region) => region.mappingStatus === "confirmed")
+      .map((region) => ({ entry, sheet, region })),
+  ),
+)[0];
+const drawingSampleEntry = drawingSample?.entry;
+const drawingSampleContext = drawingSample
+  ? createDrawingContext({
+      drawing: drawingSample.entry.package,
+      sheetId: drawingSample.sheet.id,
+      regionId: drawingSample.region.id,
+      modelRevision: drawingSample.entry.model.revision,
+      model: drawingSample.entry.model,
+    })
+  : null;
+const drawingBuyerHref = (project, explore = false) => {
+  const url = new URL("../drawing-preview/", location.href),
+    ref = project?.context.drawing;
+  url.searchParams.set(
+    "product",
+    project?.context.modelId || drawingSampleEntry?.id || "",
+  );
+  if (ref) {
+    url.searchParams.set("drawing", ref.revision);
+    url.searchParams.set("sheet", ref.sheetId);
+    url.searchParams.set("detail", ref.regionId);
+    if (ref.mappingRevision)
+      url.searchParams.set("mapping", ref.mappingRevision);
+  }
+  url.hash = explore
+    ? "explore"
+    : `project&project=${encodeURIComponent(project.id)}`;
+  return url.href;
+};
+const drawingPreviewURL = (record) => {
+  const url = new URL("../drawing-preview/", location.href);
+  url.searchParams.set("product", record.productId);
+  url.searchParams.set(
+    record.source === "preview" ? "drawingPreview" : "drawingRelease",
+    record.id,
+  );
+  url.searchParams.set("view", "compare");
+  return url.href;
+};
+
 function Studio({ repository, projectRepository }) {
-  const customerGuard = useRef(null);
+  const customerGuard = useRef(null),
+    drawingGuard = useRef(null);
   const [route, setRoute] = useState(readRoute),
     [products, setProducts] = useState([]),
     [draft, setDraft] = useState(null),
@@ -105,7 +166,9 @@ function Studio({ repository, projectRepository }) {
       window.scrollTo({ top: 0, behavior: "instant" });
     });
   }
-  function navigate(next) {
+  async function navigate(next) {
+    if (drawingGuard.current && !(await drawingGuard.current.beforeLeave()))
+      return;
     if (customerGuard.current?.(next)) return;
     if (busyRef.current) return;
     if (
@@ -267,8 +330,12 @@ function Studio({ repository, projectRepository }) {
         event.returnValue = "";
       }
     };
-    const back = () => {
+    const back = async () => {
       const next = readRoute();
+      if (drawingGuard.current && !(await drawingGuard.current.beforeLeave())) {
+        history.replaceState({}, "", routeHash(routeRef.current));
+        return;
+      }
       if (customerGuard.current?.(next)) {
         history.replaceState({}, "", routeHash(routeRef.current));
         return;
@@ -340,7 +407,32 @@ function Studio({ repository, projectRepository }) {
   const openEdit = (section) =>
     navigate({ page: "edit", section: issueSection(section) });
   const screen = route.page;
-  const customerScreen = ["projects", "project"].includes(screen);
+  const drawingCustomer = ["drawing-projects", "drawing-project"].includes(
+    screen,
+  );
+  const customerScreen =
+    ["projects", "project"].includes(screen) || drawingCustomer;
+  const drawingScreen = screen === "drawings";
+  const drawingNavigate = (next) =>
+    navigate({
+      ...next,
+      page:
+        next.page === "project"
+          ? "drawing-project"
+          : next.page === "projects"
+            ? "drawing-projects"
+            : next.page,
+    });
+  const drawingGo = (next) =>
+    go({
+      ...next,
+      page:
+        next.page === "project"
+          ? "drawing-project"
+          : next.page === "projects"
+            ? "drawing-projects"
+            : next.page,
+    });
   return (
     <div className="room-ui studio-app">
       <a className="studio-skip" href="#studio-main">
@@ -363,13 +455,25 @@ function Studio({ repository, projectRepository }) {
         <nav className="studio-workspace-nav" aria-label="Studio workspaces">
           <a
             href="#products"
-            aria-current={!customerScreen ? "page" : undefined}
+            aria-current={
+              !customerScreen && !drawingScreen ? "page" : undefined
+            }
             onClick={(event) => {
               event.preventDefault();
               navigate({ page: "products" });
             }}
           >
             Products
+          </a>
+          <a
+            href="#drawings"
+            aria-current={drawingScreen ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate({ page: "drawings" });
+            }}
+          >
+            Drawings
           </a>
           <a
             href="#projects"
@@ -398,7 +502,7 @@ function Studio({ repository, projectRepository }) {
         id="studio-main"
         className={`studio-main studio-screen-${screen}`}
       >
-        {error && !customerScreen && (
+        {error && !customerScreen && !drawingScreen && (
           <div className="studio-feedback" ref={errorRef} tabIndex="-1">
             <Notice kind="error" title="We could not complete that action.">
               {error}
@@ -408,18 +512,18 @@ function Studio({ repository, projectRepository }) {
             )}
           </div>
         )}
-        {message && !customerScreen && (
+        {message && !customerScreen && !drawingScreen && (
           <div className="studio-feedback" role="status">
             <Notice kind="success">{message}</Notice>
           </div>
         )}
-        {busy === "loading" && !customerScreen && (
+        {busy === "loading" && !customerScreen && !drawingScreen && (
           <div className="studio-loading" role="status">
             <span className="ar-spinner" />
             <p>Opening your product workspace…</p>
           </div>
         )}
-        {!draft && busy !== "loading" && !customerScreen && (
+        {!draft && busy !== "loading" && !customerScreen && !drawingScreen && (
           <div className="studio-loading">
             <p>
               Your product workspace could not be opened. Existing customer
@@ -428,7 +532,63 @@ function Studio({ repository, projectRepository }) {
             <Button onClick={() => location.reload()}>Try again</Button>
           </div>
         )}
+        {drawingScreen && !editableDrawingPackages.length && (
+          <Notice title="No prepared drawing packages">
+            Add a paired drawing package for a configured model to enable
+            association editing.
+          </Notice>
+        )}
+        {drawingScreen && editableDrawingPackages.length > 0 && (
+          <DrawingWorkspace
+            ref={drawingGuard}
+            packages={editableDrawingPackages}
+            initialPackageId={route.product}
+            onPackageChange={(product) =>
+              go({ page: "drawings", product }, true)
+            }
+            onPreview={(record) =>
+              go({ externalURL: drawingPreviewURL(record) })
+            }
+            onBack={() => navigate({ page: "products" })}
+          />
+        )}
         {customerScreen && (
+          <nav
+            className="studio-project-source"
+            aria-label="Customer project source"
+          >
+            <Button
+              variant={drawingCustomer ? "quiet" : "secondary"}
+              onClick={() => navigate({ page: "projects" })}
+            >
+              Product Room projects
+            </Button>
+            <Button
+              variant={drawingCustomer ? "secondary" : "quiet"}
+              onClick={() => navigate({ page: "drawing-projects" })}
+            >
+              Drawing inquiries
+            </Button>
+          </nav>
+        )}
+        {drawingCustomer && (
+          <CustomerWorkspace
+            key="drawing-projects"
+            repository={drawingProjects}
+            productRepository={repository}
+            route={{
+              ...route,
+              page: screen === "drawing-project" ? "project" : "projects",
+            }}
+            onNavigate={drawingNavigate}
+            onGo={drawingGo}
+            guardRef={customerGuard}
+            buyerHref={drawingBuyerHref}
+            buyerHomeHref="../drawing-preview/"
+            sampleContext={drawingSampleContext}
+          />
+        )}
+        {customerScreen && !drawingCustomer && (
           <CustomerWorkspace
             repository={projectRepository}
             productRepository={repository}

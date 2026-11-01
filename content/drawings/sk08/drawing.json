@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "id": "freecad-sk08-drawing",
+  "modelId": "sk08",
+  "title": "SK08 shaft support - source reference",
+  "number": "FC-SK08",
+  "revision": "annora-reference-1",
+  "revisionLabel": "Source c4c72a71 / reference edition 1",
+  "manufacturerRevision": null,
+  "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+  "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+  "units": "mm",
+  "status": "unreviewed-reference",
+  "statusLabel": "Reference drawing - unreviewed",
+  "statusNote": "Source page is automatic draftwright output. No manufacturer revision or approval is supplied. General tolerance and some chamfer annotations are missing. Page 2 only enlarges the same source views and adds no requirements.",
+  "stepFile": "sk08.step",
+  "stepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+  "pdfFile": "reference.pdf",
+  "originalPdfFile": "source.pdf",
+  "reviewFile": "source-review.json",
+  "sheets": [
+    {
+      "id": "sheet-1",
+      "title": "Original source drawing",
+      "svgFile": "sheet-1.svg",
+      "pdfPage": 1,
+      "viewBox": [
+        0,
+        0,
+        841.8898,
+        595.2756
+      ],
+      "regions": [
+        {
+          "id": "overview",
+          "label": "Support body overview",
+          "partId": "sk08-body",
+          "bounds": [
+            599,
+            110,
+            165,
+            180
+          ],
+          "mappingStatus": "confirmed",
+          "role": "overview",
+          "note": "One original solid, STEP #15. Isometric source view is marked NTS.",
+          "focusPoint": [
+            0.021,
+            0.0164,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.0164,
+              0.007
+            ],
+            "direction": [
+              1.4,
+              1,
+              2.6
+            ],
+            "halfSize": [
+              0.021,
+              0.0164,
+              0.007
+            ]
+          }
+        },
+        {
+          "id": "shaft-bore",
+          "label": "Shaft bore",
+          "partId": "sk08-body",
+          "bounds": [
+            162,
+            386,
+            32,
+            30
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Source cylinder #427 has radius 4 mm and axis through (21, -14, 20) mm. This is a feature of the same body.",
+          "focusPoint": [
+            0.021,
+            0.02,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "halfSize": [
+              0.01,
+              0.01,
+              0.007
+            ]
+          },
+          "dimension": "Diameter 8 mm THRU, as printed"
+        },
+        {
+          "id": "mounting-holes",
+          "label": "Mounting holes",
+          "partId": "sk08-body",
+          "bounds": [
+            116,
+            155,
+            125,
+            46
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Source cylinders #1079 and #1109 identify the two base holes. No tolerance is supplied.",
+          "focusPoint": [
+            0.021,
+            0.003,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.003,
+              0.007
+            ],
+            "direction": [
+              0,
+              1,
+              0
+            ],
+            "halfSize": [
+              0.021,
+              0.008,
+              0.007
+            ]
+          },
+          "dimension": "2 x diameter 5.5 mm THRU, as printed"
+        },
+        {
+          "id": "cross-bore",
+          "label": "Clamp cross-bore",
+          "partId": "sk08-body",
+          "bounds": [
+            376,
+            362,
+            43,
+            35
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Source cylinder #212 has radius 3.5 mm and axis through (12, -7, 27.8) mm. No bolt or clamp motion is present in this single-solid source.",
+          "focusPoint": [
+            0.021,
+            0.0278,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "halfSize": [
+              0.01,
+              0.008,
+              0.007
+            ]
+          },
+          "dimension": "Diameter 7 mm THRU, as printed"
+        }
+      ]
+    },
+    {
+      "id": "sheet-2",
+      "title": "Enlarged source details - reference only",
+      "svgFile": "sheet-2.svg",
+      "pdfPage": 2,
+      "viewBox": [
+        0,
+        0,
+        841.8898,
+        595.2756
+      ],
+      "regions": [
+        {
+          "id": "shaft-bore-detail",
+          "label": "Shaft bore - enlarged",
+          "partId": "sk08-body",
+          "bounds": [
+            200,
+            262,
+            40,
+            38
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Enlarged crop from original page 1. The displayed dimensions are preserved source annotations; this is not a new engineering revision.",
+          "focusPoint": [
+            0.021,
+            0.02,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "direction": [
+              0,
+              0,
+              1
+            ],
+            "halfSize": [
+              0.01,
+              0.01,
+              0.007
+            ]
+          },
+          "dimension": "Diameter 8 mm THRU, as printed"
+        },
+        {
+          "id": "mounting-footprint-detail",
+          "label": "Mounting footprint - enlarged",
+          "partId": "sk08-body",
+          "bounds": [
+            127,
+            338,
+            185,
+            32
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Enlarged front projection of the source base. Feature mapping remains on the same support body.",
+          "focusPoint": [
+            0.021,
+            0.003,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.003,
+              0.007
+            ],
+            "direction": [
+              0,
+              1,
+              0
+            ],
+            "halfSize": [
+              0.021,
+              0.008,
+              0.007
+            ]
+          },
+          "dimension": "Overall width 42 mm, as printed"
+        },
+        {
+          "id": "cross-bore-detail",
+          "label": "Clamp cross-bore - enlarged",
+          "partId": "sk08-body",
+          "bounds": [
+            580,
+            224,
+            43,
+            43
+          ],
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "note": "Enlarged crop of original side projection. Cross-bore belongs to the same rigid CAD solid.",
+          "focusPoint": [
+            0.021,
+            0.0278,
+            0.007
+          ],
+          "camera": {
+            "target": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "halfSize": [
+              0.01,
+              0.008,
+              0.007
+            ]
+          },
+          "dimension": "Diameter 7 mm THRU, as printed"
+        }
+      ]
+    }
+  ]
+}

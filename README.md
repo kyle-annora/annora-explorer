@@ -23,7 +23,7 @@ renderer. This is a static application: no backend, accounts or customer data.
 
 1. Choose **Use this template → Create a new repository** on GitHub. Use a public
    repository for GitHub Pages on a free personal account.
-2. Clone your new repository. Install Node.js **22.12 or newer** and run:
+2. Clone your new repository. Install Node.js **22.13 or newer** and run:
 
    ```sh
    npm ci
@@ -112,6 +112,9 @@ removing those source fixtures also requires updating their tests.
 - [Product Room guide and acceptance walkthrough](docs/product-room.md)
 - [Product Room component catalog](https://kyle-annora.github.io/annora-explorer/product-room/#components) and [component contract](docs/product-room-components.md)
 - [Customer-project repository API](docs/product-room-api.md)
+- [Drawing workflow delivery review](docs/drawing-workflow-review.md)
+- [Drawing package and reader API](docs/drawing-reader-integration.md)
+- [Studio drawing associations](docs/studio-drawing-workspace.md)
 - [Release review and live verification](docs/release-review.md)
 - [Configuration](docs/configuration.md) and [model package contract](docs/models.md)
 - [Host integration](docs/integration.md) and [API reference](docs/api.md)

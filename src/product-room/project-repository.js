@@ -119,6 +119,12 @@ function touch(project, now) { project.revision++; project.updatedAt = now; retu
  */
 export function createDemoProjectRepository(options = {}) {
   const key = options.key || PROJECT_STORAGE_KEY;
+  // Drawing hosts explicitly opt into the reviewed commercial workflow. The
+  // ordinary sample adapter and its records keep their existing product gate.
+  function assertCommercial(project) {
+    if (options.drawingWorkflow === true && project.context.drawing) return;
+    assertSample(project);
+  }
   const now = options.now || (() => new Date().toISOString());
   const makeId = options.makeId || (prefix => `${prefix}-DEMO-${globalThis.crypto.randomUUID().slice(0, 8).toUpperCase()}`);
   const locks = Object.hasOwn(options, 'locks') ? options.locks : globalThis.navigator?.locks;
@@ -182,11 +188,11 @@ export function createDemoProjectRepository(options = {}) {
     async getProject(projectId) { return cloneProjectValue(findProject(read().store, projectId)); },
     async listSellerProjects() { const {store} = read(); return cloneProjectValue(store.projects.map(project => sellerProjection(store,project))).sort((a,b) => b.updatedAt.localeCompare(a.updatedAt)); },
     async getSellerProject(projectId) { const {store} = read(); return cloneProjectValue(sellerProjection(store,findProject(store,projectId))); },
-    async getQuoteDraft(projectId) { const {store} = read(), project = findProject(store,projectId); assertSample(project); return cloneProjectValue(sellerProjection(store,project).quoteDraft || createQuoteDraft(project,makeId('QD'))); },
+    async getQuoteDraft(projectId) { const {store} = read(), project = findProject(store,projectId); assertCommercial(project); return cloneProjectValue(sellerProjection(store,project).quoteDraft || createQuoteDraft(project,makeId('QD'))); },
     async saveQuoteDraft(input) {
       const draft = normalizeQuoteDraft(input);
       return change(store => {
-        const project = findProject(store,draft.projectId); assertSample(project);
+        const project = findProject(store,draft.projectId); assertCommercial(project);
         const previous = store.quoteDrafts.find(item => item.projectId === project.id);
         if (draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('CONFLICT','The customer project changed. Reopen it before saving the quotation draft. Your input is still available.');
         if (previous ? previous.id !== draft.id || previous.revision !== draft.revision : draft.revision !== 0) throw new ProjectError('CONFLICT','This quotation draft changed or was issued in another tab. Reopen the latest draft.');
@@ -199,7 +205,7 @@ export function createDemoProjectRepository(options = {}) {
     async issueQuote(review) {
       const packet = assertReview(review,'issue-quote');
       return change(store => {
-        const project = findProject(store,packet.projectId); assertSample(project);
+        const project = findProject(store,packet.projectId); assertCommercial(project);
         if (project.quotes.some(item => item.reviewToken === review.token)) return sellerProjection(store,project);
         assertProjectRevision(project,packet); reviewQuote(project,packet.draft,packet.reply);
         const saved = store.quoteDrafts.find(item => item.id === packet.draft.id);
@@ -214,7 +220,7 @@ export function createDemoProjectRepository(options = {}) {
     async sendReply(review) {
       const packet = assertReview(review,'seller-reply');
       return change(store => {
-        const project = findProject(store,packet.projectId); assertSample(project);
+        const project = findProject(store,packet.projectId); assertCommercial(project);
         if (project.messages.some(item => item.reviewToken === review.token)) return project;
         assertProjectRevision(project,packet); reviewReply(project,packet.values);
         const message = appendMessage(project,packet.values,review.token); return touch(project,message.createdAt);
@@ -223,7 +229,7 @@ export function createDemoProjectRepository(options = {}) {
     async sendCustomerReply(review) {
       const packet = assertReview(review,'customer-reply');
       return change(store => {
-        const project = findProject(store,packet.projectId); assertSample(project);
+        const project = findProject(store,packet.projectId); assertCommercial(project);
         if (project.messages.some(item => item.reviewToken === review.token)) return project;
         assertProjectRevision(project,packet); reviewCustomerReply(project,packet);
         const message = appendMessage(project,{...packet,kind:'customer-reply'},review.token,'buyer'); return touch(project,message.createdAt);
@@ -232,7 +238,7 @@ export function createDemoProjectRepository(options = {}) {
     async acknowledgeNextStep(review) {
       const packet = assertReview(review,'acknowledge-next-step');
       return change(store => {
-        const project = findProject(store,packet.projectId); assertSample(project);
+        const project = findProject(store,packet.projectId); assertCommercial(project);
         if (project.messages.some(item => item.reviewToken === review.token)) return project;
         assertProjectRevision(project,packet); reviewAcknowledgement(project,packet);
         const message = appendMessage(project,{...packet,kind:'next-step-confirmation'},review.token); return touch(project,message.createdAt);
@@ -240,12 +246,12 @@ export function createDemoProjectRepository(options = {}) {
     },
     async createSampleInquiry(context) {
       return change(store => {
-        const existing = store.projects.find(item => item.demoSeed === 'seller-inbox' && item.context.productId === context.productId && item.context.modelRevision === context.modelRevision && (item.context.roomReleaseId || null) === (context.roomReleaseId || null));
+        const existing = store.projects.find(item => item.demoSeed === 'seller-inbox' && item.context.productId === context.productId && item.context.modelRevision === context.modelRevision && (item.context.roomReleaseId || null) === (context.roomReleaseId || null) && (!context.drawing || projectContextKey(item.context) === projectContextKey(context)));
         if (existing) return sellerProjection(store,existing);
         const createdAt = now(), draft = createInquiryDraft(context,makeId('DRAFT'));
-        draft.revision = 1; draft.values = sampleInquiryValues(); draft.updatedAt = createdAt;
+        draft.revision = 1; draft.values = sampleInquiryValues(context); draft.updatedAt = createdAt;
         const review = reviewInquiry(draft), project = {id:makeId('PRJ'),revision:1,context:draft.context,inquiry:{id:makeId('RFQ'),values:draft.values,requirements:draft.requirements,createdAt,reviewToken:review.token},quotes:[],changes:[],replies:[],nextSteps:[],messages:[],createdAt,updatedAt:createdAt,demoSeed:'seller-inbox'};
-        assertSample(project); store.projects.push(project); return sellerProjection(store,project);
+        assertCommercial(project); store.projects.push(project); return sellerProjection(store,project);
       });
     },
     async listDrafts() { return cloneProjectValue(read().store.drafts).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')); },
@@ -295,7 +301,7 @@ export function createDemoProjectRepository(options = {}) {
     async requestRevision(review) {
       const packet = assertReview(review, 'revision');
       return change(store => {
-        const project = findProject(store, packet.projectId); assertSample(project);
+        const project = findProject(store, packet.projectId); assertCommercial(project);
         if (project.changes.some(item => item.reviewToken === review.token)) return project;
         const quote = assertFreshProject(project, packet); reviewRevision(project, quote.id, packet.values);
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'A change request already awaits a reply for this quotation.');
@@ -322,7 +328,7 @@ export function createDemoProjectRepository(options = {}) {
     async confirmNextStep(review) {
       const packet = assertReview(review, 'next-step');
       return change(store => {
-        const project = findProject(store, packet.projectId); assertSample(project);
+        const project = findProject(store, packet.projectId); assertCommercial(project);
         if (project.nextSteps.some(item => item.reviewToken === review.token)) return project;
         const quote = assertFreshProject(project, packet); reviewNextStep(project, quote.id, packet);
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'Review the pending change response before confirming a next step.');

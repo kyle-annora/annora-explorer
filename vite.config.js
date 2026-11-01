@@ -16,6 +16,8 @@ export default defineConfig({
       const sections = [
         ['Annora Explorer', new URL('./LICENSE', import.meta.url)],
         ['Three.js', new URL('./node_modules/three/LICENSE', import.meta.url)],
+        ['PDF.js', new URL('./node_modules/pdfjs-dist/LICENSE', import.meta.url)],
+        ...['cmaps/LICENSE','iccs/LICENSE','standard_fonts/LICENSE_LIBERATION','standard_fonts/LICENSE_FOXIT','wasm/LICENSE_JBIG2','wasm/LICENSE_QCMS','wasm/LICENSE_PDFJS_JBIG2','wasm/LICENSE_OPENJPEG','wasm/LICENSE_PDFJS_OPENJPEG','wasm/LICENSE_PDFJS_QCMS'].map(file => [file,new URL(`./node_modules/pdfjs-dist/${file}`,import.meta.url)]),
         ...['react', 'react-dom', 'scheduler', '@base-ui/react', '@base-ui/utils',
           '@floating-ui/react-dom', '@floating-ui/dom', '@floating-ui/core', '@floating-ui/utils',
           '@babel/runtime', 'use-sync-external-store', 'reselect'].map(name =>

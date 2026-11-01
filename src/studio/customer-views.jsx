@@ -9,6 +9,7 @@ import {
   Status,
 } from "../product-room/ui/components.jsx";
 import { compareQuotes } from "../product-room/project-domain.js";
+import { inquiryField } from "../product-room/inquiry-profile.js";
 import { STUDIO_ASSETS } from "./seed.js";
 import { date, readRoute } from "./navigation.js";
 import {
@@ -50,7 +51,7 @@ export function SmallLink({ href, children, ...props }) {
     </a>
   );
 }
-export function QuoteSummary({ quote, previous, showComparison = true }) {
+export function QuoteSummary({ quote, previous, productTitle = "Crank-slider assembly", drawing = null, showComparison = true }) {
   const [expandedFor, setExpandedFor] = useState(null);
   const comparisonKey = `${previous?.id}:${quote?.id}:${quote?.version}`;
   const showUnchanged = expandedFor === comparisonKey;
@@ -65,7 +66,7 @@ export function QuoteSummary({ quote, previous, showComparison = true }) {
           <p className="ar-eyebrow">
             QUOTATION{quote.version ? ` · VERSION ${quote.version}` : ""}
           </p>
-          <h2>Crank-slider assembly</h2>
+          <h2>{productTitle}</h2>
           <p>
             {quote.source === "sample"
               ? "Preserved sample quotation"
@@ -78,6 +79,7 @@ export function QuoteSummary({ quote, previous, showComparison = true }) {
           <small>Final total remains to confirm</small>
         </div>
       </div>
+      {drawing && <p className="customer-fine">Drawing reference: {drawing.title} · {drawing.revision} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this project; dimensions remain to confirm.</p>}
       {showComparison && previous && (
         <Section
           className="customer-document-section"
@@ -195,17 +197,18 @@ export function QuoteSummary({ quote, previous, showComparison = true }) {
 export function InquiryDetails({ project }) {
   const { values, requirements } = project.inquiry;
   const fields = [
-    ["Company", values.company],
-    ["Contact", values.name],
-    ["Email", values.email],
-    ["Quantity", values.quantity],
+    ["Company", values.company, "company"],
+    ["Contact", values.name, "name"],
+    ["Email", values.email, "email"],
+    ["Quantity", values.quantity, "quantity"],
     [
       "Requested timing",
       values.targetWeeks ? `${values.targetWeeks} weeks` : "",
+      "targetWeeks",
     ],
-    ["Stroke", values.stroke ? `${values.stroke} mm` : ""],
-    ["Load", values.load],
-  ];
+    ["Stroke", values.stroke ? `${values.stroke} mm` : "", "stroke"],
+    ["Load", values.load, "load"],
+  ].filter(([, value, id]) => inquiryField(project.context, id)?.enabled || value);
   return (
     <Section
       title="Customer inquiry"
@@ -255,7 +258,7 @@ export function InquiryDetails({ project }) {
     </Section>
   );
 }
-export function ProductReference({ project }) {
+export function ProductReference({ project, buyerHref = buyerURL }) {
   const context = project.context,
     snapshot = context.roomSnapshot;
   const docs = snapshot?.content.documents || [];
@@ -274,18 +277,25 @@ export function ProductReference({ project }) {
         Product reference <Glyph name="document" />
       </summary>
       <div className="customer-reference-body">
-        <img
+        {!context.drawing && context.modelId === "kinetic-01" && <img
           src={crankImage}
           alt="Crank-slider mechanism"
           width="240"
           height="150"
-        />
+        />}
         <h3>{context.productTitle}</h3>
         <dl>
           <div>
             <dt>Component</dt>
             <dd>{context.part?.title || "Whole assembly"}</dd>
           </div>
+          {context.drawing && <>
+            <div><dt>Drawing</dt><dd>{context.drawing.title}</dd></div>
+            <div><dt>Source edition</dt><dd>{context.drawing.revision}</dd></div>
+            <div><dt>Sheet</dt><dd>{context.drawing.sheetTitle}</dd></div>
+            <div><dt>Selected detail</dt><dd>{context.drawing.regionLabel}</dd></div>
+            {context.drawing.mappingRevision && <div><dt>Mapping edition</dt><dd>{context.drawing.mappingRevision}</dd></div>}
+          </>}
           <div>
             <dt>Product content</dt>
             <dd>
@@ -295,7 +305,14 @@ export function ProductReference({ project }) {
             </dd>
           </div>
         </dl>
-        <SmallLink href={buyerURL(project, true)}>View in 3D</SmallLink>
+        <SmallLink href={buyerHref(project, true)}>{context.drawing ? "View selected drawing detail" : "View in 3D"}</SmallLink>
+        {context.drawing && <>
+          <p className="customer-fine">Pinned viewing context. Dimensions, tolerances and manufacturing suitability remain to confirm.</p>
+          <details><summary>Exact drawing reference</summary>
+            <p className="customer-preserve">Model: {context.modelId}<br />Model revision: {context.modelRevision}<br />Drawing: {context.drawing.id}<br />Sheet: {context.drawing.sheetId}<br />Region: {context.drawing.regionId}<br />Part: {context.drawing.partId}<br />Asset: {context.drawing.assetId}<br />Asset revision: {context.drawing.assetRevision}</p>
+            <SmallLink href={context.drawing.sourceURL} target="_blank" rel="noopener noreferrer">View original source</SmallLink>
+          </details>
+        </>}
         {visibleDocs.length > 0 && (
           <div className="customer-reference-docs">
             <span className="customer-label">Linked documents</span>

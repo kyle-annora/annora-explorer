@@ -34,6 +34,18 @@ for(const model of Object.values(MODEL_CATALOG)){
     for(const part of metadata.parts){const offset=offsets.get(part.meshName);assert.ok(offset.every(Number.isFinite));assert.deepEqual(positionAt(part.center,offset,0),part.center);}
     assert.equal(JSON.stringify(metadata),before);
   });
+  test(`${model.id}: selecting a part preserves expanded sibling branches and does not enter a new scope`,()=>{
+    const groups=hierarchy.root.children.filter(id=>hierarchy.nodes.get(id).children.length);
+    const initial=createNavigation(model.rootId);
+    const expanded={...initial,expanded:new Set([model.rootId,...groups])};
+    const leaf=[...hierarchy.nodes.values()].find(node=>node.type==='component');
+    const selected=selectNode(expanded,hierarchy.nodes,leaf.id);
+    for(const id of groups)assert.ok(selected.expanded.has(id),'A selected part must not collapse an independently opened branch');
+    assert.equal(selected.scopeId,model.rootId);
+    assert.deepEqual([...expanded.expanded],[model.rootId,...groups],'Original navigation is not mutated');
+    const closed=toggleBranch(selected,hierarchy.nodes,groups.at(-1));
+    assert.equal(closed.expanded.has(groups.at(-1)),false,'Explicit disclosure still closes a branch');
+  });
   test(`${model.id}: invalid identities and incomplete groups fail before rendering`,()=>{
     const invalid=structuredClone(metadata);invalid.parts[1].meshName=invalid.parts[0].meshName;assert.throws(()=>validatePackage(invalid,model),/mesh identity/);
     const missing=structuredClone(metadata);missing.groups[0].meshNames.pop();assert.throws(()=>validatePackage(missing,model),/cover|mismatch/);

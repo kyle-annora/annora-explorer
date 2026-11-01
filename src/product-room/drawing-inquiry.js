@@ -6,8 +6,8 @@ export const DRAWING_PROJECT_STORAGE_KEY = 'annora.drawing-preview.projects.v1';
  * No customer/Studio records are read, migrated, reset or written by this host. */
 export function createDrawingProjectRepository(options = {}) {
   return Object.freeze({
-    ...createDemoProjectRepository({ ...options, key: DRAWING_PROJECT_STORAGE_KEY }),
+    ...createDemoProjectRepository({ ...options, key: DRAWING_PROJECT_STORAGE_KEY, drawingWorkflow: true }),
     mode: 'drawing-preview',
-    capabilities: Object.freeze({ inquiryOnly: true }),
+    capabilities: Object.freeze({ inquiryOnly: false, drawingWorkflow: true }),
   });
 }

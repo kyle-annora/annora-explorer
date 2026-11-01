@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-01T12:42:34.468Z",
+  "purpose": "Offline preparation experiment; not a manufacturing drawing or persistent assembly importer",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M5 Pro",
+    "physicalMemoryBytes": 51539607552,
+    "node": "v26.3.0"
+  },
+  "tools": {
+    "replicad": "1.2.0",
+    "replicadGitHead": "6ef8ae10f7cb708ec34c74b37f3be255c3c2dbc8",
+    "opencascadePackage": "replicad-opencascadejs@1.1.0",
+    "opencascadeGitHead": "e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
+    "wasmSha256": "4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+    "wasmBytes": 22980267
+  },
+  "kernelInitializeMs": 78.577459,
+  "baselineRSS": 52969472,
+  "initializedRSS": 183746560,
+  "inputs": [
+    {
+      "id": "linkrods",
+      "source": {
+        "kind": "actual-single-solid-source",
+        "provenance": "Existing unchanged OCCT linkrods STEP; see content/drawings/linkrods/provenance.json and source license"
+      },
+      "sourceSha256": "3674e4b01ee0e983c81ed170f0574cda201ad08e0f7b46e05e4f4613400fd5f7",
+      "sourceBytes": 1793282,
+      "sourceUnitEvidence": [
+        "SI_UNIT(.MILLI.,.METRE.) )"
+      ],
+      "importMs": 276.11341600000003,
+      "meshMs": 78.15583299999992,
+      "projectionMs": 123.74287500000003,
+      "repeatImportAndMeshMs": 226.904583,
+      "beforeRSS": 187187200,
+      "afterRSS": 586579968,
+      "shapeType": "Solid",
+      "solidCount": 1,
+      "faceCount": 37,
+      "edgeCount": 108,
+      "boundsMm": [
+        [
+          3.1249999,
+          2.4999999,
+          -1e-7
+        ],
+        [
+          8.145284807521,
+          4.0000001,
+          2.0000001
+        ]
+      ],
+      "mesh": {
+        "vertexCount": 8858,
+        "triangleCount": 14454,
+        "faceGroupCount": 37
+      },
+      "projection": {
+        "plane": "front",
+        "visiblePathCount": 30,
+        "hiddenPathCount": 38,
+        "svgBytes": 34149
+      },
+      "identity": {
+        "sourceProducts": [
+          {
+            "id": "the product name",
+            "name": "the product name"
+          }
+        ],
+        "returnedObjectKeys": [
+          "oc",
+          "_wrapped"
+        ],
+        "returnsOneShape": true,
+        "assemblyNamesExposed": false,
+        "persistentAssemblyIdentitySupported": false,
+        "firstImportFaceIds": [
+          1989120601,
+          1004225733,
+          1139609584,
+          1461560768,
+          653022378,
+          1891847914,
+          1179434567,
+          252690031
+        ],
+        "secondImportFaceIds": [
+          1526304785,
+          2103072202,
+          612522653,
+          243433434,
+          1831130506,
+          493758170,
+          431218425,
+          1929706008
+        ],
+        "faceIdsIdenticalAcrossRepeatImport": false
+      },
+      "geometryComparison": {
+        "transform": "[x,y,z] millimeters -> [x,z,-y] meters",
+        "preparedModelBounds": [
+          [
+            0.0031250000465661287,
+            0,
+            -0.004000000189989805
+          ],
+          [
+            0.008145284838974476,
+            0.0020000000949949026,
+            -0.0024999999441206455
+          ]
+        ],
+        "importedTransformedBounds": [
+          [
+            0.0031249999,
+            -9.999999999999999e-11,
+            -0.0040000001000000006
+          ],
+          [
+            0.008145284807520999,
+            0.0020000000999999996,
+            -0.0024999999
+          ]
+        ],
+        "maxAbsoluteBoundDifferenceMeters": 1.4656612859140217e-10
+      }
+    },
+    {
+      "id": "two-solid-algorithm-fixture",
+      "source": {
+        "kind": "authored-algorithm-fixture",
+        "license": "MIT, same as this repository",
+        "description": "Two separated named boxes, authored only to test multi-solid import and identity loss. Not a real machine or paired manufacturing dataset."
+      },
+      "sourceSha256": "757295882f3a908d6afd3343d1235a177c3dbfa9025d37710f541bb0e83214a4",
+      "sourceBytes": 31093,
+      "sourceUnitEvidence": [
+        "SI_UNIT(.MILLI.,.METRE.) )",
+        "SI_UNIT(.MILLI.,.METRE.) )"
+      ],
+      "importMs": 5.449540999999954,
+      "meshMs": 1.01037499999984,
+      "projectionMs": 1.8513329999998405,
+      "repeatImportAndMeshMs": 5.4056250000001,
+      "beforeRSS": 590413824,
+      "afterRSS": 597458944,
+      "shapeType": "Compound",
+      "solidCount": 2,
+      "faceCount": 12,
+      "edgeCount": 24,
+      "boundsMm": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          40,
+          10,
+          8
+        ]
+      ],
+      "mesh": {
+        "vertexCount": 48,
+        "triangleCount": 24,
+        "faceGroupCount": 12
+      },
+      "projection": {
+        "plane": "front",
+        "visiblePathCount": 6,
+        "hiddenPathCount": 6,
+        "svgBytes": 822
+      },
+      "identity": {
+        "sourceProducts": [
+          {
+            "id": "Fixture housing",
+            "name": "Fixture housing"
+          },
+          {
+            "id": "Fixture shaft",
+            "name": "Fixture shaft"
+          }
+        ],
+        "returnedObjectKeys": [
+          "oc",
+          "_wrapped"
+        ],
+        "returnsOneShape": true,
+        "assemblyNamesExposed": false,
+        "persistentAssemblyIdentitySupported": false,
+        "firstImportFaceIds": [
+          549707198,
+          2108653028,
+          408486873,
+          686048035,
+          1693180765,
+          1345162448,
+          188152230,
+          1958727325
+        ],
+        "secondImportFaceIds": [
+          1782728077,
+          434362265,
+          2046745275,
+          1051360959,
+          1359130016,
+          1765144839,
+          1299077376,
+          1688557542
+        ],
+        "faceIdsIdenticalAcrossRepeatImport": false
+      }
+    }
+  ],
+  "finalRSS": 597458944,
+  "processPeakRSSBytes": 597458944,
+  "totalMs": 1129.408459,
+  "decision": {
+    "offlineProjection": "Promising bounded offline derivative only",
+    "assemblyImport": "Rejected as a persistent assembly/part identity source: STEPControl_Reader.OneShape aggregates topology and the import result exposes no product/name tree.",
+    "buyerKernel": "Excluded from buyer/runtime dependencies and bundles",
+    "limitations": [
+      "One real single-solid and one explicit algorithm fixture only; not a real multipart assembly validation.",
+      "Measurements are a one-shot run on this machine, not ordinary-client hardware certification.",
+      "Projection output has no supplied dimensions, tolerances, approval or persistent source-face correspondence.",
+      "Runtime face IDs must never enter inquiry or quotation identities."
+    ]
+  }
+}

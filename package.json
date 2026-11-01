@@ -9,13 +9,15 @@
     "build": "npm run prepare:project && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 8095",
     "test": "npm run prepare:project && node --test tests/*.test.mjs tests/runtime/*.test.js",
-    "check": "node scripts/check-project.mjs",
+    "check": "node scripts/check-project.mjs && node scripts/check-drawings.mjs",
     "import:model": "node scripts/import-model.mjs",
     "apply:room-release": "node scripts/apply-room-release.mjs",
-    "verify": "npm run check && npm test && npm run build"
+    "verify": "npm run check && npm test && npm run build",
+    "apply:drawing-release": "node scripts/apply-drawing-release.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
+    "pdfjs-dist": "6.4.299",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "three": "0.180.0"
@@ -26,6 +28,6 @@
   "description": "Configurable assembly Explorer starter with independent model packages and GitHub Pages deployment.",
   "license": "MIT",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   }
 }

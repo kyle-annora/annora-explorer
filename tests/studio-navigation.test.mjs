@@ -57,3 +57,11 @@ test("editing links bind the saved draft identity while issued views omit it", (
   assert.equal(readRoute(routeHash(edit)).draft, "QD-1");
   assert.equal(readRoute(routeHash({ ...edit, mode: "detail" })).draft, "");
 });
+
+test('drawing authoring and customer routes round-trip without changing existing project paths', () => {
+  const route={page:'drawing-project',id:'PRJ-2',tab:'quotation',mode:'quote-review',draft:'DRAFT-2',quote:'QT-1'};
+  const restored=readRoute(routeHash(route));
+  for(const [key,value] of Object.entries(route)) assert.equal(restored[key],value);
+  assert.equal(readRoute('#drawings?product=sk08').product,'sk08');
+  assert.equal(routeHash({page:'drawings',product:'sk08'}),'#drawings?product=sk08');
+});

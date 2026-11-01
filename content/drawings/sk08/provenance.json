@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "https://github.com/FreeCAD/FreeCAD-library",
+    "commit": "f5ca01cdcaa2f69b9295a6382719c2d90628780c",
+    "path": "Mechanical Parts/Mountings/SK08/SK08-SK08.step",
+    "author": "hasecilu",
+    "addedIn": "b342740f9b",
+    "license": "CC-BY-3.0",
+    "licenseURL": "https://creativecommons.org/licenses/by/3.0/",
+    "stepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+    "stepEntity": "#15 MANIFOLD_SOLID_BREP",
+    "productEntity": "#7 PRODUCT SK08",
+    "units": "millimeter"
+  },
+  "publishedDrawing": {
+    "repository": "https://github.com/pzfreo/dw-examples",
+    "commit": "c4c72a71c6440f0c824678660b59d0474f105e71",
+    "path": "drawings/sk08/sk08.pdf",
+    "generator": "draftwright v0.2.5",
+    "originalPdfSha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2",
+    "manufacturerRevision": null,
+    "status": "unreviewed-reference",
+    "knownIssues": [
+      "No general tolerance",
+      "Some chamfer annotations missing",
+      "Extension lines cross features"
+    ],
+    "reviewFile": "source-review.json"
+  },
+  "adaptations": {
+    "model": {
+      "converter": "occt-import-js 0.0.23",
+      "linearDeflectionMillimeters": 0.006,
+      "angularDeflectionRadians": 0.2,
+      "coordinateMap": "[x,y,z] mm -> [x,z,-y]/1000 m",
+      "bodyCount": 1,
+      "partId": "sk08-body",
+      "nodeName": "sk08_body",
+      "triangleCount": 3072,
+      "modelSha256": "f7d2ac18f02d8d8648d35d3f40c86d850bbb41b5caf48495c0752a740e9607fa",
+      "finish": "Illustrative satin metal; no source material specification"
+    },
+    "referencePdf": {
+      "sha256": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+      "edition": "annora-reference-1",
+      "page1": "Original source PDF page, copied without changing contents",
+      "page2": "Annora-authored labelled enlarged crops from original page 1; no new dimensions, tolerance, revision or approval",
+      "license": "CC-BY-3.0"
+    },
+    "mapping": {
+      "revision": "annora-sk08-map-1",
+      "status": "Authored region and camera mapping to the same single solid; no inferred separate parts or operating motion"
+    }
+  },
+  "files": {
+    "sk08.step": {
+      "sha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+      "bytes": 81426
+    },
+    "source.pdf": {
+      "sha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2",
+      "bytes": 61357
+    },
+    "reference.pdf": {
+      "sha256": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+      "bytes": 111385
+    },
+    "source-drawing-spec.json": {
+      "sha256": "11e7dd95d5e1ae9c22ac0181536c0ebbdac9738c211e3559cd45de82eab53dd6",
+      "bytes": 139
+    },
+    "source-review.json": {
+      "sha256": "f6db9be4632bc5c56f72298112153408a54baa17f3607ac205574a0e6d349115",
+      "bytes": 11201
+    },
+    "sheet-1.svg": {
+      "sha256": "197e4a64d1fa423047a57484f16fa95aa77e27064bc3ea953fcc188d5d15f9fe",
+      "bytes": 281430
+    },
+    "sheet-2.svg": {
+      "sha256": "3cd8f9d24adb9a08687aae342341fc6513ac30ad110edbdf70184032213180b5",
+      "bytes": 224961
+    }
+  }
+}

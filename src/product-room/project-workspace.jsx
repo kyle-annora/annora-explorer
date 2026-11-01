@@ -154,7 +154,7 @@ function ContextSummary({
             <p className="pw-muted">Saved as viewing context. Dimensions and tolerances remain subject to confirmation.</p>
             <details>
               <summary>Exact drawing reference</summary>
-              <p>Drawing: {context.drawing.id}<br />Sheet: {context.drawing.sheetId}<br />Region: {context.drawing.regionId}<br />Part: {context.drawing.partId}<br />Asset: {context.drawing.assetId}<br />Asset revision: {context.drawing.assetRevision}</p>
+              <p>Drawing: {context.drawing.id}<br />Sheet: {context.drawing.sheetId}<br />Region: {context.drawing.regionId}<br />Part: {context.drawing.partId}<br />Asset: {context.drawing.assetId}<br />Asset revision: {context.drawing.assetRevision}{context.drawing.mappingRevision && <><br />Mapping revision: {context.drawing.mappingRevision}</>}</p>
               <a href={context.drawing.sourceURL} target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
             </details>
           </div>
@@ -301,7 +301,7 @@ function ProjectProgress({ project }) {
     </ol>
   );
 }
-function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
+function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycle }) {
   const isPreview = repository.mode === "preview";
   const inquiryOnly = repository.capabilities?.inquiryOnly === true;
   const [projects, setProjects] = useState([]),
@@ -837,7 +837,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     </p>
   );
   const sellerLink = project && !isPreview && !inquiryOnly ? (
-    <a className="ar-button pw-role-link" data-variant="quiet" href={contextualURL(`../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
+    <a className="ar-button pw-role-link" data-variant="quiet" href={contextualURL(sellerURL ? sellerURL(project, { tab: tab === 'activity' ? 'conversation' : tab, quoteId: quote?.id || null }) : `../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
       View as seller <span aria-hidden="true">↗</span>
     </a>
   ) : null;
@@ -2132,7 +2132,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
 /** A host-owned route and repository boundary. No renderer or camera ownership. */
 export function mountProjectWorkspace(
   element,
-  { repository, onExplore = () => {}, onNavigate } = {},
+  { repository, onExplore = () => {}, onNavigate, sellerURL } = {},
 ) {
   if (!repository)
     throw new TypeError("Product Room needs a project repository.");
@@ -2148,6 +2148,7 @@ export function mountProjectWorkspace(
           route={{ ...route }}
           repository={repository}
           onExplore={onExplore}
+          sellerURL={sellerURL}
           lifecycle={lifecycle}
           navigate={(next) => (onNavigate ? onNavigate(next) : api.open(next))}
         />,

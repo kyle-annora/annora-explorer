@@ -13,11 +13,19 @@ export function normalizeDrawingContext(input, context) {
   let source;
   try { source = new URL(result.sourceURL); } catch { throw new TypeError('A drawing source needs an HTTP or HTTPS address.'); }
   if (!['http:', 'https:'].includes(source.protocol) || source.username || source.password) throw new TypeError('A drawing source needs an HTTP or HTTPS address.');
+  // Existing projects predate mapping versions. Do not assign today's mapping
+  // to those records; only preserve a version that the host explicitly supplied.
+  if (input.mappingRevision !== undefined) {
+    const value = typeof input.mappingRevision === 'string' ? input.mappingRevision.trim() : '';
+    if (!value || value.length > 320 || /[\u0000-\u001f]/.test(value)) throw new TypeError('A drawing reference needs a valid mappingRevision.');
+    result.mappingRevision = value;
+  }
   return result;
 }
 
 /** A new drawing or asset version starts a separate draft. Changing a selected
  * region within that same version is an explicit reference change, not a new job. */
 export const drawingVersionKey = context => context.drawing
-  ? [context.drawing.id, context.drawing.revision, context.drawing.assetId, context.drawing.assetRevision]
+  ? [context.drawing.id, context.drawing.revision, context.drawing.assetId, context.drawing.assetRevision,
+    ...(context.drawing.mappingRevision ? [context.drawing.mappingRevision] : [])]
   : null;

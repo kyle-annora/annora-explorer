@@ -32,6 +32,9 @@ const project = {
     },
     {
       "manifest": "content/models/linkrods/manifest.json"
+    },
+    {
+      "manifest": "content/models/sk08/manifest.json"
     }
   ]
 };

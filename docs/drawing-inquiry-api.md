@@ -9,8 +9,9 @@ or send requests to a backend.
 Create one repository per mounted host using
 `createDrawingProjectRepository()` from
 `src/product-room/drawing-inquiry.js`. Pass it to `createWorkspace()` from
-`src/product-room/workspace-entry.jsx` with the existing `onNavigate(route)` and
-`onExplore(context)` callbacks.
+`src/product-room/workspace-entry.jsx` with `onNavigate(route)`, `onExplore(context)` and
+`sellerURL(project, { tab, quoteId })` callbacks. The seller URL targets
+`/studio/#drawing-project?id=...`, not the crank Product Room.
 
 - Open `{ view: 'inquiry', context }` after the visitor selects a drawing detail.
 - Open `{ view: 'projects', context }` to list this preview's saved inquiries and
@@ -54,6 +55,7 @@ Existing product contexts remain valid and unchanged. A drawing context adds:
     "sheetTitle": "Sheet 1 · Housing",
     "regionId": "bore",
     "regionLabel": "Bearing bore",
+    "mappingRevision": "mapping-1",
     "sourceURL": "https://example.org/pinned-source/housing.pdf"
   }
 }
@@ -80,7 +82,8 @@ This does not require adding the preview product to Studio's managed catalog.
 ## Identity, review and persistence
 
 The draft identity includes product, model revision, optional product/form
-release, and drawing id/revision/asset id/asset revision. A different drawing
+release, drawing id/revision/asset id/asset revision, and optional mapping revision.
+Historical records without a mapping revision retain their previous identity. A different drawing
 version starts a separate draft. Selecting another region of the same drawing
 does not discard entered information: the saved reference remains until the
 visitor explicitly chooses **Use current product reference**.
@@ -96,9 +99,16 @@ reads, migrates or clears ordinary Product Room or Studio records. Local storage
 failures retain input and report an error. Malformed stored references are
 rejected without resetting records.
 
-`capabilities.inquiryOnly` tells the shared workspace to omit seller handoffs and
-quotation actions unsupported by this preview. Normal Product Room, Studio and
-walkthrough repositories retain their existing capabilities and behavior.
+The drawing adapter explicitly enables the reviewed commercial workflow
+(`drawingWorkflow: true`, `capabilities.inquiryOnly: false`). It supports seller
+drafts, review and issue, customer changes, revised quotes, version comparison
+and confirmed next steps. Automatic crank sample quotations remain disabled.
+Normal Product Room and walkthrough repositories retain their existing behavior.
+
+Studio uses the same drawing repository with optional `buyerHref(project, explore)`,
+`buyerHomeHref` and `sampleContext` host properties. The drawing, model and mapping
+reference stays pinned to the project throughout the commercial conversation.
+Publishing a different drawing association does not rebase an existing inquiry.
 
 ## Future API boundary
 

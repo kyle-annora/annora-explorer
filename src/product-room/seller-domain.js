@@ -12,6 +12,7 @@ function canonical(value) {
   return JSON.stringify(value);
 }
 const reviewed = payload => ({ ...cloneProjectValue(payload), token: canonical(payload) });
+export const quoteProductTitle = project => text(project?.context?.productTitle) || text(project?.context?.part?.title) || 'Product';
 const requireProject = project => {
   if (!project?.id || !Number.isSafeInteger(project.revision)) throw new ProjectError('VALIDATION', 'Open a saved customer project first.');
 };
@@ -31,7 +32,7 @@ export function createQuoteDraft(project, id) {
       exclusions: (quote?.exclusions || ['Freight, tax and application-specific engineering remain unpriced.']).join('\n'),
       validity: quote?.validity || 'To be agreed',
       lineItems: quote ? quote.lineItems.map((item,index) => ({ id: item.id || `line-${index+1}`, label: item.label, quantity: String(item.quantity ?? 1), unitPrice: item.unitPrice === null || (item.unitPrice === undefined && item.amount === null) ? '' : String(item.unitPrice ?? (item.amount / (item.quantity || 1))) }))
-        : [{ id: 'assembly', label: 'Crank-slider assembly — illustrative allowance', quantity: project.inquiry.values.quantity, unitPrice: '' },
+        : [{ id: 'assembly', label: `${quoteProductTitle(project)} — illustrative allowance`, quantity: project.inquiry.values.quantity, unitPrice: '' },
           { id: 'setup', label: 'Setup allowance', quantity: '1', unitPrice: '' },
           { id: 'freight', label: 'Freight and applicable tax', quantity: '1', unitPrice: '' }]
     }, updatedAt: null

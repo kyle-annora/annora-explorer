@@ -1744,3 +1744,5 @@ summary {
     width: 100%;
   }
 }
+.studio-project-source {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+@media(max-width:600px){.studio-workspace-nav{flex-wrap:wrap;gap:4px}.studio-workspace-nav a{min-height:44px;padding:10px;font-size:12px}.studio-project-source{gap:4px}.studio-project-source .ar-button{font-size:12px}}

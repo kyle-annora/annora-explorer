@@ -1,0 +1,487 @@
+{
+ "drawing_consumer": {
+  "holes": [
+   {
+    "carriers": [
+     "d:f:hole:1/bore.diameter"
+    ],
+    "feature": "f:hole:1",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole:2/bore.diameter"
+    ],
+    "feature": "f:hole:2",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole:3/bore.diameter"
+    ],
+    "feature": "f:hole:3",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole:3/bore.diameter"
+    ],
+    "feature": "f:hole:4",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole:1/bore.diameter"
+    ],
+    "feature": "f:hole:5",
+    "state": "supported"
+   }
+  ],
+  "supported": 5,
+  "unknown": 0,
+  "unsupported": 0
+ },
+ "lint": [],
+ "problems": [
+  {
+   "code": "general_tolerance_missing",
+   "fix": [
+    {
+     "op": "set",
+     "path": "sheet/title/tolerance",
+     "value": "UNSPECIFIED"
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A4"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "1:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Mark the general tolerance as UNSPECIFIED in the title block, without choosing a tolerance.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "sheet/title/tolerance",
+       "value": "UNSPECIFIED"
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A4"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    }
+   ],
+   "group": "general_tolerance_missing",
+   "id": "p:general_tolerance_missing:sheet",
+   "impact": "decision",
+   "message": "GEN. TOL. is blank: no general tolerance is drawn from the Spec or usable PMI. Set sheet/title/tolerance to the intended requirement. The offered fix explicitly states UNSPECIFIED; it acknowledges the missing requirement without inventing a manufacturing tolerance.",
+   "refs": [
+    "title_block/general_tolerance",
+    "sheet/title/tolerance"
+   ],
+   "severity": "warning",
+   "subjects": [
+    "sheet"
+   ]
+  },
+  {
+   "code": "extension_through_feature",
+   "fix": [
+    {
+     "op": "set",
+     "path": "dimensions/d:f:hole:1~1location.length.y/place",
+     "value": {
+      "along": "middle",
+      "lane": 0,
+      "side": "above",
+      "view": "side"
+     }
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A4"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "1:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Move the 7 dimension above the side view, nearest the view. Trade-off: adds these findings: The dimension 7 runs up to 1.5 mm past the area reserved for the side view and its bands; it may crowd what lies beyond. [annotation_outside_area].",
+     "ops": [
+      {
+       "op": "set",
+       "path": "dimensions/d:f:hole:1~1location.length.y/place",
+       "value": {
+        "along": "middle",
+        "lane": 0,
+        "side": "above",
+        "view": "side"
+       }
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A4"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    },
+    {
+     "description": "List the holes in a hole table and draw at 1:2. The whole sheet is laid out again, so placements you have moved by hand may change.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "hole_table",
+       "value": "always"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:2"
+      }
+     ],
+     "scope": "sheet"
+    }
+   ],
+   "group": "extension_through_feature",
+   "id": "p:extension_through_feature:d:f:hole:1/location.length.y|f:hole:2:line:1",
+   "impact": "advisory",
+   "message": "The second extension line of 7 crosses the \u23008 hole.",
+   "severity": "warning",
+   "subjects": [
+    "d:f:hole:1/location.length.y",
+    "f:hole:2"
+   ]
+  },
+  {
+   "code": "extension_through_feature",
+   "fix": [
+    {
+     "op": "set",
+     "path": "dimensions/d:f:hole:1~1location.length.y/place",
+     "value": {
+      "along": "middle",
+      "lane": 0,
+      "side": "above",
+      "view": "side"
+     }
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A4"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "1:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Move the 7 dimension above the side view, nearest the view. Trade-off: adds these findings: The dimension 7 runs up to 1.5 mm past the area reserved for the side view and its bands; it may crowd what lies beyond. [annotation_outside_area].",
+     "ops": [
+      {
+       "op": "set",
+       "path": "dimensions/d:f:hole:1~1location.length.y/place",
+       "value": {
+        "along": "middle",
+        "lane": 0,
+        "side": "above",
+        "view": "side"
+       }
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A4"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    },
+    {
+     "description": "List the holes in a hole table and draw at 1:2. The whole sheet is laid out again, so placements you have moved by hand may change.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "hole_table",
+       "value": "always"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:2"
+      }
+     ],
+     "scope": "sheet"
+    }
+   ],
+   "group": "extension_through_feature",
+   "id": "p:extension_through_feature:d:f:hole:1/location.length.y|f:hole:3:line:1",
+   "impact": "advisory",
+   "message": "The second extension line of 7 crosses the \u23005.5 hole.",
+   "severity": "warning",
+   "subjects": [
+    "d:f:hole:1/location.length.y",
+    "f:hole:3"
+   ]
+  },
+  {
+   "code": "extension_through_feature",
+   "fix": [
+    {
+     "op": "set",
+     "path": "dimensions/d:f:hole:1~1location.length.y/place",
+     "value": {
+      "along": "middle",
+      "lane": 0,
+      "side": "above",
+      "view": "side"
+     }
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A4"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "1:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Move the 7 dimension above the side view, nearest the view. Trade-off: adds these findings: The dimension 7 runs up to 1.5 mm past the area reserved for the side view and its bands; it may crowd what lies beyond. [annotation_outside_area].",
+     "ops": [
+      {
+       "op": "set",
+       "path": "dimensions/d:f:hole:1~1location.length.y/place",
+       "value": {
+        "along": "middle",
+        "lane": 0,
+        "side": "above",
+        "view": "side"
+       }
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A4"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    },
+    {
+     "description": "List the holes in a hole table and draw at 1:2. The whole sheet is laid out again, so placements you have moved by hand may change.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "hole_table",
+       "value": "always"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:2"
+      }
+     ],
+     "scope": "sheet"
+    }
+   ],
+   "group": "extension_through_feature",
+   "id": "p:extension_through_feature:d:f:hole:1/location.length.y|f:hole:4:line:1",
+   "impact": "advisory",
+   "message": "The second extension line of 7 crosses the \u23005.5 hole.",
+   "severity": "warning",
+   "subjects": [
+    "d:f:hole:1/location.length.y",
+    "f:hole:4"
+   ]
+  },
+  {
+   "code": "unclaimed_geometry",
+   "group": "unclaimed_geometry",
+   "id": "p:unclaimed_geometry:sheet",
+   "impact": "advisory",
+   "message": "Analysis features and dimensioned stock claim 19 of 23 faces; 4 faces are unclaimed. Review the geometry: ordinary stock faces may also be unclaimed; this is not a count of missed features.",
+   "severity": "info",
+   "subjects": [
+    "face:1",
+    "face:17",
+    "face:20",
+    "face:21"
+   ]
+  },
+  {
+   "code": "shape_not_recognised",
+   "group": "shape_not_recognised:chamfer",
+   "id": "p:shape_not_recognised:face:1",
+   "impact": "incomplete",
+   "message": "Faces 1, 21 form 2 congruent shapes, each a 0.5 \u00d7 45\u00b0 chamfer on the edge of a \u00f87 cylinder, the first at (12.25, -7, 27.8); no hole callout or chamfer dimension states them. State it with a note on one of its faces in the Spec's faces (its size, as a chamfer callout), which withdraws this warning; otherwise review it manually.",
+   "refs": [
+    "shape:chamfer"
+   ],
+   "severity": "warning",
+   "subjects": [
+    "face:1",
+    "face:21"
+   ]
+  },
+  {
+   "code": "shape_not_recognised",
+   "group": "shape_not_recognised:chamfer",
+   "id": "p:shape_not_recognised:face:17",
+   "impact": "incomplete",
+   "message": "Faces 17, 20 form 2 congruent shapes, each a 1 \u00d7 45\u00b0 chamfer on the edge of a \u00f85.5 cylinder, the first at (5, -7, 5.5); no hole callout or chamfer dimension states them. State it with a note on one of its faces in the Spec's faces (its size, as a chamfer callout), which withdraws this warning; otherwise review it manually.",
+   "refs": [
+    "shape:chamfer"
+   ],
+   "severity": "warning",
+   "subjects": [
+    "face:17",
+    "face:20"
+   ]
+  }
+ ],
+ "structural": [],
+ "summary": {
+  "groups": {
+   "extension_through_feature": 3,
+   "general_tolerance_missing": 1,
+   "shape_not_recognised:chamfer": 2,
+   "unclaimed_geometry": 1
+  },
+  "impacts": {
+   "advisory": {
+    "findings": 4,
+    "groups": 2
+   },
+   "decision": {
+    "findings": 1,
+    "groups": 1
+   },
+   "incomplete": {
+    "findings": 2,
+    "groups": 1
+   },
+   "readability": {
+    "findings": 0,
+    "groups": 0
+   }
+  }
+ }
+}

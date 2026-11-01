@@ -84,3 +84,18 @@ test('one fresh restore handles action controls changing the public layout durin
   assert.equal(current.camera.layoutKey, '1200:640:action-controls');
   assert.equal(current.renderStyle, 'linework');
 });
+
+test('a second prepared model uses data-authored cameras and remains stable along the camera-up axis', async () => {
+  const pkg=JSON.parse(await readFile(new URL('../content/drawings/sk08/package.json',import.meta.url)));
+  const metadata=JSON.parse(await readFile(new URL('../content/models/sk08/metadata.json',import.meta.url)));
+  const manifest=JSON.parse(await readFile(new URL('../content/models/sk08/manifest.json',import.meta.url)));
+  const model={id:manifest.id,rootId:manifest.rootId,normalizeWidth:manifest.view.normalizedWidth,bounds:metadata.bounds,parts:metadata.parts};
+  const region=structuredClone(pkg.sheets[1].regions[0]);region.camera.direction=[0,1,0];
+  const original={...bookmark(),model:{id:manifest.id,revision:pkg.modelRevision}};
+  const result=createDrawingRegionView(original,region,model);
+  assert.equal(result.selectedId,'sk08-body');assert.equal(result.scopeId,'sk08');
+  assert.ok(result.camera.position.every(Number.isFinite));assert.ok(result.camera.up.every(Number.isFinite));
+  assert.deepEqual(result.camera.target,normalizeDrawingPoint(region.camera.target,model));
+  assert.equal(result.renderStyle,original.renderStyle);
+  assert.ok(Math.abs(result.camera.up[1])<1e-9,'framing avoids a singular up/direction pair');
+});

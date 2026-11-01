@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 2,
+  "id": "occt-linkrods-drawing",
+  "modelId": "linkrods",
+  "title": "Link rods — reference drawing",
+  "number": "OCCT-LINKRODS",
+  "revision": "source-c4c72a71",
+  "revisionLabel": "Source snapshot c4c72a71",
+  "manufacturerRevision": null,
+  "assetRevision": "20799c4c0107c3cc7998f7c56c014b91533b83b413e85954710801a6bc0e7c08",
+  "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/linkrods/linkrods.pdf",
+  "units": "mm",
+  "status": "unreviewed-reference",
+  "statusLabel": "Reference drawing · unreviewed",
+  "statusNote": "Automatic drawing published by draftwright. No manufacturer revision, tolerance or approval is supplied. Dimensions are source annotations; use the original STEP for geometry.",
+  "stepFile": "linkrods.step",
+  "stepSha256": "3674e4b01ee0e983c81ed170f0574cda201ad08e0f7b46e05e4f4613400fd5f7",
+  "pdfFile": "sheet.pdf",
+  "reviewFile": "source-review.json",
+  "sheets": [
+    {
+      "id": "sheet-1",
+      "title": "Orthographic and isometric views",
+      "svgFile": "sheet.svg",
+      "pdfPage": 1,
+      "viewBox": [
+        0,
+        0,
+        841.8898,
+        595.2756
+      ],
+      "regions": [
+        {
+          "id": "overview",
+          "label": "Part overview",
+          "partId": "linkrod-body",
+          "bounds": [
+            62,
+            137,
+            267,
+            119
+          ],
+          "note": "Both bore locations and the connecting web in the source top projection. The model is one solid.",
+          "dimension": "3.875 mm horizontal center spacing; 0.125 mm offset",
+          "focusPoint": [
+            0.00563514,
+            0.001,
+            -0.00325
+          ],
+          "mappingStatus": "confirmed",
+          "camera": {
+            "direction": [
+              0.7,
+              1.8,
+              2.6
+            ],
+            "halfSize": [
+              0.0025101423962041736,
+              0.0010000000474974513,
+              0.0007500001229345798
+            ],
+            "target": [
+              0.00563514,
+              0.001,
+              -0.00325
+            ]
+          }
+        },
+        {
+          "id": "large-bore",
+          "label": "Large bore",
+          "partId": "linkrod-body",
+          "bounds": [
+            99,
+            181,
+            47,
+            47
+          ],
+          "note": "Through-bore annotation printed as Ø1.034 THRU. The source STEP radius is 0.517234284238 mm; the drawing rounds the diameter.",
+          "dimension": "Ø1.034 mm THRU",
+          "focusPoint": [
+            0.003875,
+            0.001,
+            -0.00325
+          ],
+          "mappingStatus": "confirmed",
+          "camera": {
+            "direction": [
+              0.18,
+              2.6,
+              1
+            ],
+            "halfSize": [
+              0.000875,
+              0.0011,
+              0.000875
+            ],
+            "target": [
+              0.003875,
+              0.001,
+              -0.00325
+            ]
+          }
+        },
+        {
+          "id": "small-bore",
+          "label": "Small bore",
+          "partId": "linkrod-body",
+          "bounds": [
+            222,
+            195,
+            27,
+            26
+          ],
+          "note": "Through-bore annotation printed as Ø0.440 THRU. The source STEP radius is 0.219923711459 mm; the drawing rounds the diameter.",
+          "dimension": "Ø0.440 mm THRU",
+          "focusPoint": [
+            0.00775,
+            0.001,
+            -0.003125
+          ],
+          "mappingStatus": "confirmed",
+          "camera": {
+            "direction": [
+              0.18,
+              2.6,
+              1
+            ],
+            "halfSize": [
+              0.00055,
+              0.0011,
+              0.00055
+            ],
+            "target": [
+              0.00775,
+              0.001,
+              -0.003125
+            ]
+          }
+        },
+        {
+          "id": "connecting-web",
+          "label": "Connecting web",
+          "partId": "linkrod-body",
+          "bounds": [
+            143,
+            194,
+            80,
+            23
+          ],
+          "note": "The web is a feature of the same solid. Source review flags freeform surfaces as not fully dimensioned; this region identifies geometry, not a manufacturing requirement.",
+          "focusPoint": [
+            0.0059,
+            0.001,
+            -0.0032
+          ],
+          "mappingStatus": "confirmed",
+          "camera": {
+            "direction": [
+              0.3,
+              1.3,
+              2
+            ],
+            "halfSize": [
+              0.00155,
+              0.0007,
+              0.00065
+            ],
+            "target": [
+              0.0059,
+              0.001,
+              -0.0032
+            ]
+          }
+        }
+      ],
+      "assetId": "occt-linkrods-drawing-pdf",
+      "svgAssetId": "occt-linkrods-drawing-svg",
+      "format": "pdf",
+      "rotation": 0,
+      "coordinateFrame": "page-top-left"
+    }
+  ],
+  "modelRevision": "sha256:0fcf3da383d9da8cb65f870d50bc24200864254a23192ad5c10646804de4076a",
+  "mappingRevision": "annora-linkrods-map-1",
+  "pairing": {
+    "status": "source-derived",
+    "evidence": "The pinned drawing source STEP has the same SHA-256 as the imported OCCT model source."
+  },
+  "assets": [
+    {
+      "id": "occt-linkrods-drawing-pdf",
+      "kind": "pdf",
+      "file": "sheet.pdf",
+      "sha256": "20799c4c0107c3cc7998f7c56c014b91533b83b413e85954710801a6bc0e7c08"
+    },
+    {
+      "id": "occt-linkrods-drawing-svg",
+      "kind": "svg",
+      "file": "sheet.svg",
+      "sha256": "836ff6ef0a8adf40d0b27790ea8d5f55c396754ac41bff376d6a7e9b17de6c2d",
+      "sourceAssetId": "occt-linkrods-drawing-pdf"
+    },
+    {
+      "id": "occt-linkrods-drawing-step",
+      "kind": "step",
+      "file": "linkrods.step",
+      "sha256": "3674e4b01ee0e983c81ed170f0574cda201ad08e0f7b46e05e4f4613400fd5f7"
+    }
+  ]
+}

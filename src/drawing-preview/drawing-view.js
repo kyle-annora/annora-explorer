@@ -42,7 +42,7 @@ function cornerPath([x, y, width, height], scale) {
 /** A single, event-driven SVG sheet. The host owns navigation and toolbar UI;
  * this module owns only document pan, zoom and accessible linked regions.
  * Programmatic selection does not call onSelect, avoiding a 3D/2D echo loop. */
-export function createDrawingView({ mount, assetURL, sheet, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
+export function createDrawingView({ mount, assetURL, sheet, showOverview = false, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
   document: doc = globalThis.document, window: win = globalThis.window, ResizeObserver: Observer = globalThis.ResizeObserver } = {}) {
   if (!mount?.replaceChildren || !doc?.createElementNS) throw new TypeError('A drawing mount and browser document are required.');
   const paper = bounds(sheet?.viewBox, 'Sheet viewBox');
@@ -89,14 +89,20 @@ export function createDrawingView({ mount, assetURL, sheet, onSelect = () => {},
   const paperRect = svg('rect', { x: paper[0], y: paper[1], width: paper[2], height: paper[3], fill: '#fff', 'pointer-events': 'none' });
   const artwork = svg('image', { href: source.href, x: paper[0], y: paper[1], width: paper[2], height: paper[3], preserveAspectRatio: 'none', 'pointer-events': 'none', 'aria-hidden': 'true' });
   stage.append(paperRect, artwork);
-  for (const region of interactiveRegions) {
-    const group = svg('g', { class: 'drawing-region', role: 'button', tabindex: '0', 'aria-label': `${region.label}. Locate this detail in 3D.`, 'aria-pressed': 'false', 'data-region-id': region.id });
-    group.style.cursor = 'pointer';
-    const hit = svg('rect', { fill: 'transparent', 'pointer-events': 'all' });
+  for (const region of showOverview ? regions : interactiveRegions) {
+    const interactive = interactiveRegions.includes(region);
+    const group = svg('g', { class: 'drawing-region', 'data-region-id': region.id,
+      ...(interactive ? { role: 'button', tabindex: '0', 'aria-label': `${region.label}. Locate this detail in 3D.`, 'aria-pressed': 'false' }
+        : { role: 'presentation', 'aria-hidden': 'true', 'pointer-events': 'none' }) });
+    if (interactive) group.style.cursor = 'pointer';
+    const hit = interactive ? svg('rect', { fill: 'transparent', 'pointer-events': 'all' }) : null;
     const fill = svg('rect', { class: 'drawing-region-fill', x: region.bounds[0], y: region.bounds[1], width: region.bounds[2], height: region.bounds[3], 'pointer-events': 'none' });
     const corners = svg('path', { class: 'drawing-region-corners', fill: 'none', 'stroke-width': '1.5', 'vector-effect': 'non-scaling-stroke', 'pointer-events': 'none' });
-    group.append(hit, fill, corners); stage.append(group);
-    regionElements.set(region.id, { group, hit, corners, region });
+    if (interactive) group.append(hit, fill, corners);
+    else group.append(corners); // Authoring-only overview outline never covers or captures a detail target.
+    stage.append(group);
+    regionElements.set(region.id, { group, hit, corners, region, interactive });
+    if (!interactive) continue;
     listen(group, 'keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault(); event.stopPropagation();
@@ -124,7 +130,7 @@ export function createDrawingView({ mount, assetURL, sheet, onSelect = () => {},
     stage.setAttribute('transform', `translate(${tx} ${ty}) scale(${scale})`);
     for (const { hit, corners, region } of regionElements.values()) {
       const [x, y, w, h] = drawingHitBounds(region.bounds, scale, paper);
-      for (const [name, value] of Object.entries({ x, y, width: w, height: h })) hit.setAttribute(name, String(value));
+      if (hit) for (const [name, value] of Object.entries({ x, y, width: w, height: h })) hit.setAttribute(name, String(value));
       corners.setAttribute('d', cornerPath(region.bounds, scale));
     }
     onViewChange({ zoom: scale / fitScale, canZoomIn: scale / fitScale < MAX_ZOOM - .001, canZoomOut: scale / fitScale > 1.001 });
@@ -170,9 +176,9 @@ export function createDrawingView({ mount, assetURL, sheet, onSelect = () => {},
   function select(id, { focus = false } = {}) {
     if (disposed || (id !== null && !regions.some(region => region.id === id))) return false;
     selectedId = id;
-    for (const [regionId, { group }] of regionElements) {
+    for (const [regionId, { group, interactive }] of regionElements) {
       group.setAttribute('data-selected', String(regionId === id));
-      group.setAttribute('aria-pressed', String(regionId === id));
+      if (interactive) group.setAttribute('aria-pressed', String(regionId === id));
     }
     if (focus && id !== null) focusRegion(id);
     return true;

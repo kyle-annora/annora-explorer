@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { requestContext, requestDraftKey, createRequestDraft, removeRequestContext, replaceRequestContext } from '../../src/product-room/request-state.js';
-import { createInquiryDraft, projectContextKey, reviewInquiry } from '../../src/product-room/project-domain.js';
+import { createInquiryDraft, projectContextKey, reviewInquiry, reviewRevision, reviewNextStep, compareQuotes } from '../../src/product-room/project-domain.js';
+import { reviewQuote, reviewReply, reviewCustomerReply, reviewAcknowledgement } from '../../src/product-room/seller-domain.js';
 import { createDemoProjectRepository, PROJECT_STORAGE_KEY, parseProjectStore } from '../../src/product-room/project-repository.js';
 import { createDrawingProjectRepository, DRAWING_PROJECT_STORAGE_KEY } from '../../src/product-room/drawing-inquiry.js';
 import { sampleInquiryValues } from '../../src/product-room/project-fixtures.js';
@@ -33,7 +34,7 @@ async function savedDraft(repository, selected = context) {
 test('drawing inquiries persist the exact selected region, part and asset revision through review and reopening', async () => {
   const { options, repository, data } = setup();
   assert.equal(repository.mode, 'drawing-preview');
-  assert.equal(repository.capabilities.inquiryOnly, true);
+  assert.equal(repository.capabilities.inquiryOnly, false);
   const draft = await savedDraft(repository), review = reviewInquiry(draft);
   assert.deepEqual(review.draft.context.drawing, context.drawing);
   const project = await repository.submitInquiry(review);
@@ -143,4 +144,84 @@ test('corrupted drawing identity never silently resets saved inquiries', async (
   const corrupted = JSON.stringify(stored); data.set(DRAWING_PROJECT_STORAGE_KEY, corrupted);
   await assert.rejects(repository.listProjects(), { code: 'STORAGE_CORRUPT' });
   assert.equal(data.get(DRAWING_PROJECT_STORAGE_KEY), corrupted);
+});
+
+test('mapping editions are pinned without rewriting legacy draft keys or submitted records', async () => {
+  const { repository, options, data } = setup();
+  const original = await savedDraft(repository);
+  const originalKey = projectContextKey(context), bytes = data.get(DRAWING_PROJECT_STORAGE_KEY);
+  assert.equal(originalKey, JSON.stringify(['bearing-study', 'bearing-study', 'model-r1', null, null,
+    ['housing-drawing', 'A', 'housing-sheet', 'sha256:paired-asset-1']]));
+  const selected = copy(context); selected.drawing.mappingRevision = 'mapping-1';
+  const first = await repository.getDraft(selected);
+  assert.equal(first.revision, 0);
+  assert.notEqual(projectContextKey(selected), originalKey);
+  assert.equal(data.get(DRAWING_PROJECT_STORAGE_KEY), bytes, 'reading new metadata does not rewrite old storage');
+  assert.deepEqual(await createDrawingProjectRepository(options).getDraft(context), original);
+  const saved = await savedDraft(repository, selected), project = await repository.submitInquiry(reviewInquiry(saved));
+  selected.drawing.mappingRevision = 'mapping-2';
+  assert.equal((await repository.getDraft(selected)).revision, 0);
+  assert.notEqual(requestDraftKey(selected), requestDraftKey(project.context));
+  assert.equal((await repository.getProject(project.id)).context.drawing.mappingRevision, 'mapping-1');
+  for (const value of ['', null, 'x'.repeat(321), 'map\n1']) {
+    const invalid = copy(context); invalid.drawing.mappingRevision = value;
+    assert.throws(() => createInquiryDraft(invalid), { code: 'VALIDATION' });
+  }
+});
+
+test('drawing inquiry, seller review, revision, comparison and next step retain one exact source context', async () => {
+  const { repository, options, data } = setup();
+  const selected = copy(context); selected.drawing.mappingRevision = 'mapping-1';
+  let project = await repository.submitInquiry(reviewInquiry(await savedDraft(repository, selected)));
+  const pinned = copy(project.context), inquiry = copy(project.inquiry);
+  const seller = createDrawingProjectRepository(options);
+  let draft = await seller.getQuoteDraft(project.id);
+  assert.match(draft.values.lineItems[0].label, /Bearing housing/);
+  assert.doesNotMatch(draft.values.lineItems[0].label, /crank/i);
+  assert.equal(draft.values.lineItems[0].unitPrice, '', 'no automatic fake quote or inferred price');
+  await assert.rejects(seller.createSampleQuote(project.id), { code: 'UNSUPPORTED_PRODUCT' });
+  draft.values.lineItems[0].unitPrice = '28';
+  draft = await seller.saveQuoteDraft(draft);
+  assert.equal((await repository.getProject(project.id)).quotes.length, 0, 'saved seller draft stays private to seller projection');
+  await assert.rejects(seller.issueQuote(draft), { code: 'STALE_REVIEW' });
+  project = await seller.issueQuote(reviewQuote(project, draft));
+  const firstQuote = copy(project.quotes[0]);
+  project = await repository.requestRevision(reviewRevision(project, firstQuote.id, { quantity: '30', targetWeeks: '5', notes: 'Please review the fit at the selected bearing bore.' }));
+  const change = project.changes[0];
+  project = await seller.sendReply(reviewReply(project, { kind: 'clarification', changeId: change.id, body: 'Is the saved drawing edition still the reference for this request?' }));
+  project = await repository.sendCustomerReply(reviewCustomerReply(project, { replyTo: project.messages[0].id, body: 'Yes. Please retain the saved source and mapping edition.' }));
+  draft = await seller.getQuoteDraft(project.id);
+  draft.values.quantity = '30'; draft.values.lineItems[0].quantity = '30'; draft.values.lineItems[0].unitPrice = '26';
+  draft = await seller.saveQuoteDraft(draft);
+  const reply = { kind: 'change-response', changeId: change.id, body: 'Quantity revised. The original source remains the reference.', resolutions: [
+    { topic: 'quantity', status: 'accepted', response: '30 supports included.' },
+    { topic: 'timing', status: 'alternative', response: 'Timing follows engineering review.' },
+    { topic: 'notes', status: 'alternative', response: 'Fit remains to be confirmed against the pinned source drawing.' },
+  ] };
+  project = await seller.issueQuote(reviewQuote(project, draft, reply));
+  assert.deepEqual(project.quotes[0], firstQuote);
+  assert.ok(compareQuotes(project.quotes[0], project.quotes[1]).find(row => row.key === 'quantity').changed);
+  project = await repository.confirmNextStep(reviewNextStep(project, project.quotes[1].id, { intent: 'engineering-review', message: 'Review the pinned bore detail with engineering.' }));
+  project = await seller.acknowledgeNextStep(reviewAcknowledgement(project, { nextStepId: project.nextSteps[0].id, body: 'We will discuss the exact saved model, sheet and bore region.' }));
+  assert.deepEqual(project.context, pinned);
+  assert.deepEqual(project.inquiry, inquiry);
+  assert.deepEqual((await createDrawingProjectRepository(options).getProject(project.id)).context, pinned);
+  assert.equal(data.has(PROJECT_STORAGE_KEY), false);
+});
+
+test('drawing sample inquiry is contextual and edition-specific while the ordinary repository keeps its product gate', async () => {
+  const { repository, options } = setup();
+  const selected = copy(context); selected.drawing.mappingRevision = 'mapping-1';
+  const first = await repository.createSampleInquiry(selected);
+  assert.match(first.inquiry.values.application, /bearing bore.*Bearing housing/);
+  assert.equal(first.inquiry.values.stroke, '');
+  assert.equal(first.quotes.length, 0);
+  assert.equal((await repository.createSampleInquiry(selected)).id, first.id);
+  const newer = copy(selected); newer.drawing.mappingRevision = 'mapping-2';
+  assert.notEqual((await repository.createSampleInquiry(newer)).id, first.id);
+  const ordinary = createDemoProjectRepository(options);
+  await assert.rejects(ordinary.createSampleInquiry(selected), { code: 'UNSUPPORTED_PRODUCT' });
+  let draft = await ordinary.getDraft(selected); draft.values = sampleInquiryValues(selected); draft = await ordinary.saveDraft(draft);
+  const saved = await ordinary.submitInquiry(reviewInquiry(draft));
+  await assert.rejects(ordinary.getQuoteDraft(saved.id), { code: 'UNSUPPORTED_PRODUCT' });
 });

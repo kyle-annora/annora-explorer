@@ -6,8 +6,9 @@ export function createNavigation(rootId) {
 export function selectNode(state, nodes, id) {
   if (!nodes.has(id)) return state;
   const path = ancestors(nodes, id).map(node => node.id);
-  const expanded = new Set(path.slice(0, -1));
-  if (state.expanded.has(id)) expanded.add(id);
+  // Selection reveals its ancestry without closing branches the visitor opened.
+  // Disclosure and the explicit Collapse action remain separate choices.
+  const expanded = new Set([...state.expanded, ...path.slice(0, -1)]);
   return { ...state, selectedId: id, expanded };
 }
 export function enterScope(state, nodes, id) {

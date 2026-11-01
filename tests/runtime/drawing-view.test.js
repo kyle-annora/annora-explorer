@@ -31,14 +31,14 @@ class Element {
   hasPointerCapture(id) { return this.captures.has(id); }
   releasePointerCapture(id) { this.captures.delete(id); }
 }
-function fixture(size = { width: 800, height: 600 }) {
+function fixture(size = { width: 800, height: 600 }, options = {}) {
   const mount = new Element('div'); mount.rect = { left: 0, top: 0, ...size };
   const selected = [], views = [], errors = [];
   const observers = [];
   class Observer { constructor(callback) { this.callback = callback; observers.push(this); } observe(element) { this.element = element; } disconnect() { this.disconnected = true; } }
   const doc = { baseURI: 'https://example.test/repo/drawings/', createElementNS: (namespace, tag) => new Element(tag) };
   const viewer = createDrawingView({ mount, assetURL: './sheet.svg', sheet, document: doc, window: new Element('window'), ResizeObserver: Observer,
-    onSelect: (...args) => selected.push(args), onViewChange: view => views.push(view), onError: error => errors.push(error) });
+    onSelect: (...args) => selected.push(args), onViewChange: view => views.push(view), onError: error => errors.push(error), ...options });
   const root = viewer.element, stage = root.children.at(-1);
   const region = id => stage.children.find(child => child.getAttribute('data-region-id') === id);
   const transform = () => stage.getAttribute('transform').match(/[-+]?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
@@ -134,4 +134,18 @@ test('ordinary wheel scrolling remains available; zoom opts in and disposal remo
   assert.equal(f.mount.children.length, 0); assert.equal(f.observers[0].disconnected, true);
   assert.ok([...f.root.listeners.values()].every(listeners => listeners.size === 0));
   assert.equal(f.viewer.select('small'), false);
+});
+
+
+test('authoring can show a selected overview outline without adding a target or keyboard stop', () => {
+  const f = fixture(undefined, { showOverview: true }), overview = f.region('overview');
+  assert.ok(overview); assert.equal(overview.getAttribute('role'), 'presentation');
+  assert.equal(overview.getAttribute('aria-hidden'), 'true'); assert.equal(overview.getAttribute('tabindex'), undefined);
+  assert.equal(overview.getAttribute('pointer-events'), 'none'); assert.equal(overview.children.length, 1);
+  assert.equal(overview.children[0].tag, 'path'); assert.equal(overview.listeners.size, 0);
+  f.viewer.select('overview'); assert.equal(overview.getAttribute('data-selected'), 'true');
+  assert.equal(overview.getAttribute('aria-pressed'), undefined);
+  f.pointer('pointerdown', 400, 100); f.pointer('pointerup', 400, 100); assert.equal(f.selected.length, 0);
+  f.pointer('pointerdown', 120, 120); f.pointer('pointerup', 120, 120); assert.equal(f.selected[0][0], 'large');
+  f.viewer.zoomBy(2); assert.ok(overview.children[0].getAttribute('d').startsWith('M'));
 });

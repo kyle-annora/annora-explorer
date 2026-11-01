@@ -13,6 +13,7 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { CopyShader } from 'three/addons/shaders/CopyShader.js';
 import { childForMesh, createOffsets, positionAt, ancestors } from './model-state.js';
 import { viewingRegion } from './viewing-region.js';
+import { createPointerIntent } from './pointer-intent.js';
 import { loadBinary } from './asset-load.js';
 import { abortable, throwIfAborted } from './network-load.js';
 import { DampedMotion, nearestAngle, fitProjectedPoints } from './motion.js';
@@ -228,6 +229,7 @@ export class AssemblyScene {
 
   fitMeshes(meshes, animate = true, viewDirection = this.currentDirection(true), poses = null) {
     if (!meshes.length) return;
+    this.framedSubject = { scopeId: this.scopeId, meshNames: meshes.map(mesh => mesh.name) };
     const layout = this.layoutRegion(); this.lastLayoutKey = layout.key;
     const points = [];
     meshes.forEach(mesh => {
@@ -290,7 +292,17 @@ export class AssemblyScene {
   refitLayout(animate = true) {
     if (!this.ready || this.layoutRegion().key === this.lastLayoutKey) return;
     if(this.tourFrame){this.tourCameraKey=null;this.fitTourCamera(this.tourFrame,animate);}
-    else this.fit(animate,this.currentDirection(true));
+    else {
+      this.cancelBenchmark('settings-changed');
+      this.fitMeshes(this.framingMeshes(),animate,this.currentDirection(true),this.separationAction?.playing ? this.restTargets(Math.max(this.separationAction.from,this.separationAction.to)) : null);
+    }
+  }
+
+  framingMeshes() {
+    const subject = this.framedSubject;
+    if (subject?.scopeId !== this.scopeId || !subject.meshNames?.length) return this.active;
+    const active = new Set(this.active), meshes = subject.meshNames.map(name => this.meshes.get(name));
+    return meshes.every(mesh => active.has(mesh)) ? meshes : this.active;
   }
 
   applyProjectionOffset(x,y) {
@@ -564,6 +576,7 @@ export class AssemblyScene {
       scopeId:this.scopeId,selectedId:this.selectedId,isolated:this.isolated,mode:this.mode,technical:Boolean(this.technical),
       renderStyle:presentationStyle(this),
       explosion:this.fraction,operation:{...this.operationPlayer.state()},
+      framedSubject:this.framedSubject ? {scopeId:this.framedSubject.scopeId,meshNames:[...this.framedSubject.meshNames]} : null,
       camera:{position:this.camera.position.toArray(),target:this.controls.target.toArray(),offsetX:this.offsetX||0,offsetY:this.offsetY||0,layoutKey:this.layoutRegion().key},
       scopeViews:new Map([...this.scopeViews].map(([id,view])=>[id,{fraction:view.fraction,direction:view.direction.clone()}])),
       poses:new Map([...this.meshes].map(([name,mesh])=>[name,{position:mesh.position.clone(),quaternion:mesh.quaternion.clone(),scale:mesh.scale.clone()}]))
@@ -603,6 +616,7 @@ export class AssemblyScene {
     else this.operationSampler?.restore();
     this.explosionTarget=snapshot.explosion;this.separationMotion.to([snapshot.explosion],true);this.reportSeparation(snapshot.explosion);
     this.updateContextVisibility();
+    this.framedSubject=snapshot.framedSubject ? {scopeId:snapshot.framedSubject.scopeId,meshNames:[...snapshot.framedSubject.meshNames]} : null;
     if(!animate||reducedMotion.matches)for(const mesh of this.meshes.values())mesh.userData.visibility.to(mesh.userData.visibility.target,true);
     this.beginTransformTransition(snapshot.poses,animate);this.syncEdges();this.resizeDrawingBuffer();
     const target=new THREE.Vector3().fromArray(snapshot.camera.target),offset=new THREE.Vector3().fromArray(snapshot.camera.position).sub(target);
@@ -613,7 +627,7 @@ export class AssemblyScene {
     }else{
       // Projection offsets are screen pixels. After rotation or panel changes,
       // preserve the view direction while fitting the restored poses to today's clear region.
-      this.fitMeshes(this.active,animate,direction,snapshot.poses);
+      this.fitMeshes(this.framingMeshes(),animate,direction,snapshot.poses);
     }
     this.emitOperation(true);this.invalidate();return true;
   }
@@ -833,17 +847,20 @@ export class AssemblyScene {
       const result = this.raycaster.intersectObjects(this.active,false)[0];
       return result ? childForMesh(this.nodes,this.scopeId,result.object.name) : null;
     };
-    const pointers = new Set();
-    const listen=(type,handler)=>canvas.addEventListener(type,handler,{signal:this.abort.signal});
-    listen('dblclick',e=>{if(!this.ready||this.benchmark.active)return;const node=hit(e);if(node&&node.id!==this.scopeId){this.callbacks.interact?.('inspect');this.callbacks.inspect?.(node.id);}});
-    listen('pointerdown',e => { pointers.add(e.pointerId); if(pointers.size>1||e.button!==0||!e.isPrimary){this.pointerDown=null;return;} this.pointerDown = { x:e.clientX,y:e.clientY,id:e.pointerId }; });
+    const intent = createPointerIntent();
+    // Record a completed release before OrbitControls releases pointer capture.
+    const listen=(type,handler)=>canvas.addEventListener(type,handler,{signal:this.abort.signal,capture:type==='pointerup'});
+    listen('dblclick',e=>{if(!this.ready||this.benchmark.active||!intent.canDoubleClick())return;const node=hit(e);if(node&&node.id!==this.scopeId){this.callbacks.interact?.('inspect');this.callbacks.inspect?.(node.id);}});
+    listen('pointerdown',e => intent.down(e));
     listen('pointerup',e => {
-      pointers.delete(e.pointerId); const down = this.pointerDown; this.pointerDown = null;
-      if (!this.ready || this.benchmark.active || !down || down.id !== e.pointerId || Math.hypot(e.clientX-down.x,e.clientY-down.y)>5) return;
+      const click = intent.up(e);
+      if (!this.ready || this.benchmark.active || !click) return;
       const node = hit(e); if (node && node.id !== this.scopeId) this.callbacks.select?.(node.id);
     });
-    listen('pointercancel',e => { pointers.delete(e.pointerId); this.pointerDown = null; });
+    listen('pointercancel',e => intent.cancel(e));
+    listen('lostpointercapture',e => intent.cancel(e));
     listen('pointermove',e => {
+      intent.move(e);
       if (!this.ready || this.benchmark.active || e.buttons || e.pointerType === 'touch') return;
       const now = performance.now(); if (now - (this.lastPick || 0) < 65) return; this.lastPick = now;
       const node = hit(e); const rect = canvas.getBoundingClientRect();
@@ -907,7 +924,7 @@ export class AssemblyScene {
     disposeObjectResources([this.scene,this.sourceRoot],this.edgeGeometries?.values());
     for(const pass of this.composer.passes)pass.dispose?.();this.composer.dispose();this.environmentTarget.dispose();
     this.renderer.dispose();this.renderer.forceContextLoss();this.renderer.domElement.remove();
-    this.meshes.clear();this.edges.clear();this.movingMeshes.clear();this.active=[];this.contextMeshes=[];
+    this.meshes.clear();this.edges.clear();this.movingMeshes.clear();this.active=[];this.contextMeshes=[];this.framedSubject=null;
   }
 
   frame(time) {

@@ -16,11 +16,24 @@
     "tour": true,
     "themes": true,
     "quality": true,
-    "renderStyles": ["engineering", "linework", "flat"]
+    "renderStyles": [
+      "engineering",
+      "linework",
+      "flat"
+    ]
   },
   "models": [
-    { "manifest": "content/models/kinetic-01/manifest.json" },
-    { "manifest": "content/models/apollo/manifest.json" },
-    { "manifest": "content/models/linkrods/manifest.json" }
+    {
+      "manifest": "content/models/kinetic-01/manifest.json"
+    },
+    {
+      "manifest": "content/models/apollo/manifest.json"
+    },
+    {
+      "manifest": "content/models/linkrods/manifest.json"
+    },
+    {
+      "manifest": "content/models/sk08/manifest.json"
+    }
   ]
 }
