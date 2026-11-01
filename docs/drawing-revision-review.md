@@ -73,6 +73,8 @@ export path and a production asset adapter are separate deployment choices.
 - Studio authoring at 1440/390/320px: import, draw, link, confirm, save, 90-degree rotation/redraw, cancel, remove, A/B switching and reload passed. Rotated coordinates were checked against expected canonical page bounds.
 - Exact-reference audit: unknown/empty supplied sheet, detail or mapping, unknown product and wrong asset hash remained view-only across reload/direct inquiry entry. Valid archived A and released B stayed usable. No browser errors.
 - Source import/storage and static-release installation: 25 focused tests passed, including actual PDF B hash/page validation, missing originals, corrupt bytes, quota errors, cleanup and preservation of A.
+- Retained-draft browser branch: save quotation draft A → adopt B while retaining it → verify A draft review is blocked → explicitly review replacement with B → new B draft. Original inquiry, issued v1 and prior customer change remain byte-identical; no duplicate adoption event or browser errors.
+- Live GitHub Pages: the complete A→B→v2/history/next-step path passed against code commit `28c3017f70535b286aa29d207846f3d2febb05d7`, with no browser errors. [Successful build and deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/41329471497).
 - `src/explorer/` has no changes. Existing fixed-source inquiry/quote/change/next-step flow remains functional.
 
 These are functional checks and bounded viewport observations on the development
