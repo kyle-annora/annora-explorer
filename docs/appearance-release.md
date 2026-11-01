@@ -1,6 +1,6 @@
 # Explorer appearance and interaction release
 
-Status: compiled acceptance passed; hosted acceptance is pending deployment.
+Status: compiled and hosted acceptance passed.
 
 ## Approved behavior
 
@@ -8,6 +8,10 @@ The compact production layout remains the foundation. This release restores a
 consistent relationship between the chosen accent and the actual 3D interaction,
 adds a visible reference-grid preference, and completes Light and Dark appearance
 for the shared Explorer used by Product Room and Studio.
+
+The synchronized surface is the shared 3D canvas and its floating controls. The
+surrounding Product Room and Studio commerce pages retain their existing visual
+theme; this release does not introduce a dark commerce-page design.
 
 - The default accent remains Ember. All preset and custom accent colors apply to
   hover and persistent selection in Engineering, Linework and Flat rendering.
@@ -104,3 +108,38 @@ continuity. They do not establish a speedup on low-end GPUs. The new contour pas
 uses existing pixel budgets; its per-pixel shader work still needs profiling on
 representative physical hardware. Four-times CPU throttling does not simulate a
 low-end GPU, and mobile viewport emulation does not replace device testing.
+
+## Hosted verification
+
+Implementation revision:
+[`81cd96f8053901c176029fb9360f3c7d5f9146c3`](https://github.com/kyle-annora/annora-explorer/commit/81cd96f8053901c176029fb9360f3c7d5f9146c3).
+[GitHub Pages deployment 41346787029](https://github.com/kyle-annora/annora-explorer/actions/runs/41346787029)
+succeeded. Hosted entry-point script and stylesheet URLs match the locally tested
+production bundle.
+
+Focused hosted checks passed the 12-state render/appearance matrix, actual hover
+and persistent selection, custom accent and grid, all six mobile host/width
+cases, and cross-host visitor preferences. The 21-step walkthrough completed at
+320 px. Source drawing A→B and overview v1→v2 for both SK08 and connecting rod
+passed again online, preserving historical records and original PDFs. No browser
+errors were recorded. The 72-color pixel sweep and CPU-throttled lifecycle matrix
+were not redundantly repeated against the identical hosted bundle.
+
+Hosted evidence: `hosted/results.json`, `mobile-hosted/results.json`,
+`cross-host-hosted.log`, `one-button-hosted.log`, `drawing-revision-hosted.log`
+and `overview-hosted/results.json` under `/tmp/annora-appearance-qa/`. The first
+three browser harnesses wrote their complete passing results before their Node
+processes remained open during cleanup; those QA processes were terminated after
+confirming their Chrome child processes had exited. This occurred after all
+assertions and is not evidence of a browser-page runtime failure.
+
+## Review entry points
+
+- [Explorer](https://kyle-annora.github.io/annora-explorer/?model=kinetic-01)
+- [Explorer in Dark](https://kyle-annora.github.io/annora-explorer/?model=kinetic-01&appearance=dark)
+- [Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)
+- [Studio](https://kyle-annora.github.io/annora-explorer/studio/)
+
+Open Appearance at the top right of the viewer for Light/Dark, accent presets and
+a custom hex color. Open the render-style Display dropdown for Reference grid.
+In Studio on a narrow screen, open Product model to mount the interactive preview.
