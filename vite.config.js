@@ -38,6 +38,7 @@ export default defineConfig({
         room: fileURLToPath(new URL('./product-room/index.html', import.meta.url)),
         studio: fileURLToPath(new URL('./studio/index.html', import.meta.url)),
         drawingPreview: fileURLToPath(new URL('./drawing-preview/index.html', import.meta.url)),
+        designPreview: fileURLToPath(new URL('./design-preview/index.html', import.meta.url)),
         walkthrough: fileURLToPath(new URL('./walkthrough/index.html', import.meta.url)),
       },
       output: { manualChunks: id => id.includes('/node_modules/three/') ? 'three' : undefined },
