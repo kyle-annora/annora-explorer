@@ -94,6 +94,7 @@ removing those source fixtures also requires updating their tests.
 
 ## Delivery documentation
 
+- [Release review and live verification](docs/release-review.md)
 - [Configuration](docs/configuration.md) and [model package contract](docs/models.md)
 - [Host integration](docs/integration.md) and [API reference](docs/api.md)
 - [Architecture](docs/architecture.md) and [decision record](docs/decisions.md)

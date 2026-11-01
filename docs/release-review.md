@@ -57,6 +57,12 @@ part of this repository or its history.
   focus, linework and flat highlights, explosion/reassembly, the crank operating
   cycle, switching to Apollo and uninterrupted completion of both 60-second
   tours. The review recorded no browser warnings or errors.
+- Live bench-vise review confirms all three rendering styles, focus/isolation,
+  explosion/restore, authored operation, full tour completion and manual takeover.
+  Portrait 390×844 and landscape 844×390 layouts have no horizontal overflow.
+  A host on a separate localhost origin controls the deployed Pages iframe through
+  the JSON interface: capability discovery, selection/focus, motion/tour controls,
+  bookmark capture/restore, revision rejection and disconnect/remount all pass.
 
 The independent project's [release review](https://github.com/kyle-annora/annora-explorer-bench-vise/blob/main/docs/release-review.md)
 and [onboarding evidence](https://github.com/kyle-annora/annora-explorer-bench-vise/blob/main/docs/onboarding-evidence.json)
