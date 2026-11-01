@@ -1,6 +1,6 @@
 # Shared workspace visual rollout
 
-Status: compiled release acceptance passed; hosted verification pending.
+Status: compiled release acceptance and hosted commercial/drawing verification passed.
 
 ## Approved direction
 
@@ -112,6 +112,62 @@ Compiled evidence includes:
 - `/tmp/annora-production-rollout/overview-built/results.json`
 - `/tmp/annora-production-rollout/mobile-details-results.json`
 
-Hosted verification and separate Explorer/rendering/performance observations are
-recorded at delivery. Browser viewport emulation and CPU throttling do not
-establish physical-phone or low-end GPU performance.
+## Explorer rendering and performance checks
+
+The compiled Product Room and Studio were exercised in Chrome at 1440 × 950
+with 4× CPU throttling and at 390 × 844 with touch and reduced motion. Each
+active Explorer retained one canvas and one WebGL context while switching
+Engineering, Linework and Flat rendering and exercising play, pause, replay and
+40% seeking. Draw and clear counters remained unchanged across settled one-second
+and 800 ms idle intervals. Touch dragging changed the model view on both mobile
+routes. Embedded identity and model selectors remained hidden; their existing
+controls remained available. Studio loads its mobile 3D preview only after the
+seller opens Product model.
+
+A focused follow-up verified the Studio visibility correction on the rebuilt
+application: an active operation pauses when the host receives a hidden-document
+visibility event, its progress remains fixed, and returning does not autoplay.
+Product Room passed the same pause check. These checks synthesize the visibility
+event; they do not certify operating-system tab suspension behavior. The change
+uses the existing host pause boundary and does not change the renderer.
+
+Evidence: `/tmp/explorer-production-built-performance.json` records the four
+initial route passes; `/tmp/studio-hide-pause-final.json` records the Studio
+follow-up after the visibility fix. Screenshots are
+`/tmp/production-built-{room,studio}-{cpu4,mobile}.png`. Browser viewport
+emulation and CPU throttling are regression checks, not physical-phone or
+low-end GPU performance measurements.
+
+## Hosted verification
+
+The production rollout was tested on GitHub Pages at commit
+`f9f1526135df325e7a7db938feedf5bb54addd56`, following successful deployment
+[41342813064](https://github.com/kyle-annora/annora-explorer/actions/runs/41342813064).
+The public [walkthrough](https://kyle-annora.github.io/annora-explorer/walkthrough/)
+and the complete source drawing revision workflow both passed in new browser
+contexts.
+
+- At 320 × 740 px, the actual Continue demo / Confirm & continue control completed
+  all 21 states. Review gates remained explicit; the completed case contained one
+  project, two quotations, one customer change and one confirmed next step with
+  a seller acknowledgment. The control remained reachable and the page had no
+  horizontal overflow.
+- The source workflow imported the actual demonstration B PDF, manually confirmed
+  the source pairing and regions, reviewed and published the release, explicitly
+  adopted B in the same project, and issued quotation v2 against B. The original
+  inquiry, product context and entire issued v1 remained unchanged. Earlier
+  discussions retained A, and the exact historical PDFs opened and reloaded.
+- Both hosted journeys completed without page exceptions. A separate hosted
+  presentation check confirmed the deployed Product Room's white 64 px header,
+  neutral `#f3f3f1` canvas and new compiled stylesheet, with no desktop overflow.
+
+Hosted evidence:
+
+- `/tmp/annora-production-rollout/live-one-button-320.json`
+- `/tmp/annora-production-rollout/live-one-button-320.png`
+- `/tmp/annora-production-rollout/live-revision.log`
+- `/tmp/annora-production-rollout/live-css.json`
+- `/tmp/annora-production-rollout/live-room-css.png`
+
+Browser viewport emulation and CPU throttling do not establish physical-phone or
+low-end GPU performance.

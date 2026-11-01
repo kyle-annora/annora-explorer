@@ -30,7 +30,9 @@ export function StudioModelStage({ selectedId, onSelection, onEdit, modelRevisio
     }).catch(cause => { if (active) { setError(cause.message); setStatus('error'); } });
     const observer = new IntersectionObserver(entries => { if (entries[0] && !entries[0].isIntersecting) void host.pause().catch(() => {}); });
     observer.observe(mount.current);
-    return () => { active = false; observer.disconnect(); viewer.current = null; void host.dispose(); };
+    const pauseWhenHidden = () => { if (document.hidden) void host.pause().catch(() => {}); };
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    return () => { active = false; observer.disconnect(); document.removeEventListener('visibilitychange', pauseWhenHidden); viewer.current = null; void host.dispose(); };
   }, [started, attempt, modelRevision]);
   useEffect(() => {
     const host = viewer.current;
