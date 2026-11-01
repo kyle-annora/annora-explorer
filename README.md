@@ -81,7 +81,7 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `project.config.json` | Project identity, brand, models and enabled features |
 | `content/models/` | Prepared model packages, source credits and authored tours |
 | `src/explorer/` | Shared UI, renderer, controller and player |
-| `src/product-room/` | Buyer-facing host, sample product content and reviewed demo requests |
+| `src/product-room/` | Buyer-facing product host, local demo projects and versioned quotation workflow |
 | `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |
 | `scripts/` | Configuration validation and deterministic asset preparation |
@@ -98,6 +98,8 @@ removing those source fixtures also requires updating their tests.
 ## Delivery documentation
 
 - [Product Room guide and acceptance walkthrough](docs/product-room.md)
+- [Product Room component catalog](https://kyle-annora.github.io/annora-explorer/product-room/#components) and [component contract](docs/product-room-components.md)
+- [Customer-project repository API](docs/product-room-api.md)
 - [Release review and live verification](docs/release-review.md)
 - [Configuration](docs/configuration.md) and [model package contract](docs/models.md)
 - [Host integration](docs/integration.md) and [API reference](docs/api.md)
@@ -107,6 +109,7 @@ removing those source fixtures also requires updating their tests.
 
 The source runtime is MIT licensed. Each included model keeps its own license.
 The public starter contains no customer website, private sales documents or
-quotation data. Performance depends on asset complexity and device capabilities;
+real quotation data. Product Room uses clearly labeled fictional quotes and
+browser-local sample projects; no request is delivered to a manufacturer. Performance depends on asset complexity and device capabilities;
 the lighter mechanism is the default, and the larger Apollo model loads only
 when selected.

@@ -1,6 +1,24 @@
 # Product Room and Studio — discussion proposal
 
-Date: 2026-11-01. Status: **Product Room implementation approved and delivered for review. Studio remains deferred.**
+Date: 2026-11-01. Status: **Initial presentation scope delivered; the approved second phase adds the complete crank customer-project demonstration. Studio remains deferred.**
+
+## Scope update: customer projects
+
+The initial proposal below described presentation plus an in-memory request. That
+boundary was subsequently expanded: Product Room also needs the ongoing customer
+case. The approved implementation follows the NHI workflow reference: confirmed
+requirements, reviewed RFQ, saved project, sample quotation, reviewed changes,
+explicit sample supplier reply, quotation-version comparison, and a reviewed
+next-step request. The public product pages remain free navigation, not wizard steps.
+
+Browser-local demonstration persistence is now included. Authentication, real
+delivery, approved pricing and cross-device sharing remain future host services.
+Studio authors product-level content; per-customer quote handling is a separate
+business responsibility. See [the current Room guide](product-room.md),
+[design contract](product-room-design.md) and [repository API](product-room-api.md).
+
+The remainder is the original scope record and Studio proposal. Where it says
+that projects or local persistence are excluded, this update supersedes it.
 
 See [Product Room implementation and review](product-room.md) for the shipped routes, boundaries and checks.
 

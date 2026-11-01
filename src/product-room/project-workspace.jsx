@@ -1,0 +1,2067 @@
+import React, { useEffect, useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  reviewInquiry,
+  reviewRevision,
+  reviewNextStep,
+  compareQuotes,
+  projectStatus,
+} from "./project-domain.js";
+import { sampleInquiryValues } from "./project-fixtures.js";
+import {
+  Button,
+  ActionGroup,
+  Field,
+  Status,
+  Evidence,
+  Notice,
+  Section,
+  EmptyState,
+  VersionSelector,
+  Comparison,
+} from "./ui/components.jsx";
+import "./project-workspace.css";
+
+const copy = (value) => JSON.parse(JSON.stringify(value));
+const money = (value) =>
+  value == null
+    ? "Pending review"
+    : new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+      }).format(value);
+const date = (value) =>
+  value
+    ? new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Just now";
+const fieldLabels = {
+  application: "Application",
+  quantity: "Quantity",
+  targetWeeks: "Requested timing",
+  stroke: "Required stroke",
+  load: "Required load",
+  notes: "Your notes",
+  company: "Company",
+  name: "Name",
+  email: "Email",
+};
+function savedStatus(project) {
+  const state = projectStatus(project),
+    latest = project.quotes.at(-1);
+  const awaiting = project.changes.some(
+    (change) => !project.replies.some((reply) => reply.changeId === change.id),
+  );
+  const currentNext =
+    latest && project.nextSteps.some((step) => step.quoteId === latest.id);
+  return {
+    label: state.label,
+    action: awaiting
+      ? "View response"
+      : latest && latest.version > 1 && !currentNext
+        ? "Compare quotation"
+        : latest && !currentNext
+          ? "Review quotation"
+          : "View project",
+    tone: awaiting
+      ? "pending"
+      : currentNext
+        ? "complete"
+        : latest
+          ? "active"
+          : "neutral",
+  };
+}
+
+function ContextSummary({
+  context,
+  onExplore,
+  onRemove,
+  onAdopt,
+  disabled = false,
+  compact = false,
+}) {
+  const referenceLabels = {
+    part: "viewed component",
+    document: "reference document",
+    chapter: "explanation",
+  };
+  return (
+    <div className={`pw-context ${compact ? "pw-context-compact" : ""}`}>
+      <div>
+        <p className="pw-eyebrow">PRODUCT CONTEXT</p>
+        <strong>{context.productTitle || "Crank-slider mechanism"}</strong>
+        {["part", "document", "chapter"].map(
+          (key) =>
+            context[key] && (
+              <div className="pw-context-reference" key={key}>
+                <p>
+                  {context[key].title}{" "}
+                  <span className="pw-muted">· {referenceLabels[key]}</span>
+                </p>
+                {onRemove && (
+                  <Button
+                    variant="quiet"
+                    disabled={disabled}
+                    aria-label={`Remove ${referenceLabels[key]}`}
+                    onClick={() => onRemove(key)}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ),
+        )}
+      </div>
+      {onExplore && (
+        <Button
+          variant="quiet"
+          disabled={disabled}
+          onClick={() => onExplore(context)}
+        >
+          View in 3D <span aria-hidden="true">↗</span>
+        </Button>
+      )}
+      {onAdopt && (
+        <Button variant="secondary" disabled={disabled} onClick={onAdopt}>
+          Use current product reference
+        </Button>
+      )}
+      {!compact && (
+        <details>
+          <summary>Model reference</summary>
+          <p>
+            {context.modelId} · {context.modelRevision}
+          </p>
+          <p>
+            Viewing context helps locate the discussion. It does not confirm a
+            requirement or engineering suitability.
+          </p>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function InquiryDocument({ draft, onExplore }) {
+  const values = draft.values;
+  return (
+    <div className="pw-document">
+      <ContextSummary context={draft.context} onExplore={onExplore} compact />
+      <Section title="Application & requirements">
+        <p className="pw-application">{values.application}</p>
+        <dl className="pw-facts">
+          {["quantity", "targetWeeks", "stroke", "load"].map((key) => (
+            <div key={key}>
+              <dt>{fieldLabels[key]}</dt>
+              <dd>
+                {values[key]
+                  ? `${values[key]}${key === "quantity" ? " units" : key === "targetWeeks" ? " weeks requested" : key === "stroke" ? " mm" : ""}`
+                  : "To discuss"}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+      <Section title="Confirmed customer inputs">
+        {draft.requirements?.filter((r) => r.confirmed).length ? (
+          <ul className="pw-requirements">
+            {draft.requirements
+              .filter((r) => r.confirmed)
+              .map((r) => (
+                <li key={r.id}>
+                  <Evidence kind="customer">Customer confirmed</Evidence>
+                  <strong>{r.label}</strong>
+                  <p>
+                    {r.value} {r.unit}
+                  </p>
+                  {r.part && <small>{r.part.title}</small>}
+                </li>
+              ))}
+          </ul>
+        ) : (
+          <p className="pw-muted">
+            No component requirement confirmed. Any viewed component remains
+            reference context only.
+          </p>
+        )}
+      </Section>
+      {values.notes && (
+        <Section title="Additional notes">
+          <p className="pw-preserve">{values.notes}</p>
+        </Section>
+      )}
+      <Section title="Contact">
+        <dl className="pw-contact">
+          {["name", "company", "email"].map((key) => (
+            <div key={key}>
+              <dt>{fieldLabels[key]}</dt>
+              <dd>{values[key] || "Not provided"}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+    </div>
+  );
+}
+function ProjectProgress({ project }) {
+  const latest = project.quotes.at(-1),
+    pendingChanges = project.changes.some(
+      (change) =>
+        !project.replies.some((reply) => reply.changeId === change.id),
+    );
+  const active =
+    latest &&
+    project.nextSteps.some((step) => step.quoteId === latest.id) &&
+    !pendingChanges
+      ? 3
+      : latest
+        ? 2
+        : 1;
+  return (
+    <ol className="pw-progress" aria-label="Project progress">
+      {["Inquiry", "Quotation", "Next step"].map((label, index) => (
+        <li
+          key={label}
+          className={
+            index + 1 < active
+              ? "is-complete"
+              : index + 1 === active
+                ? "is-current"
+                : ""
+          }
+          aria-current={index + 1 === active ? "step" : undefined}
+        >
+          <span>{index + 1 < active ? "✓" : `0${index + 1}`}</span>
+          {label}
+        </li>
+      ))}
+    </ol>
+  );
+}
+function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
+  const [projects, setProjects] = useState([]),
+    [drafts, setDrafts] = useState([]),
+    [project, setProject] = useState(null),
+    [draft, setDraftState] = useState(null);
+  const [loading, setLoading] = useState(true),
+    [leaving, setLeaving] = useState(false),
+    [pending, setPending] = useState(""),
+    [error, setError] = useState(null),
+    [notice, setNotice] = useState(""),
+    [errors, setErrors] = useState({});
+  const [stage, setStage] = useState("details"),
+    [review, setReview] = useState(null),
+    [tab, setTab] = useState("quotation"),
+    [quoteId, setQuoteId] = useState(null);
+  const [mode, setMode] = useState(null),
+    [modeStage, setModeStage] = useState("details"),
+    [changeValues, setChangeValues] = useState({}),
+    [nextValues, setNextValues] = useState({
+      intent: "discussion",
+      message: "",
+    }),
+    [modeReview, setModeReview] = useState(null);
+  const [compare, setCompare] = useState(true),
+    [saveState, setSaveState] = useState("");
+  const activeOperation = useRef(null),
+    draftRef = useRef(null),
+    saveQueue = useRef(Promise.resolve()),
+    autoTimer = useRef(null),
+    alive = useRef(true),
+    loadId = useRef(0),
+    busy = useRef(false),
+    heading = useRef(null),
+    perQuoteDrafts = useRef({});
+  lifecycle.route = route;
+  lifecycle.requestDirty = Boolean(
+    mode &&
+      (mode === "next"
+        ? nextValues.message.trim()
+        : changeValues.notes?.trim() ||
+          (project?.quotes.find((item) => item.id === quoteId) &&
+            (String(
+              project.quotes.find((item) => item.id === quoteId).quantity,
+            ) !== changeValues.quantity ||
+              String(
+                project.quotes.find((item) => item.id === quoteId)
+                  .requestedWeeks || "",
+              ) !== changeValues.targetWeeks))),
+  );
+  const setDraft = (value) => {
+    draftRef.current =
+      typeof value === "function" ? value(draftRef.current) : value;
+    setDraftState(draftRef.current);
+  };
+  function revealHeading() {
+    requestAnimationFrame(() => {
+      heading.current?.focus({ preventScroll: true });
+      heading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    });
+  }
+  function report(e, focus = false) {
+    setError(
+      e?.message ||
+        "This action could not be completed. Your input is still here. Please try again.",
+    );
+    setErrors(e?.fields || {});
+    if (focus)
+      requestAnimationFrame(() => {
+        const target =
+          document.querySelector('.room-workspace [aria-invalid="true"]') ||
+          document.querySelector('.room-workspace [role="alert"]');
+        if (target) {
+          if (!target.matches("input,select,textarea")) target.tabIndex = -1;
+          target.focus({ preventScroll: true });
+          target.scrollIntoView({ block: "center", behavior: "instant" });
+        }
+      });
+  }
+  function persistDraft() {
+    clearTimeout(autoTimer.current);
+    autoTimer.current = null;
+    const operation = saveQueue.current
+      .catch(() => {})
+      .then(async () => {
+        if (!draftRef.current) return null;
+        const source = copy(draftRef.current),
+          saved = await repository.saveDraft(source);
+        if (draftRef.current?.id === saved.id) {
+          const editedDuringSave =
+            JSON.stringify(draftRef.current.values) !==
+              JSON.stringify(source.values) ||
+            JSON.stringify(draftRef.current.requirements) !==
+              JSON.stringify(source.requirements);
+          setDraft({
+            ...draftRef.current,
+            revision: saved.revision,
+            updatedAt: saved.updatedAt,
+          });
+          if (alive.current)
+            setSaveState(
+              editedDuringSave
+                ? "Unsaved changes"
+                : "Draft saved in this browser",
+            );
+        }
+        return saved;
+      });
+    saveQueue.current = operation;
+    return operation;
+  }
+  lifecycle.beforeLeave = async () => {
+    lifecycle.leaving = true;
+    setLeaving(true);
+    if (activeOperation.current) await activeOperation.current;
+    if (lifecycle.requestDirty) {
+      report(
+        new Error(
+          "Your request has not been confirmed. Review and confirm it, or return to the quotation to leave this form.",
+        ),
+        true,
+      );
+      lifecycle.leaving = false;
+      setLeaving(false);
+      return false;
+    }
+    if (
+      !draftRef.current ||
+      (!draftRef.current.revision &&
+        !Object.values(draftRef.current.values).some(Boolean))
+    )
+      return true;
+    try {
+      await persistDraft();
+      return true;
+    } catch (error) {
+      report(error, true);
+      setSaveState("Draft not saved");
+      lifecycle.leaving = false;
+      setLeaving(false);
+      return false;
+    }
+  };
+  function updateDraft(key, value) {
+    if (busy.current || lifecycle.leaving) return;
+    setDraft((current) => ({
+      ...current,
+      values: { ...current.values, [key]: value },
+      requirements:
+        key === "stroke"
+          ? current.requirements.filter(
+              (item) => item.id !== "stroke-confirmed",
+            )
+          : current.requirements,
+    }));
+    setErrors((current) => ({ ...current, [key]: undefined }));
+    scheduleSave();
+  }
+  async function changeDraftContext(nextContext) {
+    if (!draftRef.current || stage !== "details" || lifecycle.leaving) return;
+    if (
+      !["productId", "modelId", "modelRevision"].every(
+        (key) => draftRef.current.context[key] === nextContext[key],
+      )
+    )
+      return;
+    await run("context", async () => {
+      const source = draftRef.current;
+      const requirements = source.requirements.filter(
+        (item) =>
+          !(
+            item.id === "stroke-confirmed" &&
+            item.part &&
+            JSON.stringify(item.part) !== JSON.stringify(nextContext.part)
+          ),
+      );
+      const confirmationCleared =
+        requirements.length !== source.requirements.length;
+      setDraft({ ...source, context: copy(nextContext), requirements });
+      setNotice("");
+      setSaveState("Saving draft…");
+      try {
+        await persistDraft();
+      } catch (error) {
+        setSaveState("Draft not saved");
+        throw error;
+      }
+      setNotice(
+        confirmationCleared
+          ? "Product reference updated. Your entered values are unchanged; confirm the stroke requirement again for the new reference."
+          : "Product reference updated. Your entered requirements and contact details are unchanged.",
+      );
+    });
+  }
+  function removeDraftReference(key) {
+    if (!["part", "document", "chapter"].includes(key) || !draftRef.current)
+      return;
+    const next = copy(draftRef.current.context);
+    delete next[key];
+    void changeDraftContext(next);
+  }
+  function scheduleSave() {
+    setSaveState("Unsaved changes");
+    clearTimeout(autoTimer.current);
+    autoTimer.current = setTimeout(() => {
+      setSaveState("Saving draft…");
+      persistDraft().catch((e) => {
+        if (alive.current) {
+          setSaveState("Draft not saved");
+          report(e);
+        }
+      });
+    }, 500);
+  }
+  async function run(key, fn) {
+    if (busy.current) return;
+    const startedOn = route;
+    let release;
+    activeOperation.current = new Promise((resolve) => {
+      release = resolve;
+    });
+    busy.current = true;
+    setPending(key);
+    setError(null);
+    setErrors({});
+    try {
+      return await fn();
+    } catch (e) {
+      if (lifecycle.route === startedOn) report(e, true);
+    } finally {
+      busy.current = false;
+      activeOperation.current = null;
+      release();
+      if (alive.current) setPending("");
+    }
+  }
+  async function load() {
+    const id = ++loadId.current;
+    setLoading(true);
+    setLeaving(false);
+    lifecycle.leaving = false;
+    setError(null);
+    setNotice("");
+    setMode(null);
+    setProject(null);
+    setQuoteId(null);
+    setProjects([]);
+    setDrafts([]);
+    setStage("details");
+    setReview(null);
+    try {
+      if (autoTimer.current) {
+        clearTimeout(autoTimer.current);
+        autoTimer.current = null;
+        await persistDraft();
+      }
+      await saveQueue.current.catch(() => {});
+      if (route.view === "inquiry") {
+        const next = await repository.getDraft(route.context);
+        if (id !== loadId.current) return;
+        setDraft(next);
+        if (JSON.stringify(next.context) !== JSON.stringify(route.context))
+          setNotice(
+            "Your saved draft keeps its original product reference. The recently viewed component or document has not replaced it.",
+          );
+        setSaveState(
+          next.updatedAt
+            ? "Draft saved in this browser"
+            : "Your draft saves as you type",
+        );
+      } else {
+        draftRef.current = null;
+        setDraftState(null);
+        if (route.view === "project") {
+          const next = await repository.getProject(route.projectId);
+          if (id !== loadId.current) return;
+          if (!next)
+            throw new Error(
+              "This project is not available in this browser. Return to My projects to choose a saved project.",
+            );
+          setProject(next);
+          setQuoteId(next.quotes.at(-1)?.id || null);
+          setTab(next.quotes.length ? "quotation" : "inquiry");
+        } else {
+          const [items, working] = await Promise.all([
+            repository.listProjects(),
+            repository.listDrafts(),
+          ]);
+          if (id !== loadId.current) return;
+          setProjects(items);
+          setDrafts(working);
+        }
+      }
+    } catch (e) {
+      if (id === loadId.current) report(e);
+    } finally {
+      if (id === loadId.current) {
+        setLoading(false);
+        revealHeading();
+      }
+    }
+  }
+  useEffect(() => {
+    void load();
+  }, [route]);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      clearTimeout(autoTimer.current);
+      ++loadId.current;
+    };
+  }, []);
+  useEffect(() => {
+    const warn = (event) => {
+      if (
+        lifecycle.requestDirty ||
+        saveState === "Unsaved changes" ||
+        saveState === "Saving draft…" ||
+        saveState === "Draft not saved"
+      ) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [saveState, mode, changeValues, nextValues]);
+  const goto = (next) => navigate(next);
+  const projectContext = project?.context;
+  const quote =
+    project?.quotes.find((item) => item.id === quoteId) ||
+    project?.quotes.at(-1);
+  const previousQuote = quote?.previousQuoteId
+    ? project?.quotes.find((item) => item.id === quote.previousQuoteId)
+    : null;
+  const linkedChanges =
+    project && quote
+      ? project.changes.filter((item) => item.quoteId === quote.id)
+      : [];
+  const latestQuote = project?.quotes.at(-1);
+  const isLatest = quote?.id === latestQuote?.id;
+  const waitingChange = linkedChanges.find(
+    (item) => !project.replies.some((reply) => reply.changeId === item.id),
+  );
+  const status = project ? savedStatus(project) : null;
+  const defaultContext = route.context;
+  const canAdoptCurrentReference =
+    draft &&
+    route.context &&
+    ["productId", "modelId", "modelRevision"].every(
+      (key) => draft.context[key] === route.context[key],
+    ) &&
+    ["part", "document", "chapter"].some(
+      (key) =>
+        JSON.stringify(draft.context[key]) !==
+        JSON.stringify(route.context[key]),
+    );
+  function openMode(nextMode) {
+    setMode(nextMode);
+    setModeStage("details");
+    setModeReview(null);
+    setErrors({});
+    setError(null);
+    setChangeValues(
+      perQuoteDrafts.current[quote.id] || {
+        quantity: String(quote.quantity),
+        targetWeeks: String(quote.requestedWeeks || ""),
+        notes: "",
+      },
+    );
+    setNextValues({ intent: "discussion", message: "" });
+    revealHeading();
+  }
+  function updateChange(key, value) {
+    const next = { ...changeValues, [key]: value };
+    setChangeValues(next);
+    perQuoteDrafts.current[quote.id] = next;
+    setErrors((current) => ({ ...current, [key]: undefined }));
+  }
+  async function acceptProject(next, text) {
+    if (lifecycle.route !== route || lifecycle.leaving) return;
+    setProject(next);
+    setNotice(text || "");
+    setMode(null);
+    setModeReview(null);
+    setQuoteId(next.quotes.at(-1)?.id || null);
+    setTab(next.quotes.length ? "quotation" : "inquiry");
+    revealHeading();
+  }
+  const header = (eyebrow, title, description, actions) => (
+    <header className="pw-heading">
+      <div>
+        <p className="pw-eyebrow">{eyebrow}</p>
+        <h1 ref={heading} tabIndex={-1}>
+          {title}
+        </h1>
+        {description && <p className="pw-lede">{description}</p>}
+      </div>
+      {actions && <div className="pw-heading-actions">{actions}</div>}
+    </header>
+  );
+  const feedback = (
+    <>
+      {error && (
+        <div className="pw-feedback">
+          <Notice kind="error" title="Your action needs attention" role="alert">
+            {error}
+          </Notice>
+        </div>
+      )}
+      {notice && (
+        <div className="pw-feedback">
+          <Notice kind="success" title={notice} role="status" />
+        </div>
+      )}
+    </>
+  );
+  const demo = (
+    <p className="pw-demo">
+      <span aria-hidden="true">◌</span> Demonstration · Saved in this browser.
+      No request, quotation or message is sent.
+    </p>
+  );
+  if (loading)
+    return (
+      <div className="room-ui room-workspace">
+        <div className="pw-loading" role="status">
+          Opening your workspace…
+        </div>
+      </div>
+    );
+  if (route.view === "projects")
+    return (
+      <div className="room-ui room-workspace">
+        {header(
+          "YOUR PRODUCT CONVERSATIONS",
+          "My projects.",
+          "Pick up a request, review a quotation, or continue the conversation.",
+          <Button
+            onClick={() => goto({ view: "inquiry", context: defaultContext })}
+          >
+            Start an inquiry <span aria-hidden="true">→</span>
+          </Button>,
+        )}
+        {feedback}
+        {!!drafts.length && (
+          <Section
+            title="Continue a draft"
+            description="Unsubmitted requirements, kept separate from your saved inquiries."
+          >
+            <div className="pw-project-list">
+              {drafts.map((item) => (
+                <article className="pw-project-row" key={item.id}>
+                  <div>
+                    <Status tone="neutral">Draft</Status>
+                    <h2>{item.context.productTitle}</h2>
+                    <p>
+                      {item.values.application || "Requirements not added yet"}
+                    </p>
+                  </div>
+                  <p className="pw-updated">{date(item.updatedAt)}</p>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      goto({ view: "inquiry", context: item.context })
+                    }
+                  >
+                    Continue inquiry <span aria-hidden="true">→</span>
+                  </Button>
+                </article>
+              ))}
+            </div>
+          </Section>
+        )}
+        <Section
+          title="Saved projects"
+          description={
+            projects.length
+              ? `${projects.length} project${projects.length === 1 ? "" : "s"} · inquiries and quotation history`
+              : undefined
+          }
+        >
+          {projects.length ? (
+            <div className="pw-project-list">
+              {projects.map((item) => {
+                const state = savedStatus(item);
+                return (
+                  <article className="pw-project-row" key={item.id}>
+                    <div>
+                      <Status tone={state.tone}>{state.label}</Status>
+                      <h2>{item.context.productTitle}</h2>
+                      <p>
+                        {item.inquiry.values.company ||
+                          item.inquiry.values.application}
+                      </p>
+                      <small className="pw-mono">{item.id}</small>
+                    </div>
+                    <p className="pw-updated">
+                      Updated {date(item.updatedAt)}
+                      <small>
+                        {item.quotes.length
+                          ? `Quotation v${item.quotes.at(-1).version}`
+                          : "No quotation yet"}
+                      </small>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        goto({ view: "project", projectId: item.id })
+                      }
+                    >
+                      {state.action} <span aria-hidden="true">→</span>
+                    </Button>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              title="Your next conversation starts here."
+              description="Bring a requirement from the 3D model, review your inquiry, then follow a sample quotation through a revision."
+            >
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  goto({ view: "inquiry", context: defaultContext })
+                }
+              >
+                Prepare an inquiry <span aria-hidden="true">→</span>
+              </Button>
+            </EmptyState>
+          )}
+        </Section>
+        {demo}
+      </div>
+    );
+  if (route.view === "inquiry" && draft) {
+    const reviewed = stage === "review";
+    return (
+      <div
+        className={`room-ui room-workspace ${reviewed ? "pw-reviewed-inquiry" : "pw-editing-inquiry"}`}
+      >
+        <div className="pw-topline">
+          <Button
+            variant="quiet"
+            onClick={() =>
+              run("leave", async () => {
+                await persistDraft();
+                goto({ view: "projects", context: draft.context });
+              })
+            }
+          >
+            ← My projects
+          </Button>
+          <span role="status">{saveState}</span>
+        </div>
+        {header(
+          "YOUR INQUIRY",
+          reviewed ? "Check your request." : "Tell us what you need.",
+          reviewed
+            ? "Review the exact details that will stay with this project."
+            : "Start with what you know. Engineering details can stay open.",
+        )}
+        <ol
+          className="pw-progress pw-inquiry-progress"
+          aria-label="Inquiry steps"
+        >
+          <li
+            className={reviewed ? "is-complete" : "is-current"}
+            aria-current={reviewed ? undefined : "step"}
+          >
+            <span>{reviewed ? "✓" : "01"}</span>Your requirements
+          </li>
+          <li
+            className={reviewed ? "is-current" : ""}
+            aria-current={reviewed ? "step" : undefined}
+          >
+            <span>02</span>Review & confirm
+          </li>
+        </ol>
+        {feedback}
+        <div className="pw-layout">
+          <div className="pw-main-column">
+            {reviewed ? (
+              <InquiryDocument draft={draft} />
+            ) : (
+              <form
+                id="pw-inquiry-form"
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  run("review", async () => {
+                    const saved = await persistDraft();
+                    const packet = reviewInquiry(saved);
+                    setDraft(saved);
+                    setReview(packet);
+                    setStage("review");
+                    revealHeading();
+                  });
+                }}
+              >
+                <fieldset
+                  className="pw-form-fields"
+                  disabled={!!pending || leaving}
+                >
+                  <Section
+                    title="Application"
+                    description="What should this mechanism help you do?"
+                    actions={
+                      <Button
+                        variant="quiet"
+                        disabled={!!pending}
+                        onClick={() => {
+                          setDraft((current) => ({
+                            ...current,
+                            values: sampleInquiryValues(current.context),
+                            requirements: [],
+                          }));
+                          setNotice(
+                            "Fictional sample details added. Review and change them before continuing.",
+                          );
+                          scheduleSave();
+                        }}
+                      >
+                        Use sample details
+                      </Button>
+                    }
+                  >
+                    <Field
+                      label="Application"
+                      name="application"
+                      required
+                      textarea
+                      rows={3}
+                      maxLength={2000}
+                      value={draft.values.application}
+                      onChange={(e) =>
+                        updateDraft("application", e.target.value)
+                      }
+                      error={errors.application}
+                      hint="Describe the task, installation or process."
+                    />
+                    <div className="pw-field-grid">
+                      <Field
+                        label="Quantity"
+                        name="quantity"
+                        required
+                        type="number"
+                        min="1"
+                        max="100000"
+                        step="1"
+                        inputMode="numeric"
+                        value={draft.values.quantity}
+                        onChange={(e) =>
+                          updateDraft("quantity", e.target.value)
+                        }
+                        error={errors.quantity}
+                        unit="units"
+                      />
+                      <Field
+                        label="Requested timing"
+                        name="targetWeeks"
+                        optional
+                        type="number"
+                        min="1"
+                        max="104"
+                        step="1"
+                        inputMode="numeric"
+                        value={draft.values.targetWeeks}
+                        onChange={(e) =>
+                          updateDraft("targetWeeks", e.target.value)
+                        }
+                        error={errors.targetWeeks}
+                        unit="weeks"
+                        hint="A request, not a confirmed delivery date."
+                      />
+                    </div>
+                  </Section>
+                  <Section
+                    title="Technical details"
+                    description="Leave anything you do not know open for discussion."
+                  >
+                    <div className="pw-field-grid">
+                      <Field
+                        label="Required stroke"
+                        name="stroke"
+                        optional
+                        type="number"
+                        min="0"
+                        step="any"
+                        inputMode="decimal"
+                        unit="mm"
+                        error={errors.stroke}
+                        value={draft.values.stroke}
+                        onChange={(e) => updateDraft("stroke", e.target.value)}
+                        placeholder="e.g. 70"
+                        hint="Your required travel, in millimeters."
+                      />
+                      <Field
+                        label="Required load"
+                        name="load"
+                        optional
+                        maxLength={200}
+                        error={errors.load}
+                        value={draft.values.load}
+                        onChange={(e) => updateDraft("load", e.target.value)}
+                        placeholder="To discuss"
+                        hint="Include the unit and operating conditions."
+                      />
+                    </div>
+                    <Field
+                      label="Notes or questions"
+                      name="notes"
+                      optional
+                      textarea
+                      rows={3}
+                      maxLength={2000}
+                      error={errors.notes}
+                      value={draft.values.notes}
+                      onChange={(e) => updateDraft("notes", e.target.value)}
+                    />
+                    <label className="pw-check">
+                      <input
+                        type="checkbox"
+                        disabled={!!pending || !draft.values.stroke.trim()}
+                        checked={draft.requirements.some(
+                          (item) => item.id === "stroke-confirmed",
+                        )}
+                        onChange={(event) => {
+                          setDraft((current) => ({
+                            ...current,
+                            requirements: event.target.checked
+                              ? [
+                                  ...current.requirements.filter(
+                                    (r) => r.id !== "stroke-confirmed",
+                                  ),
+                                  {
+                                    id: "stroke-confirmed",
+                                    label: "Required carriage stroke",
+                                    value: current.values.stroke,
+                                    unit: "mm",
+                                    source: "customer",
+                                    confirmed: true,
+                                    ...(current.context.part
+                                      ? { part: current.context.part }
+                                      : {}),
+                                  },
+                                ]
+                              : current.requirements.filter(
+                                  (r) => r.id !== "stroke-confirmed",
+                                ),
+                          }));
+                          scheduleSave();
+                        }}
+                      />
+                      <span>
+                        <strong>
+                          Include my stroke requirement for engineering review
+                        </strong>
+                        <small>
+                          Enter your stroke above, then confirm. Editing it
+                          clears this confirmation. The model's 70 mm reference
+                          does not verify suitability.
+                        </small>
+                      </span>
+                    </label>
+                    {errors.requirements && (
+                      <p className="pw-field-error">{errors.requirements}</p>
+                    )}
+                  </Section>
+                  <Section
+                    title="Contact details"
+                    description="Use fictional contact details for this demonstration."
+                  >
+                    <div className="pw-field-grid">
+                      <Field
+                        label="Name"
+                        name="name"
+                        optional
+                        maxLength={120}
+                        error={errors.name}
+                        autoComplete="name"
+                        value={draft.values.name}
+                        onChange={(e) => updateDraft("name", e.target.value)}
+                      />
+                      <Field
+                        label="Company"
+                        name="company"
+                        optional
+                        maxLength={160}
+                        error={errors.company}
+                        autoComplete="organization"
+                        value={draft.values.company}
+                        onChange={(e) => updateDraft("company", e.target.value)}
+                      />
+                    </div>
+                    <Field
+                      label="Email"
+                      name="email"
+                      optional
+                      type="email"
+                      maxLength={254}
+                      autoComplete="email"
+                      value={draft.values.email}
+                      onChange={(e) => updateDraft("email", e.target.value)}
+                      error={errors.email}
+                    />
+                  </Section>
+                </fieldset>
+              </form>
+            )}
+          </div>
+          <aside className="pw-sidebar">
+            <ContextSummary
+              context={draft.context}
+              disabled={Boolean(pending) || leaving}
+              onRemove={reviewed ? undefined : removeDraftReference}
+              onAdopt={
+                !reviewed && canAdoptCurrentReference
+                  ? () => changeDraftContext(route.context)
+                  : undefined
+              }
+              onExplore={
+                reviewed
+                  ? undefined
+                  : async (context) => {
+                      await run("leave", async () => {
+                        await persistDraft();
+                        onExplore(context);
+                      });
+                    }
+              }
+            />
+            <div className="pw-side-note">
+              <p className="pw-eyebrow">
+                {reviewed ? "BEFORE YOU CONFIRM" : "WHAT HAPPENS NEXT"}
+              </p>
+              <h2>
+                {reviewed
+                  ? "One request. A lasting record."
+                  : "Keep the conversation together."}
+              </h2>
+              <p>
+                {reviewed
+                  ? "Confirmation saves this exact inquiry as a project. Later changes and quotations stay linked to it."
+                  : "Review your inquiry, then open a sample quotation and explore a complete revision."}
+              </p>
+              <Evidence kind="review">Engineering review required</Evidence>
+            </div>
+          </aside>
+        </div>
+        <div className="pw-bottom-actions">
+          {reviewed ? (
+            <ActionGroup align="between">
+              <Button
+                variant="secondary"
+                disabled={!!pending}
+                onClick={() => {
+                  setStage("details");
+                  setReview(null);
+                  revealHeading();
+                }}
+              >
+                Edit requirements
+              </Button>
+              <Button
+                pending={pending === "confirm"}
+                pendingLabel="Saving inquiry…"
+                disabled={!!pending}
+                onClick={() =>
+                  run("confirm", async () => {
+                    const saved = await repository.submitInquiry(review);
+                    if (draftRef.current?.id === review.draft.id) {
+                      setSaveState("");
+                      draftRef.current = null;
+                    }
+                    if (lifecycle.route === route && !lifecycle.leaving)
+                      goto({ view: "project", projectId: saved.id });
+                  })
+                }
+              >
+                Confirm demo inquiry <span aria-hidden="true">→</span>
+              </Button>
+            </ActionGroup>
+          ) : (
+            <ActionGroup align="between">
+              <Button
+                variant="quiet"
+                pending={pending === "save"}
+                disabled={!!pending}
+                onClick={() =>
+                  run("save", async () => {
+                    await persistDraft();
+                    setNotice(
+                      "Draft saved. You can continue it from My projects.",
+                    );
+                  })
+                }
+              >
+                Save draft
+              </Button>
+              <Button
+                type="submit"
+                form="pw-inquiry-form"
+                pending={pending === "review"}
+                pendingLabel="Preparing review…"
+                disabled={!!pending}
+              >
+                Review inquiry <span aria-hidden="true">→</span>
+              </Button>
+            </ActionGroup>
+          )}
+        </div>
+        {demo}
+      </div>
+    );
+  }
+  if (route.view === "project" && project) {
+    if (mode && quote) {
+      const isRevision = mode === "revision",
+        isReview = modeStage === "review";
+      return (
+        <div className="room-ui room-workspace">
+          <div className="pw-topline">
+            <Button
+              variant="quiet"
+              onClick={() => {
+                setMode(null);
+                setError(null);
+                revealHeading();
+              }}
+            >
+              ← Back to quotation
+            </Button>
+            <span>
+              {project.id} · v{quote.version}
+            </span>
+          </div>
+          {header(
+            isRevision ? "QUOTE CHANGE REQUEST" : "CONTINUE THE CONVERSATION",
+            isReview
+              ? "Review your message."
+              : isRevision
+                ? "What would you like to change?"
+                : "Choose the next step.",
+            isReview
+              ? `This request will stay linked to quotation v${quote.version}.`
+              : "This message stays in this session until you review and confirm it.",
+          )}
+          {feedback}
+          <ol
+            className="pw-progress pw-inquiry-progress"
+            aria-label="Request steps"
+          >
+            <li className={isReview ? "is-complete" : "is-current"}>
+              <span>{isReview ? "✓" : "01"}</span>Your request
+            </li>
+            <li className={isReview ? "is-current" : ""}>
+              <span>02</span>Review & confirm
+            </li>
+          </ol>
+          <div className="pw-layout">
+            <div className="pw-main-column">
+              <form
+                id="pw-change-form"
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  run("review-change", async () => {
+                    setModeReview(
+                      isRevision
+                        ? reviewRevision(project, quote.id, changeValues)
+                        : reviewNextStep(project, quote.id, nextValues),
+                    );
+                    setModeStage("review");
+                    revealHeading();
+                  });
+                }}
+              >
+                <fieldset
+                  className="pw-form-fields"
+                  disabled={!!pending || leaving}
+                >
+                  {isReview ? (
+                    <Section
+                      title={
+                        isRevision
+                          ? "Your requested changes"
+                          : "Your next-step request"
+                      }
+                    >
+                      {isRevision ? (
+                        <Comparison
+                          rows={[
+                            {
+                              label: "Quantity",
+                              before: `${quote.quantity} units`,
+                              after: `${changeValues.quantity} units`,
+                            },
+                            {
+                              label: "Requested timing",
+                              before: quote.requestedWeeks
+                                ? `${quote.requestedWeeks} weeks`
+                                : "To discuss",
+                              after: changeValues.targetWeeks
+                                ? `${changeValues.targetWeeks} weeks`
+                                : "To discuss",
+                            },
+                          ]}
+                          beforeLabel={`Quote v${quote.version}`}
+                          afterLabel="Your request"
+                          caption="Review requested changes"
+                        />
+                      ) : (
+                        <p className="pw-application">
+                          {nextValues.intent === "discussion"
+                            ? "Schedule a discussion"
+                            : "Request engineering review"}
+                        </p>
+                      )}
+                      <p className="pw-eyebrow">YOUR MESSAGE</p>
+                      <p className="pw-preserve pw-message">
+                        {isRevision ? changeValues.notes : nextValues.message}
+                      </p>
+                      <Notice title="A request for review">
+                        This does not accept a quotation, place an order or
+                        confirm technical suitability.
+                      </Notice>
+                    </Section>
+                  ) : isRevision ? (
+                    <Section
+                      title="Requested changes"
+                      description="The current quotation stays unchanged."
+                    >
+                      <div className="pw-field-grid">
+                        <Field
+                          label="Quantity"
+                          type="number"
+                          min="1"
+                          step="1"
+                          unit="units"
+                          required
+                          value={changeValues.quantity}
+                          onChange={(e) =>
+                            updateChange("quantity", e.target.value)
+                          }
+                          error={errors.quantity}
+                        />
+                        <Field
+                          label="Requested timing"
+                          type="number"
+                          min="1"
+                          step="1"
+                          unit="weeks"
+                          optional
+                          value={changeValues.targetWeeks}
+                          onChange={(e) =>
+                            updateChange("targetWeeks", e.target.value)
+                          }
+                          error={errors.targetWeeks}
+                        />
+                      </div>
+                      <Field
+                        label="What needs to change?"
+                        optional
+                        textarea
+                        rows={5}
+                        value={changeValues.notes}
+                        onChange={(e) => updateChange("notes", e.target.value)}
+                        error={errors.notes}
+                        hint="Add a question, or change quantity or timing above."
+                      />
+                      <Button
+                        variant="quiet"
+                        onClick={() => {
+                          const values = {
+                            quantity: String(Math.max(30, quote.quantity + 5)),
+                            targetWeeks: "5",
+                            notes:
+                              "Please review a larger batch and an earlier delivery window. Confirm the mounting interface and required load before any commitment.",
+                          };
+                          setChangeValues(values);
+                          perQuoteDrafts.current[quote.id] = values;
+                        }}
+                      >
+                        Use sample changes
+                      </Button>
+                    </Section>
+                  ) : (
+                    <Section title="Next step">
+                      <Field
+                        label="What would help you move forward?"
+                        options={[
+                          {
+                            value: "discussion",
+                            label: "Schedule a discussion",
+                          },
+                          {
+                            value: "engineering-review",
+                            label: "Request engineering review",
+                          },
+                        ]}
+                        value={nextValues.intent}
+                        onChange={(e) =>
+                          setNextValues({
+                            ...nextValues,
+                            intent: e.target.value,
+                          })
+                        }
+                      />
+                      <Field
+                        label="Message"
+                        required
+                        textarea
+                        rows={5}
+                        value={nextValues.message}
+                        onChange={(e) =>
+                          setNextValues({
+                            ...nextValues,
+                            message: e.target.value,
+                          })
+                        }
+                        error={errors.message}
+                        placeholder="What should the team review or discuss?"
+                      />
+                    </Section>
+                  )}
+                </fieldset>
+              </form>
+            </div>
+            <aside className="pw-sidebar">
+              <ContextSummary context={project.context} compact />
+              <div className="pw-side-note">
+                <p className="pw-eyebrow">SOURCE QUOTATION</p>
+                <h2>Version {quote.version}</h2>
+                <dl className="pw-side-facts">
+                  <div>
+                    <dt>Quantity</dt>
+                    <dd>{quote.quantity} units</dd>
+                  </div>
+                  <div>
+                    <dt>Priced subtotal</dt>
+                    <dd>{money(quote.subtotal)}</dd>
+                  </div>
+                  <div>
+                    <dt>Final total</dt>
+                    <dd>Pending review</dd>
+                  </div>
+                </dl>
+                <Evidence kind="sample">Illustrative commercial data</Evidence>
+              </div>
+            </aside>
+          </div>
+          <div className="pw-bottom-actions">
+            <ActionGroup align="between">
+              {isReview ? (
+                <>
+                  <Button
+                    variant="secondary"
+                    disabled={!!pending}
+                    onClick={() => {
+                      setModeStage("details");
+                      setModeReview(null);
+                      revealHeading();
+                    }}
+                  >
+                    Edit request
+                  </Button>
+                  <Button
+                    disabled={!!pending}
+                    pending={pending === "confirm-change"}
+                    pendingLabel="Saving request…"
+                    onClick={() =>
+                      run("confirm-change", async () => {
+                        const next = isRevision
+                          ? await repository.requestRevision(modeReview)
+                          : await repository.confirmNextStep(modeReview);
+                        lifecycle.requestDirty = false;
+                        setMode(null);
+                        await acceptProject(
+                          next,
+                          isRevision
+                            ? "Change request saved against this quotation."
+                            : "Next-step request recorded in this demo.",
+                        );
+                      })
+                    }
+                  >
+                    Confirm demo request <span aria-hidden="true">→</span>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="quiet" onClick={() => setMode(null)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    form="pw-change-form"
+                    disabled={!!pending}
+                    pending={pending === "review-change"}
+                  >
+                    Review request <span aria-hidden="true">→</span>
+                  </Button>
+                </>
+              )}
+            </ActionGroup>
+          </div>
+          {demo}
+        </div>
+      );
+    }
+    return (
+      <div className="room-ui room-workspace">
+        <div className="pw-topline">
+          <Button
+            variant="quiet"
+            onClick={() => goto({ view: "projects", context: project.context })}
+          >
+            ← My projects
+          </Button>
+          <span>{project.id}</span>
+        </div>
+        {header(
+          "YOUR PROJECT",
+          project.context.productTitle,
+          project.inquiry.values.application,
+          <Status tone={status.tone}>{status.label}</Status>,
+        )}
+        <ProjectProgress project={project} />
+        {feedback}
+        <div
+          className="pw-project-tabs"
+          role="tablist"
+          aria-label="Project information"
+        >
+          {[
+            ["inquiry", "Inquiry"],
+            ["quotation", "Quotation"],
+            ["activity", "Conversation"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              role="tab"
+              id={`pw-tab-${key}`}
+              aria-selected={tab === key}
+              aria-controls={`pw-panel-${key}`}
+              tabIndex={tab === key ? 0 : -1}
+              onKeyDown={(event) => {
+                const keys = ["inquiry", "quotation", "activity"];
+                let next;
+                if (event.key === "ArrowRight")
+                  next = keys[(keys.indexOf(tab) + 1) % 3];
+                if (event.key === "ArrowLeft")
+                  next = keys[(keys.indexOf(tab) + 2) % 3];
+                if (event.key === "Home") next = keys[0];
+                if (event.key === "End") next = keys[2];
+                if (next) {
+                  event.preventDefault();
+                  setTab(next);
+                  requestAnimationFrame(() =>
+                    document.getElementById(`pw-tab-${next}`)?.focus(),
+                  );
+                }
+              }}
+              onClick={() => setTab(key)}
+            >
+              {label}
+              {key === "quotation" && project.quotes.length > 0 && (
+                <span>v{project.quotes.at(-1).version}</span>
+              )}
+            </button>
+          ))}
+        </div>
+        <div
+          role="tabpanel"
+          id={`pw-panel-${tab}`}
+          aria-labelledby={`pw-tab-${tab}`}
+          tabIndex={0}
+        >
+          {tab === "inquiry" && (
+            <div className="pw-layout">
+              <div className="pw-main-column">
+                <div className="pw-record-head">
+                  <Evidence kind="customer">Saved inquiry</Evidence>
+                  <span>
+                    {project.inquiry.id} · {date(project.inquiry.createdAt)}
+                  </span>
+                </div>
+                <InquiryDocument
+                  draft={{ ...project.inquiry, context: project.context }}
+                  onExplore={onExplore}
+                />
+              </div>
+              <aside className="pw-sidebar">
+                <div className="pw-side-note">
+                  <p className="pw-eyebrow">NEXT IN THIS DEMO</p>
+                  <h2>
+                    {project.quotes.length
+                      ? "Your quotation is ready."
+                      : "From requirements to a proposal."}
+                  </h2>
+                  <p>
+                    {project.quotes.length
+                      ? "Review the proposed scope and continue the same project."
+                      : "Open a deliberately prepared example quote for this inquiry. It is not an instant engineering or pricing approval."}
+                  </p>
+                  <Button
+                    pending={pending === "sample-quote"}
+                    disabled={!!pending}
+                    onClick={() =>
+                      run("sample-quote", async () => {
+                        if (!project.quotes.length)
+                          await acceptProject(
+                            await repository.createSampleQuote(project.id),
+                            "Sample quotation v1 is ready for review.",
+                          );
+                        else setTab("quotation");
+                      })
+                    }
+                  >
+                    {project.quotes.length
+                      ? "Review quotation"
+                      : "Open sample quotation"}{" "}
+                    <span aria-hidden="true">→</span>
+                  </Button>
+                  <Evidence kind="sample">
+                    Fictional quote, no supplier commitment
+                  </Evidence>
+                </div>
+              </aside>
+            </div>
+          )}
+          {tab === "quotation" &&
+            (!quote ? (
+              <EmptyState
+                title="Your inquiry is the starting point."
+                description="Open a sample quotation to see how a proposal, customer changes and a revised quote stay connected."
+              >
+                <Button
+                  pending={pending === "sample-quote"}
+                  onClick={() =>
+                    run("sample-quote", async () =>
+                      acceptProject(
+                        await repository.createSampleQuote(project.id),
+                        "Sample quotation v1 is ready for review.",
+                      ),
+                    )
+                  }
+                >
+                  Open sample quotation <span aria-hidden="true">→</span>
+                </Button>
+              </EmptyState>
+            ) : (
+              <>
+                <div className="pw-quote-toolbar">
+                  <VersionSelector
+                    versions={project.quotes}
+                    value={quote.id}
+                    onChange={(id) => {
+                      setQuoteId(id);
+                      setError(null);
+                    }}
+                  />
+                  <Evidence kind="sample">
+                    Sample quotation · not an offer
+                  </Evidence>
+                </div>
+                <div className="pw-layout">
+                  <div className="pw-main-column">
+                    <article className="pw-quote-document">
+                      <div className="pw-quote-title">
+                        <div>
+                          <p className="pw-eyebrow">
+                            QUOTATION / VERSION {quote.version}
+                          </p>
+                          <h2>Crank-slider assembly.</h2>
+                        </div>
+                        <p>
+                          {quote.id}
+                          <span>{date(quote.createdAt)}</span>
+                        </p>
+                      </div>
+                      <p className="pw-application">{quote.scope}</p>
+                      <div className="pw-price-list">
+                        <div className="pw-price-row pw-price-labels">
+                          <span>Proposed scope</span>
+                          <span>Amount · USD</span>
+                        </div>
+                        {quote.lineItems.map((line, index) => (
+                          <div
+                            className="pw-price-row"
+                            key={`${line.label}-${index}`}
+                          >
+                            <div>
+                              <strong>{line.label}</strong>
+                              {index === 0 && (
+                                <small>
+                                  {quote.quantity} units ·{" "}
+                                  {money(quote.unitPrice)} each
+                                </small>
+                              )}
+                            </div>
+                            <span>{money(line.amount)}</span>
+                          </div>
+                        ))}
+                        <div className="pw-price-row pw-subtotal">
+                          <span>Priced subtotal</span>
+                          <strong>{money(quote.subtotal)}</strong>
+                        </div>
+                        <div className="pw-price-row">
+                          <span>Final total</span>
+                          <span>Pending review</span>
+                        </div>
+                      </div>
+                      <p className="pw-help">
+                        Freight, taxes and unpriced engineering work remain
+                        open. Unknown costs are not included as zero.
+                      </p>
+                      <Section title="Timing & scope">
+                        <dl className="pw-facts">
+                          <div>
+                            <dt>Your requested timing</dt>
+                            <dd>
+                              {quote.requestedWeeks
+                                ? `${quote.requestedWeeks} weeks`
+                                : "To discuss"}
+                              <small>Not confirmed</small>
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Illustrative lead time</dt>
+                            <dd>{quote.proposedLeadTime}</dd>
+                          </div>
+                        </dl>
+                        <ul className="pw-bullets">
+                          {quote.assumptions.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </Section>
+                      {previousQuote && (
+                        <Section
+                          title={`What changed from v${previousQuote.version}`}
+                          actions={
+                            <Button
+                              variant="quiet"
+                              aria-expanded={compare}
+                              onClick={() => setCompare((value) => !value)}
+                            >
+                              {compare ? "Hide comparison" : "Show comparison"}
+                            </Button>
+                          }
+                        >
+                          {compare && (
+                            <Comparison
+                              rows={compareQuotes(previousQuote, quote)}
+                              beforeLabel={`v${previousQuote.version} · previous`}
+                              afterLabel={`v${quote.version} · current`}
+                              caption="Quotation version comparison"
+                            />
+                          )}
+                          <Button
+                            variant="quiet"
+                            onClick={() => setTab("activity")}
+                          >
+                            Read the sample supplier reply{" "}
+                            <span aria-hidden="true">→</span>
+                          </Button>
+                        </Section>
+                      )}
+                      <Section
+                        title="Open items"
+                        description="Clear ownership for what still needs to be resolved."
+                      >
+                        <ul className="pw-open-items">
+                          {quote.openItems.map((item) => (
+                            <li key={item.id}>
+                              <div>
+                                <strong>{item.label}</strong>
+                                <small>{item.status}</small>
+                              </div>
+                              <span>{item.owner}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </Section>
+                    </article>
+                  </div>
+                  <aside className="pw-sidebar">
+                    <ContextSummary
+                      context={projectContext}
+                      onExplore={onExplore}
+                      compact
+                    />
+                    <div className="pw-side-note">
+                      <p className="pw-eyebrow">
+                        {!isLatest
+                          ? "PRESERVED VERSION"
+                          : waitingChange
+                            ? "CHANGE REQUEST SAVED"
+                            : "YOUR NEXT MOVE"}
+                      </p>
+                      <h2>
+                        {!isLatest
+                          ? "An earlier quotation."
+                          : waitingChange
+                            ? "See how the team responds."
+                            : "Move the conversation forward."}
+                      </h2>
+                      <p>
+                        {!isLatest
+                          ? `Version ${quote.version} remains available as a fixed record. Use the latest quotation to request a change or next step.`
+                          : waitingChange
+                            ? `Your request is linked to v${quote.version}. Preview a fictional supplier reply and revised quotation.`
+                            : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
+                      </p>
+                      {!isLatest ? (
+                        <Button
+                          onClick={() => {
+                            setQuoteId(latestQuote.id);
+                            setError(null);
+                          }}
+                        >
+                          Open latest quotation{" "}
+                          <span aria-hidden="true">→</span>
+                        </Button>
+                      ) : waitingChange ? (
+                        <>
+                          <Button
+                            pending={pending === "sample-reply"}
+                            disabled={!!pending}
+                            onClick={() =>
+                              run("sample-reply", async () =>
+                                acceptProject(
+                                  await repository.simulateReply(
+                                    project.id,
+                                    waitingChange.id,
+                                  ),
+                                  "Sample reply and revised quotation added. The previous version is preserved.",
+                                ),
+                              )
+                            }
+                          >
+                            Preview sample reply{" "}
+                            <span aria-hidden="true">→</span>
+                          </Button>
+                          <Button
+                            variant="quiet"
+                            onClick={() => setTab("activity")}
+                          >
+                            Read your change request
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button onClick={() => openMode("next")}>
+                            Choose next step <span aria-hidden="true">→</span>
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => openMode("revision")}
+                          >
+                            Request a change
+                          </Button>
+                        </>
+                      )}
+                      <Evidence kind="review">
+                        No order or acceptance is created
+                      </Evidence>
+                    </div>
+                    {project.nextSteps.filter(
+                      (item) => item.quoteId === quote.id,
+                    ).length > 0 && (
+                      <div className="pw-next-receipt">
+                        <p className="pw-eyebrow">NEXT STEP RECORDED</p>
+                        <p>
+                          {
+                            project.nextSteps
+                              .filter((item) => item.quoteId === quote.id)
+                              .at(-1).message
+                          }
+                        </p>
+                        <Button
+                          variant="quiet"
+                          onClick={() => setTab("activity")}
+                        >
+                          View request history
+                        </Button>
+                      </div>
+                    )}
+                  </aside>
+                </div>
+              </>
+            ))}
+          {tab === "activity" && (
+            <Conversation
+              project={project}
+              onQuote={(id) => {
+                setQuoteId(id);
+                setTab("quotation");
+              }}
+              onReply={(id) =>
+                run("sample-reply", async () =>
+                  acceptProject(
+                    await repository.simulateReply(project.id, id),
+                    "Sample reply and revised quotation added.",
+                  ),
+                )
+              }
+              pending={pending}
+            />
+          )}
+        </div>
+        {demo}
+      </div>
+    );
+  }
+  return (
+    <div className="room-ui room-workspace">
+      {header(
+        "PRODUCT ROOM",
+        "This project needs another look.",
+        "Your saved projects are kept in this browser.",
+      )}
+      {feedback}
+      <ActionGroup align="start">
+        <Button
+          variant="secondary"
+          onClick={() => goto({ view: "projects", context: route.context })}
+        >
+          My projects
+        </Button>
+        <Button onClick={() => load()}>Try again</Button>
+      </ActionGroup>
+      {demo}
+    </div>
+  );
+}
+function Conversation({ project, onQuote, onReply, pending }) {
+  const events = [
+    {
+      kind: "inquiry",
+      id: project.inquiry.id,
+      createdAt: project.inquiry.createdAt,
+      value: project.inquiry,
+    },
+    ...project.quotes.map((value) => ({ kind: "quote", ...value, value })),
+    ...project.changes.map((value) => ({ kind: "change", ...value, value })),
+    ...project.replies.map((value) => ({ kind: "reply", ...value, value })),
+    ...project.nextSteps.map((value) => ({ kind: "next", ...value, value })),
+  ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return (
+    <div className="pw-conversation">
+      <div className="pw-conversation-intro">
+        <p className="pw-eyebrow">ONE CONTINUOUS RECORD</p>
+        <h2>Requirements, replies and decisions.</h2>
+        <p>
+          Every change keeps its source quotation. Sample replies are clearly
+          separated from customer requests.
+        </p>
+      </div>
+      <ol className="pw-timeline">
+        {events.map((event) => {
+          const value = event.value;
+          return (
+            <li key={`${event.kind}-${event.id}`}>
+              <div className="pw-event-head">
+                <Evidence
+                  kind={
+                    event.kind === "reply" || event.kind === "quote"
+                      ? "sample"
+                      : "customer"
+                  }
+                >
+                  {event.kind === "reply"
+                    ? "Sample supplier reply"
+                    : event.kind === "quote"
+                      ? `Sample quotation v${value.version}`
+                      : event.kind === "change"
+                        ? `Your changes to v${value.quoteVersion}`
+                        : event.kind === "next"
+                          ? `Next step for v${value.quoteVersion}`
+                          : "Inquiry confirmed"}
+                </Evidence>
+                <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
+              </div>
+              {event.kind === "inquiry" && (
+                <>
+                  <h3>Inquiry saved for review.</h3>
+                  <p>{value.values.application}</p>
+                  <small>{value.id}</small>
+                </>
+              )}
+              {event.kind === "quote" && (
+                <>
+                  <h3>Quotation v{value.version} added.</h3>
+                  <p>
+                    {value.quantity} units · {money(value.subtotal)} priced
+                    subtotal. Final total pending.
+                  </p>
+                  <Button variant="secondary" onClick={() => onQuote(value.id)}>
+                    View quotation v{value.version}{" "}
+                    <span aria-hidden="true">→</span>
+                  </Button>
+                </>
+              )}
+              {event.kind === "change" && (
+                <>
+                  <h3>A change requested.</h3>
+                  <p>
+                    {value.values.quantity} units ·{" "}
+                    {value.values.targetWeeks
+                      ? `${value.values.targetWeeks} weeks requested`
+                      : "Timing to discuss"}
+                  </p>
+                  <p className="pw-preserve">{value.values.notes}</p>
+                  {!project.replies.some(
+                    (reply) => reply.changeId === value.id,
+                  ) && (
+                    <Button
+                      pending={pending === "sample-reply"}
+                      onClick={() => onReply(value.id)}
+                    >
+                      Preview sample reply <span aria-hidden="true">→</span>
+                    </Button>
+                  )}
+                </>
+              )}
+              {event.kind === "reply" && (
+                <>
+                  <h3>A proposal, with open questions.</h3>
+                  <div className="pw-reply-topics">
+                    {value.topics.map((topic) => (
+                      <section key={topic.label}>
+                        <h4>{topic.label}</h4>
+                        <dl>
+                          <div>
+                            <dt>You requested</dt>
+                            <dd>{topic.requested}</dd>
+                          </div>
+                          <div>
+                            <dt>Sample response</dt>
+                            <dd>{topic.response}</dd>
+                          </div>
+                        </dl>
+                        <Status tone="pending">{topic.status}</Status>
+                      </section>
+                    ))}
+                  </div>
+                  {value.openItems?.length > 0 && (
+                    <ul className="pw-open-items">
+                      {value.openItems.map((item) => (
+                        <li key={item.id}>
+                          <div>
+                            <strong>{item.label}</strong>
+                            <small>{item.status}</small>
+                          </div>
+                          <span>{item.owner}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+              {event.kind === "next" && (
+                <>
+                  <h3>
+                    {value.intent === "discussion"
+                      ? "Discussion requested."
+                      : "Engineering review requested."}
+                  </h3>
+                  <p className="pw-preserve">{value.message}</p>
+                  <small>
+                    {value.id} · Local demo record. Nothing was sent.
+                  </small>
+                </>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+/** A host-owned route and repository boundary. No renderer or camera ownership. */
+export function mountProjectWorkspace(
+  element,
+  { repository, onExplore = () => {}, onNavigate } = {},
+) {
+  if (!repository)
+    throw new TypeError("Product Room needs a project repository.");
+  const root = createRoot(element),
+    lifecycle = {};
+  let disposed = false;
+  const api = {
+    open(route) {
+      if (disposed) return;
+      lifecycle.leaving = false;
+      root.render(
+        <Workspace
+          route={{ ...route }}
+          repository={repository}
+          onExplore={onExplore}
+          lifecycle={lifecycle}
+          navigate={(next) => (onNavigate ? onNavigate(next) : api.open(next))}
+        />,
+      );
+    },
+    beforeLeave() {
+      return lifecycle.beforeLeave
+        ? lifecycle.beforeLeave()
+        : Promise.resolve(true);
+    },
+    dispose() {
+      disposed = true;
+      root.unmount();
+    },
+  };
+  return api;
+}

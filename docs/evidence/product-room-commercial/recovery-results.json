@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "blocked storage retains input and prevents incorrect page/model/history changes",
+    "restore storage -> pending draft persisted -> continue from projects",
+    "invalid project route does not display stale prior project",
+    "unconfirmed revision navigation blocked with retained values"
+  ],
+  "errors": []
+}

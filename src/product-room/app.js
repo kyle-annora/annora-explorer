@@ -10,6 +10,11 @@ const $ = id => document.getElementById(id);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const images = { 'kinetic-01': crankImage, apollo: apolloImage };
 const pages = ['explore', 'overview', 'specs'];
+const workspacePages = ['projects', 'inquiry', 'project', 'components'];
+const readRoute = () => {
+  const [view, ...params] = location.hash.slice(1).split('&');
+  return { view: view || 'explore', projectId: new URLSearchParams(params.join('&')).get('project') || undefined };
+};
 function boot() {
   const configuredRooms = Object.keys(ROOM_CONTENT).filter(id => MODEL_CATALOG[id]);
   $('room-product').replaceChildren(...configuredRooms.map(id => { const option = document.createElement('option'); option.value = id; option.textContent = ROOM_CONTENT[id].shortTitle; return option; }));
@@ -24,6 +29,7 @@ function boot() {
   let productId = new URL(location.href).searchParams.get('model');
   if (!configuredRooms.includes(productId)) productId = configuredRooms.includes(DEFAULT_ROOM_ID) ? DEFAULT_ROOM_ID : configuredRooms[0];
   let page = 'explore', navigation = 0, action = 0, loading = null, mountedModel = null, noticeTimer;
+  let workspace, workspaceLoading, currentRoute = readRoute();
   const flow = createRequestFlow({ dialog: $('room-request') });
   const viewer = createRoomViewer({
     mount: $('room-viewer'), explorerURL: new URL('../', location.href).href,
@@ -46,9 +52,35 @@ function boot() {
   });
 
   function updateURL(replace = false) {
-    const url = new URL(location.href); url.searchParams.set('model', productId); url.hash = page;
+    const url = new URL(location.href); url.searchParams.set('model', productId);
+    url.hash = page + (page === 'project' && currentRoute.projectId ? `&project=${encodeURIComponent(currentRoute.projectId)}` : '');
     history[replace ? 'replaceState' : 'pushState']({}, '', url);
     document.title = `${ROOM_CONTENT[productId].title} · Product Room`;
+  }
+  function baseContext(id = productId) {
+    const room = ROOM_CONTENT[id];
+    return { productId:id, productTitle:room.title, modelId:id, modelRevision:MODEL_CATALOG[id].revision };
+  }
+  async function ensureWorkspace() {
+    if (workspace) return workspace;
+    if (!workspaceLoading) workspaceLoading = import('./workspace-entry.jsx').then(({createWorkspace}) => {
+      workspace = createWorkspace($('room-workspace'), {
+        onNavigate: route => { ++action; void showPage(route.view, {route,focus:true}).catch(error=>notice(error.message)); },
+        onExplore: async context => {
+          if (!configuredRooms.includes(context.modelId)) { notice('This project’s model is not available in this deployment.'); return; }
+          ++action;
+          if (context.modelRevision !== MODEL_CATALOG[context.modelId].revision) {
+            await showPage('overview', {focus:true,modelId:context.modelId});
+            notice('The model has changed since this inquiry. The saved inquiry keeps its original revision.'); return;
+          }
+          if (context.part?.id) await showTarget({kind:'part',nodeId:context.part.id},context.modelId);
+          else if (context.chapter) await showTarget({kind:'chapter',tourId:context.chapter.tourId,chapterId:context.chapter.id},context.modelId);
+          else await showPage('explore',{modelId:context.modelId});
+        }
+      });
+      return workspace;
+    }).catch(error => { workspaceLoading = null; throw error; });
+    return workspaceLoading;
   }
   function notice(message) {
     clearTimeout(noticeTimer); $('room-notice').textContent = message; $('room-notice').hidden = false;
@@ -63,22 +95,42 @@ function boot() {
     pending.finally(()=> { if (loading === pending) loading = null; }).catch(()=>{});
     return pending;
   }
-  async function showPage(next, {record = true, focus = false} = {}) {
+  async function showPage(next, {record = true, focus = false, route = {view:next}, modelId} = {}) {
     const turn = ++navigation;
+    if (workspace && workspacePages.includes(page) && !(await workspace.beforeLeave())) {
+      if (turn === navigation) { renderContent(); updateURL(true); }
+      return;
+    }
+    if (turn !== navigation) return;
     if (next !== 'explore') await viewer.pause().catch(()=>{});
     if (turn !== navigation) return;
-    page = pages.includes(next) ? next : 'explore';
+    const desiredModel = workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
+    if (configuredRooms.includes(desiredModel) && productId !== desiredModel) { productId = desiredModel; renderContent(); }
+    page = [...pages,...workspacePages].includes(next) ? next : 'explore';
+    currentRoute = {...route,view:page};
     for (const name of pages) $(`page-${name}`).hidden = name !== page;
+    $('page-workspace').hidden = !workspacePages.includes(page);
+    $('room-discuss').hidden = workspacePages.includes(page);
+    document.body.toggleAttribute('data-workspace', workspacePages.includes(page));
     document.body.dataset.page = page;
     for (const link of document.querySelectorAll('[data-page]')) {
-      if (link.dataset.page === page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+      if (link.dataset.page === page || link.dataset.page === 'projects' && ['project','inquiry'].includes(page)) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
     }
     if (record) updateURL(); else updateURL(true);
     if (focus && page !== 'explore') $('room-main').focus({preventScroll:true});
     if (page === 'explore') await ensureViewer();
+    else if (workspacePages.includes(page)) {
+      try {
+        const host = await ensureWorkspace();
+        if (turn !== navigation) return;
+        host.open({...currentRoute, context:route.context || baseContext(configuredRooms.includes('kinetic-01') ? 'kinetic-01' : productId)});
+      } catch (error) { notice(`The project workspace could not open. ${error.message} Please try again.`); }
+    }
   }
   function renderContent() {
     const room = ROOM_CONTENT[productId]; $('room-product').value = productId;
+    $('room-discuss').querySelector('.room-discuss-full').textContent = productId === 'kinetic-01' ? 'Request a quote' : 'Discuss application';
+    $('room-discuss').querySelector('.room-discuss-short').textContent = productId === 'kinetic-01' ? 'Inquire' : 'Discuss';
     const source = `<div class="room-source"><span class="room-eyebrow">SOURCE & SCOPE</span><p>${escape(room.source.note)}</p><a href="${escape(room.source.url)}" target="_blank" rel="noopener">${escape(room.source.label)} <span aria-hidden="true">↗</span></a><small>${escape(room.source.license)} · ${escape(room.roomRevision)}</small></div>`;
     $('page-overview').innerHTML = `
       <div class="room-content"><div class="room-overview-hero">
@@ -100,19 +152,21 @@ function boot() {
       if (turn !== action || id !== productId) return;
       const matched = context?.modelId === id;
       const doc = room.documents.find(item=>item.id === documentId);
-      flow.open({productId:id,productTitle:room.title,modelId:id,
+      const request = {productId:id,productTitle:room.title,modelId:id,
         modelRevision: matched ? context.modelRevision : MODEL_CATALOG[id].revision,
         ...(matched && context.part ? {part:context.part}:{}),
         ...(matched && context.chapter ? {chapter:context.chapter}:{}),
-        ...(doc ? {document:{id:doc.id,title:doc.title}}:{})});
+        ...(doc ? {document:{id:doc.id,title:doc.title}}:{})};
+      if (id === 'kinetic-01') await showPage('inquiry',{route:{view:'inquiry',context:request},focus:true});
+      else flow.open(request);
     } catch { notice('The request could not be opened. Please try again.'); }
     finally { $('room-discuss').disabled = false; }
   }
-  async function showTarget(target) {
-    const turn = ++action, id = productId;
+  async function showTarget(target, targetProductId = productId) {
+    const turn = ++action, id = targetProductId;
     const current = () => turn === action && id === productId && page === 'explore' && !$('room-request').open;
     try {
-      await showPage('explore');
+      await showPage('explore',{modelId:id});
       if (!current()) return;
       await viewer.pause();
       if (!current()) return;
@@ -130,26 +184,25 @@ function boot() {
   }
   document.addEventListener('click',event=> {
     const link = event.target.closest('a[href^="#"]');
-    if (link && pages.includes(link.hash.slice(1))) { event.preventDefault(); ++action; void showPage(link.hash.slice(1),{focus:true}).catch(()=>{}); return; }
+    if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0 && [...pages,...workspacePages].includes(link.hash.slice(1))) { event.preventDefault(); ++action; void showPage(link.hash.slice(1),{focus:true}).catch(()=>{}); return; }
     const question = event.target.closest('[data-question]');
     if (question) void showTarget(ROOM_CONTENT[productId].questions.find(item=>item.id===question.dataset.question).target);
     const part = event.target.closest('[data-node]'); if (part) void showTarget({kind:'part',nodeId:part.dataset.node});
     const doc = event.target.closest('[data-document]'); if (doc) void openRequest(doc.dataset.document);
   });
   $('room-product').addEventListener('change',()=> {
-    ++action; productId = $('room-product').value; renderContent(); updateURL();
-    if (page === 'explore') void ensureViewer().catch(()=>{});
+    ++action;
+    void showPage(workspacePages.includes(page) ? 'overview' : page,{focus:true,modelId:$('room-product').value}).catch(()=>{});
   });
   $('room-discuss').addEventListener('click',()=>void openRequest());
   $('room-retry').addEventListener('click',()=>void ensureViewer(true).catch(()=>{}));
   window.addEventListener('popstate',()=> {
     ++action; const id = new URL(location.href).searchParams.get('model');
-    if (productId === mountedModel && ROOM_CONTENT[id] && id !== productId) { productId = id; renderContent(); }
-    void showPage(location.hash.slice(1),{record:false}).catch(()=>{});
+    const route = readRoute(); void showPage(route.view,{record:false,route,modelId:id}).catch(()=>{});
   });
   document.addEventListener('visibilitychange',()=> { if (document.hidden) void viewer.pause().catch(()=>{}); });
-  window.addEventListener('pagehide',event=> { if (!event.persisted) { flow.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
-  renderContent(); void showPage(location.hash.slice(1),{record:false}).catch(()=>{});
+  window.addEventListener('pagehide',event=> { if (!event.persisted) { flow.dispose(); workspace?.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
+  renderContent(); const route = readRoute(); void showPage(route.view,{record:false,route}).catch(()=>{});
 
 }
 boot();

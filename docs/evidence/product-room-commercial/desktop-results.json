@@ -1,0 +1,13 @@
+{
+  "base": "http://127.0.0.1:8098/annora-explorer/product-room/",
+  "checks": [
+    "empty inquiry rejected without project",
+    "inquiry details -> read-only review -> explicit confirmation -> project",
+    "reviewed revision -> explicit sample reply -> v2; immutable RFQ and v1",
+    "old quotation readonly; explicit return to latest",
+    "next step uses details -> review -> explicit confirm",
+    "project and quotation history persist through reload and return"
+  ],
+  "errors": [],
+  "projectId": "PRJ-DEMO-DD527F2E"
+}

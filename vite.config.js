@@ -8,6 +8,7 @@ const root = fileURLToPath(new URL('./', import.meta.url));
 export default defineConfig({
   base: './',
   publicDir: false,
+  esbuild: { jsx: 'automatic' },
   plugins: [{
     name: 'redistribution-notices',
     async generateBundle() {
@@ -15,6 +16,10 @@ export default defineConfig({
       const sections = [
         ['Annora Explorer', new URL('./LICENSE', import.meta.url)],
         ['Three.js', new URL('./node_modules/three/LICENSE', import.meta.url)],
+        ...['react', 'react-dom', 'scheduler', '@base-ui/react', '@base-ui/utils',
+          '@floating-ui/react-dom', '@floating-ui/dom', '@floating-ui/core', '@floating-ui/utils',
+          '@babel/runtime', 'use-sync-external-store', 'reselect'].map(name =>
+          [name, new URL(`./node_modules/${name}/LICENSE`, import.meta.url)]),
         ...models.map(model => [model.manifest.provenance.attribution, model.assets.license]),
       ];
       const notices = await Promise.all(sections.map(async ([name, file]) => `${name}\n${'='.repeat(name.length)}\n\n${await readFile(file, 'utf8')}`));

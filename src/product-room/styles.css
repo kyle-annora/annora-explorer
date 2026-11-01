@@ -140,6 +140,19 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   background:#303439;
   color:#fff;
 }
+.room-nav a.room-projects-link {
+  border:1px solid #565b62;
+  color:#eef0f2;
+  margin-left:8px;
+}
+.room-nav a.room-projects-link:hover {
+  border-color:#92979d;
+  background:#33373b;
+}
+.room-nav a.room-projects-link[aria-current] {
+  border-color:#bdafa4;
+  background:#383631;
+}
 .room-nav a span {
   font:9px var(--mono);
   color:#d6b9ae;
@@ -896,6 +909,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     justify-self:center;
     min-width:0;
   }
+  body[data-workspace] .room-product {
+    grid-column:2 / -1;
+    justify-self:end;
+  }
   .room-product select {
     max-width:142px;
     width:100%;
@@ -916,6 +933,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     margin:0;
     gap:2px;
     border-top:1px solid #303338;
+    min-width:0;
   }
   .room-nav a {
     flex:1;
@@ -923,6 +941,11 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
     min-height:44px;
     padding:0 8px;
     font-size:12px;
+    min-width:0;
+  }
+  .room-nav a.room-projects-link {
+    margin-left:4px;
+    min-height:36px;
   }
   .room-explore {
     min-height:320px;
@@ -1067,6 +1090,14 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   }
 }
 @media(max-width:360px) {
+  .room-nav a {
+    font-size:10px;
+    padding-inline:5px;
+    gap:4px;
+  }
+  .room-nav a span {
+    font-size:8px;
+  }
   .room-header {
     padding:0 12px;
     column-gap:8px;

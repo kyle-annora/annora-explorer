@@ -1,0 +1,25 @@
+/* Product Room host only. The embedded Explorer keeps its own rendering and UI. */
+.room-ui {
+  --ar-canvas: #f4f4f3;
+  --ar-surface: #fff;
+  --ar-subtle: #eceeed;
+  --ar-ink: #292b2e;
+  --ar-muted: #64686c;
+  --ar-line: #d4d5d6;
+  --ar-line-strong: #9ba0a4;
+  --ar-accent: var(--accent, #ff6840);
+  --ar-accent-hover: #ff8969;
+  --ar-accent-ink: #241610;
+  --ar-champagne: #eee8dc;
+  --ar-champagne-ink: #60543d;
+  --ar-error: #9c3419;
+  --ar-error-surface: #fff4ef;
+  --ar-radius: 4px;
+  --ar-control-height: 44px;
+  --ar-font: Inter, "Helvetica Neue", Arial, sans-serif;
+  --ar-mono: "SFMono-Regular", Consolas, monospace;
+  font-family: var(--ar-font);
+  color: var(--ar-ink);
+  font-size: 14px;
+  line-height: 1.55;
+}

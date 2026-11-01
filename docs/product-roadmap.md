@@ -1,8 +1,8 @@
 # Product opportunities after interface clarity
 
 Updated November 1, 2026. The Explorer and Engineering refinement are shipped.
-[Product Room](product-room.md) now adds three buyer-facing destinations and a
-demo-only reviewed request flow, using the unchanged Explorer. The public template
+[Product Room](product-room.md) adds three buyer-facing destinations and a
+crank customer-project flow, using the unchanged Explorer. The public template
 remains static. [Studio](product-room-studio-proposal.md) follows Room review; it
 is not implemented yet.
 
@@ -12,15 +12,17 @@ The Room connects three sample buyer questions to relevant views, product
 documents and one next action. Its request flow carries the product, exact model
 revision and optional selected part, document or chapter. Saved-view capture
 is reserved for a later iteration.
-An optional project review host can later add an owner, response, decision and
-quotation feedback. This continues the product-understanding-to-sales journey.
+The approved second phase adds browser-local inquiries, immutable quotations,
+version-bound changes, sample replies, comparison and customer next-step requests.
+The component catalog shares the actual workspace controls. These are sample
+commercial records, not live manufacturer transactions.
 
 Use the existing JSON controller. `captureView` supports settled exploration and
 paused manual operation, not arbitrary running-tour poses. Bookmarks require an
 exact model revision; never silently remap comments to a different geometry export.
 Durable sharing, accounts and customer data belong to the host's future backend,
-not the public Explorer template. No backend or simulated persistence is included
-in this milestone.
+not the public Explorer template. Demonstration persistence is limited to the
+current browser; no backend, login or cross-device sharing is implemented.
 
 ## Annora Studio
 
@@ -36,7 +38,7 @@ customer product before deciding which authoring tasks to automate.
 
 ## Evidence and order
 
-1. Review the shipped Product Room with sample products and demo requests.
+1. Review the complete crank inquiry-to-revised-quotation journey and shared components.
 2. Build the derived Studio editors around shared versioned content, preserving
    the existing Explorer.
 3. Validate the complete authoring, review and Room experience.

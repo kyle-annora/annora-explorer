@@ -1,0 +1,189 @@
+[
+  {
+    "width": 360,
+    "height": 800,
+    "inquiry": {
+      "width": 360,
+      "scroll": 360,
+      "offending": []
+    },
+    "errorState": {
+      "active": "",
+      "invalid": [
+        {
+          "name": "application",
+          "describedBy": "_r_3_-hint _r_3_-error"
+        },
+        {
+          "name": "quantity",
+          "describedBy": "_r_4_-error _r_4_-unit"
+        }
+      ]
+    },
+    "review": {
+      "width": 360,
+      "scroll": 360,
+      "offending": []
+    },
+    "reviewButtons": [
+      "← My projectsSaving…",
+      "Edit requirementsSaving…",
+      "Confirm demo inquiry →Saving inquiry…"
+    ],
+    "catalog": {
+      "width": 360,
+      "scroll": 360,
+      "offending": []
+    },
+    "errors": []
+  },
+  {
+    "width": 320,
+    "height": 740,
+    "inquiry": {
+      "width": 320,
+      "scroll": 340,
+      "offending": [
+        {
+          "tag": "A",
+          "cls": "room-projects-link",
+          "right": 340
+        }
+      ]
+    },
+    "errorState": {
+      "active": "",
+      "invalid": [
+        {
+          "name": "application",
+          "describedBy": "_r_3_-hint _r_3_-error"
+        },
+        {
+          "name": "quantity",
+          "describedBy": "_r_4_-error _r_4_-unit"
+        }
+      ]
+    },
+    "review": {
+      "width": 320,
+      "scroll": 340,
+      "offending": [
+        {
+          "tag": "A",
+          "cls": "room-projects-link",
+          "right": 340
+        }
+      ]
+    },
+    "reviewButtons": [
+      "← My projectsSaving…",
+      "Edit requirementsSaving…",
+      "Confirm demo inquiry →Saving inquiry…"
+    ],
+    "catalog": {
+      "width": 320,
+      "scroll": 340,
+      "offending": [
+        {
+          "tag": "A",
+          "cls": "room-projects-link",
+          "right": 340
+        }
+      ]
+    },
+    "errors": []
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "inquiry": {
+      "width": 844,
+      "scroll": 844,
+      "offending": []
+    },
+    "errorState": {
+      "active": "",
+      "invalid": [
+        {
+          "name": "application",
+          "describedBy": "_r_3_-hint _r_3_-error"
+        },
+        {
+          "name": "quantity",
+          "describedBy": "_r_4_-error _r_4_-unit"
+        }
+      ]
+    },
+    "review": {
+      "width": 844,
+      "scroll": 844,
+      "offending": []
+    },
+    "reviewButtons": [
+      "← My projectsSaving…",
+      "Edit requirementsSaving…",
+      "Confirm demo inquiry →Saving inquiry…"
+    ],
+    "catalog": {
+      "width": 844,
+      "scroll": 844,
+      "offending": []
+    },
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "height": 1000,
+    "inquiry": {
+      "width": 1440,
+      "scroll": 1440,
+      "offending": []
+    },
+    "errorState": {
+      "active": "",
+      "invalid": [
+        {
+          "name": "application",
+          "describedBy": "_r_3_-hint _r_3_-error"
+        },
+        {
+          "name": "quantity",
+          "describedBy": "_r_4_-error _r_4_-unit"
+        }
+      ]
+    },
+    "review": {
+      "width": 1440,
+      "scroll": 1440,
+      "offending": []
+    },
+    "reviewButtons": [
+      "← My projectsSaving…",
+      "Edit requirementsSaving…",
+      "Confirm demo inquiry →Saving inquiry…"
+    ],
+    "catalog": {
+      "width": 1440,
+      "scroll": 1440,
+      "offending": []
+    },
+    "errors": []
+  },
+  {
+    "pending": {
+      "text": "Saving…",
+      "disabled": false,
+      "ariaDisabled": "true",
+      "busy": "true",
+      "label": "Saving…",
+      "focused": true,
+      "width": 124.1875
+    },
+    "submits": 1,
+    "after": {
+      "label": "Save example",
+      "focused": true,
+      "width": 124.1875
+    }
+  }
+]

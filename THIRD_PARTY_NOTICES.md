@@ -11,6 +11,9 @@ Explorer's source information.
 | Kinetic 01 crank-slider model and source | Pradeep Kaushik, pinned source revision `c361b9ad46f91ba960c708c2510aa204ad45605b` | MIT; see `content/models/kinetic-01/LICENSE` and its source README |
 | Original bench-vise study | Annora, 2026 | MIT; see `examples/bench-vise/LICENSE` |
 | Three.js 0.180.0 | Three.js authors | MIT; dependency license is included in the installed package |
+| React, React DOM and Scheduler | Meta Platforms, Inc. and affiliates | MIT; used by the lazily loaded Product Room workspace |
+| Base UI and utilities | MUI Team | MIT; accessible, unstyled Product Room controls |
+| Floating UI, Babel runtime, use-sync-external-store and Reselect | Respective contributors | MIT; supporting runtime dependencies, with notices included in `dist/LICENSES.txt` |
 | Vite and its build dependencies | Respective contributors | See the pinned lockfile and installed package notices; Vite is MIT |
 
 Source references:

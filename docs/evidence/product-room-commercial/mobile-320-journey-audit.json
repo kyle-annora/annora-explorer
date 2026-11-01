@@ -1,0 +1,63 @@
+[
+  {
+    "label": "quote-v1",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "BODY",
+    "scrollY": 1577
+  },
+  {
+    "keyboardTab": "Conversation"
+  },
+  {
+    "label": "change-review",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "BUTTON",
+    "scrollY": 799
+  },
+  {
+    "label": "quote-v2",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "H1",
+    "scrollY": 91
+  },
+  {
+    "label": "comparison",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "H1",
+    "scrollY": 91
+  },
+  {
+    "comparison": "Quotation version comparison\nDetail\nv1 · previous\nv2 · current\nQuantity\nChanged\n20 units\n30 units\nSample unit price\nChanged\n$185.00\n$175.00\nRequested timing\nChanged\n6 weeks\n5 weeks\nProposed lead time\n6–8 weeks after technical review\n6–8 weeks after technical review\nScope\nIllustrative crank-slider assembly; application-specific work is not priced.\nIllustrative crank-slider assembly; application-specific work is not priced.\nPriced subtotal\nChanged\n$3,950.00\n$5,500.00\nFinal total\nPending review\nPending review"
+  },
+  {
+    "oldVersionNoChangeButton": true
+  },
+  {
+    "label": "next-review",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "BUTTON",
+    "scrollY": 601
+  },
+  {
+    "label": "conversation",
+    "viewport": 320,
+    "scrollWidth": 320,
+    "active": "BUTTON",
+    "scrollY": 91
+  },
+  {
+    "projectPersists": true,
+    "versions": 2,
+    "changes": 1,
+    "replies": 1,
+    "nextSteps": 1,
+    "originalPreserved": true,
+    "url": "http://127.0.0.1:8097/product-room/?model=kinetic-01#project&project=PRJ-DEMO-DD1B52A4",
+    "errors": []
+  }
+]
