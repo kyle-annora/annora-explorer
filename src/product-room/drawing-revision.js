@@ -34,7 +34,11 @@ export function validatePublishedDrawingContext(input, release) {
   const expected={id:pkg.id,title:pkg.title,revision:pkg.revision,assetId:asset.id,assetRevision:asset.sha256,
     partId:region.partId,sheetId:sheet.id,sheetTitle:sheet.title,regionId:region.id,regionLabel:region.label,
     sourceURL:pkg.sourceURL,mappingRevision:pkg.mappingRevision,
-    ...(drawing.revisionLabel!==undefined ? {revisionLabel:pkg.revisionLabel} : {})};
+    ...(drawing.revisionLabel!==undefined ? {revisionLabel:pkg.revisionLabel} : {}),
+    ...(release.presentationSnapshot !== undefined ? {
+      presentationSnapshot: copy(release.presentationSnapshot),
+      ...(release.presentationSnapshot ? { presentationRevision: release.presentationSnapshot.revision } : {}),
+    } : {})};
   if (!same(drawing,expected) || context.part?.id!==region.partId) fail('The selected detail, part, source hash or association version differs from the published release.');
   return context;
 }

@@ -21,7 +21,7 @@ export function createDrawingOverview({ mount, entries = [], selectedId = null, 
   // Recorded mobile previews give their pinned feature the largest useful
   // composition first. The selector still exposes the complete source sheet.
   if (lockedRegionId) selectedEntries.sort((a, b) => a.regionIds.length - b.regionIds.length);
-  let activeId = selectedEntries[0]?.id || sourceEntries[0]?.id;
+  let activeId = (lockedRegionId ? selectedEntries[0]?.id : sourceEntries.find(entry => entry.initial)?.id) || selectedEntries[0]?.id || sourceEntries[0]?.id;
   let viewers = [], tileRemovers = [], pendingActivation = null, ready = Promise.resolve();
   const removers = [];
   const html = (tag, className, text) => {

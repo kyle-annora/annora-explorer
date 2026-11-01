@@ -13,6 +13,7 @@ export function DrawingReference({ context, onOpen, href, label = 'Drawing refer
     <div className="drawing-reference-heading"><span>{label}</span><Status tone="neutral">{ref.revisionLabel || ref.revision}</Status></div>
     <strong>{ref.regionLabel}</strong>
     <p>{ref.sheetTitle} · {context.part?.title}</p>
+    {ref.presentationRevision && <p className="drawing-reference-overview" title={ref.presentationRevision} data-overview-revision={ref.presentationRevision}>Saved overview · {ref.presentationRevision.replace(/^overview-/, '').slice(0, 8)}</p>}
     <div className="drawing-reference-actions"><Button variant="quiet" onClick={() => setPreviewOpen(open => !open)} aria-expanded={previewOpen}>{previewOpen ? 'Close preview' : 'Preview drawing'}</Button>
       {onOpen ? <Button variant="quiet" onClick={() => onOpen(context)} icon="external">Open this drawing</Button>
         : href ? <a className="ar-button" data-variant="quiet" href={href} target="_blank" rel="noopener noreferrer">Open this drawing ↗</a> : null}</div>
@@ -41,7 +42,10 @@ function RecordedDrawingPreview({ context }) {
   }, [referenceKey]);
   if (error) return <Notice kind="error" title="Recorded preview unavailable">{error}</Notice>;
   if (!resolved) return <p className="drawing-reference-loading" role="status">Opening the recorded drawing version…</p>;
-  return <DrawingPreview pkg={resolved.package} sheetId={resolved.previewSheetId} regionId={resolved.previewRegionId} assetsResolved caption="Pinned to this record’s drawing and association version." />;
+  return <DrawingPreview pkg={resolved.package} sheetId={resolved.previewSheetId} regionId={resolved.previewRegionId}
+    presentationSnapshot={resolved.presentationSnapshot} assetsResolved
+    caption={resolved.presentationState === 'unavailable' ? 'Showing this record’s original PDF. Its saved overview is unavailable.'
+      : resolved.presentationSnapshot ? 'Pinned to this record’s drawing, associations and saved overview.' : 'Pinned to this record’s original drawing and associations.'} />;
 }
 
 export function DrawingReferenceComparison({ before, after, onOpen, hrefFor }) {
@@ -49,6 +53,7 @@ export function DrawingReferenceComparison({ before, after, onOpen, hrefFor }) {
   const rows = [
     ['Drawing version', before.drawing.revisionLabel || before.drawing.revision, after.drawing.revisionLabel || after.drawing.revision],
     ['Association version', before.drawing.mappingRevision || 'Earlier mapping', after.drawing.mappingRevision || 'Earlier mapping'],
+    ...(before.drawing.presentationRevision || after.drawing.presentationRevision ? [['Overview version', before.drawing.presentationRevision || 'Original source view', after.drawing.presentationRevision || 'Original source view']] : []),
     ...(before.modelRevision !== after.modelRevision ? [['Model version', before.modelRevision, after.modelRevision]] : []),
     ['Sheet', before.drawing.sheetTitle, after.drawing.sheetTitle],
     ['Selected detail', before.drawing.regionLabel, after.drawing.regionLabel],

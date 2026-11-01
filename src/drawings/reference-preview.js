@@ -1,3 +1,5 @@
+import { normalizeOverviewPresentation, overviewPresentationIssues } from './overview-presentation.js';
+
 /** Resolve a recorded reference without falling forward to the latest package.
  * Dependencies are supplied by the host so this boundary also works with a
  * future API repository. The returned entry owns any temporary asset leases. */
@@ -30,5 +32,23 @@ export async function resolveReferencePreview(context, { catalog = [], staticRel
   }
   if (typeof resolveEntry !== 'function') throw new TypeError('An exact drawing asset resolver is required.');
   const resolved = await resolveEntry(entry, candidates[0]);
-  return { ...resolved, previewSheetId: ref.sheetId, previewRegionId: ref.regionId };
+  // Legacy records may use only the preserved bundled baseline. A later seller
+  // publication is never used as an implicit presentation migration.
+  const recorded = ref.presentationSnapshot !== undefined;
+  const candidate = recorded ? ref.presentationSnapshot : resolved.legacyOverviewPresentation ?? entry.legacyOverviewPresentation;
+  let presentationSnapshot = null, presentationState = recorded ? 'source-only' : 'legacy-source';
+  if (candidate) {
+    try {
+      const checked = normalizeOverviewPresentation(candidate);
+      if (recorded && ref.presentationRevision !== checked.revision) throw new Error('Overview identity mismatch.');
+      if (overviewPresentationIssues(checked, resolved.package).some(issue => issue.severity !== 'warning')) throw new Error('Overview source mismatch.');
+      presentationSnapshot = checked;
+      presentationState = recorded ? 'recorded' : 'legacy';
+    } catch {
+      // The original source remains usable even when its prepared presentation
+      // is unavailable. Never substitute a newer overview for this record.
+      presentationState = 'unavailable';
+    }
+  }
+  return { ...resolved, previewSheetId: ref.sheetId, previewRegionId: ref.regionId, presentationSnapshot, presentationState };
 }

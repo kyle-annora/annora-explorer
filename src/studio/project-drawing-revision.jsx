@@ -19,7 +19,8 @@ export function ProjectDrawingRevision({ project, repository, packages, releases
   const selected = records.find(record => record.id === recordId);
   const choices = entry?.package.sheets.flatMap(sheet => sheet.regions.filter(region => region.mappingStatus === 'confirmed').map(region => ({ sheet, region, key: `${sheet.id}:${region.id}` }))) || [];
   const picked = choices.find(choice => choice.key === detail);
-  const context = picked ? createDrawingContext({ drawing: entry.package, sheetId: picked.sheet.id, regionId: picked.region.id, modelRevision: entry.model.revision, model: entry.model }) : null;
+  const context = picked ? createDrawingContext({ drawing: entry.package, sheetId: picked.sheet.id, regionId: picked.region.id, modelRevision: entry.model.revision, model: entry.model,
+    presentationSnapshot: selected?.presentationSnapshot }) : null;
   useEffect(() => {
     let alive = true;
     releasesRepository.listReleases(project.context.modelId).then(local => {

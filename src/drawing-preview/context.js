@@ -1,6 +1,7 @@
 import { DEFAULT_INQUIRY_PROFILE } from "../product-room/inquiry-profile.js";
 import { contextForRelease } from "../product-room/release-content.js";
 import { createInquiryDraft } from "../product-room/project-domain.js";
+import { normalizeOverviewPresentation, overviewPresentationIssues } from "../drawings/overview-presentation.js";
 import {
   normalizeDrawingPackage,
   resolveSheetContext,
@@ -14,6 +15,7 @@ export function createDrawingContext({
   regionId,
   modelRevision,
   model = {},
+  presentationSnapshot,
 }) {
   if (!modelRevision?.trim())
     throw new TypeError("An exact prepared model revision is required.");
@@ -22,6 +24,13 @@ export function createDrawingContext({
     throw new TypeError(
       "The drawing and prepared model versions do not match.",
     );
+  let presentation;
+  if (presentationSnapshot !== undefined) {
+    presentation = normalizeOverviewPresentation(presentationSnapshot);
+    const issues = presentation && overviewPresentationIssues(presentation, pkg);
+    if (issues?.some(issue => issue.severity !== 'warning'))
+      throw new TypeError('The overview does not match this drawing source or its confirmed associations.');
+  }
   const matches = pkg.sheets
     .filter((sheet) => !sheetId || sheet.id === sheetId)
     .flatMap((sheet) =>
@@ -163,6 +172,10 @@ export function createDrawingContext({
       ...(drawing.schemaVersion === 2
         ? { mappingRevision: pkg.mappingRevision }
         : {}),
+      ...(presentationSnapshot !== undefined ? {
+        presentationSnapshot: presentation,
+        ...(presentation ? { presentationRevision: presentation.revision } : {}),
+      } : {}),
     },
   });
   return createInquiryDraft(context, "drawing-context-validation").context;

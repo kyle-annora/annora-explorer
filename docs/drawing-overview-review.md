@@ -1,5 +1,8 @@
 # Drawing overview delivery
 
+For the subsequent seller editor, immutable overview versions and publication
+workflow, see [Studio overview authoring](studio-overview-authoring.md).
+
 ## Outcome and review path
 
 SK08 and the connecting rod now open a composed **Drawing overview** instead of

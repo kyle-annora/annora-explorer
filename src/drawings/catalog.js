@@ -1,6 +1,7 @@
 import { MODEL_CATALOG } from "../generated/catalog.js";
 import { normalizeDrawingPackage, releaseDiagnostic } from "./package.js";
 import { resolveDrawingAssets } from "../studio/drawing-asset-store.js";
+import { preparedOverviewViewsFor, overviewPresentationFor, legacyOverviewPresentationFor } from '../drawing-preview/technical-catalog.js';
 
 // Discovery is data-driven. A prepared model and package can be added without
 // adding a product branch to the Explorer, document reader or seller workspace.
@@ -47,6 +48,9 @@ export const DRAWING_CATALOG = Object.values(packages).map((input) => {
     model,
     available: Boolean(configured && diagnostic.valid),
     diagnostic,
+    overviewViews: preparedOverviewViewsFor(pkg),
+    overviewPresentation: overviewPresentationFor(pkg),
+    legacyOverviewPresentation: legacyOverviewPresentationFor(pkg),
   };
 });
 export const drawingEntry = (id) =>
@@ -81,6 +85,9 @@ export function entryForSnapshot(entry, snapshot) {
     ...entry,
     assets,
     package: normalizeDrawingPackage(snapshot, { assetURLs: assets }),
+    overviewViews: preparedOverviewViewsFor(snapshot),
+    overviewPresentation: overviewPresentationFor(snapshot),
+    legacyOverviewPresentation: legacyOverviewPresentationFor(snapshot),
   };
 }
 
@@ -117,6 +124,8 @@ export async function resolveDrawingEntry(entry, snapshot) {
   try {
     const pkg = normalizeDrawingPackage(lease.package, { assetURLs: lease.assets });
     const diagnostic = releaseDiagnostic(pkg, { partIds: entry.model.parts.map(part => part.id), modelRevision: entry.model.revision });
-    return { ...entry, package: pkg, assets: lease.assets, diagnostic, available: diagnostic.valid, dispose: lease.dispose };
+    return { ...entry, package: pkg, assets: lease.assets, diagnostic, available: diagnostic.valid, dispose: lease.dispose,
+      overviewViews: preparedOverviewViewsFor(pkg), overviewPresentation: overviewPresentationFor(pkg),
+      legacyOverviewPresentation: legacyOverviewPresentationFor(pkg) };
   } catch (error) { lease.dispose(); throw error; }
 }

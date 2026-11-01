@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "sourceKey": "source-5362e13a729ffe50",
+  "sheets": [
+    {
+      "sheetId": "sheet-1",
+      "defaultViewId": "linkrods-technical-main-v1:top:sheet-1",
+      "views": [
+        {
+          "id": "linkrods-technical-main-v1:top:sheet-1",
+          "viewRevision": "view-8b71856f4746d715",
+          "title": "Top view",
+          "targets": [
+            {
+              "targetId": "overview",
+              "regionId": "overview",
+              "associationKey": "link-f3597c0847442f98",
+              "confirmed": true
+            },
+            {
+              "targetId": "large-bore",
+              "regionId": "large-bore",
+              "associationKey": "link-8db185578411ce0f",
+              "confirmed": true
+            },
+            {
+              "targetId": "small-bore",
+              "regionId": "small-bore",
+              "associationKey": "link-111aa3f9df7bbd2f",
+              "confirmed": true
+            },
+            {
+              "targetId": "connecting-web",
+              "regionId": "connecting-web",
+              "associationKey": "link-225fc34fa446d067",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "linkrods-technical-main-v1:isometric:sheet-1",
+          "viewRevision": "view-06d3f25a92c17e08",
+          "title": "Isometric view",
+          "targets": [
+            {
+              "targetId": "overview",
+              "regionId": "overview",
+              "associationKey": "link-f3597c0847442f98",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "linkrods-technical-main-v1:large-bore:sheet-1",
+          "viewRevision": "view-619bc18d1f023243",
+          "title": "Large bore",
+          "targets": [
+            {
+              "targetId": "large-bore",
+              "regionId": "large-bore",
+              "associationKey": "link-8db185578411ce0f",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "linkrods-technical-main-v1:small-bore:sheet-1",
+          "viewRevision": "view-642639c3dedc0c85",
+          "title": "Small bore",
+          "targets": [
+            {
+              "targetId": "small-bore",
+              "regionId": "small-bore",
+              "associationKey": "link-111aa3f9df7bbd2f",
+              "confirmed": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "revision": "overview-5b39f9a16cf537ed"
+}

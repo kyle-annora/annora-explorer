@@ -4,6 +4,7 @@ import {
 } from './drawing-domain.js';
 import { defaultDrawingAssetStore } from './drawing-asset-store.js';
 import { validateDrawingPackage, releaseDiagnostic } from '../drawings/package.js';
+import { normalizeOverviewPresentation, overviewPresentationIssues } from '../drawings/overview-presentation.js';
 
 export const DRAWING_STUDIO_STORAGE_KEY = 'annora.studio.drawing-packages.v1';
 const empty = () => ({ schemaVersion: 1, revision: 0, drafts: [], previews: [], releases: [], published: {}, sourceVersions: [], activeDrafts: {} });
@@ -35,6 +36,7 @@ export function parseDrawingStudioStore(raw) {
           || !Number.isSafeInteger(draft.revision) || draft.revision < 1 || !date(draft.updatedAt)
           || !draft.packageSnapshot || !Array.isArray(draft.packageSnapshot.sheets)) throw new Error();
       if (draft.sourceVersionId && !store.sourceVersions.some(source => source.id === draft.sourceVersionId && source.productId === draft.productId && same(source.packageSnapshot, draft.sourcePackageSnapshot))) throw new Error();
+      if (draft.presentationSnapshot !== undefined) normalizeOverviewPresentation(draft.presentationSnapshot);
     }
     for (const record of [...store.releases, ...store.previews]) {
       if (!text(record.id) || !text(record.productId) || !text(record.modelId) || !text(record.modelRevision)
@@ -44,6 +46,11 @@ export function parseDrawingStudioStore(raw) {
       const pkg = validateDrawingPackage(record.packageSnapshot, { modelRevision: record.modelRevision, partIds: record.partIds });
       if (!releaseDiagnostic(pkg, { modelRevision: record.modelRevision, partIds: record.partIds }).valid) throw new Error();
       if (pkg.modelId !== record.modelId || pkg.modelRevision !== record.modelRevision || pkg.mappingRevision !== record.mappingRevision || pkg.revision !== record.sourceRevision) throw new Error();
+      if (record.presentationSnapshot !== undefined) {
+        const presentation = normalizeOverviewPresentation(record.presentationSnapshot);
+        if (presentation ? record.presentationRevision !== presentation.revision || overviewPresentationIssues(presentation, pkg).some(item => item.severity === 'error')
+          : record.presentationRevision !== undefined) throw new Error();
+      } else if (record.presentationRevision !== undefined) throw new Error();
     }
     for (const [productId, id] of Object.entries(store.activeDrafts)) if (!store.drafts.some(draft => draft.id === id && draft.productId === productId)) throw new Error();
     for (const [productId, id] of Object.entries(store.published)) if (!store.releases.some(release => release.id === id && release.productId === productId)) throw new Error();
@@ -107,7 +114,9 @@ export function createDrawingRepository({ packages = [], storage: injectedStorag
     productId: draft.productId, version, source, draftId: draft.id, draftRevision: draft.revision,
     modelId: draft.packageSnapshot.modelId, modelRevision: draft.packageSnapshot.modelRevision,
     sourceRevision: draft.packageSnapshot.revision, mappingRevision: draft.packageSnapshot.mappingRevision,
-    packageSnapshot: copy(draft.packageSnapshot), ...(draft.regionChanges ? { regionChanges: copy(draft.regionChanges) } : {}), ...(draft.sourceVersionId ? { sourceVersionId: draft.sourceVersionId, sourcePackageSnapshot: copy(draft.sourcePackageSnapshot) } : {}), partIds: drawingPartIds(entryOf(draft.productId)), createdAt: now() });
+    packageSnapshot: copy(draft.packageSnapshot), ...(draft.presentationSnapshot !== undefined
+      ? { presentationSnapshot: copy(draft.presentationSnapshot), ...(draft.presentationSnapshot ? { presentationRevision: draft.presentationSnapshot.revision } : {}) } : {}),
+    ...(draft.regionChanges ? { regionChanges: copy(draft.regionChanges) } : {}), ...(draft.sourceVersionId ? { sourceVersionId: draft.sourceVersionId, sourcePackageSnapshot: copy(draft.sourcePackageSnapshot) } : {}), partIds: drawingPartIds(entryOf(draft.productId)), createdAt: now() });
   return Object.freeze({
     mode: 'demo', assetStore,
     async getDraft(productId = packages[0].id, selector = {}) {
@@ -189,6 +198,8 @@ export function createDrawingRepository({ packages = [], storage: injectedStorag
         next.reviewToken = review.token;
         next.baseReleaseId = current?.id || null;
         next.previousPackageSnapshot = copy(current?.packageSnapshot || drawingSource(entryOf(draft.productId)));
+        const previousPresentation = current ? current.presentationSnapshot : entryOf(draft.productId).overviewPresentation;
+        if (previousPresentation !== undefined) next.previousPresentationSnapshot = copy(previousPresentation);
         store.releases.push(next); store.published[draft.productId] = next.id; return next;
       });
       return snapshot(result);

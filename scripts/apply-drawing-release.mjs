@@ -7,6 +7,8 @@ import { loadProject, containedFile } from './lib/project-config.mjs';
 import { normalizeDrawingPackage, releaseDiagnostic } from '../src/drawings/package.js';
 import { createDrawingDraft, assertDrawingDraft } from '../src/studio/drawing-domain.js';
 import { sameStudioValue, studioFingerprint } from '../src/studio/value.js';
+import { normalizeOverviewPresentation, overviewPresentationIssues, overviewSourceKey } from '../src/drawings/overview-presentation.js';
+import { loadOverviewCatalog } from './lib/overview-catalog.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const safeId = value => typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/.test(value) && !value.includes('..');
@@ -16,7 +18,7 @@ const requireValue = (condition, message) => { if (!condition) throw new Error(m
 async function exists(file) { try { return await lstat(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } }
 const inside = (base, file) => { const rel = relative(base, file); return rel && !rel.startsWith(`..${sep}`) && rel !== '..' && !rel.startsWith(sep); };
 
-/** Applies only prepared association metadata. Source drawings, STEP and model files are never written. */
+/** Applies reviewed associations and overview metadata; original engineering assets stay immutable. */
 export async function applyDrawingRelease(input, { root = projectRoot, replace = false, assetDirectory = null } = {}) {
   root = await realpath(root);
   const record = structuredClone(input);
@@ -50,6 +52,19 @@ export async function applyDrawingRelease(input, { root = projectRoot, replace =
   requireValue(matches.length === 1, 'Exactly one prepared drawing package must match this release model and package ID.');
   const target = matches[0], entry = { id: record.productId, title: model.manifest.title, package: target.pkg,
     model: { id: model.manifest.id, revision: model.revision, parts: model.metadata.parts } };
+  const overviewCatalog = await loadOverviewCatalog(target.packageRoot, rawSnapshot);
+  const previousOverviewCatalog = await loadOverviewCatalog(target.packageRoot, target.pkg);
+  const presentationFile = resolve(target.packageRoot, 'overview-presentation.json'), presentationStat = await exists(presentationFile);
+  requireValue(!presentationStat || presentationStat.isFile() && !presentationStat.isSymbolicLink(), 'Overview defaults must be regular files inside the package.');
+  const previousPresentationBytes = presentationStat ? await readFile(presentationFile, 'utf8') : null;
+  const explicitPresentation = record.presentationSnapshot !== undefined;
+  const presentation = record.presentationSnapshot == null ? null : normalizeOverviewPresentation(record.presentationSnapshot);
+  requireValue(presentation ? record.presentationRevision === presentation.revision : record.presentationRevision === undefined,
+    'The overview revision must match its immutable presentation snapshot.');
+  if (presentation) {
+    const issues = overviewPresentationIssues(presentation, rawSnapshot, overviewCatalog.overviewViews);
+    requireValue(!issues.length, issues.map(item => `${item.path}: ${item.message}`).join('\n'));
+  }
   let validationEntry = entry;
   if (record.sourceVersionId) {
     requireValue(safeId(record.sourceVersionId) && record.sourcePackageSnapshot, 'Imported source releases need their immutable source-version baseline.');
@@ -72,6 +87,7 @@ export async function applyDrawingRelease(input, { root = projectRoot, replace =
   // Editable associations are checked against their registered immutable source,
   // including explicit added/removed IDs. A PDF version is a separate operation.
   const draft = createDrawingDraft(validationEntry, 'IMPORT-VALIDATION'); draft.packageSnapshot = rawSnapshot;
+  if (presentation) draft.presentationSnapshot = presentation;
   if (record.regionChanges) draft.regionChanges = record.regionChanges;
   assertDrawingDraft(draft, validationEntry);
   const assetWrites = [];
@@ -107,14 +123,34 @@ export async function applyDrawingRelease(input, { root = projectRoot, replace =
       assetWrites.push({ output, bytes });
     }
   }
-  const release = { ...record, source: 'bundled', packageSnapshot: snapshot };
+  const release = { ...record, source: 'bundled', packageSnapshot: snapshot,
+    ...(presentation ? { presentationSnapshot: presentation, presentationRevision: presentation.revision } : {}) };
   delete release.reviewToken;
   if (release.previousPackageSnapshot) release.previousPackageSnapshot = portablePackage(release.previousPackageSnapshot);
   if (release.sourcePackageSnapshot) release.sourcePackageSnapshot = portablePackage(release.sourcePackageSnapshot);
+  if (release.previousPresentationSnapshot) {
+    release.previousPresentationSnapshot = normalizeOverviewPresentation(release.previousPresentationSnapshot);
+    requireValue(release.previousPackageSnapshot && !overviewPresentationIssues(release.previousPresentationSnapshot, release.previousPackageSnapshot).length,
+      'The previous overview must retain its own original drawing and reviewed feature associations.');
+  }
   const releaseFile = resolve(target.packageRoot, `release-${release.id}.json`), stat = await exists(releaseFile);
   requireValue(!stat || stat.isFile() && !stat.isSymbolicLink(), 'Release snapshots must be regular files inside the package.');
   if (stat) requireValue(sameStudioValue(await readJSON(releaseFile), release), 'This release ID already names different content. Publish a new version instead of rewriting a snapshot.');
-  const defaultChanged = replace && !sameStudioValue(portablePackage(target.pkg), snapshot);
+  const packageChanged = replace && !sameStudioValue(portablePackage(target.pkg), snapshot);
+  const previousPresentation = previousOverviewCatalog.overviewPresentation || null;
+  const sourceUnchanged = overviewSourceKey(target.pkg) === overviewSourceKey(snapshot);
+  // Legacy association exports without overview data retain a compatible default.
+  // A new source without reviewed views cannot inherit the previous source's art.
+  const nextPresentation = explicitPresentation ? presentation : (sourceUnchanged && previousPresentation
+    && !overviewPresentationIssues(previousPresentation, snapshot, overviewCatalog.overviewViews).length ? previousPresentation : null);
+  const managePresentation = explicitPresentation || !!presentationStat || !sourceUnchanged;
+  const installedPresentation = previousPresentationBytes === null ? null : normalizeOverviewPresentation(JSON.parse(previousPresentationBytes));
+  // JSON null is an explicit source-only default; a missing file retains the
+  // legacy prepared baseline. Do not erase that distinction during deployment.
+  const keepPresentationFile = nextPresentation !== null || explicitPresentation || (sourceUnchanged && !!presentationStat && installedPresentation === null);
+  const priorPresentationSnapshot = presentationStat ? installedPresentation : previousOverviewCatalog.overviewPresentation || undefined;
+  const presentationChanged = replace && managePresentation && (Boolean(presentationStat) !== keepPresentationFile || !sameStudioValue(installedPresentation, nextPresentation));
+  const defaultChanged = packageChanged || presentationChanged;
   // Archive the previous deployed association snapshot before replacing its default.
   // Its source publication date is unknown; createdAt records this archival event.
   let previousReleaseFile = null, previousRelease = null;
@@ -124,14 +160,17 @@ export async function applyDrawingRelease(input, { root = projectRoot, replace =
       const file = resolve(target.packageRoot, name), item = await lstat(file);
       requireValue(item.isFile() && !item.isSymbolicLink(), 'Release snapshots must be regular files inside the package.');
       const existing = await readJSON(file);
-      if (existing.kind === 'annora-drawing-release' && sameStudioValue(existing.packageSnapshot, prior)) { previousReleaseFile = file; break; }
+      if (existing.kind === 'annora-drawing-release' && sameStudioValue(existing.packageSnapshot, prior)
+        && sameStudioValue(existing.presentationSnapshot, priorPresentationSnapshot)) { previousReleaseFile = file; break; }
     }
     if (!previousReleaseFile) {
-      const id = `bundled-${studioFingerprint(prior)}`;
+      const id = `bundled-${studioFingerprint(priorPresentationSnapshot !== undefined ? { packageSnapshot: prior, presentationSnapshot: priorPresentationSnapshot } : prior)}`;
       previousReleaseFile = resolve(target.packageRoot, `release-${id}.json`);
       previousRelease = { schemaVersion: 1, kind: 'annora-drawing-release', id, source: 'bundled', version: 0,
         productId: record.productId, modelId: record.modelId, modelRevision: prior.modelRevision,
         sourceRevision: prior.revision, mappingRevision: prior.mappingRevision, packageSnapshot: prior,
+        ...(priorPresentationSnapshot !== undefined ? { presentationSnapshot: priorPresentationSnapshot,
+          ...(priorPresentationSnapshot ? { presentationRevision: priorPresentationSnapshot.revision } : {}) } : {}),
         partIds, draftId: 'bundled-source', draftRevision: 0, createdAt: new Date().toISOString(),
         provenance: 'Previous bundled associations archived before a default change. Original source publication date is unknown.' };
     }
@@ -153,19 +192,36 @@ export async function applyDrawingRelease(input, { root = projectRoot, replace =
       requireValue(sameStudioValue(await readJSON(releaseFile), release), 'Another writer created different content for this release ID.');
     }
   }
-  if (defaultChanged) {
+  // Check both defaults before changing either; immutable release staging is
+  // independent, while the selected package and overview must agree.
+  if (packageChanged) requireValue(await readFile(target.file, 'utf8') === target.bytes,
+    'The default drawing package changed during validation. The immutable release is staged; inspect the latest default before retrying.');
+  if (presentationChanged) requireValue((await exists(presentationFile) ? await readFile(presentationFile, 'utf8') : null) === previousPresentationBytes,
+    'The default overview changed during validation. The immutable release is staged; review the latest default before retrying.');
+  if (packageChanged) {
     requireValue(await readFile(target.file, 'utf8') === target.bytes, 'The default drawing package changed during validation. The immutable release is staged; inspect the latest default before retrying.');
     const temporary = `${target.file}.${process.pid}.tmp`;
     try { await writeFile(temporary, JSON.stringify(snapshot, null, 2) + '\n', { flag: 'wx' }); await rename(temporary, target.file); }
     finally { await rm(temporary, { force: true }); }
   }
-  return { releaseId: release.id, releaseFile, previousReleaseFile, packageFile: target.file, changed, defaultChanged, warnings: diagnostic.issues.filter(item => item.severity === 'warning') };
+  if (presentationChanged) {
+    requireValue((await exists(presentationFile) ? await readFile(presentationFile, 'utf8') : null) === previousPresentationBytes,
+      'The default overview changed during validation. The immutable release is staged; review the latest default before retrying.');
+    if (!keepPresentationFile) await rm(presentationFile, { force: true });
+    else {
+      const temporary = `${presentationFile}.${process.pid}.tmp`;
+      try { await writeFile(temporary, JSON.stringify(nextPresentation, null, 2) + '\n', { flag: 'wx' }); await rename(temporary, presentationFile); }
+      finally { await rm(temporary, { force: true }); }
+    }
+  }
+  return { releaseId: release.id, releaseFile, previousReleaseFile, packageFile: target.file, presentationFile,
+    changed, defaultChanged, presentationChanged, warnings: diagnostic.issues.filter(item => item.severity === 'warning') };
 }
 
 async function main() {
   const args = process.argv.slice(2);
   if (args.length === 1 && args[0] === '--help') {
-    console.log('Usage: npm run apply:drawing-release -- --file <reviewed-release.json> [--replace] [--asset-dir <folder>]\nStores an immutable mapping release beside its prepared drawing package.\n--replace also makes its associations the default package. Original source/model files are never changed. Imported PDFs are added by SHA-256.\nRun npm run verify, review the diff, then commit and push to deploy.'); return;
+    console.log('Usage: npm run apply:drawing-release -- --file <reviewed-release.json> [--replace] [--asset-dir <folder>]\nStores an immutable drawing and overview release beside its prepared package.\n--replace also makes its associations and reviewed overview the defaults. Original source/model files are never changed. Imported PDFs are added by SHA-256.\nRun npm run verify, review the diff, then commit and push to deploy.'); return;
   }
   const parsed = {}; let replace = false;
   for (let index = 0; index < args.length; index++) {

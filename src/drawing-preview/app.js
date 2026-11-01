@@ -15,9 +15,11 @@ import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.
 import { readBuyerRoute, buyerRouteHash } from "../product-room/navigation.js";
 import { createDrawingContext } from "./context.js";
 import { focusDrawingRegion } from "./model-views.js";
-import { technicalEntriesFor, overviewEntriesFor, supportsTechnicalDetail } from "./technical-catalog.js";
+import { overviewEntriesFor, supportsTechnicalDetail } from "./technical-catalog.js";
 import { createTechnicalDrawingView } from "./technical-view.js";
 import { createDrawingOverview } from "../drawings/drawing-overview.js";
+import { resolveReferencePreview } from '../drawings/reference-preview.js';
+import { normalizeOverviewPresentation, overviewPresentationIssues } from '../drawings/overview-presentation.js';
 import "../drawings/drawing-overview.css";
 
 const $ = (id) => document.getElementById(id),
@@ -39,12 +41,12 @@ let entry,
   view = mobile.matches ? "3d" : "compare",
   page = "explore",
   drawingView;
-let presentation = "overview", technicalId = null;
-const preparedViews = () => technicalEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion });
-const overviewViews = () => overviewEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion });
+let presentation = "overview", technicalId = null, overviewSnapshot = null;
+const overviewViews = () => overviewEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion, presentationSnapshot: overviewSnapshot });
+const preparedViews = () => overviewViews();
 const selectedTechnicalView = () => {
-  const entries = preparedViews().filter(item => supportsTechnicalDetail(item, sheet.id, regionId));
-  return entries.find(item => item.id === technicalId) || entries[0];
+  const entries = preparedViews();
+  return entries.find(item => item.id === technicalId) || entries.find(item => supportsTechnicalDetail(item, sheet.id, regionId)) || entries[0];
 };
 let workspace,
   workspaceLoading,
@@ -80,6 +82,7 @@ function updateURL({ replace = false } = {}) {
     url.searchParams.set("drawing", drawing.revision);
     url.searchParams.set("mapping", drawing.mappingRevision);
     url.searchParams.set("asset", drawing.assets.find(asset => asset.id === sheet.assetId)?.sha256 || "");
+    url.searchParams.set("overview", overviewSnapshot?.revision || 'source');
   }
   url.searchParams.set("view", view);
   if (preparedViews().length) {
@@ -101,6 +104,7 @@ const currentContext = () =>
     regionId,
     modelRevision: entry.model.revision,
     model: entry.model,
+    presentationSnapshot: overviewSnapshot,
   });
 function selectOptions(element, items, value) {
   element.replaceChildren(
@@ -237,7 +241,7 @@ function mountReader({ focus = false } = {}) {
   instance.ready
     .then(() => {
       if (generation !== readerGeneration) return;
-      instance.select(regionId, { focus });
+      if (presentation !== 'overview' || focus) instance.select(regionId, { focus });
       if (view === "3d" || page !== "explore") instance.pause?.();
     })
     .catch(() => {});
@@ -322,6 +326,7 @@ async function selectRegion(id, { origin = "controls", focus = false } = {}) {
   regionId = id;
   renderSelection();
   if (presentation === "technical") {
+    if (origin !== 'drawing' && !preparedViews().find(item => item.id === technicalId)?.regionIds.includes(id)) technicalId = null;
     const next = selectedTechnicalView();
     if (!next || next.id !== technicalId) {
       technicalId = next?.id || null;
@@ -364,59 +369,19 @@ function syncView() {
   } else drawingView?.pause?.();
 }
 async function useSavedContext(context) {
-  const candidate = drawingEntry(context.modelId),
-    ref = context.drawing;
-  if (!candidate || candidate.model.revision !== context.modelRevision || !ref)
-    throw new Error(
-      "The saved model version is unavailable. Its original record remains unchanged.",
-    );
-  let match = candidate;
+  const match = await resolveReferencePreview(context, { catalog: DRAWING_CATALOG, staticReleases: DRAWING_RELEASES,
+    listReleases: id => packageRepository?.listReleases(id) || [], resolveEntry: resolveDrawingEntry });
   const clean = new URL(location.href);
-  clean.searchParams.delete("drawingRelease");
-  clean.searchParams.delete("drawingPreview");
-  if (
-    (ref.mappingRevision && ref.mappingRevision !== match.package.mappingRevision) ||
-    ref.revision !== match.package.revision ||
-    !match.package.assets.some(asset => asset.id === ref.assetId && asset.sha256 === ref.assetRevision)
-  ) {
-    const releases = [
-        ...((await packageRepository?.listReleases(candidate.id)) || []),
-        ...DRAWING_RELEASES.filter((item) => item.productId === candidate.id),
-      ],
-      release = releases.find(
-        (item) => (!ref.mappingRevision || item.mappingRevision === ref.mappingRevision) && item.sourceRevision === ref.revision && item.packageSnapshot.assets.some(asset => asset.id === ref.assetId && asset.sha256 === ref.assetRevision),
-      );
-    if (!release)
-      throw new Error(
-        "This saved association version is unavailable. Its original record is preserved.",
-      );
-    match = await resolveDrawingEntry(candidate, release.packageSnapshot);
-    clean.searchParams.set("drawingRelease", release.id);
-  }
-  const target = match.package.sheets.find((item) => item.id === ref.sheetId),
-    asset = match.package.assets.find((item) => item.id === target?.assetId);
-  if (
-    ref.revision !== match.package.revision ||
-    asset?.id !== ref.assetId ||
-    asset?.sha256 !== ref.assetRevision ||
-    !target?.regions.some(
-      (item) => item.id === ref.regionId && item.partId === ref.partId,
-    )
-  ) {
-    match.dispose?.();
-    throw new Error("The saved source reference is unavailable. Current files will not replace it.");
-  }
-  history.replaceState({}, "", clean);
+  clean.searchParams.delete('drawingRelease'); clean.searchParams.delete('drawingPreview');
+  clean.searchParams.set('overview', match.presentationSnapshot?.revision || 'source');
+  history.replaceState({}, '', clean);
   unavailableVersion = false;
-  drawingView?.dispose();
-  entry?.dispose?.();
-  entry = match;
-  drawing = entry.package;
-  sheet = target;
-  regions = new Map(sheet.regions.map((item) => [item.id, item]));
-  regionId = ref.regionId;
-  renderPackage();
-  mountReader({ focus: true });
+  drawingView?.dispose(); entry?.dispose?.();
+  entry = match; drawing = match.package; overviewSnapshot = match.presentationSnapshot;
+  sheet = drawing.sheets.find(item => item.id === context.drawing.sheetId);
+  regions = new Map(sheet.regions.map(item => [item.id, item])); regionId = context.drawing.regionId;
+  presentation = overviewSnapshot ? 'overview' : 'source'; technicalId = null;
+  renderPackage(); mountReader({ focus: true });
 }
 async function ensureWorkspace() {
   if (workspace) return workspace;
@@ -678,6 +643,7 @@ window.addEventListener(
       "detail",
       "drawingRelease",
       "drawingPreview",
+      "overview",
     ];
     if (
       identity.some(
@@ -740,30 +706,38 @@ async function start() {
     );
   }
   try {
-    const record = query.get("drawingRelease")
-      ? resolveDrawingRelease(query.get("drawingRelease")) ||
-        (await packageRepository.getRelease(query.get("drawingRelease")))
-      : query.get("drawingPreview")
-        ? await packageRepository.getPreview(query.get("drawingPreview"))
-        : null;
-    if (record) entry = await resolveDrawingEntry(entry, record.packageSnapshot);
-    else if (
-      (query.get("mapping") && query.get("mapping") !== entry.package.mappingRevision) ||
-      (query.get("drawing") && query.get("drawing") !== entry.package.revision) ||
-      (query.get("asset") && !entry.package.assets.some(asset => asset.sha256 === query.get("asset")))
-    ) {
-      const records = [
-        ...((await packageRepository?.listReleases(entry.id)) || []),
-        ...DRAWING_RELEASES.filter((item) => item.productId === entry.id),
-      ];
-      const matching = records.find(
-        (item) => (!query.get("mapping") || item.mappingRevision === query.get("mapping")) && (!query.get("drawing") || item.sourceRevision === query.get("drawing")) && (!query.get("asset") || item.packageSnapshot.assets.some(asset => asset.sha256 === query.get("asset"))),
-      );
-      if (!matching)
-        throw new Error(
-          "That association version is unavailable. Saved references are preserved; the current mapping is view-only.",
-        );
-      entry = await resolveDrawingEntry(entry, matching.packageSnapshot);
+    const records = [...((await packageRepository?.listReleases(entry.id)) || []), ...DRAWING_RELEASES.filter(item => item.productId === entry.id)];
+    const explicitIdentity = ['drawing', 'mapping', 'asset', 'overview', 'drawingRelease', 'drawingPreview'].some(key => query.has(key));
+    let record = query.get('drawingRelease')
+      ? resolveDrawingRelease(query.get('drawingRelease')) || await packageRepository.getRelease(query.get('drawingRelease'))
+      : query.get('drawingPreview') ? await packageRepository.getPreview(query.get('drawingPreview'))
+      : !explicitIdentity ? await packageRepository?.getPublished(entry.id) : null;
+    const matchesQuery = item => (!query.get('mapping') || item.mappingRevision === query.get('mapping')) &&
+      (!query.get('drawing') || item.sourceRevision === query.get('drawing')) &&
+      (!query.get('asset') || item.packageSnapshot.assets.some(asset => asset.sha256 === query.get('asset')));
+    if (record && !matchesQuery(record)) throw new Error('The requested drawing release and saved source identifiers do not match. Select the exact saved reference before starting an inquiry.');
+    if (!record && ((query.get('mapping') && query.get('mapping') !== entry.package.mappingRevision) ||
+        (query.get('drawing') && query.get('drawing') !== entry.package.revision) ||
+        (query.get('asset') && !entry.package.assets.some(asset => asset.sha256 === query.get('asset'))))) {
+      record = records.find(matchesQuery);
+      if (!record) throw new Error('That association version is unavailable. Saved references are preserved; current files are view-only.');
+    }
+    if (record) {
+      entry = await resolveDrawingEntry(entry, record.packageSnapshot);
+      overviewSnapshot = record.presentationSnapshot !== undefined ? record.presentationSnapshot : entry.legacyOverviewPresentation;
+    } else overviewSnapshot = explicitIdentity ? entry.legacyOverviewPresentation : entry.overviewPresentation;
+    const requestedOverview = query.get('overview');
+    if (requestedOverview === 'source') overviewSnapshot = null;
+    else if (requestedOverview) {
+      const choices = [overviewSnapshot, entry.legacyOverviewPresentation,
+        ...records.filter(item => matchesQuery(item)).map(item => item.presentationSnapshot)];
+      const found = choices.find(item => item?.revision === requestedOverview);
+      if (!found) { overviewSnapshot = null; throw new Error('That saved overview is unavailable. Its original PDF remains accessible; a newer overview will not replace it.'); }
+      overviewSnapshot = found;
+    }
+    if (overviewSnapshot) {
+      overviewSnapshot = normalizeOverviewPresentation(overviewSnapshot);
+      if (overviewPresentationIssues(overviewSnapshot, entry.package).length) overviewSnapshot = null;
     }
   } catch (error) {
     unavailableVersion = true;

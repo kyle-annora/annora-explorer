@@ -12,20 +12,24 @@ import './drawing-preview.css';
 /** A display choice never changes a source reference. Studio authors original
  * coordinates; recorded buyer previews keep their selected detail locked. */
 export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId, regionId, onSelect, onError,
-  assetStore, assetsResolved = false, sourceOnly = false, unavailable = false, className = '', caption }, ref) {
+  assetStore, assetsResolved = false, sourceOnly = false, unavailable = false, className = '', caption,
+  presentationSnapshot, allowUnconfirmed = false }, ref) {
   const mount = useRef(null), viewer = useRef(null), callbacks = useRef({}), focusIntent = useRef(false);
   const focusDestination = useRef(null), lastOpened = useRef(null), viewSelect = useRef(null), backButton = useRef(null), sourceLink = useRef(null);
+  const previousRegion = useRef(regionId);
   const [requested, setRequested] = useState('overview');
   const [state, setState] = useState({ loading: true, zoom: 1 }), [error, setError] = useState(null), [sourceURL, setSourceURL] = useState(null);
   callbacks.current = { onSelect, onError, regionId };
   const lockedRegion = onSelect ? null : regionId;
-  const entries = useMemo(() => sourceOnly ? [] : technicalEntriesFor(pkg, { sheetId, unavailable }), [pkg, sheetId, unavailable, sourceOnly]);
+  const configuredEntries = useMemo(() => sourceOnly ? [] : overviewEntriesFor(pkg, { sheetId, unavailable, presentationSnapshot, requireConfirmed: !allowUnconfirmed }),
+    [pkg, sheetId, unavailable, sourceOnly, presentationSnapshot, allowUnconfirmed]);
+  const entries = useMemo(() => sourceOnly || presentationSnapshot === null ? [] : presentationSnapshot !== undefined ? configuredEntries : technicalEntriesFor(pkg, { sheetId, unavailable }),
+    [pkg, sheetId, unavailable, sourceOnly, presentationSnapshot, configuredEntries]);
   const pinnedPrepared = !lockedRegion || entries.some(entry => entry.regionIds.includes(lockedRegion));
-  const overviewEntries = useMemo(() => sourceOnly || !pinnedPrepared ? [] : overviewEntriesFor(pkg, { sheetId, unavailable }), [pkg, sheetId, unavailable, sourceOnly, pinnedPrepared]);
+  const overviewEntries = useMemo(() => sourceOnly || !pinnedPrepared ? [] : configuredEntries, [sourceOnly, pinnedPrepared, configuredEntries]);
   const choices = useMemo(() => pinnedPrepared ? [...new Map([...entries, ...overviewEntries].map(entry => [entry.id, entry])).values()] : [], [entries, overviewEntries, pinnedPrepared]);
   const candidate = choices.find(entry => entry.id === requested);
-  const prepared = candidate && (onSelect && !candidate.regionIds.includes(regionId)
-    ? choices.find(entry => entry.regionIds.includes(regionId)) || candidate : candidate);
+  const prepared = candidate;
   const mode = requested === 'overview' && overviewEntries.length ? 'overview' : prepared && !sourceOnly ? 'detail' : 'source';
   const sheet = pkg?.sheets.find(item => item.id === sheetId);
   const sourceLabel = sheet?.format === 'pdf' ? 'Source PDF' : 'Source drawing';
@@ -69,7 +73,7 @@ export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId,
           selectedId: callbacks.current.regionId, lockedRegionId: lockedRegion,
           onOpen: ({ entryId, regionId: openedRegion, focus }) => {
             if (!active) return;
-            if (callbacks.current.onSelect && openedRegion !== callbacks.current.regionId) callbacks.current.onSelect(openedRegion);
+            if (callbacks.current.onSelect && openedRegion && openedRegion !== callbacks.current.regionId) callbacks.current.onSelect(openedRegion);
             focusIntent.current = Boolean(focus && openedRegion !== 'overview');
             focusDestination.current = 'detail'; lastOpened.current = entryId;
             setRequested(entryId);
@@ -87,10 +91,10 @@ export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId,
         instance = createDrawingReader({ ...options, package: resolved, sheetId, showOverview: true });
       }
       viewer.current = instance;
-      instance.select(callbacks.current.regionId);
+      if (mode !== 'overview') instance.select(callbacks.current.regionId);
       await instance.ready;
       if (!active) return;
-      instance.select(callbacks.current.regionId);
+      if (mode !== 'overview') instance.select(callbacks.current.regionId);
       if (mode === 'detail' && focusIntent.current) instance.setZoom?.(2);
       focusIntent.current = false;
       setState(previous => ({ ...previous, loading: false }));
@@ -108,7 +112,7 @@ export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId,
     })().catch(fail);
     return () => { active = false; viewer.current = null; instance?.dispose(); lease?.dispose(); };
   }, [pkg, sheetId, prepared, mode, overviewEntries, assetStore, assetsResolved, lockedRegion]);
-  useEffect(() => { viewer.current?.select(regionId); }, [regionId]);
+  useEffect(() => { if (previousRegion.current !== regionId) viewer.current?.select(regionId); previousRegion.current = regionId; }, [regionId]);
 
   const pending = state.loading || Boolean(error);
   const zoom = value => {
@@ -121,11 +125,11 @@ export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId,
   function openComposition(id) {
     const next = choices.find(entry => entry.id === id);
     if (!next) return;
-    if (onSelect && !next.regionIds.includes(regionId)) onSelect(next.defaultRegionId);
+    if (onSelect && next.defaultRegionId && !next.regionIds.includes(regionId)) onSelect(next.defaultRegionId);
     focusIntent.current = false; setRequested(id);
   }
   const overviewAvailable = overviewEntries.length > 0;
-  return <section className={`drawing-preview-surface ${className}`} data-presentation={presentation} data-mode={mode} aria-label="Drawing preview">
+  return <section className={`drawing-preview-surface ${className}`} data-presentation={presentation} data-mode={mode} data-overview-revision={presentationSnapshot?.revision || undefined} aria-label="Drawing preview">
     <div className="drawing-preview-heading">
       {mode === 'overview' ? <strong>Drawing overview</strong>
         : overviewAvailable ? <button ref={backButton} type="button" className="drawing-preview-back" onClick={() => { focusIntent.current = false; focusDestination.current = 'overview'; setRequested('overview'); }}>← Back to overview</button>

@@ -1,3 +1,5 @@
+import { normalizeOverviewPresentation } from '../drawings/overview-presentation.js';
+
 /** Immutable viewing reference, not a confirmed dimension or manufacturing approval. */
 export function normalizeDrawingContext(input, context) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('A drawing reference needs its saved identity.');
@@ -19,6 +21,18 @@ export function normalizeDrawingContext(input, context) {
     const value = typeof input[key] === 'string' ? input[key].trim() : '';
     if (!value || value.length > (key==='revisionLabel'?160:320) || /[\u0000-\u001f]/.test(value)) throw new TypeError(`A drawing reference needs a valid ${key}.`);
     result[key] = value;
+  }
+  // Layout has its own immutable identity. It is deliberately excluded from
+  // drawingVersionKey: changing presentation does not create another job or
+  // rebase an already saved inquiry onto the seller's current overview.
+  if (input.presentationSnapshot !== undefined) {
+    const snapshot = normalizeOverviewPresentation(input.presentationSnapshot);
+    if ((snapshot && input.presentationRevision !== snapshot.revision) || (!snapshot && input.presentationRevision !== undefined))
+      throw new TypeError('The saved overview does not match its presentation version.');
+    result.presentationSnapshot = snapshot;
+    if (snapshot) result.presentationRevision = snapshot.revision;
+  } else if (input.presentationRevision !== undefined) {
+    throw new TypeError('A saved overview version needs its exact presentation snapshot.');
   }
   return result;
 }

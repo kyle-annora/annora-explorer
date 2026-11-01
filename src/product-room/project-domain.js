@@ -157,6 +157,7 @@ export function compareQuotes(before, after, project) {
       ['drawingReference', 'Drawing reference', describeDrawing(leftContext), describeDrawing(rightContext)],
       ['drawingSource', 'Drawing source identity',leftContext?.drawing?.assetRevision || 'Original inquiry reference',rightContext?.drawing?.assetRevision || 'Original inquiry reference'],
       ['drawingMapping', 'Association version',leftContext?.drawing?.mappingRevision || 'Legacy association',rightContext?.drawing?.mappingRevision || 'Legacy association'],
+      ...(leftContext?.drawing?.presentationRevision || rightContext?.drawing?.presentationRevision ? [['drawingOverview', 'Overview version', leftContext?.drawing?.presentationRevision || 'Original source view', rightContext?.drawing?.presentationRevision || 'Original source view']] : []),
       ['drawingModel', 'Model version',leftContext?.modelRevision || 'Original inquiry reference',rightContext?.modelRevision || 'Original inquiry reference'],
       ...(leftContext?.drawing?.revisionLabel || rightContext?.drawing?.revisionLabel ? [['drawingVersionId','Drawing version identity',leftContext?.drawing?.revision,rightContext?.drawing?.revision]] : [])
     ] : []),

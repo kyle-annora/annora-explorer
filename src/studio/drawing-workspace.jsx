@@ -4,6 +4,8 @@ import { ActionGroup, Button, Comparison, Field, Glyph, Notice, Section, Status 
 import { createRoomViewer } from '../product-room/viewer.js';
 import { createDrawingReader } from '../drawings/reader.js';
 import { DrawingPreview } from '../drawings/DrawingPreview.jsx';
+import { DrawingOverviewEditor } from './drawing-overview-editor.jsx';
+import { compareOverviewPresentations, overviewPresentationIssues } from '../drawings/overview-presentation.js';
 import { DRAWING_IMPORT_EXAMPLES } from '../drawings/demo-sources.js';
 import { importDrawingPDF } from './drawing-source-import.js';
 import { resolveDrawingAssets } from './drawing-asset-store.js';
@@ -23,6 +25,19 @@ const authoredBounds = (bounds, sheet) => {
 };
 const firstRegion = pkg => { const sheet = pkg?.sheets[0]; return { sheetId: sheet?.id, regionId: sheet?.regions[0]?.id }; };
 const dateLabel = value => value ? new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : 'Not saved yet';
+// A missing historical presentation predates seller configuration. It may use
+// only the fixed legacy baseline for this exact source and association set.
+const recordedOverview = (entry, record) => {
+  if (record?.presentationSnapshot !== undefined) return record.presentationSnapshot;
+  const baseline = entry?.legacyOverviewPresentation, pkg = record?.packageSnapshot;
+  return baseline && pkg && !overviewPresentationIssues(baseline, pkg).length ? baseline : null;
+};
+const precedingOverview = (entry, record, history) => {
+  const previous = history.find(item => item.id === record.baseReleaseId);
+  if (record.previousPresentationSnapshot !== undefined)
+    return record.previousPresentationSnapshot;
+  return recordedOverview(entry, previous || { packageSnapshot: record.previousPackageSnapshot || (!record.baseReleaseId ? entry.package : null) });
+};
 
 function SourceDrawingEditor({ pkg, sheetId, regionId, onSelect, readonly = false, assetStore, drawIntent, onDraw, onCancelDraw, draftBounds }) {
   const mount = useRef(null), viewer = useRef(null), callbacks = useRef({});
@@ -66,7 +81,7 @@ function SourceDrawingEditor({ pkg, sheetId, regionId, onSelect, readonly = fals
   </div>;
 }
 
-function ReviewDrawing({ pkg, assetStore, initialSelection }) {
+function ReviewDrawing({ pkg, presentationSnapshot, assetStore, initialSelection }) {
   const choices = allDrawingMappings(pkg);
   const initial = choices.find(({ sheet, region }) => sheet.id === initialSelection?.sheetId && region.id === initialSelection?.regionId) || choices[0];
   const [selection, setSelection] = useState(initial ? `${initial.sheet.id}:${initial.region.id}` : '');
@@ -74,7 +89,7 @@ function ReviewDrawing({ pkg, assetStore, initialSelection }) {
   if (!active) return null;
   return <div className="sd-review-drawing">
     <Field label="Inspect drawing detail" value={`${active.sheet.id}:${active.region.id}`} options={choices.map(({ sheet, region }) => [`${sheet.id}:${region.id}`, `${region.label} · ${sheet.title}`])} onChange={event => setSelection(event.target.value)} />
-    <DrawingPreview pkg={pkg} sheetId={active.sheet.id} regionId={active.region.id} assetStore={assetStore} onSelect={id => setSelection(`${active.sheet.id}:${id}`)} />
+    <DrawingPreview pkg={pkg} presentationSnapshot={presentationSnapshot} sheetId={active.sheet.id} regionId={active.region.id} assetStore={assetStore} onSelect={id => setSelection(`${active.sheet.id}:${id}`)} />
   </div>;
 }
 
@@ -136,6 +151,15 @@ function MappingComparison({ before, after, entry, beforeLabel = 'Previous relea
   </div>;
 }
 
+function OverviewComparison({ before, after, beforeLabel = 'Previous release' }) {
+  const comparison = compareOverviewPresentations(before, after);
+  return <div className="sd-release-comparison"><h3>Overview changes</h3>
+    <p className="sd-hint">View order, titles and clickable details have their own presentation version. Drawing and quotation versions remain separate.</p>
+    {comparison.rows?.length ? <Comparison rows={comparison.rows} beforeLabel={beforeLabel} afterLabel="This release" caption="Drawing overview comparison" />
+      : <p className="sd-hint">{after ? 'No overview configuration changes.' : 'This source is presented through its original drawing.'}</p>}
+  </div>;
+}
+
 export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages = [], initialPackageId, repository: suppliedRepository,
   explorerURL = new URL('../', globalThis.location?.href || 'http://localhost/studio/').href,
   onPackageChange, onPreview, onPublish, onBack }, ref) {
@@ -144,6 +168,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   const entry = packages.find(item => item.id === productId);
   const [draft, setDraft] = useState(null), [saved, setSaved] = useState(null), [selection, setSelection] = useState({}), [form, setForm] = useState(regionForm());
   const [stage, setStage] = useState('edit'), [mode, setMode] = useState('drawings'), [previewPackage, setPreviewPackage] = useState(null);
+  const [workspaceSection, setWorkspaceSection] = useState('overview');
   const [busy, setBusy] = useState(null), [error, setError] = useState(null), [message, setMessage] = useState(null), [review, setReview] = useState(null);
   const [history, setHistory] = useState([]), [release, setRelease] = useState(null), [confirmed, setConfirmed] = useState(false), [evidence, setEvidence] = useState('');
   const [sourceVersions, setSourceVersions] = useState([]), [importOpen, setImportOpen] = useState(false), [importFile, setImportFile] = useState(null), [revisionLabel, setRevisionLabel] = useState('');
@@ -176,7 +201,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     Promise.all([repository.getDraft(productId), repository.listReleases(productId), repository.listSourceVersions(productId)]).then(([next, releases, versions]) => {
       if (turn !== lifecycle.current) return;
       setDraft(next); setSaved(copyDrawingValue(next)); setHistory(releases); setSourceVersions(versions); setDrawIntent(null); setImportOpen(false); const first = firstRegion(next.packageSnapshot); setSelection(first);
-      setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null); setStage('edit'); setReview(null); setRelease(null); setMode('drawings'); setAuthoring(false); setMessage(null);
+      setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null); setStage('edit'); setReview(null); setRelease(null); setMode('drawings'); setWorkspaceSection('overview'); setAuthoring(false); setMessage(null);
     }).catch(next => { if (turn === lifecycle.current) setError(next); }).finally(() => { if (turn === lifecycle.current) setBusy(null); });
   }, [productId, repository]);
   useEffect(() => { if (stage !== 'edit') heading.current?.focus(); }, [stage]);
@@ -208,6 +233,18 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     } catch (next) { setError(next); }
   }
   function edit(key, value) { setAuthoring(true); setForm(previous => ({ ...previous, [key]: value })); setPreviewPackage(null); setError(null); setMessage(null); }
+  function changeWorkspaceSection(nextSection) {
+    try { setDraft(staged()); setWorkspaceSection(nextSection); setDrawIntent(null); setError(null); }
+    catch (next) { setError(next); }
+  }
+  function changeOverview(presentationSnapshot) {
+    try { setDraft({ ...staged(), presentationSnapshot }); setPreviewPackage(null); setError(null); setMessage(null); }
+    catch (next) { setError(next); }
+  }
+  function openSourceAssociation(nextSelection) {
+    choose(nextSelection); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true);
+    requestAnimationFrame(() => drawingStage.current?.scrollIntoView({ block: 'start', behavior: 'auto' }));
+  }
   async function run(name, action) {
     if (busyRef.current) return;
     busyRef.current = name; setBusy(name); setError(null); setMessage(null);
@@ -226,7 +263,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   function loadSourceDraft(next) {
     setDraft(next); setSaved(copyDrawingValue(next)); const first = firstRegion(next.packageSnapshot);
     setSelection(first); setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null);
-    setStage('edit'); setReview(null); setDrawIntent(null); setRemoveIntent(null); setMode('drawings'); setAuthoring(false);
+    setStage('edit'); setReview(null); setDrawIntent(null); setRemoveIntent(null); setMode('drawings'); setWorkspaceSection('overview'); setAuthoring(false);
   }
   const changeSourceVersion = async id => {
     if (id === draft.sourceVersionId || !(await guard())) return;
@@ -239,7 +276,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     setMessage('New PDF version imported. Check each region and confirm its part before publishing. Earlier releases remain unchanged.');
   });
   function startDraw(intent) {
-    try { setDraft(staged()); setMode('drawings'); setAuthoring(true); setDrawIntent(intent); setRemoveIntent(null); setError(null); setMessage(null);
+    try { setDraft(staged()); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true); setDrawIntent(intent); setRemoveIntent(null); setError(null); setMessage(null);
       requestAnimationFrame(() => drawingStage.current?.scrollIntoView({ block: 'center', behavior: 'auto' })); }
     catch (next) { setError(next); }
   }
@@ -297,8 +334,8 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   const removalPrompt = removeIntent && <Notice title={`Remove “${removeIntent.label}” from this draft?`}><p>Earlier versions keep their original details.</p><ActionGroup><Button variant="secondary" onClick={() => setRemoveIntent(null)} disabled={!!busy}>Keep detail</Button><Button variant="secondary" onClick={removeRegion} pending={busy === 'remove'} disabled={!!busy && busy !== 'remove'}>Remove from draft</Button></ActionGroup></Notice>;
   return <main className="room-ui sd-workspace" aria-busy={busy === 'load' || undefined}>
     <header className="sd-header">
-      <div><p className="ar-eyebrow">STUDIO / DRAWING ASSOCIATIONS</p><h1 ref={heading} tabIndex="-1">{stage === 'review' ? 'Review this release.' : stage === 'published' ? 'Drawing release ready.' : stage === 'history' ? `Release ${release?.version}` : 'Connect the drawing to the part.'}</h1>
-        <p>{stage === 'edit' ? 'Check each detail, link its part, then review and publish a fixed version.' : 'The drawing, model and confirmed associations stay together as one version.'}</p></div>
+      <div><p className="ar-eyebrow">STUDIO / DRAWINGS</p><h1 ref={heading} tabIndex="-1">{stage === 'review' ? 'Review this release.' : stage === 'published' ? 'Drawing release ready.' : stage === 'history' ? `Release ${release?.version}` : 'Prepare the drawing experience.'}</h1>
+        <p>{stage === 'edit' ? 'Arrange the views, connect their details, then preview and publish.' : 'The overview, source drawing and confirmed associations stay together in this release.'}</p></div>
       {onBack && <Button variant="quiet" icon="back" disabled={!!busy} onClick={async () => { if (await guard()) onBack(); }}>Back to Studio</Button>}
     </header>
     <p className="sd-demo-note"><Status tone="neutral">Local demo</Status> Drafts and releases stay in this browser. Existing customer projects are unchanged.</p>
@@ -324,7 +361,13 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       {!!draft.importWarnings?.length && <details className="sd-import-notes"><summary>PDF import review notes ({draft.importWarnings.length})</summary><ul>{draft.importWarnings.map((item, index) => <li key={index}>{typeof item === 'string' ? item : item.message}</li>)}</ul></details>}
       {!!pkg.unplacedMappings?.length && <Section className="sd-unplaced" title="Details needing a page" description="These details belonged to pages that are not in this PDF. Place them on the selected sheet or explicitly remove them before publishing.">{pkg.unplacedMappings.map(item => <div className="sd-unplaced-row" key={item.id}><div><strong>{item.region.label}</strong><small>{item.sheetTitle}</small></div><ActionGroup><Button variant="secondary" disabled={!!busy} onClick={() => startDraw({ kind: 'new', fromUnplacedId: item.id, label: item.region.label })}>Place on selected sheet</Button><Button variant="quiet" disabled={!!busy} onClick={() => setRemoveIntent({ unplacedId: item.id, label: item.region.label })}>Remove detail</Button></ActionGroup></div>)}</Section>}
       {removeIntent?.unplacedId && removalPrompt}
-      <div className="sd-editor-grid">
+      <div className="sd-workspace-tabs" role="group" aria-label="Drawing workspace section">
+        <button type="button" aria-pressed={workspaceSection === 'overview'} disabled={!!busy} onClick={() => changeWorkspaceSection('overview')}>Overview</button>
+        <button type="button" aria-pressed={workspaceSection === 'associations'} disabled={!!busy} onClick={() => changeWorkspaceSection('associations')}>Source associations</button>
+        <span>{workspaceSection === 'overview' ? 'Customer-facing views and clickable details' : 'Original PDF coordinates and linked model parts'}</span>
+      </div>
+      {workspaceSection === 'overview' && <DrawingOverviewEditor key={`${draft.id}:${draft.sourceSignature}`} draft={draft} entry={entry} assetStore={repository.assetStore} disabled={!!busy} onChange={changeOverview} onOpenAssociation={openSourceAssociation} />}
+      {workspaceSection === 'associations' && <div className="sd-editor-grid">
         <aside className="sd-region-nav" aria-label="Drawing details">
           <Field label="Drawing sheet" value={selection.sheetId || ''} options={pkg.sheets.map(item => [item.id, item.title])} onChange={event => { const target = pkg.sheets.find(item => item.id === event.target.value); choose({ sheetId: target.id, regionId: target.regions[0]?.id }); }} disabled={!!busy} />
           <div className="sd-region-list">{(sheet?.regions || []).map(item => <button type="button" key={item.id} aria-current={selection.regionId === item.id ? 'true' : undefined} onClick={() => choose({ sheetId: sheet.id, regionId: item.id })} disabled={!!busy}>
@@ -347,7 +390,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
           </div>}
           {mode === 'drawings' && (authoring || drawIntent || formChanged
             ? <SourceDrawingEditor assetStore={repository.assetStore} drawIntent={drawIntent} onDraw={finishDraw} onCancelDraw={() => setDrawIntent(null)} draftBounds={draftBounds} pkg={previewPackage || pkg} sheetId={selection.sheetId} regionId={selection.regionId} onSelect={id => choose({ sheetId: selection.sheetId, regionId: id })} />
-            : <DrawingPreview assetStore={repository.assetStore} pkg={pkg} sheetId={selection.sheetId} regionId={selection.regionId} onSelect={id => choose({ sheetId: selection.sheetId, regionId: id })} />)}
+            : <DrawingPreview assetStore={repository.assetStore} pkg={pkg} presentationSnapshot={draft.presentationSnapshot} sheetId={selection.sheetId} regionId={selection.regionId} onSelect={id => choose({ sheetId: selection.sheetId, regionId: id })} />)}
           {mode === '3d' && <ModelPreview entry={entry} partId={form.partId} explorerURL={explorerURL} onPartSelect={id => { if (id !== current.current.form.partId) edit('partId', id); }} />}
         </section>
         <form className="sd-region-editor" onSubmit={event => event.preventDefault()} onFocusCapture={() => setAuthoring(true)} aria-label="Edit drawing association">
@@ -365,12 +408,12 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
           <ActionGroup><Button variant="quiet" onClick={() => { setForm(regionForm(region)); setPreviewPackage(null); setError(null); }} disabled={!!busy || !formChanged}>Cancel edit</Button>
             <Button variant="secondary" icon="check" onClick={confirmMapping} pending={busy === 'confirm'} disabled={!!busy && busy !== 'confirm' || !region}>Confirm mapping</Button></ActionGroup>
         </form>
-      </div>
+      </div>}
       {pkg.pairing.status === 'unverified' && <Section className="sd-pairing" title="Confirm the source pairing" description="Record why this drawing and model belong to the same source version. This confirms the association, not manufacturing approval.">
         <Field label="Pairing evidence" textarea value={evidence} onChange={event => setEvidence(event.target.value)} rows={2} placeholder="For example, both source files came from the same pinned engineering package." />
         <Button variant="secondary" disabled={!!busy} onClick={() => run('pairing', async () => { setDraft(confirmDrawingPairing(staged(), entry, evidence)); setMessage('Source pairing confirmed in this draft.'); })}>Confirm source pairing</Button>
       </Section>}
-      <div className="sd-action-bar"><div><strong>Ready to check the full package?</strong><span>Save preserves work in progress. Review checks every association.</span></div>
+      <div className="sd-action-bar"><div><strong>Preview, then publish.</strong><span>Save keeps the draft. Review checks the overview and every source association.</span></div>
         <ActionGroup><Button variant="secondary" onClick={() => run('save', async () => { await saveCurrent(); setMessage('Drawing draft saved in this browser.'); })} pending={busy === 'save'} disabled={!!busy && busy !== 'save'}>Save draft</Button>
           {onPreview && <Button variant="secondary" onClick={() => previewBuyer()} pending={busy === 'preview'} disabled={!!busy && busy !== 'preview'}>Buyer preview</Button>}
           <Button icon="arrow" onClick={beginReview} pending={busy === 'review'} pendingLabel="Checking…" disabled={!!busy && busy !== 'review'}>Review release</Button></ActionGroup>
@@ -380,31 +423,33 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       </details>
     </>}
     {draft && stage === 'review' && review && <>
-      <Section title="The customer will receive this exact version." description="Check the detail names, linked parts and source pairing before you publish.">
-        <div className="sd-review-meta"><div><span>Product</span><strong>{entry.title}</strong></div><div><span>Source drawing</span><strong>{review.draft.packageSnapshot.revisionLabel || review.draft.packageSnapshot.revision}</strong></div><div><span>Associations</span><strong>{summary.total} confirmed</strong></div></div>
-        <ReviewDrawing pkg={review.draft.packageSnapshot} assetStore={repository.assetStore} initialSelection={selection} />
+      <Section title="The customer will receive this exact version." description="Check the views, clickable details, linked parts and original source before publishing.">
+        <div className="sd-review-meta"><div><span>Product</span><strong>{entry.title}</strong></div><div><span>Source drawing</span><strong>{review.draft.packageSnapshot.revisionLabel || review.draft.packageSnapshot.revision}</strong></div><div><span>Associations</span><strong>{summary.total} confirmed</strong></div><div><span>Overview</span><strong>{review.draft.presentationSnapshot ? `${review.draft.presentationSnapshot.sheets.reduce((sum, item) => sum + item.views.length, 0)} prepared views` : 'Original source'}</strong></div></div>
+        <ReviewDrawing pkg={review.draft.packageSnapshot} presentationSnapshot={review.draft.presentationSnapshot} assetStore={repository.assetStore} initialSelection={selection} />
+        <OverviewComparison before={precedingOverview(entry, review, history)} after={review.draft.presentationSnapshot} beforeLabel={review.baseReleaseId ? 'Previous release' : 'Prepared overview'} />
         <MappingTable pkg={review.draft.packageSnapshot} entry={entry} />
         <MappingComparison before={history.find(item => item.id === review.baseReleaseId)?.packageSnapshot || entry.package} after={review.draft.packageSnapshot} entry={entry} beforeLabel={review.baseReleaseId ? "Previous release" : "Prepared package"} />
         <p className="sd-hint">{review.draft.packageSnapshot.pairing.evidence}</p>
         {review.issues.filter(item => item.severity === 'warning').map((item, index) => <Notice key={index}>{item.message}</Notice>)}
       </Section>
-      <label className="sd-confirm"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} disabled={!!busy} /><span>I checked these associations and source versions. Publish this fixed mapping release.</span></label>
+      <label className="sd-confirm"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} disabled={!!busy} /><span>I checked the overview, clickable details and source versions. Publish this fixed release.</span></label>
       <div className="sd-action-bar"><p>Publishing creates a browser-local demo release. It does not replace a drawing or update an existing customer project.</p><ActionGroup>
-        <Button variant="secondary" icon="back" disabled={!!busy} onClick={() => { setStage('edit'); setReview(null); }}>Back to associations</Button>
+        <Button variant="secondary" icon="back" disabled={!!busy} onClick={() => { setStage('edit'); setReview(null); }}>Back to draft</Button>
         <Button icon="arrow" onClick={publish} pending={busy === 'publish'} pendingLabel="Publishing…" disabled={!confirmed || !!busy && busy !== 'publish'}>Publish local release</Button>
       </ActionGroup></div>
     </>}
     {draft && ['published', 'history'].includes(stage) && release && <>
-      {stage === 'published' && <Notice title={`Release ${release.version} is ready.`} role="status">The exact model, drawing and mapping version are preserved. Open the buyer preview to check the published associations.</Notice>}
+      {stage === 'published' && <Notice title={`Release ${release.version} is ready.`} role="status">The overview, original drawing and associations are preserved. New inquiries can use this release; existing projects keep their saved versions.</Notice>}
       <Section title={entry.title} description={`${release.packageSnapshot.revisionLabel || release.sourceRevision} · Published ${dateLabel(release.createdAt)}`}>
-        <ReviewDrawing key={release.id} pkg={release.packageSnapshot} assetStore={repository.assetStore} initialSelection={selection} />
+        <ReviewDrawing key={release.id} pkg={release.packageSnapshot} presentationSnapshot={recordedOverview(entry, release)} assetStore={repository.assetStore} initialSelection={selection} />
+        <OverviewComparison before={precedingOverview(entry, release, history)} after={recordedOverview(entry, release)} beforeLabel={release.baseReleaseId ? 'Previous release' : 'Prepared overview'} />
         <MappingTable pkg={release.packageSnapshot} entry={entry} />
         <MappingComparison before={release.previousPackageSnapshot || history.find(item => item.id === release.baseReleaseId)?.packageSnapshot} after={release.packageSnapshot} entry={entry} beforeLabel={release.baseReleaseId ? "Previous release" : "Prepared package"} />
-        <details className="sd-version-details"><summary>Version and source details</summary><dl><dt>Release</dt><dd>{release.id}</dd><dt>Model version</dt><dd>{release.modelRevision}</dd><dt>Mapping version</dt><dd>{release.mappingRevision}</dd><dt>Source pairing</dt><dd>{release.packageSnapshot.pairing.evidence}</dd></dl></details>
+        <details className="sd-version-details"><summary>Version and source details</summary><dl><dt>Release</dt><dd>{release.id}</dd><dt>Overview version</dt><dd>{release.presentationRevision || release.presentationSnapshot?.revision || 'Original source / earlier presentation'}</dd><dt>Model version</dt><dd>{release.modelRevision}</dd><dt>Mapping version</dt><dd>{release.mappingRevision}</dd><dt>Source pairing</dt><dd>{release.packageSnapshot.pairing.evidence}</dd></dl></details>
       </Section>
       <div className="sd-action-bar"><p>This release is read-only. Further edits create a new reviewed version.</p><ActionGroup><Button variant="secondary" icon="back" disabled={!!busy} onClick={() => { setStage('edit'); setError(null); }}>Back to draft</Button><Button variant="secondary" onClick={downloadRelease} pending={busy === 'export'} disabled={!!busy && busy !== 'export'}>Export release</Button>{onPreview && <Button icon="arrow" onClick={() => previewBuyer(release)} pending={busy === 'preview'} disabled={!!busy && busy !== 'preview'}>Open buyer preview</Button>}</ActionGroup></div>
     </>}
-    {leave && <div className="sd-dialog-backdrop"><div ref={dialog} tabIndex="-1" className="sd-leave-dialog" role="dialog" aria-modal="true" aria-labelledby="sd-leave-title"><h2 id="sd-leave-title">Keep your association edits?</h2><p>Save the draft to continue later, or discard the edits since the last save.</p>{error && <Notice kind="error" title="Draft not saved">{error.message}</Notice>}<ActionGroup>
+    {leave && <div className="sd-dialog-backdrop"><div ref={dialog} tabIndex="-1" className="sd-leave-dialog" role="dialog" aria-modal="true" aria-labelledby="sd-leave-title"><h2 id="sd-leave-title">Keep your drawing edits?</h2><p>Save the draft to continue later, or discard the edits since the last save.</p>{error && <Notice kind="error" title="Draft not saved">{error.message}</Notice>}<ActionGroup>
       <Button variant="quiet" onClick={() => finishLeave(false)} disabled={!!busy}>Keep editing</Button>
       <Button variant="secondary" onClick={() => { setDraft(copyDrawingValue(saved)); const target = saved.packageSnapshot.sheets.find(item => item.id === selection.sheetId)?.regions.find(item => item.id === selection.regionId); setForm(regionForm(target)); finishLeave(true); }} disabled={!!busy}>Discard edits</Button>
       <Button onClick={() => run('leave', async () => { await saveCurrent(); finishLeave(true); })} pending={busy === 'leave'} disabled={!!busy && busy !== 'leave'}>Save and continue</Button>

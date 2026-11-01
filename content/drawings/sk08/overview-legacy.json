@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "sourceKey": "source-3142792a48f5d652",
+  "sheets": [
+    {
+      "sheetId": "sheet-1",
+      "defaultViewId": "sk08-technical-front-v1:front:sheet-1",
+      "views": [
+        {
+          "id": "sk08-technical-front-v1:front:sheet-1",
+          "viewRevision": "view-91c97dc2dd783718",
+          "title": "Front view",
+          "targets": [
+            {
+              "targetId": "shaft-bore",
+              "regionId": "shaft-bore",
+              "associationKey": "link-5cac39a73f5433d3",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "sk08-technical-top-v1:top:sheet-1",
+          "viewRevision": "view-f80be9940076986c",
+          "title": "Top view · mounting holes",
+          "targets": [
+            {
+              "targetId": "mounting-holes",
+              "regionId": "mounting-holes",
+              "associationKey": "link-fc00d33b00ef8113",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "sk08-technical-side-v1:side:sheet-1",
+          "viewRevision": "view-efb779d018a8ed1a",
+          "title": "Side view · cross-bore",
+          "targets": [
+            {
+              "targetId": "cross-bore",
+              "regionId": "cross-bore",
+              "associationKey": "link-15f16c3e593d666a",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "sk08-technical-iso-v1:iso:sheet-1",
+          "viewRevision": "view-2312de6b6678059f",
+          "title": "Isometric overview",
+          "targets": [
+            {
+              "targetId": "overview",
+              "regionId": "overview",
+              "associationKey": "link-b47ff5322d2cedc2",
+              "confirmed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sheetId": "sheet-2",
+      "defaultViewId": "sk08-technical-front-v1:bore:sheet-2",
+      "views": [
+        {
+          "id": "sk08-technical-front-v1:bore:sheet-2",
+          "viewRevision": "view-61839af53ad810c5",
+          "title": "Bore detail",
+          "targets": [
+            {
+              "targetId": "shaft-bore-detail",
+              "regionId": "shaft-bore-detail",
+              "associationKey": "link-7ced16e53deb046d",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "sk08-technical-footprint-v1:footprint:sheet-2",
+          "viewRevision": "view-3640c2e197b7e04b",
+          "title": "Front view · mounting footprint",
+          "targets": [
+            {
+              "targetId": "mounting-footprint-detail",
+              "regionId": "mounting-footprint-detail",
+              "associationKey": "link-f3664816ba2105ec",
+              "confirmed": true
+            }
+          ]
+        },
+        {
+          "id": "sk08-technical-side-v1:side:sheet-2",
+          "viewRevision": "view-1921966f9fa95ac5",
+          "title": "Side view · cross-bore",
+          "targets": [
+            {
+              "targetId": "cross-bore-detail",
+              "regionId": "cross-bore-detail",
+              "associationKey": "link-a527aeb4177eef80",
+              "confirmed": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "revision": "overview-26eec8134fba0733"
+}

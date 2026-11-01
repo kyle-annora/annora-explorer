@@ -76,6 +76,7 @@ const drawingSampleContext = drawingSample
       regionId: drawingSample.region.id,
       modelRevision: drawingSample.entry.model.revision,
       model: drawingSample.entry.model,
+      presentationSnapshot: drawingSample.entry.overviewPresentation,
     })
   : null;
 const drawingBuyerHref = (project, explore = false) => {
@@ -92,6 +93,7 @@ const drawingBuyerHref = (project, explore = false) => {
     url.searchParams.set("detail", ref.regionId);
     if (ref.mappingRevision)
       url.searchParams.set("mapping", ref.mappingRevision);
+    if (ref.presentationSnapshot !== undefined) url.searchParams.set('overview', ref.presentationRevision || 'source');
   }
   url.hash = explore
     ? "explore"
@@ -105,7 +107,7 @@ const drawingPreviewURL = (record) => {
     record.source === "preview" ? "drawingPreview" : "drawingRelease",
     record.id,
   );
-  url.searchParams.set("view", "compare");
+  url.searchParams.set("view", "drawings");
   return url.href;
 };
 

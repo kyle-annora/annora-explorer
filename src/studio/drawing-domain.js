@@ -1,5 +1,6 @@
 import { normalizeDrawingPackage, releaseDiagnostic } from '../drawings/package.js';
 import { copyStudioValue as copy, sameStudioValue as same, studioFingerprint } from './value.js';
+import { normalizeOverviewPresentation, overviewPresentationIssues, overviewSourceKey } from '../drawings/overview-presentation.js';
 
 export class DrawingStudioError extends Error {
   constructor(code, message, issues = []) { super(message); this.name = 'DrawingStudioError'; this.code = code; this.issues = issues; }
@@ -38,13 +39,14 @@ export function createDrawingDraft(entry, id) {
   const pkg = drawingSource(entry);
   return withMappingRevision({ schemaVersion: 1, id, key: drawingDraftKey(entry), productId: entry.id,
     packageId: pkg.id, sourceSignature: drawingSourceSignature(entry), revision: 0, updatedAt: null,
-    packageSnapshot: pkg });
+    packageSnapshot: pkg, ...(entry.overviewPresentation?.sourceKey === overviewSourceKey(pkg)
+      ? { presentationSnapshot: normalizeOverviewPresentation(entry.overviewPresentation) } : {}) });
 }
 export function entryForDrawingDraft(entry, draft) {
   if (!draft?.sourceVersionId) return entry;
   if (!draft.sourcePackageSnapshot || draft.sourcePackageSnapshot.modelId !== entry.model.id || draft.sourcePackageSnapshot.modelRevision !== entry.model.revision)
     throw new DrawingStudioError('SOURCE_CHANGED', 'This imported source belongs to a different model version.');
-  return { ...entry, package: draft.sourcePackageSnapshot, assets: undefined };
+  return { ...entry, package: draft.sourcePackageSnapshot, assets: undefined, overviewPresentation: undefined, overviewViews: [] };
 }
 export function assertDrawingDraft(draft, entry) {
   entry = entryForDrawingDraft(entry, draft);
@@ -80,6 +82,17 @@ export function assertDrawingDraft(draft, entry) {
     throw new DrawingStudioError('SOURCE_CHANGED', 'Resolve or remove unplaced associations explicitly.');
   const resolved = copy(draft);
   resolved.packageSnapshot.assets = copy(source.assets);
+  // Presentation is separately versioned content, never part of engineering
+  // source identity. Older drafts gain the preserved bundled baseline in memory;
+  // historical releases are never rewritten during this migration.
+  const presentation = resolved.presentationSnapshot !== undefined ? resolved.presentationSnapshot
+    : (entry.overviewPresentation?.sourceKey === overviewSourceKey(resolved.packageSnapshot) ? entry.overviewPresentation : undefined);
+  if (presentation !== undefined && presentation !== null) {
+    try { resolved.presentationSnapshot = normalizeOverviewPresentation(presentation); }
+    catch (error) { throw new DrawingStudioError('INVALID_PRESENTATION', error.message); }
+    if (resolved.presentationSnapshot.sourceKey !== overviewSourceKey(resolved.packageSnapshot))
+      throw new DrawingStudioError('SOURCE_CHANGED', 'This overview belongs to another original drawing. Prepare or select views for the current source version.');
+  }
   return withMappingRevision(resolved);
 }
 
@@ -118,8 +131,8 @@ export function confirmDrawingPairing(draft, entry, evidence) {
 
 export function drawingReleaseIssues(draft, entry) {
   try {
-    assertDrawingDraft(draft, entry);
-    const pkg = draft.packageSnapshot, issues = [];
+    const normalized = assertDrawingDraft(draft, entry);
+    const pkg = normalized.packageSnapshot, issues = [];
     for (const { sheet, region } of allDrawingMappings(pkg)) {
       issues.push(...drawingMappingIssues(pkg, sheet.id, region, drawingPartIds(entry)));
       if (region.mappingStatus !== 'confirmed') issues.push(issue('UNCONFIRMED_MAPPING', `sheets.${sheet.id}.regions.${region.id}`, `Confirm the association for “${region.label || region.id}” before publishing.`));
@@ -130,6 +143,8 @@ export function drawingReleaseIssues(draft, entry) {
       issues.push(issue('UNVERIFIED_PAIRING', 'pairing', 'Verify that the model and drawing come from the same source version.'));
     try { issues.push(...releaseDiagnostic(pkg, { partIds: drawingPartIds(entry), modelRevision: entry.model.revision }).issues); }
     catch (error) { issues.push(...(error.issues?.length ? error.issues : [issue(error.code || 'INVALID_PACKAGE', 'packageSnapshot', error.message)])); }
+    if (normalized.presentationSnapshot) issues.push(...overviewPresentationIssues(normalized.presentationSnapshot, pkg,
+      entryForDrawingDraft(entry, normalized).overviewViews, { requireConfirmed: true }));
     return [...new Map(issues.map(item => [`${item.code}:${item.path}`, item])).values()];
   } catch (error) { return [issue(error.code || 'INVALID_DRAFT', 'packageSnapshot', error.message)]; }
 }
@@ -253,7 +268,7 @@ export function createImportedDrawingSource(entry, basePackage, imported, { revi
 }
 
 export function createSourceDrawingDraft(entry, sourceVersion, id) {
-  const sourceEntry = { ...entry, package: sourceVersion.packageSnapshot, assets: undefined };
+  const sourceEntry = { ...entry, package: sourceVersion.packageSnapshot, assets: undefined, overviewPresentation: undefined, overviewViews: [] };
   return { ...createDrawingDraft(sourceEntry, id), sourceVersionId: sourceVersion.id, sourcePackageSnapshot: copy(sourceVersion.packageSnapshot),
     importWarnings: copy(sourceVersion.importWarnings || []), regionChanges: { added: [], removed: [], removedUnplaced: [] } };
 }
