@@ -20,7 +20,14 @@ export const readRoute = () => {
   const [path, query = ""] = location.hash.slice(1).split("?");
   const [page, section] = (path || "products").split("/");
   return {
-    page: ["products", "edit", "preview", "release"].includes(page)
+    page: [
+      "products",
+      "edit",
+      "preview",
+      "release",
+      "projects",
+      "project",
+    ].includes(page)
       ? page
       : "products",
     section: sections.some((s) => s.id === section) ? section : "product",

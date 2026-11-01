@@ -83,7 +83,7 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `content/models/` | Prepared model packages, source credits and authored tours |
 | `src/explorer/` | Shared UI, renderer, controller and player |
 | `src/product-room/` | Buyer-facing product host, local demo projects and versioned quotation workflow |
-| `src/studio/` and `studio/` | Seller-facing content editor, isolated buyer preview and reviewed demo releases |
+| `src/studio/` and `studio/` | Seller product editor, customer-project workspace, quotation drafts and reviewed releases |
 | `content/rooms/` | Reviewed Room content for the static deployment pipeline |
 | `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |
@@ -100,6 +100,7 @@ removing those source fixtures also requires updating their tests.
 
 ## Delivery documentation
 
+- [Studio customer projects and buyer/seller walkthrough](docs/studio-customer-projects.md)
 - [Studio guide and publishing walkthrough](docs/studio.md), [repository API](docs/studio-api.md) and [design decisions](docs/studio-design.md)
 - [Product Room guide and acceptance walkthrough](docs/product-room.md)
 - [Product Room component catalog](https://kyle-annora.github.io/annora-explorer/product-room/#components) and [component contract](docs/product-room-components.md)

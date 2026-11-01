@@ -64,3 +64,25 @@ For runtime changes, keep tests against the original model fixtures. For new
 content, use the generic pipeline and a separate project configuration. Update
 contracts and regression cases when behavior changes; do not hide deviations
 with model-specific conditions in the renderer.
+
+## Buyer and seller hosts
+
+```mermaid
+flowchart LR
+  P[Studio Products] --> R[Versioned Room release]
+  R --> B[Product Room buyer view]
+  B --> I[Confirmed inquiry and pinned product context]
+  I --> S[Studio Customer projects]
+  S --> D[Private quotation draft]
+  D --> V[Review and explicit issue]
+  V --> Q[Immutable quotation versions]
+  Q --> B
+  B --> C[Version-bound change or clarification]
+  C --> S
+```
+
+The demo adapter supplies both project projections from one browser store.
+Quotation drafts are separate from issued project history. Product releases,
+model revisions, inquiry revisions and quotation versions have distinct
+identities. The existing Explorer remains an on-demand context viewer through
+its public JSON controller; neither host takes ownership of its renderer.

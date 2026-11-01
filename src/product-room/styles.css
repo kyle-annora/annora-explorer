@@ -64,9 +64,11 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   left:10px;
   padding:12px;
   background:white;
+  clip-path:inset(50%);
 }
 .room-skip:focus {
   top:10px;
+  clip-path:none;
 }
 .room-header {
   height:var(--header);

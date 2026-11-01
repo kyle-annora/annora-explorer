@@ -68,3 +68,12 @@ Review tokens detect accidental edits and duplicate confirmations. They are not 
 The package has `schemaVersion: 1`, `kind: "annora-room-release"`, `release` and `assetManifest`. The importer validates the current prepared model and known assets, then writes the reviewed content to `content/rooms/kinetic-01/release.json`. It rejects repurposing the same release identity for changed content. A replacement requires explicit `--replace`.
 
 Applying the file does not deploy it. The normal `npm run verify` and GitHub Pages workflow remain the publication path. Browser-only demo receipts must never be reported as successful hosted deployments. Future service adapters may implement real publication orchestration without changing the Explorer runtime.
+
+## Customer-project adapter
+
+Product content uses the repository above. The separate `projectRepository`
+option accepted by `createStudio(element, {repository, projectRepository})`
+powers Customer projects. It defaults to the browser-local project adapter.
+Implement the [shared buyer/seller contract](product-room-api.md) for a real
+service. Customer cases remain available independently of the product editor's
+draft storage; editing or releasing product content never changes a saved quote.

@@ -31,8 +31,11 @@ import {
 import { Preview } from "./preview.jsx";
 import crankImage from "../product-room/assets/crank.png";
 import "./styles.css";
+import { CustomerWorkspace } from "./customer-workspace.jsx";
+import { createDemoProjectRepository } from "../product-room/project-repository.js";
 
-function Studio({ repository }) {
+function Studio({ repository, projectRepository }) {
+  const customerGuard = useRef(null);
   const [route, setRoute] = useState(readRoute),
     [products, setProducts] = useState([]),
     [draft, setDraft] = useState(null),
@@ -92,6 +95,7 @@ function Studio({ repository }) {
     });
   }
   function navigate(next) {
+    if (customerGuard.current?.(next)) return;
     if (busyRef.current) return;
     if (
       dirtyRef.current &&
@@ -254,6 +258,10 @@ function Studio({ repository }) {
     };
     const back = () => {
       const next = readRoute();
+      if (customerGuard.current?.(next)) {
+        history.replaceState({}, "", routeHash(routeRef.current));
+        return;
+      }
       if (
         busyRef.current ||
         (dirtyRef.current &&
@@ -307,6 +315,7 @@ function Studio({ repository }) {
   const openEdit = (section) =>
     navigate({ page: "edit", section: issueSection(section) });
   const screen = route.page;
+  const customerScreen = ["projects", "project"].includes(screen);
   return (
     <div className="room-ui studio-app">
       <a className="studio-skip" href="#studio-main">
@@ -326,10 +335,28 @@ function Studio({ repository }) {
             ANNORA <small>STUDIO</small>
           </span>
         </a>
-        <div className="studio-header-context">
-          <span className="studio-header-divider" />
-          <span>Product workspace</span>
-        </div>
+        <nav className="studio-workspace-nav" aria-label="Studio workspaces">
+          <a
+            href="#products"
+            aria-current={!customerScreen ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate({ page: "products" });
+            }}
+          >
+            Products
+          </a>
+          <a
+            href="#projects"
+            aria-current={customerScreen ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate({ page: "projects" });
+            }}
+          >
+            Customer projects
+          </a>
+        </nav>
         <div className="studio-header-end">
           <span className="studio-demo-label">
             <span />
@@ -351,7 +378,7 @@ function Studio({ repository }) {
         id="studio-main"
         className={`studio-main studio-screen-${screen}`}
       >
-        {error && (
+        {error && !customerScreen && (
           <div className="studio-feedback" ref={errorRef} tabIndex="-1">
             <Notice kind="error" title="We could not complete that action.">
               {error}
@@ -361,18 +388,18 @@ function Studio({ repository }) {
             )}
           </div>
         )}
-        {message && (
+        {message && !customerScreen && (
           <div className="studio-feedback" role="status">
             <Notice kind="success">{message}</Notice>
           </div>
         )}
-        {busy === "loading" && (
+        {busy === "loading" && !customerScreen && (
           <div className="studio-loading" role="status">
             <span className="ar-spinner" />
             <p>Opening your product workspace…</p>
           </div>
         )}
-        {!draft && busy !== "loading" && (
+        {!draft && busy !== "loading" && !customerScreen && (
           <div className="studio-loading">
             <p>
               Your product workspace could not be opened. Existing customer
@@ -380,6 +407,16 @@ function Studio({ repository }) {
             </p>
             <Button onClick={() => location.reload()}>Try again</Button>
           </div>
+        )}
+        {customerScreen && (
+          <CustomerWorkspace
+            repository={projectRepository}
+            productRepository={repository}
+            route={route}
+            onNavigate={navigate}
+            onGo={go}
+            guardRef={customerGuard}
+          />
         )}
         {draft && screen === "products" && (
           <div className="studio-products">
@@ -891,10 +928,15 @@ function Studio({ repository }) {
 
 export function createStudio(
   element,
-  { repository = createStudioRepository() } = {},
+  {
+    repository = createStudioRepository(),
+    projectRepository = createDemoProjectRepository(),
+  } = {},
 ) {
   const root = createRoot(element);
-  root.render(<Studio repository={repository} />);
+  root.render(
+    <Studio repository={repository} projectRepository={projectRepository} />,
+  );
   return {
     dispose() {
       root.unmount();

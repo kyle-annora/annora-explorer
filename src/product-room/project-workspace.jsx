@@ -12,6 +12,13 @@ import {
 import { inquiryField, inquiryFields } from "./inquiry-profile.js";
 import { sampleInquiryValues } from "./project-fixtures.js";
 import {
+  pendingProjectChange,
+  pendingClarification,
+  changeIsResolved,
+  reviewCustomerReply,
+} from "./seller-domain.js";
+import { ProjectConversation } from "./project-conversation.jsx";
+import {
   Button,
   ActionGroup,
   Field,
@@ -64,21 +71,22 @@ const hasInquiryFields = (context, ids) => ids.some(id => inquiryField(context, 
 function savedStatus(project) {
   const state = projectStatus(project),
     latest = project.quotes.at(-1);
-  const awaiting = project.changes.some(
-    (change) => !project.replies.some((reply) => reply.changeId === change.id),
-  );
+  const awaiting = Boolean(pendingProjectChange(project));
+  const question = pendingClarification(project);
   const currentNext =
     latest && project.nextSteps.some((step) => step.quoteId === latest.id);
   return {
     label: state.label,
-    action: awaiting
-      ? "View response"
+    action: question
+      ? "Reply to question"
+      : awaiting
+      ? "View conversation"
       : latest && latest.version > 1 && !currentNext
         ? "Compare quotation"
         : latest && !currentNext
           ? "Review quotation"
           : "View project",
-    tone: awaiting
+    tone: question ? "active" : awaiting
       ? "pending"
       : currentNext
         ? "complete"
@@ -239,10 +247,7 @@ function InquiryDocument({ draft, onExplore }) {
 }
 function ProjectProgress({ project }) {
   const latest = project.quotes.at(-1),
-    pendingChanges = project.changes.some(
-      (change) =>
-        !project.replies.some((reply) => reply.changeId === change.id),
-    );
+    pendingChanges = Boolean(pendingProjectChange(project));
   const active =
     latest &&
     project.nextSteps.some((step) => step.quoteId === latest.id) &&
@@ -296,7 +301,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
       message: "",
     }),
     [modeReview, setModeReview] = useState(null);
+  const [replyValues, setReplyValues] = useState({ body: "", replyTo: "" }),
+    [updateAvailable, setUpdateAvailable] = useState(false);
   const [compare, setCompare] = useState(true),
+    [allComparisonFields, setAllComparisonFields] = useState(false),
     [saveState, setSaveState] = useState("");
   const activeOperation = useRef(null),
     draftRef = useRef(null),
@@ -310,7 +318,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   lifecycle.route = route;
   lifecycle.requestDirty = Boolean(
     mode &&
-      (mode === "next"
+      (mode === "message" ? replyValues.body.trim() : mode === "next"
         ? nextValues.message.trim()
         : changeValues.notes?.trim() ||
           (project?.quotes.find((item) => item.id === quoteId) &&
@@ -339,6 +347,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
         "This action could not be completed. Your input is still here. Please try again.",
     );
     setErrors(e?.fields || {});
+    if (route.view === "project" && ["STALE_REVIEW", "CONFLICT"].includes(e?.code)) setUpdateAvailable(true);
     if (focus)
       requestAnimationFrame(() => {
         const target =
@@ -512,6 +521,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     setError(null);
     setNotice("");
     setMode(null);
+    setReplyValues({ body: "", replyTo: "" });
+    setUpdateAvailable(false);
     setProject(null);
     setQuoteId(null);
     setProjects([]);
@@ -550,7 +561,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
             );
           setProject(next);
           setQuoteId(next.quotes.at(-1)?.id || null);
-          setTab(next.quotes.length ? "quotation" : "inquiry");
+          setTab(pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry");
         } else {
           const [items, working] = await Promise.all([
             repository.listProjects(),
@@ -595,7 +606,39 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [saveState, mode, changeValues, nextValues]);
+  }, [saveState, mode, changeValues, nextValues, replyValues]);
+  useEffect(() => {
+    let disposed = false;
+    async function refresh() {
+      if (document.hidden || busy.current || lifecycle.leaving || loading || isPreview) return;
+      try {
+        if (route.view === "project" && project) {
+          const next = await repository.getProject(project.id);
+          if (disposed || next.revision === project.revision) return;
+          // Keep a form's source revision intact. The final write will also reject
+          // a stale review, so background updates never replace a customer's input.
+          if (mode) { setUpdateAvailable(true); return; }
+          const viewingLatest = quoteId === project.quotes.at(-1)?.id;
+          setProject(next);
+          if (viewingLatest || !quoteId) setQuoteId(next.quotes.at(-1)?.id || null);
+          setNotice("Project updated with the latest shared activity.");
+          setUpdateAvailable(false);
+        } else if (route.view === "projects") {
+          const [items, working] = await Promise.all([repository.listProjects(), repository.listDrafts()]);
+          if (!disposed) { setProjects(items); setDrafts(working); }
+        }
+      } catch (error) { if (!disposed) report(error); }
+    }
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      disposed = true;
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [route, repository, project, mode, quoteId, loading]);
   const goto = (next) => navigate(next);
   const projectContext = project?.context;
   const quote =
@@ -611,8 +654,11 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   const latestQuote = project?.quotes.at(-1);
   const isLatest = quote?.id === latestQuote?.id;
   const waitingChange = linkedChanges.find(
-    (item) => !project.replies.some((reply) => reply.changeId === item.id),
+    (item) => !changeIsResolved(project, item.id),
   );
+  const question = project ? pendingClarification(project) : null;
+  const currentNextStep = project?.nextSteps.filter(item => item.quoteId === quote?.id).at(-1);
+  const nextStepConfirmation = currentNextStep && project?.messages?.find(item => item.kind === "next-step-confirmation" && item.nextStepId === currentNextStep.id);
   const status = project ? savedStatus(project) : null;
   const defaultContext = route.context;
   const canAdoptCurrentReference =
@@ -651,9 +697,23 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     setNotice(text || "");
     setMode(null);
     setModeReview(null);
+    setReplyValues({ body: "", replyTo: "" });
+    setUpdateAvailable(false);
     setQuoteId(next.quotes.at(-1)?.id || null);
     setTab(next.quotes.length ? "quotation" : "inquiry");
     revealHeading();
+  }
+  async function refreshReviewedProject() {
+    return run("refresh-project", async () => {
+      const next = await repository.getProject(project.id);
+      setProject(next);
+      setQuoteId(next.quotes.at(-1)?.id || null);
+      setModeReview(null);
+      setModeStage("details");
+      setUpdateAvailable(false);
+      setNotice("Latest project loaded. Your entered message is unchanged; check it against the updated details before reviewing again.");
+      revealHeading();
+    });
   }
   const header = (eyebrow, title, description, actions) => (
     <header className="pw-heading">
@@ -669,6 +729,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   );
   const feedback = (
     <>
+      {updateAvailable && <div className="pw-feedback"><Notice title="This project has new activity"><p>Your input is kept here. Load the latest details before reviewing this message again.</p><Button variant="secondary" onClick={refreshReviewedProject} disabled={!!pending} pending={pending === "refresh-project"}>Refresh project & keep input</Button></Notice></div>}
       {error && (
         <div className="pw-feedback">
           <Notice kind="error" title="Your action needs attention" role="alert">
@@ -689,6 +750,30 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
       No request, quotation or message is sent.
     </p>
   );
+  const sellerLink = project && !isPreview ? (
+    <a className="ar-button pw-role-link" data-variant="quiet" href={`../studio/#project?id=${encodeURIComponent(project.id)}`}>
+      View as seller <span aria-hidden="true">↗</span>
+    </a>
+  ) : null;
+  function openReply() {
+    if (!question) return;
+    setReplyValues({body:"",replyTo:question.id});
+    setMode("message");
+    setModeStage("details");
+    setModeReview(null);
+    setError(null);
+    setErrors({});
+    revealHeading();
+  }
+  function closeMode() {
+    if (busy.current) return;
+    setMode(null);
+    setError(null);
+    setModeReview(null);
+    lifecycle.requestDirty = false;
+    if (updateAvailable) void load();
+    else revealHeading();
+  }
   if (loading)
     return (
       <div className="room-ui room-workspace">
@@ -786,7 +871,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           ) : (
             <EmptyState
               title="Your next conversation starts here."
-              description="Bring a requirement from the 3D model, review your inquiry, then follow a sample quotation through a revision."
+              description="Bring a requirement from the 3D model, review your inquiry, then keep quotations and replies together."
             >
               <Button
                 variant="secondary"
@@ -1193,6 +1278,45 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     );
   }
   if (route.view === "project" && project) {
+    if (mode === "message") {
+      const isReview = modeStage === "review";
+      const source = project.messages?.find(item => item.id === replyValues.replyTo);
+      return <div className="room-ui room-workspace">
+        <div className="pw-topline"><Button variant="quiet" onClick={closeMode} disabled={!!pending}>← Back to project</Button><span>{project.id}</span></div>
+        {header("REPLY TO THE SELLER",isReview ? "Review your reply." : "Add the missing detail.",isReview ? "This reply stays with the seller’s question and your project." : "Your quotation stays unchanged when you send a clarification.")}
+        <ol className="pw-progress pw-inquiry-progress" aria-label="Reply steps">
+          <li className={isReview ? "is-complete" : "is-current"} aria-current={!isReview ? "step" : undefined}><span>{isReview ? "✓" : "01"}</span>Your reply</li>
+          <li className={isReview ? "is-current" : ""} aria-current={isReview ? "step" : undefined}><span>02</span>Review & confirm</li>
+        </ol>
+        {feedback}
+        <div className="pw-layout"><div className="pw-main-column">
+          <Section title="The seller asked"><p className="pw-preserve pw-message">{source?.body || "The original question is unavailable. Return to the project to refresh."}</p></Section>
+          <form id="pw-reply-form" className="pw-reply-form" noValidate onSubmit={event=>{
+            event.preventDefault();
+            run("review-reply",async()=>{
+              setModeReview(reviewCustomerReply(project,replyValues));
+              setModeStage("review");
+              revealHeading();
+            });
+          }}>
+            {isReview ? <Section title="Your reply"><p className="pw-preserve">{modeReview?.body ?? replyValues.body}</p></Section> :
+              <Field label="Your reply" required textarea rows={5} maxLength={4000} value={replyValues.body} disabled={!!pending || leaving}
+                onChange={event=>{setReplyValues({...replyValues,body:event.target.value});setErrors({});}} error={errors.body} hint="Answer the question or explain what still needs to be discussed." />}
+          </form>
+        </div><aside className="pw-sidebar"><ContextSummary context={project.context} compact /></aside></div>
+        <div className="pw-bottom-actions"><ActionGroup>
+          {isReview ? <><Button variant="secondary" disabled={!!pending} onClick={()=>setModeStage("details")}>Edit reply</Button>
+            <Button disabled={!!pending || updateAvailable} pending={pending==="send-reply"} onClick={()=>run("send-reply",async()=>{
+              const next=await repository.sendCustomerReply(modeReview);
+              lifecycle.requestDirty=false;
+              await acceptProject(next,"Your reply is saved in the shared demo project.");
+              setTab("activity");
+            })}>Confirm demo reply <span aria-hidden="true">→</span></Button></> :
+            <><Button variant="quiet" disabled={!!pending} onClick={closeMode}>Cancel</Button><Button type="submit" form="pw-reply-form" disabled={!!pending || updateAvailable} pending={pending==="review-reply"}>Review reply <span aria-hidden="true">→</span></Button></>}
+        </ActionGroup></div>
+        {demo}
+      </div>;
+    }
     if (mode && quote) {
       const isRevision = mode === "revision",
         isReview = modeStage === "review";
@@ -1201,11 +1325,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           <div className="pw-topline">
             <Button
               variant="quiet"
-              onClick={() => {
-                setMode(null);
-                setError(null);
-                revealHeading();
-              }}
+              onClick={closeMode}
             >
               ← Back to quotation
             </Button>
@@ -1444,7 +1564,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                     Edit request
                   </Button>
                   <Button
-                    disabled={!!pending}
+                    disabled={!!pending || updateAvailable}
                     pending={pending === "confirm-change"}
                     pendingLabel="Saving request…"
                     onClick={() =>
@@ -1468,13 +1588,13 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 </>
               ) : (
                 <>
-                  <Button variant="quiet" onClick={() => setMode(null)}>
+                  <Button variant="quiet" onClick={closeMode}>
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     form="pw-change-form"
-                    disabled={!!pending}
+                    disabled={!!pending || updateAvailable}
                     pending={pending === "review-change"}
                   >
                     Review request <span aria-hidden="true">→</span>
@@ -1505,6 +1625,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           <Status tone={status.tone}>{status.label}</Status>,
         )}
         <ProjectProgress project={project} />
+        <div className="pw-shared-status"><p><strong>{projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{projectStatus(project).next}</span></p>{sellerLink}</div>
         {feedback}
         <div
           className="pw-project-tabs"
@@ -1571,39 +1692,11 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               </div>
               <aside className="pw-sidebar">
                 <div className="pw-side-note">
-                  <p className="pw-eyebrow">NEXT IN THIS DEMO</p>
-                  <h2>
-                    {project.quotes.length
-                      ? "Your quotation is ready."
-                      : "From requirements to a proposal."}
-                  </h2>
-                  <p>
-                    {project.quotes.length
-                      ? "Review the proposed scope and continue the same project."
-                      : "Open a deliberately prepared example quote for this inquiry. It is not an instant engineering or pricing approval."}
-                  </p>
-                  <Button
-                    pending={pending === "sample-quote"}
-                    disabled={!!pending}
-                    onClick={() =>
-                      run("sample-quote", async () => {
-                        if (!project.quotes.length)
-                          await acceptProject(
-                            await repository.createSampleQuote(project.id),
-                            "Sample quotation v1 is ready for review.",
-                          );
-                        else setTab("quotation");
-                      })
-                    }
-                  >
-                    {project.quotes.length
-                      ? "Review quotation"
-                      : "Open sample quotation"}{" "}
-                    <span aria-hidden="true">→</span>
-                  </Button>
-                  <Evidence kind="sample">
-                    Fictional quote, no supplier commitment
-                  </Evidence>
+                  <p className="pw-eyebrow">{question ? "YOUR REPLY NEEDED" : "NEXT STEP"}</p>
+                  <h2>{question ? "A question from the seller." : project.quotes.length ? "Your quotation is ready." : "Awaiting a quotation."}</h2>
+                  <p>{question ? question.body : project.quotes.length ? "Review the proposed scope and continue the same project." : "Your confirmed inquiry is available in the seller workspace. A quotation appears here after the seller reviews and issues it."}</p>
+                  {question ? <Button onClick={openReply}>Reply to question <span aria-hidden="true">→</span></Button>
+                    : project.quotes.length > 0 && <Button onClick={() => setTab("quotation")}>Review quotation <span aria-hidden="true">→</span></Button>}
                 </div>
               </aside>
             </div>
@@ -1611,22 +1704,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           {tab === "quotation" &&
             (!quote ? (
               <EmptyState
-                title="Your inquiry is the starting point."
-                description="Open a sample quotation to see how a proposal, customer changes and a revised quote stay connected."
+                title="Awaiting a quotation."
+                description="The seller prepares a draft, reviews it, and issues a fixed version. Only issued quotations appear here."
               >
-                <Button
-                  pending={pending === "sample-quote"}
-                  onClick={() =>
-                    run("sample-quote", async () =>
-                      acceptProject(
-                        await repository.createSampleQuote(project.id),
-                        "Sample quotation v1 is ready for review.",
-                      ),
-                    )
-                  }
-                >
-                  Open sample quotation <span aria-hidden="true">→</span>
-                </Button>
+                {question && <Button onClick={openReply}>Reply to question</Button>}
               </EmptyState>
             ) : (
               <>
@@ -1636,11 +1717,12 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                     value={quote.id}
                     onChange={(id) => {
                       setQuoteId(id);
+                      setAllComparisonFields(false);
                       setError(null);
                     }}
                   />
                   <Evidence kind="sample">
-                    Sample quotation · not an offer
+                    {quote.source === "sample" ? "Legacy sample quotation · not an offer" : "Seller-issued demo quotation · not an offer"}
                   </Evidence>
                 </div>
                 <div className="pw-layout">
@@ -1651,7 +1733,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           <p className="pw-eyebrow">
                             QUOTATION / VERSION {quote.version}
                           </p>
-                          <h2>Crank-slider assembly.</h2>
+                          <h2>{project.context.productTitle}</h2>
                         </div>
                         <p>
                           {quote.id}
@@ -1671,10 +1753,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           >
                             <div>
                               <strong>{line.label}</strong>
-                              {index === 0 && (
+                              {(line.quantity != null || index === 0) && (
                                 <small>
-                                  {quote.quantity} units ·{" "}
-                                  {money(quote.unitPrice)} each
+                                  {line.quantity ?? quote.quantity} units ·{" "}
+                                  {money(line.unitPrice !== undefined ? line.unitPrice : quote.unitPrice)} each
                                 </small>
                               )}
                             </div>
@@ -1706,7 +1788,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                             </dd>
                           </div>
                           <div>
-                            <dt>Illustrative lead time</dt>
+                            <dt>{quote.source === "sample" ? "Illustrative lead time" : "Proposed lead time"}</dt>
                             <dd>{quote.proposedLeadTime}</dd>
                           </div>
                         </dl>
@@ -1716,6 +1798,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           ))}
                         </ul>
                       </Section>
+                      {!!quote.exclusions?.length && <Section title="Not included"><ul className="pw-bullets">{quote.exclusions.map((item,index)=><li key={index}>{item}</li>)}</ul></Section>}
+                      {quote.validity && <Section title="Quotation validity"><p className="pw-preserve">{quote.validity}</p></Section>}
                       {previousQuote && (
                         <Section
                           title={`What changed from v${previousQuote.version}`}
@@ -1730,18 +1814,21 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           }
                         >
                           {compare && (
-                            <Comparison
-                              rows={compareQuotes(previousQuote, quote)}
+                            <><Comparison
+                              rows={compareQuotes(previousQuote, quote).filter(row => allComparisonFields || row.changed)}
                               beforeLabel={`v${previousQuote.version} · previous`}
                               afterLabel={`v${quote.version} · current`}
                               caption="Quotation version comparison"
                             />
+                            <Button variant="quiet" aria-expanded={allComparisonFields} onClick={()=>setAllComparisonFields(value=>!value)}>
+                              {allComparisonFields ? "Show changed fields only" : "Include unchanged fields"}
+                            </Button></>
                           )}
                           <Button
                             variant="quiet"
                             onClick={() => setTab("activity")}
                           >
-                            Read the sample supplier reply{" "}
+                            Read the conversation{" "}
                             <span aria-hidden="true">→</span>
                           </Button>
                         </Section>
@@ -1774,23 +1861,23 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       <p className="pw-eyebrow">
                         {!isLatest
                           ? "PRESERVED VERSION"
-                          : waitingChange
+                          : question ? "YOUR REPLY NEEDED" : waitingChange
                             ? "CHANGE REQUEST SAVED"
-                            : "YOUR NEXT MOVE"}
+                            : currentNextStep ? "NEXT STEP" : "YOUR NEXT MOVE"}
                       </p>
                       <h2>
                         {!isLatest
                           ? "An earlier quotation."
-                          : waitingChange
-                            ? "See how the team responds."
-                            : "Move the conversation forward."}
+                          : waitingChange || question
+                            ? question ? "A question needs your reply." : "Your changes are under review."
+                            : currentNextStep ? nextStepConfirmation ? "Your next step is confirmed." : "Awaiting seller confirmation." : "Move the conversation forward."}
                       </h2>
                       <p>
                         {!isLatest
                           ? `Version ${quote.version} remains available as a fixed record. Use the latest quotation to request a change or next step.`
-                          : waitingChange
-                            ? `Your request is linked to v${quote.version}. Preview a fictional supplier reply and revised quotation.`
-                            : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
+                          : waitingChange || question
+                            ? question ? question.body : `Your request is linked to v${quote.version}. The seller can reply, clarify details, or issue a revised quotation.`
+                            : currentNextStep ? nextStepConfirmation?.body || "The seller can review your request and confirm the next discussion or engineering review." : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
                       </p>
                       {!isLatest ? (
                         <Button
@@ -1802,33 +1889,15 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           Open latest quotation{" "}
                           <span aria-hidden="true">→</span>
                         </Button>
-                      ) : waitingChange ? (
+                      ) : waitingChange || question ? (
                         <>
-                          <Button
-                            pending={pending === "sample-reply"}
-                            disabled={!!pending}
-                            onClick={() =>
-                              run("sample-reply", async () =>
-                                acceptProject(
-                                  await repository.simulateReply(
-                                    project.id,
-                                    waitingChange.id,
-                                  ),
-                                  "Sample reply and revised quotation added. The previous version is preserved.",
-                                ),
-                              )
-                            }
-                          >
-                            Preview sample reply{" "}
-                            <span aria-hidden="true">→</span>
-                          </Button>
-                          <Button
-                            variant="quiet"
-                            onClick={() => setTab("activity")}
-                          >
-                            Read your change request
+                          <Button onClick={() => question ? openReply() : setTab("activity")}>
+                            {question ? "Reply to question" : "View conversation"} <span aria-hidden="true">→</span>
                           </Button>
                         </>
+                      ) : currentNextStep ? (
+                        <><Button variant="secondary" onClick={() => setTab("activity")}>View conversation <span aria-hidden="true">→</span></Button>
+                        <Button variant="quiet" onClick={() => openMode("revision")}>Request a change</Button></>
                       ) : (
                         <>
                           <Button onClick={() => openMode("next")}>
@@ -1846,18 +1915,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         No order or acceptance is created
                       </Evidence>
                     </div>
-                    {project.nextSteps.filter(
-                      (item) => item.quoteId === quote.id,
-                    ).length > 0 && (
+                    {currentNextStep && (
                       <div className="pw-next-receipt">
-                        <p className="pw-eyebrow">NEXT STEP RECORDED</p>
-                        <p>
-                          {
-                            project.nextSteps
-                              .filter((item) => item.quoteId === quote.id)
-                              .at(-1).message
-                          }
-                        </p>
+                        <p className="pw-eyebrow">YOUR REQUEST</p>
+                        <p>{currentNextStep.message}</p>
                         <Button
                           variant="quiet"
                           onClick={() => setTab("activity")}
@@ -1871,21 +1932,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               </>
             ))}
           {tab === "activity" && (
-            <Conversation
+            <ProjectConversation
               project={project}
-              onQuote={(id) => {
-                setQuoteId(id);
-                setTab("quotation");
-              }}
-              onReply={(id) =>
-                run("sample-reply", async () =>
-                  acceptProject(
-                    await repository.simulateReply(project.id, id),
-                    "Sample reply and revised quotation added.",
-                  ),
-                )
-              }
-              pending={pending}
+              onQuote={(id) => { setQuoteId(id); setTab("quotation"); }}
+              onReply={openReply}
             />
           )}
         </div>
@@ -1914,153 +1964,6 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     </div>
   );
 }
-function Conversation({ project, onQuote, onReply, pending }) {
-  const events = [
-    {
-      kind: "inquiry",
-      id: project.inquiry.id,
-      createdAt: project.inquiry.createdAt,
-      value: project.inquiry,
-    },
-    ...project.quotes.map((value) => ({ kind: "quote", ...value, value })),
-    ...project.changes.map((value) => ({ kind: "change", ...value, value })),
-    ...project.replies.map((value) => ({ kind: "reply", ...value, value })),
-    ...project.nextSteps.map((value) => ({ kind: "next", ...value, value })),
-  ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  return (
-    <div className="pw-conversation">
-      <div className="pw-conversation-intro">
-        <p className="pw-eyebrow">ONE CONTINUOUS RECORD</p>
-        <h2>Requirements, replies and decisions.</h2>
-        <p>
-          Every change keeps its source quotation. Sample replies are clearly
-          separated from customer requests.
-        </p>
-      </div>
-      <ol className="pw-timeline">
-        {events.map((event) => {
-          const value = event.value;
-          return (
-            <li key={`${event.kind}-${event.id}`}>
-              <div className="pw-event-head">
-                <Evidence
-                  kind={
-                    event.kind === "reply" || event.kind === "quote"
-                      ? "sample"
-                      : "customer"
-                  }
-                >
-                  {event.kind === "reply"
-                    ? "Sample supplier reply"
-                    : event.kind === "quote"
-                      ? `Sample quotation v${value.version}`
-                      : event.kind === "change"
-                        ? `Your changes to v${value.quoteVersion}`
-                        : event.kind === "next"
-                          ? `Next step for v${value.quoteVersion}`
-                          : "Inquiry confirmed"}
-                </Evidence>
-                <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
-              </div>
-              {event.kind === "inquiry" && (
-                <>
-                  <h3>Inquiry saved for review.</h3>
-                  <p>{value.values.application}</p>
-                  <small>{value.id}</small>
-                </>
-              )}
-              {event.kind === "quote" && (
-                <>
-                  <h3>Quotation v{value.version} added.</h3>
-                  <p>
-                    {value.quantity} units · {money(value.subtotal)} priced
-                    subtotal. Final total pending.
-                  </p>
-                  <Button variant="secondary" onClick={() => onQuote(value.id)}>
-                    View quotation v{value.version}{" "}
-                    <span aria-hidden="true">→</span>
-                  </Button>
-                </>
-              )}
-              {event.kind === "change" && (
-                <>
-                  <h3>A change requested.</h3>
-                  <p>
-                    {value.values.quantity} units ·{" "}
-                    {value.values.targetWeeks
-                      ? `${value.values.targetWeeks} weeks requested`
-                      : "Timing to discuss"}
-                  </p>
-                  <p className="pw-preserve">{value.values.notes}</p>
-                  {!project.replies.some(
-                    (reply) => reply.changeId === value.id,
-                  ) && (
-                    <Button
-                      pending={pending === "sample-reply"}
-                      onClick={() => onReply(value.id)}
-                    >
-                      Preview sample reply <span aria-hidden="true">→</span>
-                    </Button>
-                  )}
-                </>
-              )}
-              {event.kind === "reply" && (
-                <>
-                  <h3>A proposal, with open questions.</h3>
-                  <div className="pw-reply-topics">
-                    {value.topics.map((topic) => (
-                      <section key={topic.label}>
-                        <h4>{topic.label}</h4>
-                        <dl>
-                          <div>
-                            <dt>You requested</dt>
-                            <dd>{topic.requested}</dd>
-                          </div>
-                          <div>
-                            <dt>Sample response</dt>
-                            <dd>{topic.response}</dd>
-                          </div>
-                        </dl>
-                        <Status tone="pending">{topic.status}</Status>
-                      </section>
-                    ))}
-                  </div>
-                  {value.openItems?.length > 0 && (
-                    <ul className="pw-open-items">
-                      {value.openItems.map((item) => (
-                        <li key={item.id}>
-                          <div>
-                            <strong>{item.label}</strong>
-                            <small>{item.status}</small>
-                          </div>
-                          <span>{item.owner}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              )}
-              {event.kind === "next" && (
-                <>
-                  <h3>
-                    {value.intent === "discussion"
-                      ? "Discussion requested."
-                      : "Engineering review requested."}
-                  </h3>
-                  <p className="pw-preserve">{value.message}</p>
-                  <small>
-                    {value.id} · Local demo record. Nothing was sent.
-                  </small>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}
-
 /** A host-owned route and repository boundary. No renderer or camera ownership. */
 export function mountProjectWorkspace(
   element,

@@ -1,88 +1,134 @@
-# Product Room project repository contract
+# Customer-project repository contract
 
-The customer workspace depends on an injected asynchronous repository. The
-included adapter uses fictional commercial data and browser storage only. There
-is no backend, authentication, email, supplier integration or real delivery.
+Product Room and Studio Customer projects use the same asynchronous project
+repository. The included implementation stores fictional data in this browser.
+It performs no authentication, backend delivery or cross-device synchronization.
+Product authoring has its own [Studio repository](studio-api.md).
 
-## Ownership
+## Ownership and injection
 
-- `project-domain.js`: validation, reviewed packets, version comparison and status.
-- `project-repository.js`: local records, persistence, concurrency and transitions.
-- `project-fixtures.js`: crank-only invented prices, lead-time alternatives and replies.
-- `project-workspace.jsx`: forms, review, project presentation and transient UI state.
-- `workspace-entry.jsx`: repository injection and the bounded React mount.
-- `app.js` / `viewer.js`: Room navigation and the existing Explorer JSON controller.
+- `project-domain.js`: buyer validation, reviewed packets and comparison.
+- `project-state.js`: shared change resolution and next-action ownership.
+- `seller-domain.js`: quotation drafts, pricing preview and reviewed seller actions.
+- `project-repository.js`: persistence, projections, concurrency and transitions.
+- `project-fixtures.js`: legacy invented prices/replies and inquiry examples.
+- `project-workspace.jsx` / `project-conversation.jsx`: buyer presentation.
+- `src/studio/customer-*.jsx`: seller project presentation and editing.
 
-A production host can call `createWorkspace(element, {repository, onNavigate,
-onExplore})` with its own implementation. Replacing the adapter must preserve
-review boundaries and immutable history; it is not just substituting a URL.
-The example deliberately supplies no hypothetical endpoint or credentials.
+`createWorkspace(element, {repository, onNavigate, onExplore})` accepts a buyer
+adapter. Studio accepts the matching customer-project adapter separately from
+its product-content repository. Keep rendering and transport separate. No
+hypothetical production URL or secret is configured by this template.
 
-## Repository methods
+## Buyer methods
 
-All methods return promises. Mutations return the saved record only after the
-adapter considers persistence successful. Every returned object is a copy.
+All methods return promises and copies. Mutations return only after persistence
+succeeds. Final sends accept reviewed, unmodified packets.
 
 | Method | Result / boundary |
 | --- | --- |
-| `listProjects()` | Projects ordered by last update |
-| `getProject(projectId)` | One complete customer case, or `NOT_FOUND` |
-| `listDrafts()` | Incomplete inquiries saved in this browser |
-| `getDraft(context)` | Existing draft for product/model/revision, or an unsaved draft |
-| `saveDraft(draft)` | Saved draft with incremented revision; rejects stale edits |
-| `submitInquiry(reviewInquiry(savedDraft))` | Immutable RFQ inside a new project; same review retry reuses that project |
-| `createSampleQuote(projectId)` | Explicitly invoked fictional v1; reopening does not duplicate it |
-| `requestRevision(reviewRevision(project, quoteId, values))` | Saved changes bound to exact project and quote revisions |
-| `simulateReply(projectId, changeId)` | Explicit fictional reply plus a new quotation; original versions retained |
-| `confirmNextStep(reviewNextStep(project, quoteId, values))` | Reviewed discussion/engineering-review request; no order or acceptance |
+| `listProjects()` / `getProject(id)` | Buyer case projection; no seller quotation draft |
+| `listDrafts()` / `getDraft(context)` | Saved or unsaved buyer inquiry drafts |
+| `saveDraft(input)` | Save inquiry draft with expected-revision check |
+| `submitInquiry(reviewInquiry(savedDraft))` | Immutable inquiry and new project |
+| `requestRevision(reviewRevision(project, quoteId, values))` | Changes tied to exact quotation/version |
+| `sendCustomerReply(reviewCustomerReply(project, {body, replyTo}))` | Answer the current clarification without making a quotation |
+| `confirmNextStep(reviewNextStep(project, quoteId, values))` | Discussion/engineering-review request, not order acceptance |
 
-The sample-specific methods are demonstration controls, not production supplier
-APIs. A real adapter needs authenticated, authorized supplier-authored quotations
-and replies; it must not expose client-generated prices as approved offers.
+Legacy `createSampleQuote(id)` and `simulateReply(id, changeId)` remain fixture
+compatibility methods. The buyer interface no longer uses them to manufacture a
+supplier response. They are not production APIs.
 
-## Data contracts
+## Seller methods
 
-`ProductContext` contains `productId`, `productTitle`, `modelId`, and exact
-`modelRevision`. Optional `part` and `document` contain `id` and `title`; an
-optional `chapter` also contains `tourId`. Part labels are display text, not IDs.
-A changed model revision must not silently retarget an old inquiry.
+Pure review helpers are exported from `seller-domain.js`.
 
-An inquiry draft has `id`, `revision`, `context`, `values`, `requirements` and
-`updatedAt`. Values include application, quantity, requested weeks, required
-stroke in millimeters, required load, notes and fictional contact details.
-Requirements retain value, unit, source and explicit customer confirmation.
-Looking at a component does not confirm a requirement or establish product fit.
+| Method | Result / boundary |
+| --- | --- |
+| `listSellerProjects()` / `getSellerProject(id)` | Confirmed cases plus their private `quoteDraft` |
+| `createSampleInquiry(context)` | Open or create a fictional sample case for this release; preserves other records |
+| `getQuoteDraft(projectId)` | Saved draft or unsaved copy of latest quote/inquiry; does not write |
+| `saveQuoteDraft(input)` | Persist seller draft; buyer quotation remains unchanged |
+| `issueQuote(reviewQuote(project, savedDraft, optionalReply))` | Append immutable quote, consume draft; optional reviewed response committed together |
+| `sendReply(reviewReply(project, values))` | Seller explanation, clarification or per-topic change response; no quote generated |
+| `acknowledgeNextStep(reviewAcknowledgement(project, values))` | Confirm a referenced next action; no order or payment |
 
-A project contains an immutable `inquiry`, context, timestamps, revision and
-append-only `quotes`, `changes`, `replies` and `nextSteps`. Each quotation has its
-own ID/version, line items, assumptions and open items with owners. Revised
-quotations link to their predecessor, change request and reply. Unknown line
-amounts and the final total are `null`, not zero. A priced subtotal is not a final
-offer. Requested weeks remain distinct from the illustrative proposed lead time.
+A draft contains `id`, `revision`, `projectId`, `projectRevision`,
+`previousQuoteId`, `changeId`, `values`, optional `replyDraft` and `updatedAt`.
+The reply draft preserves incomplete per-topic responses together with the quote.
+A returned `rebasedFromRevision` hint identifies newer project activity; it is not
+stored. Reopening rebases context references while preserving saved content, and
+the draft revision still prevents another tab from silently overwriting edits. Editable values are
+quantity, scope, proposed lead time, newline-separated assumptions/exclusions,
+validity and line items (`id`, `label`, quantity and unit-price numeric strings).
+Blank unit price means unknown. `quoteDraftErrors` validates the issuing boundary;
+`quoteDraftPreview` derives a customer-facing quote. Totals are not editable.
 
-Reviewed packets bind a full payload to the record revision reviewed by the
-customer. Their canonical tokens detect accidental changes and identify repeat
-submissions in this demo. They are not signatures, secrets or authorization.
-A real service must validate data, authorization, latest revisions and idempotency
-at its own transaction boundary.
+Reply values contain `kind` (`reply`, `clarification`, `change-response`), `body`,
+optional `changeId`, and resolutions. Each resolution has a topic (`quantity`,
+`timing`, `notes`), status (`accepted`, `alternative`, `needs-info`) and response.
+A pending modification needs explicit per-topic answers before a revised quote
+can be issued. An unanswered clarification prevents issue. Sending a reply alone
+does not imply that a quotation version changed.
 
-## Failures and persistence
+Acknowledgement values contain `nextStepId` and `body`. Customer clarification
+replies identify the exact question with `replyTo`. All final packets bind the
+project revision; stale reviews require a new review.
 
-The local adapter uses `annora.product-room.projects.v1`, schema version 1.
-Cooperating browser tabs use Web Locks when available, plus record revision and
-last-read checks. This does not implement server-side transactions or cross-device
-synchronization. Unknown/corrupt schemas are rejected without automatic erasure.
+## Records and immutability
 
-Errors expose `code`, `message` and optional `fields`. Expected codes include
-`VALIDATION`, `STALE_REVIEW`, `CONFLICT`, `NOT_FOUND`, `UNSUPPORTED_PRODUCT`,
-`STORAGE_UNAVAILABLE` and `STORAGE_CORRUPT`. A failed write must not produce a
-success receipt; forms retain input and make recovery possible. A stale review
-requires reopening and reviewing current data, not silently retrying against it.
+`ProductContext` pins product/model IDs and exact model revision. Versioned
+inquiries also pin `roomReleaseId`, `inquiryProfileVersion`, the form snapshot and
+complete Room snapshot. Optional part, document and chapter references use stable
+IDs and displayed titles; documents keep revisions. Earlier records without
+release attribution remain legacy records, not the current release.
 
-## Future service responsibilities
+A project contains immutable `inquiry`, context, timestamps, revision, and
+append-only `quotes`, `changes`, legacy `replies`, `nextSteps` and `messages`.
+Seller drafts are stored separately from projects and omitted from buyer reads.
+Saving a seller draft does not advance the public project revision. Issuance
+creates source `seller-demo`; old source `sample` records are never relabeled.
 
-A real deployment needs tenant/project access control, secure attachments,
-manufacturer-approved facts and offers, transactional version checks,
-idempotency, durable audit events, retention/export policies and delivery status.
-None is implied by the static demo or the Explorer iframe handshake. The present
-scope intentionally excludes accounts and production customer information.
+Quotes retain ID, sequential version, predecessor, quantity, USD line items,
+priced subtotal, final total, scope, requested timing, proposed lead time,
+assumptions, exclusions, validity and open questions. Unknown amounts and final
+total remain `null`, not zero. Issued quotations also carry `issuedProjectRevision` so event order does
+not depend on differing clocks or timestamp precision. Original inquiry and earlier quotes are unchanged
+by later replies, draft edits or product-content releases.
+
+Messages identify author role, kind, body, referenced change/question/next step,
+per-topic resolutions, time, `projectRevision`, review token and `delivery: 'demo-only'`. A general
+reply does not resolve a change automatically. Legacy sample reply behavior is
+preserved for old demonstration records.
+
+Review tokens detect accidental edits and identify repeated submissions. They
+are neither signatures nor authorization. Browser role projections likewise are
+not security boundaries: a production host must validate and filter server-side.
+
+## Persistence and migration
+
+The storage key remains `annora.product-room.projects.v1` so existing browsers
+retain their cases. Schema v2 adds `messages` and root-level `quoteDrafts`.
+Valid schema-v1 records migrate in memory without rewriting issued artifacts;
+reads alone do not write. The next successful mutation persists the new envelope.
+Unknown or corrupt data fails visibly without automatic reset or erasure.
+
+Optional Web Locks serialize cooperating tabs, with draft/project revision and
+last-read checks as additional guards. Reviewed retries are idempotent. Failed
+writes must preserve form input and must not produce a success receipt. Conflicts
+must not silently overwrite another tab's saved draft.
+
+Expected errors include `VALIDATION`, `STALE_REVIEW`, `CONFLICT`, `NOT_FOUND`,
+`UNSUPPORTED_PRODUCT`, `STORAGE_UNAVAILABLE` and `STORAGE_CORRUPT`, with a human
+message and optional field errors.
+
+## Production adapter responsibilities
+
+Enforce tenant/project access and role-specific reads and writes; validate exact
+versions, line amounts and reviewed terms; issue quotations transactionally;
+provide idempotent durable events, attachment access and delivery states. Keep
+inquiry and product-content releases distinct from quote revisions. Local demo
+roles and iframe origin validation do not implement these responsibilities.
+
+Follow the [buyer/seller walkthrough](studio-customer-projects.md) when replacing
+the adapter. Preserve the existing Explorer API and renderer boundary.

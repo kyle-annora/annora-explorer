@@ -6,7 +6,9 @@ crank customer-project flow, using the unchanged Explorer. The public template
 remains static. [Studio](studio.md) now provides the crank product editor,
 part/document association, inquiry configuration, isolated buyer preview and
 reviewed local demo releases. Hosted content uses an exported release and the
-existing GitHub deployment pipeline.
+existing GitHub deployment pipeline. [Customer projects](studio-customer-projects.md)
+connects buyer inquiries to seller drafts, reviewed quotation issuance, replies,
+version comparison and next-step acknowledgement.
 
 ## Product Room
 
@@ -44,7 +46,7 @@ customer product before deciding which authoring tasks to automate.
 1. Review the complete crank inquiry-to-revised-quotation journey and shared components.
 2. Build the derived Studio editors around shared versioned content, preserving
    the existing Explorer.
-3. Validate the complete authoring, review and Room experience.
+3. Validate product authoring and the shared buyer/seller customer-project loop.
 4. Then plan durable sharing and the first real customer pilot. Real accounts,
    customer data, integrations and sales insight require future Annora services.
 

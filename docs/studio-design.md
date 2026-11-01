@@ -46,4 +46,30 @@ The runtime hash names follow the implementation; product and customer-project r
 
 ## Deferred capabilities
 
-No CAD editing, automatic motion inference, material authoring, arbitrary uploads, real authentication, customer data, supplier inbox or cloud publication service is introduced. Existing prepared actions and model packages remain the source of 3D behavior. These boundaries do not prevent a future host from implementing durable Studio and customer-project adapters.
+No CAD editing, automatic motion inference, material authoring, arbitrary uploads, real authentication, production customer data or cloud publication service is introduced. Existing prepared actions and model packages remain the source of 3D behavior. These boundaries do not prevent a future host from implementing durable Studio and customer-project adapters.
+
+## Customer-project workspace extension
+
+The approved extension retains the primary Annora reference above. Refero
+research additionally inspected Mercury's [line-item editor](https://refero.design/pages/c20cc9bc-c12f-4064-b5c5-f3b3f0294b7f),
+[review-and-send screen](https://refero.design/pages/64cbc94f-183a-4ef6-b50d-e1d1be4f7aff)
+and [creation flow 11047](https://refero.design/flows/11047). Borrow only grouped
+commercial fields and a complete recipient-facing preview before final issue.
+Mercury's purple palette, decorative preview gradient, payment collection and
+multi-step recipient setup are outside this workflow.
+
+| Decision | Source and bounded role | Application |
+| --- | --- | --- |
+| Products / Customer projects | Approved buyer/seller architecture | Product publishing remains separate from quotation issuance |
+| Compact queue with fixed dividers | Existing Annora lists; Linear density | Customer identity, current task and next owner have distinct emphasis |
+| Scope / Pricing / Delivery groups | Mercury line-item editor | Group editable terms without introducing extra wizard steps |
+| Full review before issue | Mercury review; approved Annora confirmation pattern | Draft saving never makes an offer visible to the buyer |
+| Reply independent of version | Approved collaboration workflow | Clarification does not manufacture a revised quotation |
+| Context on demand | Existing public Explorer controller | Reference the pinned part without adding another tree or renderer |
+| Single-column mobile document | Shared component system | Read the complete quote before reaching its final confirmation |
+
+The distinguishing interaction is one project carried across two roles: the
+seller edits a private draft, explicitly issues a version, and the buyer sees
+that exact version with its corresponding conversation. Ember indicates primary
+actions; champagne marks completion; neutral dividers organize records. No new
+palette or component language is introduced.

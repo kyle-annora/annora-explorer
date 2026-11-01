@@ -1,3 +1,4 @@
+import { sellerProjectStatus } from './project-state.js';
 import { requestContext } from './request-state.js';
 import { normalizeInquiryProfile } from './inquiry-profile.js';
 import { validHistoricalRoomSnapshot } from './release-snapshot.js';
@@ -145,22 +146,38 @@ export function compareQuotes(before, after) {
   if (!before || !after) return [];
   const rows = [
     ['quantity', 'Quantity', `${before.quantity} units`, `${after.quantity} units`],
-    ['unitPrice', 'Sample unit price', money(before.unitPrice), money(after.unitPrice)],
+    ['unitPrice', 'Unit price', money(before.unitPrice), money(after.unitPrice)],
     ['requestedWeeks', 'Requested timing', before.requestedWeeks === null ? 'To discuss' : `${before.requestedWeeks} weeks`, after.requestedWeeks === null ? 'To discuss' : `${after.requestedWeeks} weeks`],
     ['proposedLeadTime', 'Proposed lead time', before.proposedLeadTime, after.proposedLeadTime],
     ['scope', 'Scope', before.scope, after.scope],
     ['subtotal', 'Priced subtotal', money(before.subtotal), money(after.subtotal)],
-    ['total', 'Final total', money(before.total), money(after.total)]
+    ['total', 'Final total', money(before.total), money(after.total)],
+    ['assumptions', 'Assumptions', (before.assumptions || []).join('\n'), (after.assumptions || []).join('\n')],
+    ['exclusions', 'Exclusions', (before.exclusions || []).join('\n') || 'Not specified', (after.exclusions || []).join('\n') || 'Not specified'],
+    ['validity', 'Validity', before.validity || 'Not specified', after.validity || 'Not specified']
   ];
+  const describeLine = item => item ? `${item.label}: ${item.quantity ?? 'To discuss'} × ${money(item.unitPrice ?? null)} · ${money(item.amount)}` : 'Not included';
+  const keyFor = (item,index) => item.id || `line-${index+1}`;
+  const beforeLines = new Map(before.lineItems.map((item,index) => [keyFor(item,index),item]));
+  const afterLines = new Map(after.lineItems.map((item,index) => [keyFor(item,index),item]));
+  for (const key of new Set([...beforeLines.keys(), ...afterLines.keys()])) {
+    const left = beforeLines.get(key), right = afterLines.get(key);
+    rows.push([`line-${key}`, right?.label || left.label, describeLine(left), describeLine(right)]);
+  }
   return rows.map(([key, label, left, right]) => ({ key, label, before: left, after: right, changed: left !== right }));
 }
 
 export function projectStatus(project) {
-  const latestQuote = project.quotes.at(-1);
-  const change = project.changes.filter(item => item.quoteId === latestQuote?.id).at(-1);
-  if (change && !project.replies.some(reply => reply.changeId === change.id)) return { label: 'Changes requested', next: 'Supplier reply pending', owner: 'Supplier' };
-  if (project.nextSteps.some(item => item.quoteId === latestQuote?.id)) return { label: 'Next step requested', next: 'Supplier to review the request', owner: 'Supplier' };
-  if (project.quotes.length > 1) return { label: 'Revised quotation', next: 'Review the changed terms', owner: 'You' };
-  if (project.quotes.length) return { label: 'Quotation ready', next: 'Review the sample quotation', owner: 'You' };
-  return { label: 'Inquiry saved', next: 'Awaiting supplier review', owner: 'Supplier' };
+  const status = sellerProjectStatus(project);
+  const owner = status.owner === 'Seller' ? 'Supplier' : 'You';
+  const label = status.label === 'New inquiry' ? 'Inquiry saved' : status.label;
+  const next = status.label === 'New inquiry' ? 'Awaiting supplier review'
+    : status.label === 'Quotation ready' ? 'Review the quotation'
+    : status.label === 'Revised quotation' ? 'Review the changed terms'
+    : status.label === 'Changes requested' ? 'Supplier reply pending'
+    : status.label === 'Next step requested' ? 'Supplier to review the request'
+    : status.label === 'Information requested' ? 'Answer the supplier question'
+    : status.label === 'Customer replied' ? 'Supplier to review your response'
+    : status.next;
+  return { label, next, owner };
 }

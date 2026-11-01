@@ -1,0 +1,1299 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActionGroup,
+  Button,
+  EmptyState,
+  Evidence,
+  Field,
+  Glyph,
+  Notice,
+  Section,
+  Status,
+  VersionSelector,
+} from "../product-room/ui/components.jsx";
+import {
+  pendingProjectChange,
+  pendingClarification,
+  quoteDraftErrors,
+  quoteDraftPreview,
+  reviewAcknowledgement,
+  reviewQuote,
+  reviewReply,
+  sellerProjectStatus,
+} from "../product-room/seller-domain.js";
+import { contextForRelease } from "../product-room/release-content.js";
+import { PROJECT_STORAGE_KEY } from "../product-room/project-repository.js";
+import { copy, date } from "./navigation.js";
+import {
+  buyerURL,
+  Conversation,
+  InquiryDetails,
+  money,
+  ProductReference,
+  QuoteSummary,
+  ResponseFields,
+  responseFor,
+  ResponseSummary,
+  SmallLink,
+} from "./customer-views.jsx";
+import "./customer-workspace.css";
+
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const nextStep = (p) =>
+  p.nextSteps.findLast(
+    (step) =>
+      step.quoteId === p.quotes.at(-1)?.id &&
+      !p.messages?.some(
+        (m) => m.nextStepId === step.id && m.kind === "next-step-confirmation",
+      ),
+  );
+const customerName = (p) =>
+  p.inquiry.values.company || p.inquiry.values.name || "Unnamed customer";
+
+export function CustomerWorkspace({
+  repository,
+  productRepository,
+  route,
+  onNavigate,
+  onGo,
+  guardRef,
+}) {
+  const [projects, setProjects] = useState([]),
+    [project, setProject] = useState(null),
+    [filter, setFilter] = useState("attention"),
+    [tab, setTab] = useState("inquiry"),
+    [mode, setMode] = useState("detail");
+  const [draft, setDraft] = useState(null),
+    [saved, setSaved] = useState(null),
+    [response, setResponse] = useState(null),
+    [baseline, setBaseline] = useState(null),
+    [review, setReview] = useState(null),
+    [quoteId, setQuoteId] = useState("");
+  const [busy, setBusy] = useState("loading"),
+    [error, setError] = useState(""),
+    [errors, setErrors] = useState({}),
+    [message, setMessage] = useState(""),
+    [stale, setStale] = useState(false),
+    [leave, setLeave] = useState(null);
+  const busyRef = useRef("loading"),
+    dirtyRef = useRef(false),
+    currentRef = useRef({}),
+    dialog = useRef(null),
+    errorRef = useRef(null),
+    generation = useRef(0);
+  const dirty =
+    mode === "edit" || mode === "quote-review"
+      ? !same(draft, saved) || !same(response, baseline)
+      : ["reply", "ack", "reply-review", "ack-review"].includes(mode)
+        ? !same(response, baseline)
+        : false;
+  dirtyRef.current = dirty;
+  currentRef.current = { route, project, draft, saved, response, mode, review };
+  const change = project ? pendingProjectChange(project) : null,
+    clarification = project ? pendingClarification(project) : null,
+    acknowledgement = project ? nextStep(project) : null;
+  const responseMismatch = Boolean(
+    change &&
+    draft &&
+    (draft.changeId !== change.id || response?.changeId !== change.id),
+  );
+  const status = project ? sellerProjectStatus(project) : null;
+  const quote =
+    project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
+  function resetEditor() {
+    setMode("detail");
+    setDraft(null);
+    setSaved(null);
+    setResponse(null);
+    setBaseline(null);
+    setReview(null);
+    setErrors({});
+    dirtyRef.current = false;
+  }
+  async function refresh() {
+    const id =
+      currentRef.current.route.page === "project"
+        ? currentRef.current.route.id
+        : "";
+    const [list, record] = await Promise.all([
+      repository.listSellerProjects(),
+      id ? repository.getSellerProject(id) : null,
+    ]);
+    setProjects(list);
+    setProject(record);
+    setStale(false);
+    return record;
+  }
+  async function task(name, fn) {
+    if (busyRef.current) return;
+    busyRef.current = name;
+    setBusy(name);
+    setError("");
+    setErrors({});
+    setMessage("");
+    try {
+      return await fn();
+    } catch (problem) {
+      setError(
+        problem.message ||
+          "This action could not be saved. Your input is still here.",
+      );
+      setErrors(problem.fields || {});
+      requestAnimationFrame(() => errorRef.current?.focus());
+    } finally {
+      busyRef.current = "";
+      setBusy("");
+    }
+  }
+  useEffect(() => {
+    const turn = ++generation.current;
+    let active = true;
+    resetEditor();
+    setError("");
+    setMessage("");
+    setProject(null);
+    setTab("inquiry");
+    setQuoteId("");
+    busyRef.current = "loading";
+    setBusy("loading");
+    Promise.all([
+      repository.listSellerProjects(),
+      route.page === "project" ? repository.getSellerProject(route.id) : null,
+    ])
+      .then(([list, record]) => {
+        if (active && turn === generation.current) {
+          setProjects(list);
+          setProject(record);
+          setStale(false);
+        }
+      })
+      .catch((problem) => {
+        if (active) setError(problem.message);
+      })
+      .finally(() => {
+        if (active) {
+          busyRef.current = "";
+          setBusy("");
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [repository, route.page, route.id]);
+  useEffect(() => {
+    guardRef.current = (next) => {
+      if (busyRef.current) return true;
+      if (dirtyRef.current) {
+        setLeave({ route: next });
+        return true;
+      }
+      return false;
+    };
+    const unload = (event) => {
+      if (
+        dirtyRef.current ||
+        (busyRef.current && busyRef.current !== "loading")
+      ) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    const update = (event) => {
+      if (
+        event?.type === "storage" &&
+        event.key &&
+        event.key !== PROJECT_STORAGE_KEY
+      )
+        return;
+      if (busyRef.current) return;
+      if (dirtyRef.current || currentRef.current.mode !== "detail") {
+        setStale(true);
+        return;
+      }
+      refresh().catch((problem) => setError(problem.message));
+    };
+    window.addEventListener("beforeunload", unload);
+    window.addEventListener("storage", update);
+    window.addEventListener("focus", update);
+    return () => {
+      guardRef.current = null;
+      window.removeEventListener("beforeunload", unload);
+      window.removeEventListener("storage", update);
+      window.removeEventListener("focus", update);
+    };
+  }, [repository, guardRef]);
+  useEffect(() => {
+    if (leave && !dialog.current.open) dialog.current.showModal();
+    else if (!leave && dialog.current.open) dialog.current.close();
+  }, [leave]);
+  function localGo(action) {
+    if (busyRef.current) return;
+    if (dirtyRef.current) {
+      setLeave({ action });
+      return;
+    }
+    action();
+  }
+  function finishLeave() {
+    const target = leave;
+    setLeave(null);
+    resetEditor();
+    if (target.route) onGo(target.route);
+    else target.action?.();
+  }
+  async function saveCurrent() {
+    const current = currentRef.current;
+    const value = await repository.saveQuoteDraft({
+      ...current.draft,
+      replyDraft: current.response,
+    });
+    setDraft(value);
+    setSaved(copy(value));
+    setResponse(copy(value.replyDraft || null));
+    setBaseline(copy(value.replyDraft || null));
+    currentRef.current.draft = value;
+    dirtyRef.current = false;
+    return value;
+  }
+  function openDraft() {
+    task("open-draft", async () => {
+      const fresh = await repository.getSellerProject(project.id);
+      const value = await repository.getQuoteDraft(project.id);
+      const requested = pendingProjectChange(fresh);
+      const answer =
+        value.replyDraft || (requested ? responseFor(requested) : null);
+      setProject(fresh);
+      setDraft(value);
+      setSaved(copy(value));
+      setResponse(answer);
+      setBaseline(copy(answer));
+      setMode("edit");
+      setReview(null);
+      setStale(Boolean(value.rebasedFromRevision));
+    });
+  }
+  function openReply(kind = "reply") {
+    const value = responseFor(change, kind);
+    if (kind === "clarification") value.kind = "clarification";
+    setResponse(value);
+    setBaseline(copy(value));
+    setMode("reply");
+    setReview(null);
+    setError("");
+  }
+  function openAcknowledgement() {
+    const value = { nextStepId: acknowledgement.id, body: "" };
+    setResponse(value);
+    setBaseline(copy(value));
+    setMode("ack");
+    setReview(null);
+  }
+  function reviewCurrent() {
+    task("review", async () => {
+      const value = await saveCurrent();
+      const packet = reviewQuote(project, value, value.replyDraft);
+      setReview(packet);
+      setMode("quote-review");
+      setStale(false);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }
+  function issue() {
+    task("issue", async () => {
+      const result = await repository.issueQuote(review);
+      setProject(result);
+      setProjects(await repository.listSellerProjects());
+      setQuoteId(result.quotes.at(-1).id);
+      resetEditor();
+      setTab("quotation");
+      setMessage(
+        `Quotation version ${result.quotes.at(-1).version} is now visible in the buyer view in this browser.`,
+      );
+    });
+  }
+  function reviewMessage() {
+    task("review-message", async () => {
+      const packet =
+        mode === "ack"
+          ? reviewAcknowledgement(project, response)
+          : reviewReply(
+              project,
+              response.kind === "clarification"
+                ? { ...response, resolutions: [] }
+                : response,
+            );
+      setReview(packet);
+      setMode(mode === "ack" ? "ack-review" : "reply-review");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }
+  function sendMessage() {
+    task("send", async () => {
+      if (mode === "ack-review") await repository.acknowledgeNextStep(review);
+      else await repository.sendReply(review);
+      resetEditor();
+      await refresh();
+      setTab("conversation");
+      setMessage("Your response is visible in the buyer view in this browser.");
+    });
+  }
+  function sample() {
+    task("sample", async () => {
+      const release = await productRepository.getPublished("kinetic-01");
+      const result = await repository.createSampleInquiry(
+        contextForRelease(release, {
+          part: { id: "rod", title: "Connecting rod" },
+        }),
+      );
+      onGo({ page: "project", id: result.id });
+    });
+  }
+  function editValue(key, value) {
+    setDraft((current) => ({
+      ...current,
+      values: { ...current.values, [key]: value },
+    }));
+    setErrors({});
+    setMessage("");
+  }
+  function editLine(index, key, value) {
+    setDraft((current) => ({
+      ...current,
+      values: {
+        ...current.values,
+        lineItems: current.values.lineItems.map((line, i) =>
+          i === index ? { ...line, [key]: value } : line,
+        ),
+      },
+    }));
+    setErrors({});
+  }
+  const field = (key, label, props = {}) => (
+    <Field
+      key={key}
+      label={label}
+      value={draft.values[key]}
+      onChange={(event) => editValue(key, event.target.value)}
+      error={errors[key]}
+      {...props}
+    />
+  );
+  const filtered = projects.filter(
+    (p) => filter === "all" || sellerProjectStatus(p).filter === filter,
+  );
+  let preview = null;
+  try {
+    if (draft && project) preview = quoteDraftPreview(draft, project);
+  } catch {}
+
+  return (
+    <div className="customer-workspace">
+      {error && (
+        <div className="customer-feedback" ref={errorRef} tabIndex="-1">
+          <Notice kind="error" title="We could not complete that action.">
+            {error}
+          </Notice>
+          {Object.keys(errors).length > 0 && (
+            <ul className="customer-errors">
+              {Object.entries(errors).map(([key, value]) => (
+                <li key={key}>{value}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {message && (
+        <div className="customer-feedback" role="status">
+          <Notice kind="success">{message}</Notice>
+        </div>
+      )}
+      {stale && (
+        <div className="customer-feedback">
+          <Notice title="Project activity may have changed.">
+            Your current edits are preserved. Refresh the project before
+            reviewing another action.
+          </Notice>
+          <Button
+            variant="quiet"
+            onClick={() =>
+              localGo(() =>
+                task("reload", async () => {
+                  resetEditor();
+                  await refresh();
+                }),
+              )
+            }
+          >
+            Reload project
+          </Button>
+        </div>
+      )}
+      {busy === "loading" ? (
+        <div className="studio-loading" role="status">
+          <span className="ar-spinner" />
+          <p>Opening customer projects…</p>
+        </div>
+      ) : route.page === "projects" ? (
+        <div className="customer-list-page">
+          <div className="studio-page-heading">
+            <div>
+              <p className="ar-eyebrow">SALES WORKSPACE</p>
+              <h1>Customer projects</h1>
+              <p>
+                Receive inquiries. Prepare quotations. Keep the conversation
+                moving.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              pending={busy === "sample"}
+              disabled={Boolean(busy)}
+              onClick={sample}
+              icon="plus"
+            >
+              Open sample inquiry
+            </Button>
+          </div>
+          <div className="customer-list-toolbar">
+            <div
+              className="customer-filters"
+              aria-label="Filter customer projects"
+            >
+              {[
+                ["attention", "Needs your attention"],
+                ["waiting", "Waiting for customer"],
+                ["all", "All projects"],
+              ].map(([id, label]) => (
+                <button
+                  type="button"
+                  key={id}
+                  aria-pressed={filter === id}
+                  onClick={() => setFilter(id)}
+                >
+                  {label}
+                  <span>
+                    {
+                      projects.filter(
+                        (p) =>
+                          id === "all" || sellerProjectStatus(p).filter === id,
+                      ).length
+                    }
+                  </span>
+                </button>
+              ))}
+            </div>
+            <span className="customer-fine">Confirmed inquiries only</span>
+          </div>
+          <div className="customer-project-list">
+            {filtered.length === 0 ? (
+              <EmptyState
+                title={
+                  projects.length
+                    ? "No projects in this view."
+                    : "Your next customer conversation starts here."
+                }
+                description={
+                  projects.length
+                    ? "Choose another filter to see the rest of your projects."
+                    : "Confirm an inquiry in Product Room, or open a fictional sample to try the full seller workflow."
+                }
+              >
+                <a
+                  className="ar-button"
+                  data-variant="secondary"
+                  href="../product-room/?model=kinetic-01#inquiry"
+                >
+                  Open buyer inquiry
+                  <Glyph name="arrow" />
+                </a>
+              </EmptyState>
+            ) : (
+              <>
+                <div className="customer-list-labels">
+                  <span>Customer / product</span>
+                  <span>Current activity</span>
+                  <span>Quotation</span>
+                  <span>Next action</span>
+                </div>
+                {filtered.map((p) => {
+                  const s = sellerProjectStatus(p),
+                    q = p.quotes.at(-1);
+                  return (
+                    <article className="customer-project-row" key={p.id}>
+                      <div>
+                        <h2>{customerName(p)}</h2>
+                        <p>{p.context.productTitle}</p>
+                        <span className="customer-id">{p.id}</span>
+                      </div>
+                      <div>
+                        <Status
+                          tone={s.filter === "attention" ? "active" : "neutral"}
+                        >
+                          {s.label}
+                        </Status>
+                        <small>{date(p.updatedAt)}</small>
+                      </div>
+                      <div className="customer-quote-cell">
+                        <strong>
+                          {q ? `Version ${q.version}` : "Not issued"}
+                        </strong>
+                        <small>
+                          {p.quoteDraft
+                            ? "Seller draft saved"
+                            : q
+                              ? money(q.subtotal) + " priced"
+                              : "Awaiting preparation"}
+                        </small>
+                      </div>
+                      <div>
+                        <span className="customer-next-owner">
+                          {s.owner} to act
+                        </span>
+                        <Button
+                          variant="secondary"
+                          icon="arrow"
+                          onClick={() =>
+                            onNavigate({ page: "project", id: p.id })
+                          }
+                        >
+                          {s.filter === "attention"
+                            ? "Open project"
+                            : "View project"}
+                        </Button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </>
+            )}
+          </div>
+          <div className="customer-list-footnote">
+            <Evidence kind="sample">
+              Demo workspace · saved in this browser
+            </Evidence>
+            <p>
+              Buyer and seller views share the same project. Nothing is emailed
+              or delivered outside this demo.
+            </p>
+          </div>
+        </div>
+      ) : project ? (
+        <>
+          <div className="customer-project-heading">
+            <div className="customer-heading-left">
+              <button
+                className="studio-back"
+                aria-label="Back to customer projects"
+                onClick={() => onNavigate({ page: "projects" })}
+              >
+                <Glyph name="back" />
+              </button>
+              <div>
+                <p className="studio-breadcrumb">
+                  Customer projects <span>/</span> {project.id}
+                </p>
+                <h1>{customerName(project)}</h1>
+                <p>{project.context.productTitle}</p>
+              </div>
+            </div>
+            <SmallLink href={buyerURL(project)} target="_blank" rel="noopener">
+              View as buyer
+            </SmallLink>
+          </div>
+          {mode === "detail" ? (
+            <>
+              <div className="customer-next-action">
+                <div>
+                  <Status
+                    tone={status.filter === "attention" ? "active" : "neutral"}
+                  >
+                    {status.label}
+                  </Status>
+                  <p>
+                    <strong>{status.owner} to act</strong>
+                    <span>{status.next}</span>
+                  </p>
+                </div>
+                <ActionGroup>
+                  {acknowledgement ? (
+                    <Button
+                      onClick={openAcknowledgement}
+                      disabled={Boolean(busy)}
+                    >
+                      Confirm next step
+                    </Button>
+                  ) : clarification ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() => setTab("conversation")}
+                    >
+                      View conversation
+                    </Button>
+                  ) : change ? (
+                    <Button
+                      onClick={() => openReply()}
+                      disabled={Boolean(busy)}
+                    >
+                      Respond to changes
+                    </Button>
+                  ) : status.owner === "Customer" &&
+                    project.quotes.length > 0 &&
+                    !project.quoteDraft ? (
+                    <Button
+                      variant="secondary"
+                      disabled={Boolean(busy)}
+                      onClick={() =>
+                        setTab(
+                          status.label === "Next step confirmed"
+                            ? "conversation"
+                            : "quotation",
+                        )
+                      }
+                    >
+                      {status.label === "Next step confirmed"
+                        ? "View conversation"
+                        : "View quotation"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={openDraft}
+                      pending={busy === "open-draft"}
+                      disabled={Boolean(busy)}
+                      icon="arrow"
+                    >
+                      {project.quoteDraft
+                        ? "Continue quotation"
+                        : project.quotes.length
+                          ? "Revise quotation"
+                          : "Prepare quotation"}
+                    </Button>
+                  )}
+                </ActionGroup>
+              </div>
+              <div className="customer-project-layout">
+                <div className="customer-project-main">
+                  <nav
+                    className="customer-tabs"
+                    aria-label="Customer project sections"
+                  >
+                    {["inquiry", "quotation", "conversation"].map((id) => (
+                      <button
+                        key={id}
+                        aria-current={tab === id ? "page" : undefined}
+                        onClick={() => setTab(id)}
+                      >
+                        {id[0].toUpperCase() + id.slice(1)}
+                        {id === "quotation" && project.quotes.length > 0 && (
+                          <span>{project.quotes.length}</span>
+                        )}
+                      </button>
+                    ))}
+                  </nav>
+                  <div className="customer-tab-body">
+                    {tab === "inquiry" && (
+                      <>
+                        <InquiryDetails project={project} />
+                        <ActionGroup align="start">
+                          <Button
+                            variant="secondary"
+                            onClick={() => openReply("clarification")}
+                            disabled={Boolean(busy) || Boolean(clarification)}
+                          >
+                            Ask for clarification
+                          </Button>
+                        </ActionGroup>
+                      </>
+                    )}
+                    {tab === "quotation" &&
+                      (quote ? (
+                        <>
+                          <div className="customer-quotation-tools">
+                            <VersionSelector
+                              versions={project.quotes}
+                              value={quote.id}
+                              onChange={setQuoteId}
+                            />
+                            <Button
+                              variant="secondary"
+                              onClick={openDraft}
+                              disabled={Boolean(busy) || Boolean(clarification)}
+                            >
+                              {project.quoteDraft
+                                ? "Continue draft"
+                                : "Prepare next version"}
+                            </Button>
+                          </div>
+                          {project.quoteDraft && (
+                            <Notice title="Seller draft saved">
+                              The buyer still sees the latest issued quotation.
+                              Continue the draft when you are ready.
+                            </Notice>
+                          )}
+                          <QuoteSummary
+                            quote={quote}
+                            previous={project.quotes.find(
+                              (q) => q.version === quote.version - 1,
+                            )}
+                          />
+                        </>
+                      ) : (
+                        <EmptyState
+                          title="No quotation issued yet."
+                          description="Prepare a draft, review the complete quotation, then make it visible to the customer."
+                        >
+                          <Button
+                            onClick={openDraft}
+                            disabled={Boolean(busy) || Boolean(clarification)}
+                          >
+                            Prepare quotation
+                          </Button>
+                        </EmptyState>
+                      ))}
+                    {tab === "conversation" && (
+                      <>
+                        <ActionGroup align="start">
+                          <Button
+                            variant="secondary"
+                            onClick={() => openReply()}
+                            disabled={Boolean(busy)}
+                          >
+                            Reply to customer
+                          </Button>
+                          {change && !clarification && (
+                            <Button
+                              variant="quiet"
+                              onClick={openDraft}
+                              disabled={Boolean(busy)}
+                            >
+                              Revise quotation
+                            </Button>
+                          )}
+                        </ActionGroup>
+                        <Conversation project={project} />
+                      </>
+                    )}
+                  </div>
+                </div>
+                <aside>
+                  <ProductReference project={project} />
+                </aside>
+              </div>
+            </>
+          ) : mode === "edit" ? (
+            <div className="customer-editor-page">
+              <div className="customer-editor-heading">
+                <div>
+                  <p className="ar-eyebrow">
+                    SELLER DRAFT · NOT VISIBLE TO CUSTOMER
+                  </p>
+                  <h2>
+                    {project.quotes.length
+                      ? `Prepare version ${project.quotes.length + 1}`
+                      : "Prepare your quotation"}
+                  </h2>
+                </div>
+                <span className="studio-save-state">
+                  <i data-dirty={dirty || undefined} />
+                  {dirty
+                    ? "Unsaved edits"
+                    : draft.revision
+                      ? "Draft saved"
+                      : "New draft"}
+                </span>
+              </div>
+              <fieldset
+                disabled={Boolean(busy)}
+                className="customer-editor-fields"
+              >
+                <Section
+                  title="Scope"
+                  description="Describe the offer and its boundaries."
+                >
+                  <div className="studio-form-grid">
+                    {field("quantity", "Quoted quantity", {
+                      inputMode: "numeric",
+                    })}
+                    {field("validity", "Quotation validity", {
+                      optional: true,
+                      placeholder: "For example, 30 days from issue",
+                    })}
+                    {field("scope", "Included scope", {
+                      textarea: true,
+                      rows: 4,
+                      className: "studio-span-all",
+                    })}
+                    {field("exclusions", "Exclusions", {
+                      textarea: true,
+                      rows: 3,
+                      optional: true,
+                      hint: "One item per line.",
+                      className: "studio-span-all",
+                    })}
+                  </div>
+                </Section>
+                <Section
+                  title="Pricing"
+                  description="Enter known amounts. Leave a unit price blank when it remains to confirm."
+                  className="customer-document-section"
+                  actions={
+                    <Button
+                      variant="quiet"
+                      onClick={() => {
+                        setDraft((d) => ({
+                          ...d,
+                          values: {
+                            ...d.values,
+                            lineItems: [
+                              {
+                                id: "assembly",
+                                label: "Illustrative crank-slider assembly",
+                                quantity: d.values.quantity,
+                                unitPrice:
+                                  Number(d.values.quantity) >= 30
+                                    ? "175"
+                                    : "185",
+                              },
+                              {
+                                id: "setup",
+                                label: "Example setup allowance",
+                                quantity: "1",
+                                unitPrice: "250",
+                              },
+                              {
+                                id: "freight",
+                                label: "Freight and applicable tax",
+                                quantity: "1",
+                                unitPrice: "",
+                              },
+                            ],
+                          },
+                        }));
+                        setMessage(
+                          "Invented sample prices filled. Review and edit them before issuing.",
+                        );
+                      }}
+                    >
+                      Fill demo pricing
+                    </Button>
+                  }
+                >
+                  <div className="customer-line-editor">
+                    {draft.values.lineItems.map((line, index) => (
+                      <div key={line.id} className="customer-line-edit-row">
+                        <Field
+                          label={`Item ${index + 1}`}
+                          value={line.label}
+                          error={errors[`lineItems.${index}.label`]}
+                          onChange={(e) =>
+                            editLine(index, "label", e.target.value)
+                          }
+                        />
+                        <Field
+                          label="Quantity"
+                          value={line.quantity}
+                          inputMode="decimal"
+                          error={errors[`lineItems.${index}.quantity`]}
+                          onChange={(e) =>
+                            editLine(index, "quantity", e.target.value)
+                          }
+                        />
+                        <Field
+                          label="Unit price (USD)"
+                          value={line.unitPrice}
+                          inputMode="decimal"
+                          placeholder="To confirm"
+                          error={errors[`lineItems.${index}.unitPrice`]}
+                          onChange={(e) =>
+                            editLine(index, "unitPrice", e.target.value)
+                          }
+                        />
+                        <div className="customer-line-amount">
+                          <span>Amount</span>
+                          <strong>
+                            {money(
+                              line.quantity &&
+                                line.unitPrice !== "" &&
+                                Number.isFinite(
+                                  Number(line.quantity) *
+                                    Number(line.unitPrice),
+                                )
+                                ? Number(line.quantity) * Number(line.unitPrice)
+                                : null,
+                            )}
+                          </strong>
+                        </div>
+                        <Button
+                          variant="quiet"
+                          aria-label={`Remove item ${index + 1}`}
+                          disabled={draft.values.lineItems.length === 1}
+                          onClick={() =>
+                            editValue(
+                              "lineItems",
+                              draft.values.lineItems.filter(
+                                (_, i) => i !== index,
+                              ),
+                            )
+                          }
+                          icon="close"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="customer-pricing-footer">
+                    <Button
+                      variant="secondary"
+                      icon="plus"
+                      onClick={() =>
+                        editValue("lineItems", [
+                          ...draft.values.lineItems,
+                          {
+                            id: crypto.randomUUID(),
+                            label: "",
+                            quantity: "1",
+                            unitPrice: "",
+                          },
+                        ])
+                      }
+                    >
+                      Add item
+                    </Button>
+                    <div>
+                      <span>Priced subtotal · USD</span>
+                      <strong>
+                        {preview ? money(preview.subtotal) : "Check line items"}
+                      </strong>
+                    </div>
+                  </div>
+                </Section>
+                <Section
+                  title="Delivery & assumptions"
+                  className="customer-document-section"
+                >
+                  <div className="customer-request-summary">
+                    <strong>Customer requested</strong>
+                    <span>
+                      {change?.values.targetWeeks ||
+                      project.inquiry.values.targetWeeks
+                        ? `${change?.values.targetWeeks || project.inquiry.values.targetWeeks} weeks`
+                        : "Timing to discuss"}{" "}
+                      · Requested timing is not a delivery commitment.
+                    </span>
+                  </div>
+                  <div className="studio-form-grid">
+                    {field("proposedLeadTime", "Proposed lead time", {
+                      className: "studio-span-all",
+                      placeholder:
+                        "For example, 6–8 weeks after technical review",
+                    })}
+                    {field("assumptions", "Assumptions & open questions", {
+                      textarea: true,
+                      rows: 4,
+                      className: "studio-span-all",
+                      hint: "One item per line.",
+                    })}
+                  </div>
+                </Section>
+                {change && response && (
+                  <Section
+                    title="Reply with this quotation"
+                    description="Explain how each requested change is handled. This reply and the new quotation are issued together."
+                    className="customer-document-section"
+                  >
+                    {responseMismatch ? (
+                      <>
+                        <Notice title="A newer change request needs a fresh response.">
+                          Your saved explanation below belongs to an earlier
+                          request. It has not been assigned to the new request.
+                          Starting a fresh response keeps all quotation fields
+                          and replaces only this draft explanation.
+                        </Notice>
+                        <div className="customer-document-section">
+                          <p className="ar-eyebrow">
+                            PREVIOUS DRAFT RESPONSE · READ ONLY
+                          </p>
+                          <ResponseSummary value={response} />
+                        </div>
+                        <ActionGroup align="start">
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              const next = responseFor(change);
+                              setDraft((current) => ({
+                                ...current,
+                                changeId: change.id,
+                                replyDraft: next,
+                              }));
+                              setResponse(next);
+                              setErrors({});
+                              setMessage(
+                                "A fresh response is ready for the latest change request. Quotation fields are unchanged. Save the draft to keep it.",
+                              );
+                            }}
+                          >
+                            Start response to latest request
+                          </Button>
+                        </ActionGroup>
+                      </>
+                    ) : (
+                      <ResponseFields
+                        value={response}
+                        setValue={setResponse}
+                        change={change}
+                        errors={errors}
+                        allowKind={false}
+                      />
+                    )}
+                  </Section>
+                )}
+              </fieldset>
+              <div className="customer-editor-actions">
+                <Button
+                  variant="quiet"
+                  onClick={() => localGo(resetEditor)}
+                  disabled={Boolean(busy)}
+                  icon="back"
+                >
+                  Back to project
+                </Button>
+                <ActionGroup>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      task("save", async () => {
+                        await saveCurrent();
+                        setMessage(
+                          "Quotation draft saved. The buyer view is unchanged.",
+                        );
+                      })
+                    }
+                    pending={busy === "save"}
+                    disabled={Boolean(busy)}
+                  >
+                    Save draft
+                  </Button>
+                  <Button
+                    onClick={reviewCurrent}
+                    pending={busy === "review"}
+                    disabled={Boolean(busy) || responseMismatch}
+                    icon="arrow"
+                  >
+                    Review quotation
+                  </Button>
+                </ActionGroup>
+              </div>
+            </div>
+          ) : mode === "quote-review" ? (
+            <div className="customer-review-page">
+              <div className="customer-review-heading">
+                <p className="ar-eyebrow">REVIEW BEFORE ISSUE</p>
+                <h2>Check what the customer will receive.</h2>
+                <p>
+                  Version {project.quotes.length + 1} · {customerName(project)}
+                </p>
+              </div>
+              <QuoteSummary quote={preview} previous={project.quotes.at(-1)} />
+              {response && <ResponseSummary value={response} />}
+              <div className="customer-confirmation">
+                <Notice title="Ready to make this version visible?">
+                  Issuing saves this exact quotation in the buyer view in this
+                  browser. The previous version stays unchanged.
+                </Notice>
+                <ActionGroup align="between">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setMode("edit");
+                      setReview(null);
+                    }}
+                    disabled={Boolean(busy)}
+                    icon="back"
+                  >
+                    Back to editing
+                  </Button>
+                  <Button
+                    onClick={issue}
+                    pending={busy === "issue"}
+                    pendingLabel="Issuing…"
+                    disabled={Boolean(busy)}
+                    icon="arrow"
+                  >
+                    Issue demo quotation
+                  </Button>
+                </ActionGroup>
+              </div>
+            </div>
+          ) : (
+            <div className="customer-message-page">
+              <div className="customer-review-heading">
+                <p className="ar-eyebrow">
+                  {mode.endsWith("review")
+                    ? "REVIEW YOUR RESPONSE"
+                    : "CUSTOMER CONVERSATION"}
+                </p>
+                <h2>
+                  {mode.startsWith("ack")
+                    ? "Confirm the next step."
+                    : mode === "reply-review"
+                      ? "Check your response."
+                      : "Reply to the customer."}
+                </h2>
+                <p>
+                  {customerName(project)} · {project.id}
+                </p>
+              </div>
+              {mode === "reply" || mode === "ack" ? (
+                <>
+                  <fieldset
+                    disabled={Boolean(busy)}
+                    className="customer-editor-fields"
+                  >
+                    {mode === "reply" ? (
+                      <ResponseFields
+                        value={response}
+                        setValue={setResponse}
+                        change={change}
+                        errors={errors}
+                      />
+                    ) : (
+                      <>
+                        <div className="customer-request-summary">
+                          <strong>
+                            {acknowledgement?.intent === "engineering-review"
+                              ? "Engineering review requested"
+                              : "Discussion requested"}
+                          </strong>
+                          <p>{acknowledgement?.message}</p>
+                        </div>
+                        <Field
+                          label="Confirmed next step"
+                          textarea
+                          rows="5"
+                          value={response.body}
+                          onChange={(e) =>
+                            setResponse({ ...response, body: e.target.value })
+                          }
+                          hint="Describe the agreed next action. This does not confirm an order."
+                          error={errors.body}
+                        />
+                      </>
+                    )}
+                  </fieldset>
+                  <ActionGroup align="between">
+                    <Button
+                      variant="quiet"
+                      onClick={() => localGo(resetEditor)}
+                      disabled={Boolean(busy)}
+                      icon="back"
+                    >
+                      Back to project
+                    </Button>
+                    <Button
+                      onClick={reviewMessage}
+                      pending={busy === "review-message"}
+                      disabled={Boolean(busy)}
+                      icon="arrow"
+                    >
+                      Review response
+                    </Button>
+                  </ActionGroup>
+                </>
+              ) : (
+                <>
+                  <ResponseSummary value={response} />
+                  <Notice>
+                    Confirming makes this message visible in the buyer view.{" "}
+                    {mode === "reply-review"
+                      ? "This action does not create a new quotation."
+                      : "This records the next step, not an order."}
+                  </Notice>
+                  <ActionGroup align="between">
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        setMode(mode === "ack-review" ? "ack" : "reply")
+                      }
+                      disabled={Boolean(busy)}
+                      icon="back"
+                    >
+                      Back to editing
+                    </Button>
+                    <Button
+                      onClick={sendMessage}
+                      pending={busy === "send"}
+                      pendingLabel="Saving…"
+                      disabled={Boolean(busy)}
+                    >
+                      Confirm demo response
+                    </Button>
+                  </ActionGroup>
+                </>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="customer-list-page">
+          <EmptyState
+            title="This project could not be opened."
+            description="Choose an available project from this browser."
+          >
+            <Button
+              variant="secondary"
+              onClick={() => onNavigate({ page: "projects" })}
+            >
+              Customer projects
+            </Button>
+          </EmptyState>
+        </div>
+      )}
+      <dialog
+        className="studio-dialog"
+        ref={dialog}
+        onCancel={(e) => {
+          e.preventDefault();
+          if (!busy) setLeave(null);
+        }}
+        aria-labelledby="customer-leave-title"
+      >
+        <p className="ar-eyebrow">UNSAVED EDITS</p>
+        <h2 id="customer-leave-title">Keep working on this draft?</h2>
+        <p>
+          Your unsaved edits will be discarded if you leave. Previously saved
+          quotations and messages stay unchanged.
+        </p>
+        <ActionGroup>
+          <Button
+            variant="quiet"
+            onClick={() => setLeave(null)}
+            disabled={Boolean(busy)}
+          >
+            Keep editing
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={finishLeave}
+            disabled={Boolean(busy)}
+          >
+            Discard edits
+          </Button>
+          {mode === "edit" && (
+            <Button
+              onClick={() =>
+                task("leave", async () => {
+                  await saveCurrent();
+                  finishLeave();
+                })
+              }
+              pending={busy === "leave"}
+              disabled={Boolean(busy)}
+            >
+              Save & continue
+            </Button>
+          )}
+        </ActionGroup>
+      </dialog>
+    </div>
+  );
+}

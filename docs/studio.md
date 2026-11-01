@@ -1,10 +1,15 @@
 # Annora Studio
 
-Studio is the seller-facing authoring workspace for Product Room. This first release edits the prepared crank product using fictional content and browser-local records. It reuses the Product Room component library and the unchanged Explorer controller.
+Studio is the seller-facing product and customer-project workspace for Product Room. It edits the prepared crank product and manages individual inquiries, quotation drafts and replies using fictional content and browser-local records. It reuses the Product Room component library and the unchanged Explorer controller.
 
 **[Open Studio](https://kyle-annora.github.io/annora-explorer/studio/)** · **[Open Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)**
 
-## What to review
+For the buyer/seller quotation loop, open **Customer projects** and follow the
+[customer-project walkthrough](studio-customer-projects.md) and
+[release review](studio-projects-release-review.md). Product content releases
+and customer quotation versions remain separate.
+
+## Product authoring review
 
 1. Open the crank product from the Products list.
 2. Edit its introduction and a sourced technical fact. Save the draft.

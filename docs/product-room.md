@@ -1,9 +1,10 @@
 # Product Room
 
 Product Room connects the existing Explorer to a continuing customer project.
-The crank sample supports a complete inquiry, quotation, revision, sample reply,
-version comparison and next-step request. Product facts and commercial figures
-are explicitly illustrative. Studio remains deferred.
+The crank sample supports a complete inquiry, seller-authored demo quotation,
+revision, conversation, version comparison and next-step request. Studio supplies
+the seller workspace. Product facts and commercial figures are explicitly
+illustrative.
 
 ## Review routes
 
@@ -29,19 +30,20 @@ existing structural presentation and reviewed, in-memory discussion dialog.
 3. Choose **Review inquiry**. Inspect the read-only request, then either edit it
    or **Confirm demo inquiry**. Only confirmation creates a project and immutable
    RFQ. A draft is not a submitted inquiry.
-4. The saved project explains the next action. **Open sample quotation** creates
-   a deliberate fictional v1. Priced subtotal, unpriced items, requested timing,
-   illustrative lead time, assumptions and open questions are separated.
-5. Choose **Request a change**, then **Use sample changes** or enter your own
-   quantity, requested timing and question. **Review request** presents the exact
-   changes against that version. **Confirm demo request** saves them.
-6. Choose **Preview sample reply**. The example adds a supplier response and v2.
-   Compare actual changed fields; inspect the original v1 through the version
-   selector. Earlier quotations remain read-only. The Conversation view separates
-   customer requests, fictional replies and unresolved questions with owners.
-7. From the latest quote, **Choose next step**. Enter a discussion or engineering
-   review request, review it and explicitly confirm. This records a local demo
-   receipt; it does not create an order, acceptance or supplier commitment.
+4. The saved project awaits a quotation. Use **View as seller** to open the same
+   case in Studio. Save a quotation draft, review the complete customer-facing
+   document, then explicitly issue demo v1. The buyer cannot see an unissued draft.
+5. As buyer, choose **Request a change**, then **Use sample changes** or enter
+   quantity, requested timing and a question. Review the exact changes against
+   that quotation version before confirming the demo request.
+6. As seller, clarify or explain without automatically creating a version. Reply
+   to each requested change and issue reviewed v2 when commercial terms change.
+   As buyer, compare the versions and inspect the original v1. Conversation keeps
+   the requests, authored replies and unresolved questions together.
+7. From the latest quote, choose the next step. Enter a discussion or engineering
+   review request, review it and explicitly confirm. The seller can acknowledge
+   it. This records a local demo agreement on the next action, not an order,
+   acceptance, payment or supplier commitment.
 8. Reload or return through **My projects**. The original inquiry, quotation
    versions and confirmed requests remain in this browser.
 
@@ -95,7 +97,7 @@ manufacturer-certified specifications. All public assets must be redistributable
 NHI supplies workflow and component-ownership references. Annora's existing
 silver/graphite/Ember visual language remains authoritative. The shared component
 folder is a local library used by Room; it is not yet a separately published
-package or a Studio implementation.
+package. Both buyer and seller workspaces reuse it.
 
 See the [release review and recorded checks](product-room-release-review.md).
 
@@ -110,7 +112,7 @@ Run `npm run verify`, then serve `dist/` under `/annora-explorer/` and inspect:
 | Requirement evidence | No implicit confirmation from selection; value edits clear confirmation |
 | Immutability | New quote or draft edits never rewrite a saved inquiry or old quote |
 | Version context | Requests bind exact quote/version; old versions offer return to latest |
-| Replies | Explicit sample generation, separate customer request/proposed response/open items |
+| Replies | Seller clarification/reply independent of quote issuance; explicit outcomes and next owner |
 | Persistence | Reload restores records; duplicates, stale edits and blocked storage handled honestly |
 | Mobile | 320–390px portrait and short landscape; reachable actions, readable comparison, no page overflow |
 | Keyboard | Visible focus, named controls, usable tabs, forms, review and error recovery |

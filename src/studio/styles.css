@@ -191,14 +191,22 @@ summary {
 .studio-skip {
   position: fixed;
   left: 16px;
-  top: -70px;
+  top: 12px;
   z-index: 100;
-  padding: 12px 18px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  padding: 0;
   background: var(--ar-ink);
   color: #fff;
 }
 .studio-skip:focus {
-  top: 12px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding: 12px 18px;
 }
 .studio-products {
   padding: 48px 40px 72px;
