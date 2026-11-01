@@ -7,28 +7,36 @@ customer conversation without an account or repository access.
 
 ## Present the three chapters
 
-Allow approximately five to seven minutes with narration. The presentation strip
-shows the current role, chapter and next action. **Continue as buyer** and
-**Continue as seller** keep the same case in the same tab. **Find next action**
-locates the relevant control without submitting anything.
+Use the fixed **Continue demo** button in the presentation strip. It prepares
+fictional sample input, opens the next view and switches between buyer and seller
+in the same tab. At every full review it changes to **Confirm & continue**. Read
+the document, then press it again to confirm that specific action. There is no
+background submission or timed advancement through a confirmation.
 
-1. **Understand the product.** Run one short operating cycle. Select Connecting
-   rod and show its product information. Start an inquiry from that selection.
-   Explain: “We begin with the part and the question your customer is looking at.”
-2. **Get a quotation.** Use sample details for 20 assemblies. Review and confirm
-   the inquiry. Continue as seller, inspect its product reference, prepare the
-   quotation and fill demo pricing. Enter a proposed lead time such as 6–8 weeks
-   after technical review. Save the draft, review the complete document and issue
-   v1. Explain: “The seller receives the context and requirements together. Drafts
-   stay separate from the quotation the customer receives.”
-3. **Resolve and move forward.** Continue as buyer and request a change using the
-   sample values: 30 assemblies and five weeks requested. Review and confirm.
-   Continue as seller, prepare the next quotation version, update the quantity
-   and pricing, and respond to each requested change. Keep the proposed lead time
-   distinct from the customer's requested timing. Review and issue v2. Continue
-   as buyer, compare the changed fields and request an engineering review. As
-   seller, review and confirm the next-step response. Explain: “The request,
-   response and revised quotation stay in one project, with a clear next owner.”
+The standard rehearsal uses the same button throughout:
+
+1. **Understand the product.** The first press plays one short crank cycle and
+   highlights Connecting rod. The next opens an inquiry with that part attached.
+   Existing pause, replay and free exploration remain available.
+2. **Get a quotation.** Continue fills empty inquiry fields with fictional
+   requirements for 20 assemblies and opens the full review. Confirm, then
+   continue to the seller. Continue prepares a private sample quotation for
+   review; a separate confirmation issues v1. Existing saved drafts retain their
+   entered terms.
+3. **Resolve and move forward.** Continue to the buyer, review a request for
+   30 assemblies and five weeks, and confirm. Continue to the seller to review
+   v2 and the reply to each requested change. Quantity is accepted; proposed
+   delivery remains 6–8 weeks after technical review. Confirm v2, then continue
+   to the buyer to compare versions and review an engineering-discussion request.
+   Confirm the request, continue to the seller, review the acknowledgment and
+   confirm it. Continue once more to the buyer-visible agreement.
+
+The guided sample needs no manual data entry or search for page buttons. The
+presenter controls the pace: the standard path takes 20 deliberate presses,
+including six separate confirmations and six role handoffs. Native page controls
+remain available for questions or manual editing. Returning to the guide uses the
+current project state, and does not replace entered values. Validation errors
+stay on the current form until the presenter corrects them.
 
 The final state confirms a discussion or engineering review. It does not create
 an order, accept a contract or process payment. All names, prices and terms are
@@ -70,7 +78,8 @@ original problems. This release addresses them as follows:
 
 Historical quotations remain read-only. Pending changes, clarification and
 next-step requests keep their state-specific actions and visible explanations.
-The presentation navigator does not override these business rules.
+The presentation action invokes the host’s existing review and confirmation
+handlers. It does not override these business rules.
 
 ## Implementation boundaries
 
@@ -83,7 +92,15 @@ The presentation navigator does not override these business rules.
   also uses a separate store.
 - `src/walkthrough/flow.js` derives guidance from recorded state. It performs no
   business mutation. `chrome.js` renders the compact navigation and listens for
-  route and successful-mutation events, with no continuous polling or render loop.
+  route, host-action and successful-mutation events, with no continuous polling
+  or render loop. Chapter state follows the case rather than a stale link hint.
+- `src/walkthrough/actions.js` holds current host action descriptors in memory.
+  Buyer and seller views register their own handlers and unregister on departure.
+  The strip does not query button text, synthesize clicks or mutate records. A
+  single-flight guard and brief repeat-click lock protect review boundaries.
+- `src/walkthrough/viewer-action.js` uses the existing public controller to play
+  the short cycle and select the rod. Reduced motion presents a paused pose.
+  The helper contains no renderer, animation clock or domain write.
 - Host navigation handles `annora:walkthrough-navigate` through existing unsaved
   input guards. `annora:routechange` updates guidance; successful session mutations
   emit `annora:walkthrough-change`.
@@ -114,3 +131,6 @@ roles. Desktop and mobile checks cover:
 See [release verification](demo-walkthrough-release-review.md) for exact build,
 viewport and deployment results. Responsive browser emulation does not establish
 physical-device or lower-end GPU performance.
+
+The [one-button follow-up review](one-button-walkthrough-review.md) records the
+fixed-action rehearsal, confirmation boundaries, keyboard and responsive checks.

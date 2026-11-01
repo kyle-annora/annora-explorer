@@ -8,6 +8,7 @@ import { readBuyerRoute, buyerRouteHash, projectReturnURL } from './navigation.j
 import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughRepository, withWalkthroughSession, walkthroughStorageKey } from '../walkthrough/session.js';
 import { BUNDLED_RELEASE, resolveStudioContent } from '../studio/seed.js';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
+import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
 import crankImage from './assets/crank.png';
 import apolloImage from './assets/apollo.png';
 
@@ -100,7 +101,7 @@ async function boot() {
   if (!configuredRooms.includes(productId)) productId = configuredRooms.includes(DEFAULT_ROOM_ID) ? DEFAULT_ROOM_ID : configuredRooms[0];
   if (releaseState.preview || releaseState.pinned) { productId = 'kinetic-01'; $('room-product').disabled = true; }
   let page = 'explore', navigation = 0, action = 0, loading = null, mountedModel = null, noticeTimer;
-  let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null;
+  let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null, walkthroughViewer;
   const flow = createRequestFlow({ dialog: $('room-request') });
   const viewer = createRoomViewer({
     mount: $('room-viewer'), explorerURL: new URL('../', location.href).href,
@@ -112,6 +113,7 @@ async function boot() {
       $('room-viewer').dataset.lifecycle = state.lifecycle;
       if (state.lifecycle === 'ready') renderSelectedPart(state);
       if (state.lifecycle === 'loading') $('room-loading').hidden = false;
+      walkthroughViewer?.sync();
     },
     onReady({state}) {
       if ((releaseState.preview || releaseState.pinned) && state.model.id !== productId) {
@@ -129,6 +131,10 @@ async function boot() {
       $('room-loading').hidden = true; $('room-error').hidden = false;
       $('room-error-message').textContent = `${error.message} Product information and documents remain available.`;
     }
+  });
+  if (walkthrough && !releaseState.preview) walkthroughViewer = createWalkthroughViewerAction({
+    viewer, sessionId:walkthrough, isActive:()=>page === 'explore' && !walkthroughProject,
+    openInquiry:()=>openRequest(),
   });
 
   function updateURL(replace = false) {
@@ -219,6 +225,7 @@ async function boot() {
     const desiredModel = workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
     if (configuredRooms.includes(desiredModel) && productId !== desiredModel) { productId = desiredModel; renderContent(); }
     page = [...pages,...workspacePages].includes(next) ? next : 'explore';
+    walkthroughViewer?.sync();
     currentRoute = {...route,view:page};
     for (const name of pages) $(`page-${name}`).hidden = name !== page;
     $('page-workspace').hidden = !workspacePages.includes(page);
@@ -351,7 +358,7 @@ async function boot() {
     })().catch(error=>notice(error.message));
   });
   document.addEventListener('visibilitychange',()=> { if (document.hidden) void viewer.pause().catch(()=>{}); });
-  window.addEventListener('pagehide',event=> { if (!event.persisted) { hostSize.disconnect(); flow.dispose(); workspace?.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
+  window.addEventListener('pagehide',event=> { if (!event.persisted) { walkthroughViewer?.dispose(); hostSize.disconnect(); flow.dispose(); workspace?.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
   if (walkthrough && !releaseState.preview) {
     walkthroughProject = (await walkthroughRepository.listProjects())[0] || null;
     window.addEventListener('annora:walkthrough-change',()=> { void walkthroughRepository.listProjects().then(items=> { walkthroughProject=items[0] || null; renderContent(); }).catch(error=>notice(error.message)); });

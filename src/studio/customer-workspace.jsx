@@ -28,6 +28,7 @@ import {
   readWalkthroughSession,
   withWalkthroughSession,
 } from "../walkthrough/session.js";
+import { registerWalkthroughAction } from "../walkthrough/actions.js";
 import {
   buyerURL,
   Conversation,
@@ -451,8 +452,7 @@ export function CustomerWorkspace({
     if (target.route) onGo(target.route);
     else target.action?.();
   }
-  async function saveCurrent() {
-    const current = currentRef.current;
+  async function saveCurrent(current = currentRef.current) {
     const value = await repository.saveQuoteDraft({
       ...current.draft,
       replyDraft: current.response,
@@ -505,7 +505,7 @@ export function CustomerWorkspace({
     setReview(null);
   }
   function reviewCurrent() {
-    task("review", async () => {
+    return task("review", async () => {
       const value = await saveCurrent();
       const packet = reviewQuote(project, value, value.replyDraft);
       setReview(packet);
@@ -515,7 +515,7 @@ export function CustomerWorkspace({
     });
   }
   function issue() {
-    task("issue", async () => {
+    return task("issue", async () => {
       const result = await repository.issueQuote(review);
       setProject(result);
       setProjects(await repository.listSellerProjects());
@@ -532,7 +532,7 @@ export function CustomerWorkspace({
     });
   }
   function reviewMessage() {
-    task("review-message", async () => {
+    return task("review-message", async () => {
       const packet =
         mode === "ack"
           ? reviewAcknowledgement(project, response)
@@ -548,7 +548,7 @@ export function CustomerWorkspace({
     });
   }
   function sendMessage() {
-    task("send", async () => {
+    return task("send", async () => {
       if (mode === "ack-review") await repository.acknowledgeNextStep(review);
       else await repository.sendReply(review);
       resetEditor();
@@ -561,6 +561,104 @@ export function CustomerWorkspace({
       setMessage("Your response is visible in the buyer view in this browser.");
     });
   }
+  // The presenter uses the same editor, saved draft and sealed review packet as
+  // the normal seller flow. Sample preparation never issues a quotation.
+  function reviewWalkthroughQuote() {
+    return task("prepare-walkthrough-review", async () => {
+      const fresh = await repository.getSellerProject(project.id);
+      let value = await repository.getQuoteDraft(project.id);
+      const requested = pendingProjectChange(fresh);
+      let answer = value.replyDraft || (requested ? responseFor(requested) : null);
+      // An existing draft may contain the presenter's own edits. Only a new,
+      // unsaved draft receives the prescribed fictional terms.
+      if (value.revision === 0) {
+        const quantity = String(requested?.values.quantity || fresh.inquiry.values.quantity);
+        value = {
+          ...value,
+          values: {
+            ...value.values,
+            quantity,
+            proposedLeadTime: "6–8 weeks after technical review",
+            lineItems: [
+              { id: "assembly", label: "Illustrative crank-slider assembly", quantity, unitPrice: Number(quantity) >= 30 ? "175" : "185" },
+              { id: "setup", label: "Example setup allowance", quantity: "1", unitPrice: "250" },
+              { id: "freight", label: "Freight and applicable tax", quantity: "1", unitPrice: "" },
+            ],
+          },
+        };
+        if (answer) {
+          const resolutions = {
+            quantity: { status: "accepted", response: `${quantity} identical assemblies included.` },
+            timing: { status: "alternative", response: `We propose 6–8 weeks after technical review; ${requested.values.targetWeeks ? `the requested ${requested.values.targetWeeks} weeks is not confirmed` : "the requested timing remains to be agreed"}.` },
+            notes: { status: "alternative", response: "The common mounting interface will be reviewed with engineering before any commitment." },
+          };
+          answer = {
+            ...answer,
+            body: `Updated to ${quantity} assemblies. Lead time remains 6–8 weeks after technical review.`,
+            resolutions: answer.resolutions.map((item) => ({ ...item, ...resolutions[item.topic] })),
+          };
+        }
+      }
+      setProject(fresh);
+      setDraft(value);
+      setSaved(copy(value));
+      setResponse(answer);
+      setBaseline(copy(answer));
+      setModeState("edit");
+      setTabState("quotation");
+      setReview(null);
+      moveView({ mode: "edit", tab: "quotation", draft: value.id });
+      const savedDraft = await saveCurrent({ draft: value, response: answer });
+      const packet = reviewQuote(fresh, savedDraft, savedDraft.replyDraft);
+      setReview(packet);
+      setModeState("quote-review");
+      moveView({ mode: "quote-review", tab: "quotation", draft: savedDraft.id });
+      setStale(false);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }
+  function reviewWalkthroughAcknowledgement() {
+    return task("prepare-walkthrough-response", async () => {
+      const value = mode === "ack" && response?.nextStepId === acknowledgement?.id
+        ? { ...response }
+        : { nextStepId: acknowledgement.id, body: "" };
+      if (!value.body.trim()) {
+        value.body = "We will review the mounting interface and application load together in an engineering discussion.";
+      }
+      const packet = reviewAcknowledgement(project, value);
+      setResponse(value);
+      if (mode !== "ack") setBaseline({ nextStepId: value.nextStepId, body: "" });
+      setReview(packet);
+      setModeState("ack-review");
+      setTabState("conversation");
+      moveView({ mode: "ack-review", tab: "conversation" });
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }
+  useEffect(() => {
+    if (!walkthrough || repository.mode !== "walkthrough" || route.page !== "project" || !project) return;
+    let action = null;
+    if (mode === "quote-review") {
+      action = { id: "seller-confirm-quotation", label: "Confirm & continue", note: "Issue the reviewed quotation to the buyer in this demo.", confirmation: true, run: issue };
+    } else if (mode === "ack-review" || mode === "reply-review") {
+      action = { id: "seller-confirm-response", label: "Confirm & continue", note: mode === "ack-review" ? "Confirm the reviewed next step in this demo." : "Save the reviewed reply in this demo.", confirmation: true, run: sendMessage };
+    } else if (mode === "edit") {
+      action = { id: "seller-review-current-quotation", label: "Review quotation", note: "Keep your current draft and check it before issuing.", run: reviewCurrent };
+    } else if (mode === "ack" || mode === "detail" && acknowledgement) {
+      action = { id: "seller-review-acknowledgement", label: "Review next step", note: "Prepare the engineering discussion for review. Nothing is confirmed yet.", run: reviewWalkthroughAcknowledgement };
+    } else if (mode === "reply") {
+      action = { id: "seller-review-current-reply", label: "Review response", note: "Review your reply before making it visible to the buyer.", run: reviewMessage };
+    } else if (mode === "detail" && !clarification && (change || !project.quotes.length || project.quoteDraft)) {
+      action = { id: "seller-review-sample-quotation", label: project.quoteDraft ? "Review saved draft" : "Prepare & review", note: project.quoteDraft ? "Open your saved quotation for review. Your terms are preserved." : "Prepare a fictional quotation and review it before issue.", run: reviewWalkthroughQuote };
+    }
+    if (!action) return;
+    return registerWalkthroughAction("seller-workspace", {
+      ...action,
+      confirmation: Boolean(action.confirmation),
+      busy: Boolean(busy),
+      disabled: Boolean(busy) || Boolean(leave) || stale || Boolean(mode === "edit" && responseMismatch),
+    });
+  });
   function sample() {
     task("sample", async () => {
       const release = walkthrough

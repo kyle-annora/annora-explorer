@@ -1,0 +1,212 @@
+[
+  {
+    "width": 320,
+    "overflow": false,
+    "button": {
+      "x": 108.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 252.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 308
+  },
+  {
+    "width": 360,
+    "overflow": false,
+    "button": {
+      "x": 148.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 292.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 348
+  },
+  {
+    "width": 390,
+    "overflow": false,
+    "button": {
+      "x": 178.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 322.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 374
+  },
+  {
+    "width": 600,
+    "overflow": false,
+    "button": {
+      "x": 388.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 532.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 584
+  },
+  {
+    "width": 620,
+    "overflow": false,
+    "button": {
+      "x": 408.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 552.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 604
+  },
+  {
+    "width": 680,
+    "overflow": false,
+    "button": {
+      "x": 468.65625,
+      "y": 5,
+      "width": 144,
+      "height": 44,
+      "right": 612.65625
+    },
+    "touchTarget": true,
+    "hit": true,
+    "header": 207,
+    "ctaRight": 664
+  },
+  {
+    "width": 720,
+    "overflow": false,
+    "button": {
+      "x": 471.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 637.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 194.390625,
+    "ctaRight": 704
+  },
+  {
+    "width": 768,
+    "overflow": false,
+    "button": {
+      "x": 519.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 685.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 194.390625,
+    "ctaRight": 752
+  },
+  {
+    "width": 820,
+    "overflow": false,
+    "button": {
+      "x": 571.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 737.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 194.390625,
+    "ctaRight": 804
+  },
+  {
+    "width": 850,
+    "overflow": false,
+    "button": {
+      "x": 601.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 767.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 194.390625,
+    "ctaRight": 834
+  },
+  {
+    "width": 851,
+    "overflow": false,
+    "button": {
+      "x": 602.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 768.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 158.390625,
+    "ctaRight": 835
+  },
+  {
+    "width": 900,
+    "overflow": false,
+    "button": {
+      "x": 651.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 817.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 158.390625,
+    "ctaRight": 884
+  },
+  {
+    "width": 1024,
+    "overflow": false,
+    "button": {
+      "x": 775.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 941.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 158.390625,
+    "ctaRight": 1000
+  },
+  {
+    "width": 1440,
+    "overflow": false,
+    "button": {
+      "x": 1183.984375,
+      "y": 6,
+      "width": 166,
+      "height": 40,
+      "right": 1349.984375
+    },
+    "touchTarget": false,
+    "hit": true,
+    "header": 158.390625,
+    "ctaRight": 1416
+  }
+]

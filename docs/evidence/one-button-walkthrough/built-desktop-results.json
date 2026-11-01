@@ -1,0 +1,542 @@
+{
+  "base": "http://127.0.0.1:8107/annora-explorer/",
+  "width": 1440,
+  "height": 1000,
+  "sessionId": "WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8",
+  "projectId": "PRJ-DEMO-A787A3DA",
+  "confirmations": 6,
+  "doubled": true,
+  "checks": [
+    "Rapid repeated click cannot auto-confirm the newly opened review",
+    "Reached buyer-visible agreed next step using only the fixed guide button",
+    "Every business mutation required a separate visible review confirmation",
+    "One fictional rod-context case preserves v1, inquiry and product reference",
+    "Buyer and seller role handoffs stayed in one tab and one isolated session",
+    "Ordinary customer projects and Studio release remained byte-identical",
+    "Reload and entry-link resume preserve completion without duplicate records",
+    "Completed buyer view and fixed guide control fit 320, 390, 768 and 1440 px widths"
+  ],
+  "steps": [
+    {
+      "step": "mechanism-cycle",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: play one short cycle, then highlight Connecting rod.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#explore",
+      "confirm": false,
+      "before": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "inquiry-open",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: open an inquiry with Connecting rod attached.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#explore",
+      "confirm": false,
+      "before": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "inquiry-review",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Fill empty fields with fictional details, then show the full inquiry for your confirmation.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#inquiry",
+      "confirm": false,
+      "before": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "inquiry-confirm",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Confirm the inquiry shown below. It stays in this fictional demo project.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#inquiry&stage=review",
+      "confirm": true,
+      "before": {
+        "projects": 0,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-seller-quotation",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as seller.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-review-sample-quotation",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Prepare a fictional quotation and review it before issue.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-confirm-quotation",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Issue the reviewed quotation to the buyer in this demo.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=quotation&mode=quote-review&draft=QD-DEMO-AA901B6A",
+      "confirm": true,
+      "before": {
+        "projects": 1,
+        "quotes": 0,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-buyer-change",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as buyer.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-CE537984",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "change-review",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Review a request for 30 assemblies and an earlier delivery window.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-CE537984",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "change-confirm",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Confirm the requested changes shown below.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-CE537984&mode=revision&stage=review",
+      "confirm": true,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 0,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-seller-revision",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as seller.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-CE537984",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-review-sample-quotation",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Prepare a fictional quotation and review it before issue.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=quotation",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-confirm-quotation",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Issue the reviewed quotation to the buyer in this demo.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=quotation&mode=quote-review&draft=QD-DEMO-623E8394",
+      "confirm": true,
+      "before": {
+        "projects": 1,
+        "quotes": 1,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-buyer-compare",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as buyer.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-91D77B72",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "next-review",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Compare the revisions, then review a request for an engineering discussion.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-91D77B72",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "next-confirm",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Confirm the engineering discussion request shown below.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-91D77B72&mode=next&stage=review",
+      "confirm": true,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 0,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-seller-acknowledge",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as seller.",
+      "url": "http://127.0.0.1:8107/annora-explorer/product-room/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8&model=kinetic-01#project&project=PRJ-DEMO-A787A3DA&tab=quotation&quote=QT-DEMO-91D77B72",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-review-acknowledgement",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Prepare the engineering discussion for review. Nothing is confirmed yet.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      }
+    },
+    {
+      "step": "seller-confirm-response",
+      "label": "Confirm & continue\u2192",
+      "confirmation": "true",
+      "disabled": false,
+      "busy": "false",
+      "note": "Confirm the reviewed next step in this demo.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=conversation&mode=ack-review",
+      "confirm": true,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 0,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 1,
+        "replies": 0
+      }
+    },
+    {
+      "step": "handoff-buyer-complete",
+      "label": "Continue demo\u2192",
+      "confirmation": "false",
+      "disabled": false,
+      "busy": "false",
+      "note": "Next: view this project as buyer.",
+      "url": "http://127.0.0.1:8107/annora-explorer/studio/?walkthrough=WT-a6c9e9fc-07b6-4398-b15e-7bcc2fd540c8#project?id=PRJ-DEMO-A787A3DA&tab=conversation",
+      "confirm": false,
+      "before": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 1,
+        "replies": 0
+      },
+      "after": {
+        "projects": 1,
+        "quotes": 2,
+        "changes": 1,
+        "nextSteps": 1,
+        "confirmations": 1,
+        "replies": 0
+      }
+    }
+  ],
+  "errors": []
+}

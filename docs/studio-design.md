@@ -73,3 +73,19 @@ seller edits a private draft, explicitly issues a version, and the buyer sees
 that exact version with its corresponding conversation. Ember indicates primary
 actions; champagne marks completion; neutral dividers organize records. No new
 palette or component language is introduced.
+
+
+## Fixed presentation action
+
+The customer-call walkthrough keeps the current Annora strip and host pages.
+The user's requested single-button path is the interaction authority; the
+existing reviewed-snapshot pattern remains the confirmation authority.
+
+| Decision | Source and role | Application |
+| --- | --- | --- |
+| Fixed Continue demo control | Presenter needs one prescribed path | A stable control advances actual host actions and role handoffs |
+| Confirm & continue label | Existing full-review boundary | Each final write requires another deliberate click after the full review opens |
+| Ember only on the next action | Existing Annora action token | Neutral chapter navigation remains subordinate to the current action |
+| Same buyer and seller pages | Existing shared components | No duplicate slideshow or hidden mock records can drift from the product |
+| Sample preparation preserves edits | Approved manual takeover | Empty buyer fields receive sample values; saved seller drafts retain their terms |
+| Explicit final outcome | Chapter 3 brief | Buyer sees the agreed engineering discussion with both quote versions retained |

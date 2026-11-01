@@ -33,6 +33,7 @@ import {
 import "./project-workspace.css";
 import { updateBuyerLocation } from "./navigation.js";
 import { readWalkthroughSession, withWalkthroughSession } from "../walkthrough/session.js";
+import { registerWalkthroughAction } from "../walkthrough/actions.js";
 
 const copy = (value) => JSON.parse(JSON.stringify(value));
 const contextualURL = input => {
@@ -840,6 +841,123 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     if (updateAvailable) void load();
     else revealHeading();
   }
+  // The presenter control uses these same review and confirmation handlers as
+  // the native forms. Preparing a review never performs a final business action.
+  function prepareInquiryReview({ fillSample = false } = {}) {
+    return run("review", async () => {
+      if (fillSample) {
+        const current = draftRef.current;
+        const values = { ...current.values };
+        const wasEmpty = !Object.values(values).some(value => String(value).trim());
+        for (const [key, value] of Object.entries(sampleInquiryValues(current.context))) {
+          if (inquiryField(current.context, key)?.enabled && !String(values[key] || "").trim()) values[key] = value;
+        }
+        const requirements = [...current.requirements];
+        // This is a fictional sample requirement, displayed in the full review.
+        // Never infer confirmation for a requirement the presenter entered.
+        if (wasEmpty && values.stroke && !requirements.some(item => item.id === "stroke-confirmed")) requirements.push({
+          id:"stroke-confirmed",label:"Required carriage stroke",value:values.stroke,unit:"mm",source:"customer",confirmed:true,
+          ...(current.context.part ? {part:current.context.part} : {}),
+        });
+        setDraft({ ...current, values, requirements });
+        setNotice("Fictional sample details fill empty fields. Review the complete request before confirming.");
+      }
+      const saved = await persistDraft();
+      const packet = reviewInquiry(saved);
+      setDraft(saved);
+      setReview(packet);
+      setStage("review");
+      revealHeading();
+    });
+  }
+  function confirmInquiry() {
+    return run("confirm", async () => {
+      const saved = await repository.submitInquiry(review);
+      if (draftRef.current?.id === review.draft.id) {
+        setSaveState("");
+        draftRef.current = null;
+      }
+      if (lifecycle.route === route && !lifecycle.leaving) goto({view:"project",projectId:saved.id});
+    });
+  }
+  function prepareRequestReview(requestMode = mode, values) {
+    return run(requestMode === "message" ? "review-reply" : "review-change", async () => {
+      const source = values || (requestMode === "message" ? replyValues : requestMode === "revision" ? changeValues : nextValues);
+      const packet = requestMode === "message" ? reviewCustomerReply(project,source)
+        : requestMode === "revision" ? reviewRevision(project,quote.id,source)
+        : reviewNextStep(project,quote.id,source);
+      if (requestMode !== mode) setMode(requestMode);
+      if (requestMode === "message") setReplyValues(source);
+      else if (requestMode === "revision") { setChangeValues(source); perQuoteDrafts.current[quote.id] = source; }
+      else setNextValues(source);
+      setModeReview(packet);
+      setModeStage("review");
+      revealHeading();
+    });
+  }
+  function confirmRequest() {
+    return run(mode === "message" ? "send-reply" : "confirm-change", async () => {
+      const next = mode === "message" ? await repository.sendCustomerReply(modeReview)
+        : mode === "revision" ? await repository.requestRevision(modeReview)
+        : await repository.confirmNextStep(modeReview);
+      lifecycle.requestDirty = false;
+      await acceptProject(next, mode === "message" ? "Your reply is saved in the shared demo project."
+        : mode === "revision" ? "Change request saved against this quotation." : "Next-step request recorded in this demo.");
+      if (mode === "message") setTab("activity");
+    });
+  }
+  function prepareGuidedRequest(requestMode) {
+    if (requestMode === "message") {
+      const values = mode === "message" && replyValues.body.trim() ? replyValues : {
+        body:"Please review the mounting interface and application load with us before confirming suitability.",replyTo:question.id,
+      };
+      return prepareRequestReview(requestMode,values);
+    }
+    if (requestMode === "revision") {
+      const previous = mode === "revision" ? changeValues : perQuoteDrafts.current[quote.id];
+      const edited = previous && (previous.notes?.trim() || String(previous.quantity) !== String(quote.quantity) || String(previous.targetWeeks || "") !== String(quote.requestedWeeks || ""));
+      return prepareRequestReview(requestMode, edited ? previous : {
+        quantity:String(Math.max(30,quote.quantity + 5)),targetWeeks:"5",
+        notes:"Please review a larger batch and an earlier delivery window. Confirm the mounting interface and required load before any commitment.",
+      });
+    }
+    return prepareRequestReview(requestMode, mode === "next" && nextValues.message.trim() ? nextValues : {
+      intent:"engineering-review",message:"Please arrange a review of the mounting interface and application load.",
+    });
+  }
+  useEffect(() => {
+    if (repository.mode !== "walkthrough") return;
+    const blocked = Boolean(loading || pending || leaving);
+    let action = null;
+    if (loading) action = {id:"buyer-loading",label:"Opening project…",disabled:true,run:()=>{}};
+    else if (updateAvailable) action = {id:"buyer-refresh",label:"Refresh & keep input",note:"Load the latest project before reviewing your preserved message.",run:refreshReviewedProject};
+    else if (route.view === "inquiry" && draft) action = stage === "review" ? {
+      id:"inquiry-confirm",label:"Confirm & continue",note:"Confirm the inquiry shown below. It stays in this fictional demo project.",confirmation:true,run:confirmInquiry,
+    } : {
+      id:"inquiry-review",label:"Use sample & review",note:"Fill empty fields with fictional details, then show the full inquiry for your confirmation.",run:()=>prepareInquiryReview({fillSample:true}),
+    };
+    else if (route.view === "project" && project) {
+      if (mode && modeStage === "review") action = {
+        id:`${mode === "message" ? "reply" : mode === "revision" ? "change" : "next"}-confirm`,label:"Confirm & continue",
+        note:mode === "message" ? "Confirm the reply shown below." : mode === "revision" ? "Confirm the requested changes shown below." : "Confirm the engineering discussion request shown below.",
+        confirmation:true,run:confirmRequest,
+      };
+      else if (mode) action = {
+        id:`${mode === "message" ? "reply" : mode === "revision" ? "change" : "next"}-review`,label:"Review & continue",
+        note:"Use your entered message, or prepare the fictional sample, then review it before confirming.",run:()=>prepareGuidedRequest(mode),
+      };
+      else if (quote && !isLatest) action = {id:"latest-quotation",label:"Open latest quotation",note:"Earlier versions stay unchanged. Continue with the latest quotation.",run:()=>{setQuoteId(latestQuote.id);setTab("quotation");setError(null);revealHeading();}};
+      else if (question) action = {id:"reply-review",label:"Review sample reply",note:"Prepare a fictional reply to the seller’s question, then review it.",run:()=>prepareGuidedRequest("message")};
+      else if (quote && !waitingChange && !currentNextStep) action = quote.version > 1 ? {
+        id:"next-review",label:"Review next step",note:"Compare the revisions, then review a request for an engineering discussion.",run:()=>prepareGuidedRequest("next"),
+      } : {
+        id:"change-review",label:"Review sample changes",note:"Review a request for 30 assemblies and an earlier delivery window.",run:()=>prepareGuidedRequest("revision"),
+      };
+      else if (nextStepConfirmation) action = {id:"completed-conversation",label:"View agreed next step",note:"The buyer’s request and seller’s confirmation stay in one project.",run:()=>{setTab("activity");revealHeading();}};
+    }
+    if (!action) return;
+    return registerWalkthroughAction("buyer-workspace",{...action,busy:blocked,disabled:blocked || Boolean(action.disabled)});
+  });
   if (loading)
     return (
       <div className="room-ui room-workspace">
@@ -1008,14 +1126,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 noValidate
                 onSubmit={(event) => {
                   event.preventDefault();
-                  run("review", async () => {
-                    const saved = await persistDraft();
-                    const packet = reviewInquiry(saved);
-                    setDraft(saved);
-                    setReview(packet);
-                    setStage("review");
-                    revealHeading();
-                  });
+                  void prepareInquiryReview();
                 }}
               >
                 <fieldset
@@ -1295,17 +1406,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 pending={pending === "confirm"}
                 pendingLabel="Saving inquiry…"
                 disabled={!!pending}
-                onClick={() =>
-                  run("confirm", async () => {
-                    const saved = await repository.submitInquiry(review);
-                    if (draftRef.current?.id === review.draft.id) {
-                      setSaveState("");
-                      draftRef.current = null;
-                    }
-                    if (lifecycle.route === route && !lifecycle.leaving)
-                      goto({ view: "project", projectId: saved.id });
-                  })
-                }
+                onClick={confirmInquiry}
               >
                 Confirm demo inquiry <span aria-hidden="true">→</span>
               </Button>
@@ -1359,11 +1460,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           <Section title="The seller asked"><p className="pw-preserve pw-message">{source?.body || "The original question is unavailable. Return to the project to refresh."}</p></Section>
           <form id="pw-reply-form" className="pw-reply-form" noValidate onSubmit={event=>{
             event.preventDefault();
-            run("review-reply",async()=>{
-              setModeReview(reviewCustomerReply(project,replyValues));
-              setModeStage("review");
-              revealHeading();
-            });
+            void prepareRequestReview("message");
           }}>
             {isReview ? <Section title="Your reply"><p className="pw-preserve">{modeReview?.body ?? replyValues.body}</p></Section> :
               <Field label="Your reply" required textarea rows={5} maxLength={4000} value={replyValues.body} disabled={!!pending || leaving}
@@ -1372,12 +1469,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
         </div><aside className="pw-sidebar"><ContextSummary context={project.context} compact /></aside></div>
         <div className="pw-bottom-actions"><ActionGroup>
           {isReview ? <><Button variant="secondary" disabled={!!pending} onClick={()=>setModeStage("details")}>Edit reply</Button>
-            <Button disabled={!!pending || updateAvailable} pending={pending==="send-reply"} onClick={()=>run("send-reply",async()=>{
-              const next=await repository.sendCustomerReply(modeReview);
-              lifecycle.requestDirty=false;
-              await acceptProject(next,"Your reply is saved in the shared demo project.");
-              setTab("activity");
-            })}>Confirm demo reply <span aria-hidden="true">→</span></Button></> :
+            <Button disabled={!!pending || updateAvailable} pending={pending==="send-reply"} onClick={confirmRequest}>Confirm demo reply <span aria-hidden="true">→</span></Button></> :
             <><Button variant="quiet" disabled={!!pending} onClick={closeMode}>Cancel</Button><Button type="submit" form="pw-reply-form" disabled={!!pending || updateAvailable} pending={pending==="review-reply"}>Review reply <span aria-hidden="true">→</span></Button></>}
         </ActionGroup></div>
         {demo}
@@ -1429,15 +1521,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 noValidate
                 onSubmit={(event) => {
                   event.preventDefault();
-                  run("review-change", async () => {
-                    setModeReview(
-                      isRevision
-                        ? reviewRevision(project, quote.id, changeValues)
-                        : reviewNextStep(project, quote.id, nextValues),
-                    );
-                    setModeStage("review");
-                    revealHeading();
-                  });
+                  void prepareRequestReview();
                 }}
               >
                 <fieldset
@@ -1633,21 +1717,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                     disabled={!!pending || updateAvailable}
                     pending={pending === "confirm-change"}
                     pendingLabel="Saving request…"
-                    onClick={() =>
-                      run("confirm-change", async () => {
-                        const next = isRevision
-                          ? await repository.requestRevision(modeReview)
-                          : await repository.confirmNextStep(modeReview);
-                        lifecycle.requestDirty = false;
-                        setMode(null);
-                        await acceptProject(
-                          next,
-                          isRevision
-                            ? "Change request saved against this quotation."
-                            : "Next-step request recorded in this demo.",
-                        );
-                      })
-                    }
+                    onClick={confirmRequest}
                   >
                     Confirm demo request <span aria-hidden="true">→</span>
                   </Button>
