@@ -65,8 +65,18 @@ control; it ignores the shared button's hidden pending label.
 
 ## Publication check
 
-Public deployment validation follows the production-build rehearsal. Its result
-will be recorded here after the GitHub Pages release completes.
+The [public entry](https://kyle-annora.github.io/annora-explorer/walkthrough/)
+passed the complete desktop and 390 pixel journey after deployment of `5324e36`.
+The online checks included the guide's historical-version focus target, the
+synchronized completion message, and all recovery/isolation checks above.
+Walkthrough, Product Room and Studio returned HTTP 200 with the same production
+asset references as the verified local build.
+
+A focused follow-up also checks optional Studio authoring within a demonstration:
+an edited title appears in its isolated draft preview and explicit release;
+preview inquiries remain disposable; the main three-chapter Room stays bundled;
+ordinary product and customer stores remain unchanged. The embedded preview has
+its own controls rather than a duplicate presentation strip.
 
 ## Limits
 

@@ -3,7 +3,9 @@ import {readWalkthroughSession, createWalkthroughRepository} from './session.js'
 import {WALKTHROUGH_CHAPTERS, walkthroughFlow, walkthroughDestination} from './flow.js';
 
 const id=readWalkthroughSession();
-if(id) mountWalkthrough(id);
+// Studio's embedded draft preview already has its own preview controls. It must
+// not display a second commercial guide or expose the session's customer case.
+if(id && !new URLSearchParams(location.search).has('studioPreview')) mountWalkthrough(id);
 
 function mountWalkthrough(sessionId) {
   const repository=createWalkthroughRepository(sessionId);

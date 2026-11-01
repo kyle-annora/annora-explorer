@@ -91,7 +91,9 @@ The presentation navigator does not override these business rules.
   repository. Restart never clears other storage namespaces.
 - Product Room uses the bundled crank content for the sample, so unrelated Studio
   edits cannot change the demonstration. Existing projects retain their pinned
-  product reference.
+  product reference. Explicit Studio preview/release links read the isolated
+  authoring snapshot instead. Preview inquiries use disposable memory and never
+  become the demonstration's customer case.
 - The Explorer runtime, model packages, renderer and animation controls are
   unchanged. Commercial pages do not introduce another renderer.
 
