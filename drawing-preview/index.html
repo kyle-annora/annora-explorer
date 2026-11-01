@@ -66,6 +66,7 @@
           ></label>
           <span id="dp-dimension"></span>
           <button id="dp-source" class="dp-text">
+            <span class="dp-source-short">Source info</span>
             <span
               ><span id="dp-source-label">Source reference</span
               ><small class="dp-mobile-status"
@@ -99,6 +100,14 @@
             id="dp-drawing-pane"
             aria-label="Engineering drawing"
           >
+            <div class="dp-presentation" id="dp-presentation" hidden>
+              <div role="group" aria-label="Drawing presentation">
+                <button data-presentation="front" aria-pressed="false">Front view</button>
+                <button data-presentation="bore" aria-pressed="false">Bore detail</button>
+                <button data-presentation="source" aria-pressed="false">Original sheet</button>
+              </div>
+              <span>FC-SK08 <span aria-hidden="true">/</span> mm</span>
+            </div>
             <div class="dp-drawing-toolbar">
               <select id="dp-sheet-select" aria-label="Drawing sheet"></select>
               <div>
@@ -125,7 +134,21 @@
                 >↗</a
               >
             </div>
+            <div id="dp-technical-context" class="dp-technical-context" hidden>
+              <div><span class="dp-kicker">SK08 / TECHNICAL VIEW</span><strong id="dp-technical-title">Shaft support</strong></div>
+              <div class="dp-zoom-presets" role="group" aria-label="Technical view zoom">
+                <button data-technical-zoom="1" aria-pressed="true">1×</button>
+                <button data-technical-zoom="2" aria-pressed="false">2×</button>
+                <button data-technical-zoom="4" aria-pressed="false">4×</button>
+              </div>
+            </div>
             <div id="dp-sheet"></div>
+            <div id="dp-technical-legend" class="dp-technical-legend" hidden>
+              <span><i class="dp-line-visible" aria-hidden="true"></i>Visible edge</span>
+              <span><i class="dp-line-hidden" aria-hidden="true"></i>Hidden edge</span>
+              <span><i class="dp-line-center" aria-hidden="true"></i>Center</span>
+              <small>Source-derived · reference only</small>
+            </div>
             <div id="dp-sheet-error" class="dp-sheet-error" role="alert" hidden>
               <strong>The drawing could not load.</strong>
               <p>Your selected reference is preserved.</p>
@@ -139,7 +162,7 @@
                 >Open original PDF ↗</a
               >
             </div>
-            <p class="dp-paper-hint">
+            <p class="dp-paper-hint" id="dp-paper-hint">
               Select a highlighted detail · drag to pan · pinch to zoom
             </p>
           </section>

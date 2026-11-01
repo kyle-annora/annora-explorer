@@ -605,3 +605,81 @@
 .dp-sheet-error {position:absolute;z-index:3;inset:65px 16px auto;padding:18px;border:1px solid #b8babe;border-radius:4px;background:#f4f4f3;color:#282b2e;font-size:13px;box-shadow:0 6px 20px #0001}
 .dp-sheet-error[hidden]{display:none}
 .dp-version-warning{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;background:#eee8dc;border-bottom:1px solid #c5b9a4;font-size:13px;color:#34302b}.dp-version-warning p{margin:5px 0 0;line-height:1.5}.dp-version-warning[hidden]{display:none}@media(max-width:600px){.dp-version-warning{align-items:stretch;flex-direction:column}}
+
+/* Prepared technical reading views. Source PDFs retain the existing reader. */
+.dp-source-short {display:none}
+.technical-drawing-view>g>rect:first-child {fill:#fcfcfb}
+.dp-presentation {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 18px;
+  background:#f4f4f3;
+  border-bottom:1px solid #d4d5d6;
+  flex-shrink:0;
+}
+.dp-presentation>div {display:flex;gap:3px}
+.dp-presentation button,.dp-zoom-presets button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  border:1px solid transparent;
+  border-radius:4px;
+  background:transparent;
+  color:#64686c;
+  padding:8px 12px;
+  font-size:12px;
+  white-space:nowrap;
+}
+.dp-presentation button:hover,.dp-zoom-presets button:hover {background:#e6e7e6;color:#25272a}
+.dp-presentation button[aria-pressed=true] {background:#fff;color:#25272a;border-color:#bcc0c3}
+.dp-presentation>span {font:10px var(--mono);color:#666b70;white-space:nowrap}
+.dp-presentation>span>span {margin:0 8px;color:#a2a6aa}
+.dp-drawing-pane[data-technical=true] {background:#fcfcfb;--drawing-canvas:#fcfcfb}
+.dp-drawing-pane[data-technical=true] .dp-drawing-toolbar,
+.dp-drawing-pane[data-technical=true] .dp-paper-hint {display:none}
+.dp-technical-context {
+  padding:18px 24px 4px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-shrink:0;
+}
+.dp-technical-context .dp-kicker {font-size:9px;color:#74797d;margin-bottom:7px}
+.dp-technical-context strong {font-weight:500;font-size:17px;letter-spacing:-.025em}
+.dp-zoom-presets {display:flex;gap:2px;border:1px solid #d4d5d6;border-radius:5px;padding:2px;background:#fff}
+.dp-zoom-presets button {min-width:44px;padding:6px;font:11px var(--mono)}
+.dp-zoom-presets button[aria-pressed=true] {background:#292b2e;color:#fff}
+.dp-technical-legend {display:flex;gap:20px;align-items:center;padding:12px 24px 16px;flex-shrink:0;color:#6c7074;font-size:10px;flex-wrap:wrap}
+.dp-technical-legend>span {display:inline-flex;align-items:center;gap:7px}
+.dp-technical-legend i {width:20px;height:0;display:inline-block}
+.dp-line-visible {border-top:2px solid #32363a}
+.dp-line-hidden {border-top:1px dashed #8c9196}
+.dp-line-center {border-top:1px dashed #a4a8ac}
+.dp-technical-legend small {font-size:10px;margin-left:auto}
+.dp-drawing-pane[data-technical=true] #dp-sheet {min-height:210px}
+@media(max-width:1100px) {
+  .dp-presentation {padding:6px 10px;gap:4px}
+  .dp-presentation>span {display:none}
+  .dp-technical-context {padding:16px 16px 4px}
+  .dp-technical-legend {gap:12px;padding:10px 16px 14px}
+  .dp-technical-legend small {flex-basis:100%;margin-left:0}
+}
+@media(max-width:850px) {
+  .drawing-host[data-technical-available=true] .dp-reference-bar label {font-size:0;gap:0}
+  .drawing-host[data-technical-available=true] #dp-source .dp-source-short {display:inline;font-size:11px}
+  .drawing-host[data-technical-available=true] #dp-source>span:nth-child(2) {display:none}
+  .dp-presentation {padding:4px 10px}
+  .dp-presentation>div {width:100%}
+  .dp-presentation button {flex:1;padding-inline:8px;font-size:11px}
+  .dp-technical-context {padding:14px 16px 2px;gap:8px}
+  .dp-technical-context strong {font-size:15px}
+  .dp-technical-context .dp-kicker {font-size:8px}
+  .dp-technical-legend {padding:8px 16px 12px;gap:10px;font-size:9px}
+  .dp-technical-legend small {font-size:9px}
+  .dp-drawing-pane[data-technical=true] #dp-sheet {min-height:230px}
+  .dp-stage:has(.dp-drawing-pane[data-technical=true]) {min-height:416px}
+}

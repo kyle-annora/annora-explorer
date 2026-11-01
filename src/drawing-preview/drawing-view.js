@@ -176,6 +176,15 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
     if (disposed || !Number.isFinite(factor) || factor <= 0) return;
     zoomAt(factor, { x: width / 2, y: height / 2 });
   }
+  /** An explicit preset can keep a selected feature centered. Ordinary pinch,
+   * wheel and relative zoom retain their existing viewport anchors. */
+  function zoomTo(zoom, center) {
+    if (disposed || !Number.isFinite(zoom) || zoom <= 0 || !center ||
+      !Number.isFinite(center.x) || !Number.isFinite(center.y) || !contains(paper, center)) return false;
+    scale = fitScale * clamp(zoom, 1, MAX_ZOOM);
+    tx = width / 2 - center.x * scale; ty = height / 2 - center.y * scale;
+    render(); return true;
+  }
   function focusRegion(id) {
     if (disposed) return false;
     const region = regions.find(item => item.id === id);
@@ -307,7 +316,7 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
   else if (win?.addEventListener) listen(win, 'resize', resize);
   resize(); setInteractionMode(interactionMode);
 
-  return { setInteractionMode, setDraftBounds, cancelRegionDraw, select, focusRegion, fit, zoomBy, resize,
+  return { setInteractionMode, setDraftBounds, cancelRegionDraw, select, focusRegion, fit, zoomBy, zoomTo, resize,
     get selectedId() { return selectedId; },
     get element() { return root; },
     get zoom() { return scale / fitScale; },

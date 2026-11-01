@@ -105,6 +105,20 @@ test('zoom, focus and resize preserve vector coordinates and keep the paper reac
   f.viewer.fit(); assert.equal(f.views.at(-1).canZoomOut, false);
 });
 
+test('explicit zoom presets center a selected detail without changing selection or ordinary fit', () => {
+  const f = fixture();
+  f.viewer.select('small');
+  assert.equal(f.viewer.zoomTo(4, { x: 215, y: 118 }), true);
+  const center = f.point(215, 118);
+  assert.ok(Math.abs(center.clientX - 400) < .01);
+  assert.ok(Math.abs(center.clientY - 300) < .01);
+  assert.equal(f.viewer.selectedId, 'small');
+  assert.equal(f.selected.length, 0);
+  assert.equal(f.viewer.zoomTo(4, { x: -1, y: 100 }), false);
+  f.viewer.fit();
+  assert.equal(f.viewer.zoom, 1);
+});
+
 test('dragging and pinching never accidentally activate a drawing region', () => {
   const f = fixture();
   f.viewer.zoomBy(2);
