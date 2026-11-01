@@ -34,8 +34,34 @@ part of this repository or its history.
 
 ## Publication evidence
 
-Publication verification is in progress. The final record will include source
-commits, generated-template provenance, workflow results and live review URLs.
+- [Source template](https://github.com/kyle-annora/annora-explorer) is public and
+  marked as a GitHub template. [Live Explorer](https://kyle-annora.github.io/annora-explorer/)
+  serves the configured Apollo and crank-slider packages.
+- Application and configuration baseline: `889ded549867540fa45abe95e631acd0b1ea0cb4`.
+  [Pages run 41256175682](https://github.com/kyle-annora/annora-explorer/actions/runs/41256175682)
+  passed all 247 tests, validated the packages, built and deployed the site on Node 22.
+- The [independent bench-vise project](https://github.com/kyle-annora/annora-explorer-bench-vise)
+  was created with GitHub's template-generation API, then cloned into a new
+  checkout. GitHub reports `kyle-annora/annora-explorer` as its template source.
+  Its initial generated commit is `dd22cdf3efa135efee1216f964675f9376b1bc0a`.
+- The documented importer, project configuration and English instructions produced
+  the independently branded [Workshop preview](https://kyle-annora.github.io/annora-explorer-bench-vise/).
+  Application baseline `37ac8c8d435299f8e4199fae44fc1cb1696b0042` passed 247 tests and
+  deployed in [Pages run 41256328703](https://github.com/kyle-annora/annora-explorer-bench-vise/actions/runs/41256328703).
+  The build includes only the configured vise package. No shared runtime file was
+  edited; the runtime tree remains `d6d5d51cec414e58e527df8dd6c59bc912e06f2f`.
+- The live template's root page, embed page, license notice and all 27 deployed
+  assets return HTTP 200. Published HTML and license notices match the reviewed
+  build. Source and artifact scans found no private customer content.
+- Live template browser review confirms component selection and hierarchical
+  focus, linework and flat highlights, explosion/reassembly, the crank operating
+  cycle, switching to Apollo and uninterrupted completion of both 60-second
+  tours. The review recorded no browser warnings or errors.
+
+The independent project's [release review](https://github.com/kyle-annora/annora-explorer-bench-vise/blob/main/docs/release-review.md)
+and [onboarding evidence](https://github.com/kyle-annora/annora-explorer-bench-vise/blob/main/docs/onboarding-evidence.json)
+record the source hash, configuration, browser checks and publication results.
+Later documentation-only commits do not change these reviewed application baselines.
 
 ## Limits
 
