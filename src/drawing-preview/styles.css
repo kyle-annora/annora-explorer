@@ -650,6 +650,10 @@
 }
 .dp-technical-context .dp-kicker {font-size:9px;color:#74797d;margin-bottom:7px}
 .dp-technical-context strong {font-weight:500;font-size:17px;letter-spacing:-.025em}
+.dp-technical-context>div:first-child {min-width:0;flex:1}
+.dp-technical-context #dp-technical-title {display:none}
+.dp-technical-view-label {display:block;max-width:350px}
+.dp-technical-view-label select {width:100%;min-height:44px;padding:0 25px 0 0;border:0;border-radius:3px;background:transparent;color:#292b2e;font-size:15px;font-weight:500;text-overflow:ellipsis;cursor:pointer}
 .dp-zoom-presets {display:flex;gap:2px;border:1px solid #d4d5d6;border-radius:5px;padding:2px;background:#fff}
 .dp-zoom-presets button {min-width:44px;padding:6px;font:11px var(--mono)}
 .dp-zoom-presets button[aria-pressed=true] {background:#292b2e;color:#fff}
@@ -677,9 +681,17 @@
   .dp-presentation button {flex:1;padding-inline:8px;font-size:11px}
   .dp-technical-context {padding:14px 16px 2px;gap:8px}
   .dp-technical-context strong {font-size:15px}
+  .dp-technical-view-label select {font-size:12px}
   .dp-technical-context .dp-kicker {font-size:8px}
   .dp-technical-legend {padding:8px 16px 12px;gap:10px;font-size:9px}
   .dp-technical-legend small {font-size:9px}
   .dp-drawing-pane[data-technical=true] #dp-sheet {min-height:230px}
   .dp-stage:has(.dp-drawing-pane[data-technical=true]) {min-height:416px}
+}
+@media(max-width:480px) {
+  .dp-technical-context {flex-wrap:wrap;gap:4px}
+  .dp-technical-context>div:first-child {flex-basis:100%}
+  .dp-technical-view-label {max-width:none}
+  .dp-technical-context .dp-kicker {display:none}
+  .dp-zoom-presets {margin-left:auto}
 }

@@ -3,6 +3,13 @@
 .drawing-reference strong { font-size: 14px; font-weight: 600; }
 .drawing-reference p { font-size: 13px; margin: 6px 0 8px; color: #646464; }
 .drawing-reference .ar-button { margin-left: -8px; }
+.drawing-reference-actions { display:flex; align-items:center; flex-wrap:wrap; gap:4px 12px; }
+.drawing-reference .drawing-preview-surface { margin-top:14px; }
+.drawing-reference .drawing-preview-surface .ar-button { margin-left:0; }
+.drawing-reference .drawing-preview-caption { margin:0; padding:10px 12px; font-size:11px; }
+.drawing-reference .drawing-preview-canvas { height:360px; }
+.drawing-reference .drawing-reference-loading { font-size:12px; margin-top:14px; }
+.drawing-reference-compact .drawing-preview-canvas { height:300px; }
 .drawing-reference-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .drawing-reference-compact { margin: 10px 0; }
 .project-drawing-revision { margin-top: 28px; border-top: 1px solid #d3d3d0; padding-top: 24px; min-width: 0; }

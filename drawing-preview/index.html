@@ -102,11 +102,10 @@
           >
             <div class="dp-presentation" id="dp-presentation" hidden>
               <div role="group" aria-label="Drawing presentation">
-                <button data-presentation="front" aria-pressed="false">Front view</button>
-                <button data-presentation="bore" aria-pressed="false">Bore detail</button>
+                <button id="dp-presentation-technical" data-presentation="technical" aria-pressed="false">Technical view</button>
                 <button data-presentation="source" aria-pressed="false">Original sheet</button>
               </div>
-              <span>FC-SK08 <span aria-hidden="true">/</span> mm</span>
+              <span id="dp-technical-unit"></span>
             </div>
             <div class="dp-drawing-toolbar">
               <select id="dp-sheet-select" aria-label="Drawing sheet"></select>
@@ -135,7 +134,7 @@
               >
             </div>
             <div id="dp-technical-context" class="dp-technical-context" hidden>
-              <div><span class="dp-kicker">SK08 / TECHNICAL VIEW</span><strong id="dp-technical-title">Shaft support</strong></div>
+              <div><span class="dp-kicker" id="dp-technical-kicker">TECHNICAL VIEW</span><strong id="dp-technical-title"></strong><label id="dp-technical-view-label" class="dp-technical-view-label"><span class="sr-only">Technical view</span><select id="dp-technical-view-select" aria-label="Technical view"></select></label></div>
               <div class="dp-zoom-presets" role="group" aria-label="Technical view zoom">
                 <button data-technical-zoom="1" aria-pressed="true">1×</button>
                 <button data-technical-zoom="2" aria-pressed="false">2×</button>

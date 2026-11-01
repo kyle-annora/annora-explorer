@@ -1,5 +1,9 @@
 # SK08 technical reading preview
 
+This records the initial front/bore release. The subsequent
+[technical reading expansion](technical-reading-expansion-review.md) adds other
+views, shared Studio/Product Room previews and per-feature association eligibility.
+
 ## Scope and reference lock
 
 Build one source-derived front view and a shaft-bore detail for SK08. Keep the

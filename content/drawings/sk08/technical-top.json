@@ -1,0 +1,167 @@
+{
+  "id": "sk08-technical-top-v1",
+  "title": "Top view \u00b7 mounting holes",
+  "sheetId": "sheet-1",
+  "viewBox": [
+    0,
+    0,
+    1000,
+    720
+  ],
+  "artworkFile": "technical-top.svg",
+  "annotationVariant": "front",
+  "regions": [
+    {
+      "id": "mounting-holes",
+      "label": "Mounting holes",
+      "partId": "sk08-body",
+      "role": "feature",
+      "bounds": [
+        189.48821640014648,
+        315.6692199707031,
+        615.8266983032227,
+        116.92921447753906
+      ],
+      "geometry": {
+        "type": "compound",
+        "bounds": [
+          189.48821640014648,
+          315.6692199707031,
+          615.8266983032227,
+          116.92921447753906
+        ],
+        "cx": 497.4015655517578,
+        "cy": 374.13382720947266
+      },
+      "featureOutlinePathIds": [
+        "source-path-40",
+        "source-path-43",
+        "source-path-46",
+        "source-path-47"
+      ]
+    }
+  ],
+  "featureOutlinePathIds": [
+    "source-path-40",
+    "source-path-43",
+    "source-path-46",
+    "source-path-47"
+  ],
+  "canonical": {
+    "sheetId": "sheet-1",
+    "regionId": "mounting-holes",
+    "bounds": [
+      116,
+      155,
+      125,
+      46
+    ]
+  },
+  "sourceSha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2",
+  "sourceStepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+  "source": {
+    "file": "source.pdf",
+    "page": 1,
+    "revision": "annora-reference-1",
+    "mappingRevision": "annora-sk08-map-1",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "units": "mm",
+    "paperUnits": "pt",
+    "sourceScale": "1:1 as printed",
+    "sourceViewBounds": [
+      118.48816680908203,
+      158.93853759765625,
+      119.05510711669922,
+      39.685028076171875
+    ],
+    "sourceToPresentation": [
+      5.5,
+      0,
+      0,
+      5.5,
+      -481.6849174499512,
+      -609.1619567871094
+    ],
+    "geometryPathIndices": {
+      "contour": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "hidden": [
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132
+      ],
+      "center": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  },
+  "displayedSourceDimensions": [
+    "5",
+    "37",
+    "7",
+    "2\u00d7 \u00d85.5 THRU"
+  ],
+  "status": "derived-reference-not-manufacturing-release",
+  "validation": {
+    "unitChecksMm": {
+      "overallWidthMm": 41.99999612172444,
+      "overallDepthMm": 13.999996015760631,
+      "firstHoleFromLeftMm": 5.000001653035481,
+      "secondHoleFromLeftMm": 36.99999716016981,
+      "holeCenterFromBottomMm": 6.999998007880316,
+      "mountingHoleDiameterMm": 5.5
+    },
+    "sourcePathCount": 38,
+    "geometryRegenerated": false,
+    "dimensionValuesAdded": false
+  },
+  "featureNote": "Both existing mounting-hole outlines are selected together. The \u00d85.5 printed requirement names the inner cylindrical hole; the larger original rim outlines remain unchanged and receive no new dimension.",
+  "sourceFeatureCircles": [
+    {
+      "sourcePathId": "source-path-46",
+      "cx": 247.9527816772461,
+      "cy": 374.13382720947266,
+      "r": 42.874015748031496
+    },
+    {
+      "sourcePathId": "source-path-47",
+      "cx": 746.8503494262695,
+      "cy": 374.13382720947266,
+      "r": 42.874015748031496
+    }
+  ]
+}

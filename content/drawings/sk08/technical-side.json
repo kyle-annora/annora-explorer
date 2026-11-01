@@ -1,0 +1,138 @@
+{
+  "id": "sk08-technical-side-v1",
+  "title": "Side view \u00b7 cross-bore",
+  "sheetId": "sheet-1",
+  "viewBox": [
+    0,
+    0,
+    1000,
+    720
+  ],
+  "artworkFile": "technical-side.svg",
+  "annotationVariant": "front",
+  "regions": [
+    {
+      "id": "cross-bore",
+      "label": "Cross-bore",
+      "partId": "sk08-body",
+      "role": "feature",
+      "bounds": [
+        395.9212585449218,
+        115.30697631835938,
+        122.45663452148439,
+        122.45679931640626
+      ],
+      "geometry": {
+        "type": "circle",
+        "cx": 457.14957580566397,
+        "cy": 176.53554077148442,
+        "r": 53.5748031496063
+      },
+      "featureOutlinePathIds": [
+        "source-path-54",
+        "source-path-56"
+      ]
+    }
+  ],
+  "featureOutlinePathIds": [
+    "source-path-54",
+    "source-path-56"
+  ],
+  "canonical": {
+    "sheetId": "sheet-1",
+    "regionId": "cross-bore",
+    "bounds": [
+      376,
+      362,
+      43,
+      35
+    ]
+  },
+  "sourceSha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2",
+  "sourceStepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+  "source": {
+    "file": "source.pdf",
+    "page": 1,
+    "revision": "annora-reference-1",
+    "mappingRevision": "annora-sk08-map-1",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "units": "mm",
+    "paperUnits": "pt",
+    "sourceScale": "1:1 as printed",
+    "sourceViewBounds": [
+      377.0078430175781,
+      363.4015197753906,
+      39.685028076171875,
+      92.97637939453125
+    ],
+    "sourceToPresentation": [
+      5.4,
+      0,
+      0,
+      5.4,
+      -1685.842352294922,
+      -1862.3682067871096
+    ],
+    "geometryPathIndices": {
+      "contour": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "hidden": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140
+      ],
+      "center": [
+        11,
+        12,
+        13,
+        14
+      ]
+    }
+  },
+  "displayedSourceDimensions": [
+    "7",
+    "14",
+    "27.8",
+    "\u00d87 THRU"
+  ],
+  "status": "derived-reference-not-manufacturing-release",
+  "validation": {
+    "unitChecksMm": {
+      "overallDepthMm": 13.999996015760631,
+      "overallHeightMm": 32.8000005086263,
+      "crossBoreFromLeftMm": 6.999998007880316,
+      "crossBoreFromBaseMm": 27.79999347262912,
+      "crossBoreDiameterMm": 7
+    },
+    "sourcePathCount": 21,
+    "geometryRegenerated": false,
+    "dimensionValuesAdded": false
+  },
+  "canonicalAliases": [
+    {
+      "sheetId": "sheet-2",
+      "regionId": "cross-bore-detail",
+      "bounds": [
+        580,
+        224,
+        43,
+        43
+      ]
+    }
+  ],
+  "featureNote": "The \u00d87 cylindrical bore is the inner source contour. The concentric original rim is preserved; no additional chamfer requirement is inferred."
+}

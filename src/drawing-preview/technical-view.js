@@ -10,27 +10,34 @@ function viewBox(value, label) {
 }
 
 function technicalRegions(profile, paper) {
-  const ids = new Set(['overview']);
-  const result = [{ id: 'overview', role: 'overview', label: profile.title || 'Part overview', bounds: paper.slice() }];
+  const result = [], ids = new Set();
+  if (!(profile.regions || []).some(region => region.id === 'overview' && region.geometry)) {
+    result.push({ id: 'overview', role: 'overview', label: profile.title || 'Part overview', bounds: paper.slice() });
+    ids.add('overview');
+  }
   for (const region of profile.regions || []) {
-    if (region.id === 'overview' || region.role === 'overview') continue;
-    // A semantic association without prepared geometry is not a visual target.
-    // In particular, an isometric source region cannot stand in for a front view.
     if (!region.geometry || region.mappingStatus === 'missing') continue;
-    const { type, cx, cy, r } = region.geometry;
-    if (type !== 'circle') continue;
     if (typeof region.id !== 'string' || !region.id || ids.has(region.id)) throw new TypeError('Technical region IDs must be unique.');
-    if (![cx, cy, r].every(Number.isFinite) || r <= 0) throw new TypeError(`Technical region ${region.id} needs a finite, positive circle.`);
-    const box = [cx - r, cy - r, r * 2, r * 2];
-    if (box[0] < paper[0] || box[1] < paper[1] || box[0] + box[2] > paper[0] + paper[2] || box[1] + box[3] > paper[1] + paper[3])
+    const shape = region.geometry;
+    let box;
+    if (shape.type === 'circle') {
+      if (![shape.cx, shape.cy, shape.r].every(Number.isFinite) || shape.r <= 0) throw new TypeError(`Technical region ${region.id} needs a finite, positive circle.`);
+      box = [shape.cx - shape.r, shape.cy - shape.r, shape.r * 2, shape.r * 2];
+    } else if (['path', 'compound'].includes(shape.type)) {
+      box = viewBox(shape.bounds || region.bounds, `Technical region ${region.id}`);
+      if (!region.outlinePathIds?.length) throw new TypeError(`Technical region ${region.id} needs exact prepared outline paths.`);
+    } else throw new TypeError(`Technical region ${region.id} has an unsupported geometry type.`);
+    if (box[0] < paper[0] - .001 || box[1] < paper[1] - .001 || box[0] + box[2] > paper[0] + paper[2] + .001 || box[1] + box[3] > paper[1] + paper[3] + .001)
       throw new TypeError(`Technical region ${region.id} must stay inside its prepared view.`);
+    const cx = Number.isFinite(shape.cx) ? shape.cx : box[0] + box[2] / 2;
+    const cy = Number.isFinite(shape.cy) ? shape.cy : box[1] + box[3] / 2;
     ids.add(region.id);
-    result.push({ ...region, bounds: box, geometry: { type, cx, cy, r } });
+    result.push({ ...region, bounds: box, interactive: true, role: 'feature', geometry: { ...shape, cx, cy } });
   }
   return result;
 }
 
-function inlineArtwork(artwork, { doc, Parser, prefix, presentation }) {
+function inlineArtwork(artwork, { doc, Parser, prefix, annotationVariant }) {
   if (typeof artwork !== 'string' || !artwork.trim() || artwork.length > 2_000_000)
     throw new TypeError('A prepared vector SVG is required.');
   if (!Parser || /<!DOCTYPE|<!ENTITY/i.test(artwork)) throw new TypeError('Prepared artwork must be a standalone SVG without external entities.');
@@ -65,8 +72,8 @@ function inlineArtwork(artwork, { doc, Parser, prefix, presentation }) {
       if (value !== attribute.value) node.setAttribute(attribute.name, value);
     }
     const groupPresentation = node.getAttribute('data-presentation');
-    if (groupPresentation === 'front' || groupPresentation === 'detail')
-      node.setAttribute('display', groupPresentation === (presentation === 'bore' ? 'detail' : 'front') ? 'inline' : 'none');
+    if (groupPresentation)
+      node.setAttribute('display', groupPresentation.split(/\s+/).includes(annotationVariant) ? 'inline' : 'none');
   }
   // The SVG viewport has the same size and origin as its original viewBox.
   // Cropping is outside this node, so all paths, text and feature circles retain
@@ -88,9 +95,10 @@ export function createTechnicalDrawingView({ mount, profile, artwork, onSelect =
   try {
     const paper = viewBox(profile?.viewBox, 'Technical viewBox');
     const presentation = profile.presentation || 'front';
-    if (!['front', 'bore'].includes(presentation)) throw new TypeError('Choose the front or bore technical presentation.');
+    if (typeof presentation !== 'string' || !/^[a-zA-Z0-9._:-]{1,160}$/.test(presentation)) throw new TypeError('Choose a prepared technical presentation.');
+    const annotationVariant = profile.annotationVariant || (presentation === 'bore' ? 'detail' : 'front');
     const regions = technicalRegions(profile, paper), prefix = `technical-${++instanceNumber}`;
-    const { element: vector, ids: artworkIds } = inlineArtwork(artwork, { doc, Parser, prefix, presentation });
+    const { element: vector, ids: artworkIds } = inlineArtwork(artwork, { doc, Parser, prefix, annotationVariant });
     const svg = (tag, attributes = {}) => {
       const node = doc.createElementNS(SVG_NS, tag);
       for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, String(value));
@@ -127,6 +135,7 @@ export function createTechnicalDrawingView({ mount, profile, artwork, onSelect =
       .technical-drawing-view .drawing-region:focus-visible .technical-region-outline { opacity: 1; stroke-dasharray: 3 3; }
     `;
     root.append(styles);
+    const sourcePaths = new Map([...vector.querySelectorAll('path')].map(path => [path.getAttribute('id'), path]));
     for (const group of root.querySelectorAll('.drawing-region')) {
       const region = regions.find(item => item.id === group.getAttribute('data-region-id'));
       if (!region?.geometry) continue;
@@ -134,7 +143,7 @@ export function createTechnicalDrawingView({ mount, profile, artwork, onSelect =
       const common = { class: 'technical-region-outline', 'stroke-width': '2', 'vector-effect': 'non-scaling-stroke', 'pointer-events': 'none', 'aria-hidden': 'true' };
       if (outlineIds?.length) {
         for (const id of outlineIds) {
-          const path = [...vector.querySelectorAll('path')].find(node => node.getAttribute('id') === artworkIds.get(id));
+          const path = sourcePaths.get(artworkIds.get(id));
           if (!path) throw new TypeError(`Prepared feature outline ${id} is missing from the artwork.`);
           const contour = path.cloneNode(true), transforms = [];
           for (let ancestor = path.parentNode; ancestor && ancestor !== vector; ancestor = ancestor.parentNode)

@@ -123,3 +123,79 @@ test('invalid prepared geometry or missing outlines fail honestly; unprepared ar
   const linked = artwork(); linked.append(el('use', { href: 'https://example.test/another.svg' })); assert.throws(() => fixture({ parsed: linked }), /external resources/);
   const styled = artwork(); styled.setAttribute('onload', 'alert(1)'); assert.throws(() => fixture({ parsed: styled }), /without scripts/);
 });
+
+function featureArtwork() {
+  return el('svg', { viewBox: '0 0 1000 720' }, [
+    el('path', { id: 'whole-outline', d: 'M100 100H700V500H100Z' }),
+    el('g', { transform: 'translate(300 200)' }, [el('g', { transform: 'scale(2)' }, [
+      el('path', { id: 'web-upper', d: 'M25 15C50 5 95 60 125 15' }),
+      el('path', { id: 'web-lower', d: 'M25 45L125 45' }),
+    ])]),
+    el('g', { 'data-presentation': 'top web' }, [el('text', { id: 'shared-annotation', x: 350, y: 200 })]),
+    el('g', { 'data-presentation': 'large-bore' }, [el('text', { id: 'bore-annotation', x: 200, y: 150 })]),
+    el('g', { 'data-presentation': 'isometric' }, [el('text', { id: 'iso-annotation', x: 500, y: 600 })]),
+  ]);
+}
+const featureProfile = {
+  id: 'generic-features', title: 'Prepared top view', sheetId: 'sheet-1', presentation: 'top', annotationVariant: 'top', viewBox: [0, 0, 1000, 720],
+  regions: [
+    { id: 'overview', label: 'Whole source part', partId: 'body', role: 'overview', geometry: { type: 'compound', bounds: [100, 100, 600, 400] }, outlinePathIds: ['whole-outline'] },
+    { id: 'large-bore', label: 'Large bore', partId: 'body', geometry: { type: 'circle', cx: 250, cy: 250, r: 20 } },
+    { id: 'connecting-web', label: 'Connecting web', partId: 'body', geometry: { type: 'path', bounds: [350, 210, 200, 120] }, outlinePathIds: ['web-upper', 'web-lower'] },
+  ],
+};
+const regionById = (f, id) => f.root.querySelectorAll('.drawing-region').find(node => node.getAttribute('data-region-id') === id);
+
+test('authored whole-part and freeform outlines remain selectable without swallowing smaller feature targets', () => {
+  const f = fixture({ data: featureProfile, parsed: featureArtwork() });
+  assert.equal(f.root.querySelectorAll('.drawing-region').length, 3, 'authored overview must not create a duplicate synthetic overview');
+  const whole = regionById(f, 'overview'), web = regionById(f, 'connecting-web');
+  assert.equal(whole.getAttribute('role'), 'button'); assert.equal(whole.getAttribute('tabindex'), '0');
+  assert.equal(whole.querySelector('.technical-region-outline').getAttribute('d'), 'M100 100H700V500H100Z');
+  const outlines = web.querySelectorAll('.technical-region-outline');
+  assert.equal(outlines.length, 2);
+  assert.ok(outlines.every(node => node.getAttribute('transform') === 'translate(300 200) scale(2)'));
+  assert.ok(outlines.every(node => node.localName === 'path' && node.getAttribute('vector-effect') === 'non-scaling-stroke'));
+  assert.equal(f.viewer.select('overview'), true); assert.equal(f.selected.length, 0);
+  f.pointer('pointerdown', 250, 250); f.pointer('pointerup', 250, 250);
+  assert.equal(f.selected.at(-1)[0], 'large-bore', 'the bore has priority inside the whole-part target');
+  f.pointer('pointerdown', 450, 270); f.pointer('pointerup', 450, 270);
+  assert.equal(f.selected.at(-1)[0], 'connecting-web', 'a freeform feature remains independently reachable');
+  f.pointer('pointerdown', 600, 420); f.pointer('pointerup', 600, 420);
+  assert.equal(f.selected.at(-1)[0], 'overview');
+  web.emit('keydown', { key: 'Enter' }); assert.equal(f.selected.at(-1)[0], 'connecting-web');
+});
+
+test('generic presentation variants select their own or explicitly shared annotations without mutating source artwork', () => {
+  const parsed = featureArtwork();
+  const f = fixture({ data: { ...featureProfile, presentation: 'web', annotationVariant: 'web' }, parsed });
+  const vector = f.root.querySelector('.technical-vector-artwork').querySelector('svg');
+  const variants = vector.querySelectorAll('g').filter(node => node.hasAttribute('data-presentation'));
+  assert.deepEqual(variants.map(node => [node.getAttribute('data-presentation'), node.getAttribute('display')]), [
+    ['top web', 'inline'], ['large-bore', 'none'], ['isometric', 'none'],
+  ]);
+  assert.equal(f.root.getAttribute('data-presentation'), 'web');
+  assert.ok(parsed.querySelectorAll('g').every(node => !node.hasAttribute('display')), 'a second reader receives untouched original groups');
+  const independent = fixture({ data: { ...featureProfile, presentation: 'large-bore', annotationVariant: 'large-bore' }, parsed });
+  const secondVariants = independent.root.querySelector('.technical-vector-artwork').querySelectorAll('g').filter(node => node.hasAttribute('data-presentation'));
+  assert.deepEqual(secondVariants.map(node => node.getAttribute('display')), ['none', 'inline', 'none']);
+  assert.equal(variants[0].getAttribute('display'), 'inline', 'another view must not change the first reader');
+});
+
+test('zoom centers the selected freeform feature and malformed path bindings fail instead of drawing substitute geometry', () => {
+  const f = fixture({ data: featureProfile, parsed: featureArtwork() });
+  f.viewer.select('connecting-web'); f.viewer.setZoom(2);
+  const center = f.point(450, 270);
+  assert.ok(Math.abs(center.clientX - 400) < .001); assert.ok(Math.abs(center.clientY - 300) < .001);
+  assert.equal(f.viewer.zoom, 2); assert.equal(f.selected.length, 0);
+  for (const mutate of [
+    value => { delete value.regions[2].outlinePathIds; },
+    value => { value.regions[2].outlinePathIds = ['missing-source-edge']; },
+    value => { value.regions[2].geometry.bounds[2] = 0; },
+    value => { value.regions[2].geometry.bounds[0] = -5; },
+    value => { value.regions.push(structuredClone(value.regions[0])); },
+  ]) {
+    const data = structuredClone(featureProfile); mutate(data);
+    assert.throws(() => fixture({ data, parsed: featureArtwork() }), /outline paths|missing from the artwork|finite x|inside its prepared view|IDs must be unique/);
+  }
+});

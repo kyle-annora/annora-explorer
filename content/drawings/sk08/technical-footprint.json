@@ -1,0 +1,160 @@
+{
+  "id": "sk08-technical-footprint-v1",
+  "title": "Front view \u00b7 mounting footprint",
+  "sheetId": "sheet-2",
+  "viewBox": [
+    0,
+    0,
+    1000,
+    720
+  ],
+  "regions": [
+    {
+      "id": "mounting-footprint-detail",
+      "label": "Mounting footprint",
+      "partId": "sk08-body",
+      "role": "feature",
+      "bounds": [
+        190.0,
+        504.96063232421875,
+        595.2755355834961,
+        85.03936767578125
+      ],
+      "geometry": {
+        "type": "compound",
+        "bounds": [
+          190.0,
+          504.96063232421875,
+          595.2755355834961,
+          85.03936767578125
+        ],
+        "cx": 487.63776779174805,
+        "cy": 547.4803161621094
+      },
+      "featureOutlinePathIds": [
+        "source-path-17",
+        "source-path-18",
+        "source-path-19",
+        "source-path-26",
+        "source-path-27"
+      ]
+    }
+  ],
+  "sourceSha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2",
+  "sourceStepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+  "canonical": {
+    "sheetId": "sheet-2",
+    "regionId": "mounting-footprint-detail",
+    "bounds": [
+      127,
+      338,
+      185,
+      32
+    ]
+  },
+  "source": {
+    "file": "source.pdf",
+    "page": 1,
+    "revision": "annora-reference-1",
+    "mappingRevision": "annora-sk08-map-1",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "units": "mm",
+    "paperUnits": "pt",
+    "sourceScale": "1:1 as printed",
+    "sourceFrontBounds": [
+      118.48816680908203,
+      363.4015197753906,
+      119.05510711669922,
+      92.97637939453125
+    ],
+    "sourceToPresentation": [
+      5,
+      0,
+      0,
+      5,
+      -402.44083404541016,
+      -1691.8894958496094
+    ],
+    "geometryPathIndices": {
+      "contour": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "hidden": [
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120
+      ],
+      "center": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  },
+  "displayedSourceDimensions": [
+    "18",
+    "21",
+    "42",
+    "32.8",
+    "20",
+    "6",
+    "\u00d88 THRU"
+  ],
+  "status": "derived-reference-not-manufacturing-release",
+  "featureOutlinePathIds": [
+    "source-path-17",
+    "source-path-18",
+    "source-path-19",
+    "source-path-26",
+    "source-path-27"
+  ],
+  "featureNote": "The full approved front view is retained. Only the exact original base contour is highlighted; no artificial top edge is added through the neck.",
+  "validation": {
+    "unitChecksMm": {
+      "overallWidthMm": 41.99999612172444,
+      "overallHeightMm": 32.8000005086263,
+      "neckWidthMm": 17.999994108412,
+      "baseHeightMm": 5.999999830457899,
+      "boreCenterFromLeftMm": 21.000002098083495,
+      "boreCenterFromBaseMm": 19.999995846218532,
+      "slotWidthMm": 1.0000035603841144
+    },
+    "sourcePathCount": 38,
+    "geometryRegenerated": false,
+    "dimensionValuesAdded": false
+  },
+  "artworkFile": "technical-front.svg",
+  "annotationVariant": "front",
+  "artworkSha256": "d9302f63f224b6a6ca39f835245645a91faa99febd84c106307224ce3799baf9"
+}

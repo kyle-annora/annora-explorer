@@ -50,7 +50,7 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
   if (new Set(regions.map(region => region.id)).size !== regions.length) throw new TypeError('Drawing region IDs must be unique.');
   if (regions.some(({ bounds: [x, y, w, h] }) => x < paper[0] || y < paper[1] || x + w > paper[0] + paper[2] || y + h > paper[1] + paper[3]))
     throw new TypeError('Linked drawing regions must stay inside the paper.');
-  const interactiveRegions = regions.filter(region => region.role !== 'overview' && region.id !== 'overview');
+  const interactiveRegions = regions.filter(region => region.interactive === true || (region.role !== 'overview' && region.id !== 'overview'));
   const source = new URL(assetURL, doc.baseURI || win?.location?.href || 'http://localhost/');
   if (!['http:', 'https:', 'blob:'].includes(source.protocol)) throw new TypeError('A drawing must use a local or HTTP image URL.');
   let disposed = false, selectedId = null, width = 1, height = 1, fitScale = 1, scale = 1, tx = 0, ty = 0, initialized = false;

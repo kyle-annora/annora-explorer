@@ -15,7 +15,7 @@ import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.
 import { readBuyerRoute, buyerRouteHash } from "../product-room/navigation.js";
 import { createDrawingContext } from "./context.js";
 import { focusDrawingRegion } from "./model-views.js";
-import { technicalEntryFor, supportsTechnicalDetail } from "./technical-catalog.js";
+import { technicalEntriesFor, supportsTechnicalDetail } from "./technical-catalog.js";
 import { createTechnicalDrawingView } from "./technical-view.js";
 
 const $ = (id) => document.getElementById(id),
@@ -37,7 +37,12 @@ let entry,
   view = mobile.matches ? "3d" : "compare",
   page = "explore",
   drawingView;
-let presentation = "front";
+let presentation = "technical", technicalId = null;
+const preparedViews = () => technicalEntriesFor(drawing, { sheetId: sheet?.id, unavailable: unavailableVersion });
+const selectedTechnicalView = () => {
+  const entries = preparedViews().filter(item => supportsTechnicalDetail(item, sheet.id, regionId));
+  return entries.find(item => item.id === technicalId) || entries[0];
+};
 let workspace,
   workspaceLoading,
   modelLoading,
@@ -74,8 +79,10 @@ function updateURL({ replace = false } = {}) {
     url.searchParams.set("asset", drawing.assets.find(asset => asset.id === sheet.assetId)?.sha256 || "");
   }
   url.searchParams.set("view", view);
-  if (technicalEntryFor(drawing, unavailableVersion)) url.searchParams.set("presentation", presentation);
-  else url.searchParams.delete("presentation");
+  if (preparedViews().length) {
+    url.searchParams.set("presentation", presentation);
+    if (technicalId) url.searchParams.set("technicalView", technicalId);
+  } else { url.searchParams.delete("presentation"); url.searchParams.delete("technicalView"); }
   url.hash = buyerRouteHash(currentRoute);
   history[replace ? "replaceState" : "pushState"](
     { ...history.state },
@@ -160,31 +167,37 @@ function renderPackage() {
   renderPresentation();
 }
 function renderPresentation() {
-  const prepared = technicalEntryFor(drawing, unavailableVersion);
-  document.body.dataset.technicalAvailable = String(Boolean(prepared));
-  if (!supportsTechnicalDetail(prepared, sheet.id, regionId)) presentation = "source";
-  const technical = Boolean(prepared && presentation !== "source");
-  $("dp-presentation").hidden = !prepared;
+  const entries = preparedViews(), prepared = selectedTechnicalView();
+  document.body.dataset.technicalAvailable = String(Boolean(entries.length));
+  if (!prepared) presentation = "source";
+  else technicalId = prepared.id;
+  const technical = Boolean(prepared && presentation === "technical");
+  $("dp-presentation").hidden = !entries.length;
+  $("dp-presentation-technical").disabled = !prepared;
   $("dp-drawing-pane").dataset.technical = String(technical);
   $("dp-technical-context").hidden = !technical;
   $("dp-technical-legend").hidden = !technical;
-  $("dp-fit").textContent = technical ? "Fit view" : "Fit sheet";
-  $("dp-technical-title").textContent = presentation === "bore" ? "Shaft bore · Ø8 through" : "Shaft support";
+  $("dp-technical-view-label").hidden = !technical;
+  selectOptions($("dp-technical-view-select"), entries.map(item => [item.id, item.title]), technicalId);
+  $("dp-technical-unit").textContent = `${drawing.number || entry.title} / ${prepared?.profile.notToScale ? "NTS" : drawing.units}`;
+  $("dp-technical-kicker").textContent = `${drawing.number || entry.title} / TECHNICAL VIEW`;
+  $("dp-technical-title").textContent = prepared?.title || entry.title;
+  $("dp-fit").textContent = "Fit sheet";
+  const note = regions.get(regionId)?.note;
   $("dp-detail-note").textContent = technical
-    ? regionId === "shaft-bore"
-      ? "Ø8 through-bore, open to the clamp slot. Dimensions follow the original source."
-      : "Front projection of the support body. Select the shaft bore to inspect the feature."
-    : regions.get(regionId)?.note || "Select a source detail to locate its linked model part.";
+    ? `${regions.get(regionId)?.dimension || regions.get(regionId)?.label || "Selected detail"}. Linked to the original source and saved drawing version.`
+    : note || "Select a source detail to locate its linked model part.";
   for (const button of document.querySelectorAll("button[data-presentation]"))
     button.setAttribute("aria-pressed", String(button.dataset.presentation === presentation));
 }
+
 function mountReader({ focus = false } = {}) {
   const generation = ++readerGeneration;
   drawingView?.dispose();
   $("dp-sheet-error").hidden = true;
   renderPresentation();
-  const prepared = technicalEntryFor(drawing, unavailableVersion);
-  const technical = prepared && presentation !== "source";
+  const prepared = selectedTechnicalView();
+  const technical = prepared && presentation === "technical";
   const options = {
     mount: $("dp-sheet"),
     package: drawing,
@@ -204,8 +217,7 @@ function mountReader({ focus = false } = {}) {
   };
   drawingView = technical ? createTechnicalDrawingView({
     ...options,
-    profile: { ...prepared.profile, presentation,
-      viewBox: presentation === "bore" ? prepared.profile.detailViewBox : prepared.profile.viewBox },
+    profile: prepared.profile,
     artwork: prepared.artwork,
   }) : createDrawingReader(options);
   const instance = drawingView;
@@ -280,11 +292,13 @@ async function selectRegion(id, { origin = "controls", focus = false } = {}) {
   if (!regions.has(id)) return;
   regionId = id;
   renderSelection();
-  const nextPresentation = !supportsTechnicalDetail(technicalEntryFor(drawing, unavailableVersion), sheet.id, id)
-    ? "source" : presentation === "bore" && id === "overview" ? "front" : presentation;
-  if (nextPresentation !== presentation) {
-    presentation = nextPresentation;
-    mountReader({ focus });
+  if (presentation === "technical") {
+    const next = selectedTechnicalView();
+    if (!next || next.id !== technicalId) {
+      technicalId = next?.id || null;
+      if (!next) presentation = "source";
+      mountReader({ focus });
+    } else drawingView?.select(id, { focus });
   } else drawingView?.select(id, { focus });
   renderPresentation();
   updateURL({ replace: true });
@@ -491,19 +505,21 @@ $("dp-sheet-select").addEventListener("change", () => {
 });
 for (const button of document.querySelectorAll("button[data-presentation]"))
   button.addEventListener("click", act(() => {
-    const prepared = technicalEntryFor(drawing, unavailableVersion);
-    if (!prepared) return;
-    const next = button.dataset.presentation;
-    if (next !== "source" && (!supportsTechnicalDetail(prepared, sheet.id, regionId) || next === "bore")) {
-      sheet = drawing.sheets.find(item => item.id === prepared.profile.sheetId);
-      regions = new Map(sheet.regions.map(item => [item.id, item]));
-      void selectRegion(prepared.profile.regions[0].id).catch(error => notice(error.message));
-    }
-    presentation = next;
-    renderPackage();
-    mountReader();
-    updateURL({ replace: true });
+    if (button.dataset.presentation === "technical" && !selectedTechnicalView()) return;
+    presentation = button.dataset.presentation;
+    renderPackage(); mountReader(); updateURL({ replace: true });
   }));
+$("dp-technical-view-select").addEventListener("change", act(() => {
+  const prepared = preparedViews().find(item => item.id === $("dp-technical-view-select").value);
+  if (!prepared) return;
+  technicalId = prepared.id;
+  presentation = "technical";
+  if (!prepared.regionIds.includes(regionId)) {
+    regionId = prepared.defaultRegionId;
+    void selectRegion(regionId).catch(error => notice(error.message));
+  }
+  renderPackage(); mountReader(); updateURL({ replace: true });
+}));
 for (const button of document.querySelectorAll("[data-technical-zoom]"))
   button.addEventListener("click", () => drawingView?.setZoom?.(Number(button.dataset.technicalZoom)));
 $("dp-product-select").addEventListener("change", () => {
@@ -650,9 +666,12 @@ function readSelection(query) {
     view = query.get("view");
   if (mobile.matches && view === "compare") view = "3d";
   if (!entry.available) view = "drawings";
-  presentation = ["front", "bore", "source"].includes(query.get("presentation")) ? query.get("presentation") : "front";
-  if (presentation === "bore" && regionId === "overview") presentation = "front";
-  if (!supportsTechnicalDetail(technicalEntryFor(drawing, unavailableVersion), sheet.id, regionId)) presentation = "source";
+  presentation = query.get("presentation") === "source" ? "source" : "technical";
+  technicalId = query.get("technicalView");
+  if (["front", "bore"].includes(query.get("presentation"))) {
+    technicalId = preparedViews().find(item => item.legacyPresentation === query.get("presentation") && item.regionIds.includes(regionId))?.id || technicalId;
+  }
+  if (!selectedTechnicalView()) presentation = "source";
 }
 async function start() {
   const query = new URLSearchParams(location.search);

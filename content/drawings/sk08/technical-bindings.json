@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "description": "Explicit presentation aliases for the unchanged enlarged reference page. Canonical source bounds and record IDs are preserved.",
+  "bindings": [
+    {
+      "profileId": "sk08-technical-front-v1",
+      "sheetId": "sheet-2",
+      "regionMap": { "shaft-bore": "shaft-bore-detail" }
+    }
+  ]
+}
