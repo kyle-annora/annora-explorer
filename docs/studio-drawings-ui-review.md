@@ -107,7 +107,15 @@ feature-owned styles, and this record. Explorer rendering, source assets, drawin
 reader and inquiry/quotation repositories are unchanged. Existing unrelated
 README and pilot-document work is excluded from this delivery.
 
-GitHub Pages acceptance: pending deployment of this change.
+GitHub Pages acceptance: passed for implementation revision
+`e0ce35d9f810869747f9bcb3cace2df481f0e5cc`.
+[Deployment run 41359003618](https://github.com/kyle-annora/annora-explorer/actions/runs/41359003618)
+completed successfully. Hosted checks confirmed the connecting-rod desktop
+workspace and the SK08 mobile preview/settings switch at 390 px, without page
+horizontal overflow. The desktop page reported no browser-console errors.
+
+Local screenshots are saved under `work/studio-drawings-review/desktop.jpg` and
+`work/studio-drawings-review/mobile.jpg` (review artifacts, excluded from Git).
 
 Review routes:
 
