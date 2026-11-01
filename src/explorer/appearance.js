@@ -1,13 +1,13 @@
 /** Shared illustrative finishes. Package-specific curation is injected as data. */
 export const FINISHES = Object.freeze({
-  structure: Object.freeze({ family: 'structure', label: 'Structural satin', color: '#9fa7b1', metalness: .55, roughness: .48 }),
-  satin: Object.freeze({ family: 'satin', label: 'Satin silver', color: '#b8bec7', metalness: .62, roughness: .47 }),
-  machined: Object.freeze({ family: 'machined', label: 'Dark machined', color: '#5c626a', metalness: .74, roughness: .32 }),
-  polished: Object.freeze({ family: 'polished', label: 'Bright hardware', color: '#e1e5e9', metalness: .85, roughness: .20 }),
-  polymer: Object.freeze({ family: 'polymer', label: 'Polymer and seals', color: '#292c30', metalness: 0, roughness: .76 }),
-  glass: Object.freeze({ family: 'glass', label: 'Smoked glazing', color: '#34454c', metalness: .12, roughness: .12 }),
-  bronze: Object.freeze({ family: 'bronze', label: 'Warm bearing finish', color: '#b79a64', metalness: .70, roughness: .34 }),
-  indicator: Object.freeze({ family: 'indicator', label: 'Coated surround', color: '#a44b3b', metalness: .08, roughness: .48 })
+  structure: Object.freeze({ family: 'structure', label: 'Structural satin', color: '#b3b5b7', metalness: .88, roughness: .52 }),
+  satin: Object.freeze({ family: 'satin', label: 'Satin silver', color: '#c2c5c9', metalness: .94, roughness: .40 }),
+  machined: Object.freeze({ family: 'machined', label: 'Dark machined', color: '#737981', metalness: .96, roughness: .36 }),
+  polished: Object.freeze({ family: 'polished', label: 'Bright hardware', color: '#e1e4e8', metalness: 1, roughness: .21 }),
+  polymer: Object.freeze({ family: 'polymer', label: 'Polymer and seals', color: '#303236', metalness: 0, roughness: .86 }),
+  glass: Object.freeze({ family: 'glass', label: 'Smoked glazing', color: '#1c3037', metalness: 0, roughness: .08 }),
+  bronze: Object.freeze({ family: 'bronze', label: 'Warm bearing finish', color: '#bd9455', metalness: .96, roughness: .30 }),
+  indicator: Object.freeze({ family: 'indicator', label: 'Coated surround', color: '#963d2d', metalness: 0, roughness: .44 })
 });
 
 const SOURCE_FINISH = Object.freeze({

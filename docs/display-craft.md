@@ -5,6 +5,9 @@ Explorer. Product Room and Studio remain in the [roadmap](product-roadmap.md).
 No customer-specific content, new rendering dependency, editor framework or backend
 is added. Existing model packages, animation timings and camera interpolation are retained.
 
+The subsequent [Engineering materials and lighting refinement](engineering-craft.md)
+records the studio rig, finish separation and selection-inclusive performance checks.
+
 ## Reference lock
 
 Oxide remains the visual anchor: compact floating surfaces, a model-first canvas,

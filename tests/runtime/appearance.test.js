@@ -35,7 +35,7 @@ test('every actual source mesh receives a finite finish without changing its sou
   assert.deepEqual([...families].sort(), Object.keys(FINISHES).sort());
 });
 
-test('all fifteen latch assemblies preserve the approved body, block and hardware treatment', () => {
+test('all fifteen latch assemblies preserve the approved body, block and hardware roles', () => {
   const latches = metadata.groups.find(group => group.id === 'latches').children;
   assert.equal(latches.length, 15);
   for (const latch of latches) {
@@ -50,8 +50,23 @@ test('all fifteen latch assemblies preserve the approved body, block and hardwar
   for (const part of reviewed) {
     const actual = materialSpec(recordFor(part));
     const approved = approvedLatchFinish('Brushed steel', part.meshName);
-    for (const field of ['family', 'label', 'color', 'metalness', 'roughness']) assert.equal(actual[field], approved[field], `${part.meshName}: ${field}`);
+    // The shared Engineering finish has been retuned; source roles and names
+    // remain the approved latch treatment rather than freezing old PBR values.
+    for (const field of ['family', 'label']) assert.equal(actual[field], approved[field], `${part.meshName}: ${field}`);
   }
+});
+
+test('engineering finishes distinguish metals, coatings and reflective detail by optical behavior', () => {
+  const { structure, satin, machined, polished, bronze, polymer, glass, indicator } = FINISHES;
+  for (const metal of [structure, satin, machined, polished, bronze]) assert.ok(metal.metalness >= .85, metal.family);
+  for (const dielectric of [polymer, glass, indicator]) assert.equal(dielectric.metalness, 0, dielectric.family);
+  assert.ok(structure.roughness - satin.roughness >= .12, 'structure reflects more broadly than satin parts');
+  assert.ok(satin.roughness - polished.roughness >= .12, 'bright hardware has a distinctly sharper reflection');
+  assert.ok(polymer.roughness - indicator.roughness >= .25, 'seals remain matte relative to coated surfaces');
+  assert.ok(glass.roughness < polished.roughness, 'smoked glazing retains a smooth reflective finish');
+  assert.ok(luminance(channels(machined.color)) < luminance(channels(satin.color)) * .6, 'machined and satin parts remain tonally distinct');
+  const [red, green, blue] = channels(bronze.color);
+  assert.ok(red > green && green > blue, 'bearing finish retains its warm material identity');
 });
 
 test('non-steel source categories retain distinct finishes and are not overwritten by group curation', () => {

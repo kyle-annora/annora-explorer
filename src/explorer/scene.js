@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { DISPLAY_DEFAULTS, displayOptions } from './display-profiles.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { createEngineeringEnvironment, createEngineeringLights, createEngineeringMaterial } from './engineering.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
@@ -63,21 +63,16 @@ export class AssemblyScene {
     this.controls.minDistance = .3; this.controls.maxDistance = 70; this.controls.enablePan = true;
     this.controls.addEventListener('start', () => { this.callbacks.interact?.('camera');this.cancelBenchmark('user-input');this.cameraMotion?.stop(); this.controls.enableDamping = true; this.followCamera=false;this.emitOperation(true);this.hideHover(); });
     this.controls.addEventListener('change', () => { this.invalidate(); });
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
-    const environment = new RoomEnvironment();
-    this.environmentTarget = pmrem.fromScene(environment, .03); this.scene.environment = this.environmentTarget.texture;
-    environment.dispose(); pmrem.dispose(); this.scene.environmentIntensity = .7;
-    this.scene.add(new THREE.HemisphereLight(0xf5f6f8, 0x303236, .45));
-    for (const [color, intensity, position] of [[0xffffff, 1.6, [5,7,9]], [0xd7dce3, .65, [-7,2,3]], [0xffffff, 1.15, [1,3,-5]]]) {
-      const light = new THREE.DirectionalLight(color, intensity); light.position.set(...position); this.scene.add(light);
-    }
+    this.environmentTarget = createEngineeringEnvironment(this.renderer);
+    this.scene.environment = this.environmentTarget.texture; this.scene.environmentIntensity = 1;
+    this.scene.add(createEngineeringLights());
     this.composer = new EffectComposer(this.renderer);
     this.surfacePass=new RenderPass(this.scene,this.camera);this.composer.addPass(this.surfacePass);
-    this.ao = new SSAOPass(this.scene, this.camera, 1, 1, 8); this.ao.kernelRadius = 7; this.ao.minDistance = .0006; this.ao.maxDistance = .016;
+    this.ao = new SSAOPass(this.scene, this.camera, 1, 1, 8); this.ao.kernelRadius = 5; this.ao.minDistance = .001; this.ao.maxDistance = .012;
     this.composer.addPass(this.ao);this.outputPass=new OutputPass();this.composer.addPass(this.outputPass);
     this.outline = new OutlinePass(new THREE.Vector2(1,1), this.scene, this.camera);
     this.outline.visibleEdgeColor.setHex(parseInt(this.lineAccent.slice(1),16),THREE.LinearSRGBColorSpace); this.outline.hiddenEdgeColor.set(0x000000);
-    this.outline.edgeStrength = 3; this.outline.edgeThickness = 1; this.outline.edgeGlow = 0; this.outline.downSampleRatio = 2;
+    this.outline.edgeStrength = 3.5; this.outline.edgeThickness = 1; this.outline.edgeGlow = 0; this.outline.downSampleRatio = 1;
     this.composer.addPass(this.outline);
     this.fxaa = new ShaderPass(FXAAShader); this.composer.addPass(this.fxaa);
     this.copyPass=new ShaderPass(CopyShader);this.copyPass.enabled=false;this.composer.addPass(this.copyPass);
@@ -164,7 +159,7 @@ export class AssemblyScene {
       const original = Array.isArray(source.material) ? source.material[0] : source.material;
       const sourceSpec=materialSpec({...record,sourceMaterial:record.sourceMaterial||original.name},this.model.presentationPolicy);
       const hint=record.finishFamily||record.presentationFinish;const spec=Object.hasOwn(FINISHES,hint)?{...sourceSpec,...FINISHES[hint],basis:'Curated model finish hint'}:sourceSpec;
-      const material=new THREE.MeshStandardMaterial({color:spec.color,metalness:spec.metalness,roughness:spec.roughness,side:THREE.DoubleSide,envMapIntensity:.85});
+      const material=createEngineeringMaterial(spec);
       const mesh = new THREE.Mesh(source.geometry, material); mesh.name = source.name;
       matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
       mesh.userData.source=source;mesh.userData.baseQuaternion=mesh.quaternion.clone();mesh.userData.baseScale=mesh.scale.clone();mesh.userData.spec=spec;mesh.userData.record = record; mesh.userData.base = mesh.position.toArray(); mesh.userData.color = material.color.clone(); mesh.userData.metalness = material.metalness; mesh.userData.roughness = material.roughness;
@@ -885,14 +880,16 @@ export class AssemblyScene {
     this.setScope(this.rootId);this.callbacks.benchmarkScope?.();this.applyFraction(0);this.explosionTarget=0;this.mode='explore';this.emitOperation(true);
     this.meshes.forEach(mesh=>{mesh.userData.visibility.to([1],true);mesh.visible=true;mesh.material.opacity=mesh.userData.baseOpacity;mesh.material.transparent=mesh.userData.baseTransparent;mesh.material.depthWrite=mesh.userData.baseDepthWrite;mesh.material.needsUpdate=true;});
     this.fit(false,this.defaultDirection);this.outline.selectedObjects=[];
-    if(presentationStyle(this)==='flat'){
+    // Exercise selection rendering too: an unselected Engineering run skips the
+    // outline pass and would under-report the cost of actually inspecting parts.
+    if(['flat','engineering'].includes(presentationStyle(this))){
       const stageId=this.operationConfig?.stages?.[0]?.nodeId||this.metadata.operation?.stages?.[0]?.nodeId;
       const focus=this.nodes.get(stageId)||[...this.nodes.values()].find(node=>node.id!==this.rootId&&node.type!=='component');
       if(focus){this.selectedId=focus.id;this.outlineKey=null;this.refreshOutline();this.callbacks.benchmarkSelection?.(focus.id);}
     }
     this.syncLinePresentation();
     const layout=this.layoutRegion(),renderStyle=presentationStyle(this),stats=this.metadata.stats||{};
-    this.benchmark.begin({modelId:this.model.id||'unknown',mode:renderStyle,renderStyle,quality:this.effectiveQuality,displayOptions:this.displayOptions,viewport:{width:layout.width,height:layout.height,pixelRatio:this.renderer.getPixelRatio(),renderWidth:this.renderer.domElement.width,renderHeight:this.renderer.domElement.height},modelStats:{...stats,glbBytes:stats.glbBytes||stats.bytes,edgeBytes:this.edgeBuffer?.byteLength||0,...this.lineRuntime?.stats,flatPartCount:renderStyle==='flat'?this.lineState?.filled.size||0:0},loadMetrics:this.loadMetrics});
+    this.benchmark.begin({modelId:this.model.id||'unknown',mode:renderStyle,renderStyle,quality:this.effectiveQuality,displayOptions:this.displayOptions,viewport:{width:layout.width,height:layout.height,pixelRatio:this.renderer.getPixelRatio(),renderWidth:this.renderer.domElement.width,renderHeight:this.renderer.domElement.height},modelStats:{...stats,glbBytes:stats.glbBytes||stats.bytes,edgeBytes:this.edgeBuffer?.byteLength||0,...this.lineRuntime?.stats,selectedPartCount:this.outline.selectedObjects.length,flatPartCount:renderStyle==='flat'?this.lineState?.filled.size||0:0},loadMetrics:this.loadMetrics});
     this.benchmarkStarted=performance.now();this.benchmarkBase=this.cameraMotion.values.slice();this.controls.enabled=false;this.invalidate();
   }
   cancelBenchmark(reason='cancelled'){

@@ -16,7 +16,7 @@ test('scripted motion reports frame percentiles, CPU submission and total-pass c
   for (let i = 0; i <= 100; i++) tick(i * 20, { moving: true, renderMs: 3, drawCalls: 1608, triangles: 1569754, phase: 'orbit' });
   const report = recorder.finish();
   assert.equal(report.status, 'completed');
-  assert.equal(report.scenario, 'apollo-standard-v2');
+  assert.equal(report.scenario, 'apollo-standard-v3');
   assert.equal(report.scope, 'Current browser and complete selected assembly');
   assert.equal(report.durationMs, 2000);
   assert.equal(report.frames.motionIntervals, 100);
@@ -162,7 +162,7 @@ test('rendering reports preserve model identity and distinguish treatments from 
       tick(20, { moving: true, renderMs: 2, phase: 'orbit' });
       const report = recorder.finish();
       assert.equal(report.modelId, modelId);
-      assert.equal(report.scenario, `${modelId}-standard-v2`);
+      assert.equal(report.scenario, `${modelId}-standard-v3`);
       assert.equal(report.renderStyle, renderStyle);
       assert.equal(report.mode, renderStyle);
       assert.equal(report.phases.orbit.count, 1);
@@ -185,6 +185,22 @@ test('legacy technical reports remain readable and arbitrary style/context value
   assert.equal(clean.renderStyle, null);
   assert.equal(clean.mode, 'mixed');
   assert.equal(serializeBenchmark(clean).includes('private'), false);
+});
+
+test('v3 records selected part count without exporting object identifiers or invalid counts', () => {
+  const { recorder } = harness();
+  for (const selectedPartCount of [0, 1, 20, 801]) {
+    recorder.begin({ modelId: 'apollo', renderStyle: 'engineering', modelStats: { selectedPartCount, selectedIds: ['private-part'] } });
+    const report = recorder.finish();
+    assert.equal(report.scenario, 'apollo-standard-v3');
+    assert.equal(report.model.selectedPartCount, selectedPartCount);
+    assert.equal(serializeBenchmark(report).includes('private-part'), false);
+    assert.equal(Object.hasOwn(report.model, 'selectedIds'), false);
+  }
+  for (const selectedPartCount of [-1, NaN, Infinity, '20', null]) {
+    recorder.begin({ modelStats: { selectedPartCount } });
+    assert.equal(Object.hasOwn(recorder.finish().model, 'selectedPartCount'), false);
+  }
 });
 
 test('batched line costs count submitted primitives separately from source geometry and idle frames', () => {

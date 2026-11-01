@@ -1,7 +1,7 @@
 import { displayOptions } from './display-profiles.js';
 /** Browser-local measurements. No hardware fingerprinting, storage or network use. */
 export const QUALITY_PROFILES = Object.freeze({
-  balanced: Object.freeze({ label: 'Balanced', maxPixelRatio: 1.25, lineMaxPixelRatio: 2, maxPixels: 2_000_000, aoScale: .5, outlineScale: .5 }),
+  balanced: Object.freeze({ label: 'Balanced', maxPixelRatio: 1.25, lineMaxPixelRatio: 2, maxPixels: 2_000_000, aoScale: .5, outlineScale: 1 }),
   performance: Object.freeze({ label: 'Performance', maxPixelRatio: 1, lineMaxPixelRatio: 1, maxPixels: 1_200_000, aoScale: 0, outlineScale: .5 }),
   quality: Object.freeze({ label: 'Quality', maxPixelRatio: 1.5, lineMaxPixelRatio: 2, maxPixels: 4_000_000, aoScale: 1, outlineScale: 1 })
 });
@@ -45,14 +45,16 @@ function cleanContext(context) {
     : context.mode === 'technical' ? 'linework'
     : context.mode === 'material' ? 'engineering' : null;
   return {
-    scenario: `${modelId}-standard-v2`,
+    // v3 includes a representative selected assembly in Engineering so the
+    // outline pass participates; v2 Engineering runs are not equivalent.
+    scenario: `${modelId}-standard-v3`,
     modelId,
     mode: MODES.includes(context.mode) ? context.mode : renderStyle || 'mixed',
     renderStyle,
     displayOptions: displayOptions(context.displayOptions),
     quality: Object.hasOwn(QUALITY_PROFILES, context.quality) ? context.quality : 'balanced',
     viewport: fields(context.viewport, ['width', 'height', 'pixelRatio', 'renderWidth', 'renderHeight']),
-    model: fields(context.modelStats, ['meshCount', 'triangles', 'glbBytes', 'edgeBytes', 'edgeSegments', 'silhouetteSegments', 'lineBytes', 'surfaceBytes', 'paletteBytes', 'lineBatchCount', 'activePartCount', 'contextPartCount', 'flatPartCount']),
+    model: fields(context.modelStats, ['meshCount', 'triangles', 'glbBytes', 'edgeBytes', 'edgeSegments', 'silhouetteSegments', 'lineBytes', 'surfaceBytes', 'paletteBytes', 'lineBatchCount', 'activePartCount', 'contextPartCount', 'flatPartCount', 'selectedPartCount']),
     loading: fields(context.loadMetrics, LOAD_KEYS)
   };
 }
