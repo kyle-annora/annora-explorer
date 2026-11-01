@@ -7,6 +7,7 @@
   <meta name="description" content="Explore prepared mechanical assemblies, their components and authored motion.">
   <title>Assembly Explorer</title>
   <link rel="stylesheet" href="./src/explorer/styles.css">
+  <link rel="stylesheet" href="./src/motion-study.css">
 </head>
 <body data-mode="explore">
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -58,10 +59,16 @@
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span><span id="brand-name">ANNORA</span><span class="brand-divider">/</span><span id="brand-product" class="brand-product">EXPLORER</span></span>
       </a>
-      <span class="header-subject">INTERACTIVE ASSEMBLIES</span>
+      <span class="header-subject">INDEPENDENT PREVIEW</span>
+      <a class="original-explorer" href="https://kyle-annora.github.io/annora-explorer/" target="_blank" rel="noopener">Original Explorer <svg aria-hidden="true"><use href="#i-external"/></svg></a>
     </header>
 
     <div class="stage-heading floating-panel">
+      <nav class="study-views" aria-label="Motion study views">
+        <button type="button" data-study-chapter="0" aria-pressed="true"><span>01</span> Motion</button>
+        <button type="button" data-study-chapter="1" aria-pressed="false"><span>02</span> Inside</button>
+        <button type="button" data-study-chapter="2" aria-pressed="false"><span>03</span> Restore</button>
+      </nav>
       <div class="model-context">
         <button class="icon-button mobile-only" id="toggle-tree" type="button" aria-label="Open assembly index" aria-expanded="false" aria-controls="assembly-panel"><svg><use href="#i-layers"/></svg><span class="assembly-toggle-label">Assembly</span></button>
         <label class="model-select-label" for="model-select"><svg aria-hidden="true"><use href="#i-cube"/></svg><span class="sr-only">Choose assembly</span></label>
@@ -96,6 +103,7 @@
           <button id="tour-exit" class="icon-button" type="button" title="Return to explorer" aria-label="Return to explorer"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
         </div>
         <p id="tour-caption" class="tour-caption" aria-live="polite" aria-atomic="true">Follow the assembly from its complete form to its moving parts.</p>
+        <div class="causal-chain" aria-label="Crank drives connecting rod, connecting rod moves slider"><span>CRANK</span><i aria-hidden="true">→</i><span>CONNECTING ROD</span><i aria-hidden="true">→</i><span>SLIDER</span></div>
         <p id="tour-status" class="tour-status" role="status">Drag the model to pause and explore.</p>
         <nav id="tour-chapters" class="tour-chapters floating-panel" aria-label="Tour chapters" hidden></nav>
         <div class="tour-transport">

@@ -18,9 +18,9 @@
   },
   "view": {
     "direction": [
-      0.55,
-      1.2,
-      1.35
+      0.12,
+      1.7,
+      1.15
     ],
     "normalizedWidth": 4.4,
     "labels": [
@@ -55,5 +55,5 @@
       "frame": "cube"
     }
   },
-  "tour": "tour.json"
+  "tour": "motion-study.json"
 }

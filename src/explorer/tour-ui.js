@@ -10,12 +10,13 @@ const write = (node, value) => { if (node.textContent !== value) node.textConten
 export class GuidedTour {
   constructor({ scene, model, captureNavigation, restoreNavigation, syncScene, closeOverlays, syncLayout, command, stateChange }) {
     this.scene = scene; this.tour = model.tour;
+    this.study = Boolean(this.tour.motionStudy);
     this.command = command; this.stateChange = stateChange; this.abort = new AbortController(); this.listeners = []; this.disposed = false;
     this.captureNavigation = captureNavigation; this.restoreNavigation = restoreNavigation;
     this.syncScene = syncScene; this.closeOverlays = closeOverlays; this.syncLayout = syncLayout;
     this.motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
     this.reducedMotion = this.motionPreference.matches;
-    this.player = new TourPlayer(this.tour, { reducedMotion: this.reducedMotion });
+    this.player = new TourPlayer(this.tour, { reducedMotion: this.reducedMotion, pauseAtChapterEnd: this.study });
     this.listen(this.motionPreference, 'change', event => {
       this.reducedMotion = event.matches; this.player.reducedMotion = event.matches;
       if (this.disposed || !this.active) return;
@@ -53,14 +54,23 @@ export class GuidedTour {
     this.listen($('tour-next'), 'click', () => this.requestJump('next'));
     this.listen($('tour-replay'), 'click', () => {
       if (this.command) {
-        const replay = this.dispatch('seekTour', { seconds: 0 }, () => {}), intent = this.intent, generation = this.generation;
+        const replay = this.study
+          ? this.dispatch('goToTourChapter', { chapterId: this.player.state().chapter.id }, () => {})
+          : this.dispatch('seekTour', { seconds: 0 }, () => {});
+        const intent = this.intent, generation = this.generation;
         replay.then(result => {
           if (result?.payload?.status === 'completed' && intent === this.intent && generation === this.generation && this.active && !this.disposed && !this.reducedMotion) this.dispatch('resumeTour', {}, () => {});
         }); return;
       }
       this.closeChapters(); this.closeOverlays(); this.scene.pausePresentation(); this.scene.leaveTour(); this.player.replay(); this.apply(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
     });
-    this.listen($('tour-progress'), 'input', event => this.requestJump('seek', Number(event.target.value) * this.tour.duration / 100));
+    this.listen($('tour-progress'), 'input', event => {
+      const chapter = this.player.state().chapter;
+      this.requestJump('seek', this.study ? chapter.start + Number(event.target.value) * chapter.duration / 100 : Number(event.target.value) * this.tour.duration / 100);
+    });
+    for (const button of this.study ? document.querySelectorAll('[data-study-chapter]') : []) {
+      this.listen(button, 'click', () => this.requestJump('chapter', Number(button.dataset.studyChapter)));
+    }
     $('tour-chapters').replaceChildren(...this.tour.chapters.map((chapter, index) => {
       const button = document.createElement('button'); button.type = 'button';
       const number = document.createElement('span'); number.className = 'chapter-number'; number.textContent = String(index + 1).padStart(2, '0');
@@ -142,7 +152,7 @@ export class GuidedTour {
       this.closeOverlays(); this.scene.cancelBenchmark(); this.scene.pausePresentation();
       this.active = true; document.body.classList.add('tour-active'); $('tour-panel').hidden = false;
       document.querySelector('.stage-tools').inert = true; document.querySelector('.detail-panel').inert = true;
-      this.syncLayout?.(); this.player.start(); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
+      this.syncLayout?.(); this.player.start(); if (this.study) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
       return true;
     } catch (error) {
       if (this.disposed || generation !== this.generation || signal?.aborted || error?.name === 'AbortError') return false;
@@ -170,7 +180,11 @@ export class GuidedTour {
     if (this.disposed || !this.active) return;
     this.closeChapters(); this.closeOverlays();
     this.scene.pausePresentation(); this.scene.leaveTour();
-    if (action === 'seek') this.player.seek(seconds);
+    if (action === 'seek') {
+      const current = this.player.state();
+      this.player.seek(seconds);
+      if (this.study && Math.abs(seconds - current.chapter.end) < 1e-8) this.player.holdChapterEnd(current.index);
+    }
     else {
       const state = this.player.state();
       const index = action === 'chapter' ? seconds : action === 'next' ? state.index + 1 : Math.max(0, state.index - 1);
@@ -212,7 +226,7 @@ export class GuidedTour {
   apply() {
     if (this.disposed || !this.active) return;
     const state = this.player.state();
-    this.frame = sampleTour(this.tour, state.time, { settled: state.settled || this.reducedMotion });
+    this.frame = sampleTour(this.tour, state.time, { settled: state.settled || this.reducedMotion, chapterIndex: this.study ? state.index : undefined });
     this.scene.applyTourFrame(this.frame, { immediate: this.reducedMotion });
     this.syncScene(); this.updateUI();
     // A caption/label-only cue need not render WebGL, but its labels must update now.
@@ -221,6 +235,7 @@ export class GuidedTour {
   updateUI() {
     if (this.disposed || !this.active) return;
     const state = this.player.state(), frame = this.frame;
+    if (this.study) { this.updateStudyUI(state, frame); return; }
     this.stateChange?.();
     const completed = state.status === 'completed';
     const moveCompletionFocus = completed && !this.completed && document.querySelector('.tour-playback').contains(document.activeElement);
@@ -253,6 +268,48 @@ export class GuidedTour {
       if (index === state.index) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
     });
   }
+  updateStudyUI(state, frame) {
+    this.stateChange?.();
+    const chapter = state.chapter, local = state.time - chapter.start;
+    const held = this.player.heldChapterIndex !== null;
+    document.body.dataset.tourStatus = state.status;
+    document.body.dataset.tourReason = state.reason || '';
+    document.body.dataset.tourTime = state.time.toFixed(3);
+    document.body.dataset.studyChapter = chapter.id;
+    write($('tour-count'), `${String(state.index + 1).padStart(2, '0')} / 03`);
+    write($('tour-title'), frame.title);
+    write($('tour-caption'), frame.caption);
+    const label = state.status === 'playing' ? 'Pause' : this.reducedMotion ? 'Next view' : held ? 'Play again' : local > 0 ? 'Resume' : state.index === 0 ? 'Play motion' : state.index === 1 ? 'Separate' : 'Reassemble';
+    write($('tour-play').querySelector('span'), label);
+    $('tour-play').hidden = false;
+    $('tour-play').disabled = this.reducedMotion && state.index === this.tour.chapters.length - 1;
+    $('tour-play').setAttribute('aria-label', label);
+    $('tour-play').querySelector('use').setAttribute('href', state.status === 'playing' ? '#i-pause' : '#i-play');
+    $('tour-prev').disabled = state.index === 0;
+    $('tour-next').disabled = state.index === this.tour.chapters.length - 1;
+    $('tour-progress').value = String(100 * local / chapter.duration);
+    $('tour-progress').style.setProperty('--tour-progress', `${100 * local / chapter.duration}%`);
+    $('tour-progress').setAttribute('aria-label', state.index === 0 ? 'Crank cycle progress' : 'Assembly transition progress');
+    $('tour-progress').setAttribute('aria-valuetext', `${Math.round(100 * local / chapter.duration)} percent, ${chapter.label}`);
+    $('tour-time').value = `${local.toFixed(2)} / ${chapter.duration.toFixed(2)} s`;
+    $('tour-explore').hidden = true;
+    $('tour-replay').hidden = false;
+    $('tour-replay').setAttribute('aria-label', `Replay ${chapter.label.toLowerCase()}`);
+    const status = this.reducedMotion ? 'Reduced motion: use the views to inspect stable positions.'
+      : state.reason === 'takeover' ? 'You have control. Resume to return to the authored view.'
+      : state.status === 'playing' ? 'One action. The view will hold when it finishes.'
+      : held ? 'Position held. Replay, drag the timeline, or choose another view.'
+      : 'Drag the timeline to inspect. Drag the model to look around.';
+    write($('tour-status'), status); $('tour-status').hidden = false;
+    $('tour-annotations').hidden = state.reason === 'takeover';
+    for (const button of document.querySelectorAll('[data-study-chapter]')) {
+      button.setAttribute('aria-pressed', String(Number(button.dataset.studyChapter) === state.index));
+    }
+    [...$('tour-chapters').children].forEach((button, index) => {
+      if (index === state.index) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
+    });
+  }
+
   updateAnnotations() {
     if (this.disposed || !this.active || !this.frame) return;
     if ($('tour-annotations').hidden) { this.annotationKey = ''; return; }

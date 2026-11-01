@@ -1,0 +1,149 @@
+{
+  "id": "kinetic-motion-study",
+  "title": "Rotation becomes travel",
+  "motionStudy": true,
+  "duration": 7.5,
+  "chapters": [
+    {
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 1.25,
+      "scopeId": "kinetic-01",
+      "selectedId": "kinetic-01",
+      "renderStyle": "flat",
+      "highlightIds": [
+        "crank"
+      ],
+      "explosion": [
+        0,
+        0
+      ],
+      "camera": {
+        "focusId": "kinetic-01",
+        "direction": [
+          0.12,
+          1.7,
+          1.15
+        ],
+        "explosion": 0,
+        "scale": 1
+      },
+      "annotations": [
+        {
+          "nodeId": "crank",
+          "label": "Rotary input",
+          "motion": "rotate"
+        },
+        {
+          "nodeId": "carriage",
+          "label": "Linear output",
+          "motion": "linear"
+        }
+      ],
+      "cues": [],
+      "id": "motion",
+      "label": "Motion",
+      "title": "Rotation becomes travel.",
+      "caption": "The crank turns. The rod transfers motion. The guide keeps the slider straight.",
+      "operation": {
+        "clipName": "Animation",
+        "sourceDuration": 4,
+        "settledProgress": 0.5,
+        "passes": [
+          {
+            "id": "one-cycle",
+            "start": 0,
+            "duration": 2.5,
+            "keyframes": [
+              {
+                "at": 0,
+                "progress": 0
+              },
+              {
+                "at": 2.5,
+                "progress": 1
+              }
+            ]
+          }
+        ]
+      },
+      "start": 0,
+      "end": 2.5
+    },
+    {
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "scopeId": "kinetic-01",
+      "selectedId": "kinetic-01",
+      "renderStyle": "flat",
+      "highlightIds": [
+        "rod"
+      ],
+      "explosion": [
+        0,
+        0.58
+      ],
+      "camera": {
+        "focusId": "kinetic-01",
+        "direction": [
+          0.55,
+          1.2,
+          1.35
+        ],
+        "explosion": 0.58,
+        "scale": 1
+      },
+      "annotations": [
+        {
+          "nodeId": "rod",
+          "label": "Connecting rod"
+        },
+        {
+          "nodeId": "guide",
+          "label": "Fixed guide"
+        }
+      ],
+      "cues": [],
+      "id": "inside",
+      "label": "Inside",
+      "title": "Two pivots. One link.",
+      "caption": "The rod changes angle at both ends. Each joint has a place in the assembly.",
+      "transition": 2.5,
+      "start": 2.5,
+      "end": 5.0
+    },
+    {
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "scopeId": "kinetic-01",
+      "selectedId": "kinetic-01",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0.58,
+        0
+      ],
+      "camera": {
+        "focusId": "kinetic-01",
+        "direction": [
+          0.55,
+          1.2,
+          1.35
+        ],
+        "explosion": 0.58,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [],
+      "id": "restore",
+      "label": "Restore",
+      "title": "Back in working order.",
+      "caption": "The parts return to their original positions. Replay the motion to follow the connection.",
+      "transition": 2.5,
+      "start": 5.0,
+      "end": 7.5
+    }
+  ]
+}

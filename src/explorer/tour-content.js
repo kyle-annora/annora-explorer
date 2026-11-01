@@ -17,11 +17,12 @@ function sampleOperation(operation, elapsed, settled) {
 }
 
 /** Resolve complete state from absolute seconds; no prior frame or callback order is required. */
-export function sampleTour(tourDefinition, seconds, { settled = false } = {}) {
+export function sampleTour(tourDefinition, seconds, { settled = false, chapterIndex } = {}) {
   const definition = tourDefinition;
   if (!definition?.chapters?.length || !(definition.duration > 0)) throw new TypeError('A tour needs an authored timeline.');
   const time = clamp(Number.isFinite(seconds) ? seconds : 0, 0, definition.duration);
-  let index = definition.chapters.findIndex(chapter => time < chapter.end);
+  let index = Number.isInteger(chapterIndex) && chapterIndex >= 0 && chapterIndex < definition.chapters.length
+    ? chapterIndex : definition.chapters.findIndex(chapter => time < chapter.end);
   if (index < 0) index = definition.chapters.length - 1;
   const chapter = definition.chapters[index];
   const elapsed = clamp(time - chapter.start, 0, chapter.duration);

@@ -282,6 +282,10 @@ async function start(){
       if(event.key.toLowerCase()==='r')command('frame',{nodeId:navigation.scopeId});
       if(event.code==='Space'&&mode==='operate'){event.preventDefault();command(explorer.getOperationState().playing?'pauseOperation':'playOperation');}
     });
+    if (model.tour?.motionStudy && params.get('explore') !== '1') {
+      await command('startTour', { tourId: model.tour.id });
+      await command('goToTourChapter', { chapterId: model.tour.chapters[0].id });
+    }
   }catch(error){if(shellAbort.signal.aborted)return;controller.setLifecycle('error',error);explorer?.dispose();console.error(error);$('loading-label').textContent='The model could not be loaded. Reload this page to try again.';$('status-message').textContent='Model unavailable';document.body.dataset.error=error.message;}
 }
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');

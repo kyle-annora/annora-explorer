@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "annora-explorer",
-  "title": "Annora Explorer",
+  "id": "annora-motion-study",
+  "title": "Motion Study",
   "description": "Explore prepared mechanical assemblies, inspect their components and follow authored motion.",
   "brand": {
     "name": "ANNORA",
-    "product": "EXPLORER",
+    "product": "MOTION STUDY",
     "homeUrl": "./",
     "accent": "#ff6840"
   },
@@ -14,12 +14,17 @@
     "explode": true,
     "operation": true,
     "tour": true,
-    "themes": true,
+    "themes": false,
     "quality": true,
-    "renderStyles": ["engineering", "linework", "flat"]
+    "renderStyles": [
+      "engineering",
+      "linework",
+      "flat"
+    ]
   },
   "models": [
-    { "manifest": "content/models/kinetic-01/manifest.json" },
-    { "manifest": "content/models/apollo/manifest.json" }
+    {
+      "manifest": "content/models/kinetic-01/manifest.json"
+    }
   ]
 }

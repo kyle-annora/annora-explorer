@@ -1,0 +1,66 @@
+/* Isolated review shell. The production Explorer does not include this file. */
+.original-explorer { display:flex; align-items:center; gap:8px; margin-left:auto; min-height:44px; padding:0 10px; color:var(--muted); font-size:11px; text-decoration:none; border:1px solid var(--edge); border-radius:3px; pointer-events:auto; }
+.original-explorer:hover { color:var(--ink); background:var(--panel); }
+.original-explorer svg { width:13px; height:13px; }
+.header-subject { margin-left:20px; font-size:9px; }
+.study-views { display:none; }
+.tour-active .stage-heading { border:0; padding:0; background:transparent; box-shadow:none; }
+.tour-active .stage-heading .model-context,.tour-active .stage-heading .breadcrumbs { display:none; }
+.tour-active .study-views { display:flex; gap:4px; padding:4px; background:var(--panel); border:1px solid var(--edge); border-radius:4px; }
+.study-views button { display:flex; align-items:center; gap:10px; min-height:44px; padding:0 17px; color:var(--muted); font-size:12px; border:1px solid transparent; border-radius:2px; }
+.study-views button span { color:var(--faint); font:10px var(--mono); }
+.study-views button:hover { color:var(--ink); background:var(--accent-wash); }
+.study-views button[aria-pressed="true"] { color:var(--accent-light); background:var(--accent-wash); border-color:var(--accent-border); }
+.study-views button[aria-pressed="true"] span { color:var(--accent-light); }
+.tour-panel { width:680px; padding:12px 18px 10px; bottom:40px; }
+.tour-heading { min-height:30px; }
+.tour-heading h2 { font-size:21px; letter-spacing:-.03em; }
+.tour-caption { margin:6px 0 0; max-width:610px; }
+#tour-chapters-toggle,#tour-prev,#tour-next { display:none; }
+#tour-exit { opacity:.55; }
+#tour-exit:hover { opacity:1; }
+.causal-chain { display:flex; align-items:center; gap:12px; margin:12px 0 5px; color:var(--muted); font:9px var(--mono); letter-spacing:.05em; }
+.causal-chain span:first-child { color:var(--accent-light); }
+.causal-chain i { color:var(--faint); font-style:normal; }
+body:not([data-study-chapter="motion"]) .causal-chain { display:none; }
+.tour-transport { border-top:1px solid var(--edge); margin-top:10px; padding-top:5px; gap:12px; }
+.tour-playback .play-button { min-width:108px; }
+.tour-timeline { gap:12px; }
+#tour-time { font-size:9px; min-width:91px; text-align:right; }
+.tour-status { position:static; transform:none; border:0; padding:0; background:none; width:auto; max-width:none; text-align:left; font:10px/1.5 var(--sans); color:var(--faint); margin-top:6px; }
+.tour-replay { border-color:var(--edge); }
+.tour-replay:hover { color:var(--ink); background:var(--accent-wash); }
+.tour-completion { gap:0; }
+body[data-tour-status="completed"] .tour-playback,body[data-tour-status="completed"] .tour-timeline { display:flex; }
+.tour-annotation { font-size:10px; }
+.tour-active .axis-marker { opacity:.35; }
+@media (max-width:980px) {
+  .original-explorer { position:fixed; top:12px; right:12px; }
+  .tour-playback .play-button { width:auto; min-width:108px; padding:0 12px; }
+  .tour-playback .play-button span { display:inline; }
+  .tour-completion { width:auto; }
+}
+@media (max-width:700px) {
+  .header-subject { display:none; }
+  .original-explorer { font-size:10px; padding:0 8px; }
+  .tour-active .stage-heading { left:12px; right:12px; top:64px; width:auto; }
+  .study-views button { flex:1; justify-content:center; padding:0 10px; gap:8px; }
+  .tour-panel { left:12px; right:12px; bottom:48px; transform:none; width:auto; max-width:none; padding:10px 13px 8px; }
+  .tour-heading h2 { font-size:19px; }
+  .tour-caption { font-size:11px; line-height:16px; }
+  .causal-chain { font-size:8px; gap:9px; margin-top:10px; }
+  .tour-transport { flex-wrap:wrap; gap:4px 10px; }
+  .tour-timeline { order:3; flex-basis:100%; }
+  .tour-completion { margin-left:auto; }
+  .tour-status { font-size:9px; }
+}
+@media (max-width:980px) and (max-height:520px) and (orientation:landscape) {
+  .tour-active .stage-heading { left:12px; right:auto; top:58px; }
+  .tour-panel { left:auto; right:12px; top:64px; bottom:48px; width:275px; transform:none; padding:10px 12px; overflow:auto; }
+  .tour-heading h2 { font-size:17px; }
+  .tour-transport { flex-wrap:wrap; gap:3px 8px; }
+  .tour-timeline { order:3; flex-basis:100%; }
+  .tour-completion { margin-left:auto; }
+  .causal-chain { font-size:7px; gap:6px; }
+  .tour-status { display:none; }
+}
