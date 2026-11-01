@@ -1,4 +1,5 @@
 /** In-memory demo request state. No delivery, account or storage implementation. */
+import { normalizeDrawingContext, drawingVersionKey } from './drawing-context.js';
 export const REQUEST_PURPOSES = Object.freeze([
   Object.freeze({ id: 'question', label: 'Ask a product question' }),
   Object.freeze({ id: 'application', label: 'Discuss an application' }),
@@ -24,6 +25,7 @@ export function requestContext(input) {
       context[key].tourId = text(item.tourId);
     }
   }
+  if (input.drawing !== undefined) context.drawing = normalizeDrawingContext(input.drawing, context);
   return context;
 }
 
@@ -41,12 +43,13 @@ export function updateRequestDraft(state, values) {
 
 export function removeRequestContext(state, key) {
   if (state.stage !== 'draft' || !['part', 'document', 'chapter'].includes(key)) throw new Error('Only optional draft context can be removed.');
+  if (key === 'part' && state.context.drawing) throw new Error('Keep the part linked to its drawing detail.');
   const next = copy(state); delete next.context[key]; return next;
 }
 
 export function replaceRequestContext(state, context) {
   const nextContext = requestContext(context);
-  if (state.stage !== 'draft' || nextContext.productId !== state.context.productId || nextContext.modelId !== state.context.modelId || nextContext.modelRevision !== state.context.modelRevision) throw new Error('A new product or model revision needs its own draft.');
+  if (state.stage !== 'draft' || requestDraftKey(nextContext) !== requestDraftKey(state.context)) throw new Error('A new product, model or drawing revision needs its own draft.');
   return { ...copy(state), context: nextContext };
 }
 
@@ -76,7 +79,7 @@ export function confirmRequest(state, receipt) {
   return { ...copy(state), stage: 'confirmed', receipt: { id: text(receipt.id), createdAt: receipt.createdAt, delivery: 'demo-only' } };
 }
 
-export const requestDraftKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision]);
+export const requestDraftKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
 /** Reopening against a different selection must not confirm the older question
  * without showing its restored context in the editable details screen first. */

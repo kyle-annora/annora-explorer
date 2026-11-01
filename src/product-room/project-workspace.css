@@ -133,6 +133,20 @@
   font: 10px/1.7 var(--mono);
   overflow-wrap: anywhere;
 }
+.room-workspace .pw-drawing-reference {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #d4d5d6;
+  min-width: 0;
+}
+.room-workspace .pw-drawing-reference .pw-eyebrow { font-size: 10px; }
+.room-workspace .pw-drawing-facts { display: grid; gap: 10px; margin: 12px 0; }
+.room-workspace .pw-drawing-facts > div { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; font-size: 12px; line-height: 1.6; }
+.room-workspace .pw-drawing-facts dt { color: #64686c; }
+.room-workspace .pw-drawing-facts dd { margin: 0; overflow-wrap: anywhere; }
+.room-workspace .pw-drawing-reference a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: inherit; text-underline-offset: 4px; }
+.room-workspace .pw-drawing-reference a:hover { color: #18191a; text-decoration-thickness: 2px; }
+.room-workspace .pw-drawing-reference a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .room-workspace .pw-side-note {
   padding: 24px 0;
 }

@@ -1,0 +1,9 @@
+{
+  "schema": "draftwright.spec/2",
+  "sheet": {
+    "title": {
+      "title": "Link rods",
+      "number": "OCCT-LINKRODS"
+    }
+  }
+}

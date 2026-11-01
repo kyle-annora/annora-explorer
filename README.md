@@ -8,10 +8,11 @@ materials and crisp linework, or run an authored guided tour.
 **[Studio](https://kyle-annora.github.io/annora-explorer/studio/)** ·
 **[Live Explorer](https://kyle-annora.github.io/annora-explorer/)** ·
 **[Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)** ·
+**[3D / Drawings preview](https://kyle-annora.github.io/annora-explorer/drawing-preview/)** ·
 **[New-model example](https://kyle-annora.github.io/annora-explorer-bench-vise/)** ·
 **[Create your project](https://github.com/new?template_name=annora-explorer&template_owner=kyle-annora)**
 
-The starter includes Apollo and a moving crank mechanism. The bench-vise example
+The starter includes Apollo, a moving crank mechanism and a paired CAD/drawing reference. The bench-vise example
 demonstrates a third, original model imported through the same pipeline. Brand,
 model selection and feature availability are configured without modifying the
 renderer. This is a static application: no backend, accounts or customer data.
@@ -86,6 +87,8 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `src/product-room/` | Buyer-facing product host, local demo projects and versioned quotation workflow |
 | `src/studio/` and `studio/` | Seller product editor, customer-project workspace, quotation drafts and reviewed releases |
 | `src/walkthrough/` and `walkthrough/` | Three-chapter presentation, isolated sample session and guarded buyer/seller handoffs |
+| `src/drawing-preview/` and `drawing-preview/` | Linked 3D/vector drawing host and isolated reviewed inquiry |
+| `content/drawings/` | Original source drawings, STEP, version hashes, feature regions and preparation provenance |
 | `content/rooms/` | Reviewed Room content for the static deployment pipeline |
 | `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |
@@ -101,6 +104,8 @@ build. The source repository keeps the original examples as regression fixtures;
 removing those source fixtures also requires updating their tests.
 
 ## Delivery documentation
+
+- [Linked 3D / Drawings preview](docs/drawing-preview.md), [inquiry contract](docs/drawing-inquiry-api.md) and [source provenance](content/drawings/linkrods/README.md)
 
 - [Studio customer projects and buyer/seller walkthrough](docs/studio-customer-projects.md)
 - [Studio guide and publishing walkthrough](docs/studio.md), [repository API](docs/studio-api.md) and [design decisions](docs/studio-design.md)

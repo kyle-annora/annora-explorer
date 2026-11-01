@@ -29,6 +29,9 @@ const project = {
     },
     {
       "manifest": "content/models/apollo/manifest.json"
+    },
+    {
+      "manifest": "content/models/linkrods/manifest.json"
     }
   ]
 };

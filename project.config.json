@@ -20,6 +20,7 @@
   },
   "models": [
     { "manifest": "content/models/kinetic-01/manifest.json" },
-    { "manifest": "content/models/apollo/manifest.json" }
+    { "manifest": "content/models/apollo/manifest.json" },
+    { "manifest": "content/models/linkrods/manifest.json" }
   ]
 }

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "id": "occt-linkrods-drawing",
+  "modelId": "linkrods",
+  "title": "Link rods \u2014 reference drawing",
+  "number": "OCCT-LINKRODS",
+  "revision": "source-c4c72a71",
+  "revisionLabel": "Source snapshot c4c72a71",
+  "manufacturerRevision": null,
+  "assetRevision": "20799c4c0107c3cc7998f7c56c014b91533b83b413e85954710801a6bc0e7c08",
+  "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/linkrods/linkrods.pdf",
+  "units": "mm",
+  "status": "unreviewed-reference",
+  "statusLabel": "Reference drawing \u00b7 unreviewed",
+  "statusNote": "Automatic drawing published by draftwright. No manufacturer revision, tolerance or approval is supplied. Dimensions are source annotations; use the original STEP for geometry.",
+  "stepFile": "linkrods.step",
+  "stepSha256": "3674e4b01ee0e983c81ed170f0574cda201ad08e0f7b46e05e4f4613400fd5f7",
+  "pdfFile": "sheet.pdf",
+  "reviewFile": "source-review.json",
+  "sheets": [
+    {
+      "id": "sheet-1",
+      "title": "Orthographic and isometric views",
+      "svgFile": "sheet.svg",
+      "pdfPage": 1,
+      "viewBox": [
+        0,
+        0,
+        841.8898,
+        595.2756
+      ],
+      "regions": [
+        {
+          "id": "overview",
+          "label": "Part overview",
+          "partId": "linkrod-body",
+          "bounds": [
+            62,
+            137,
+            267,
+            119
+          ],
+          "note": "Both bore locations and the connecting web in the source top projection. The model is one solid.",
+          "dimension": "3.875 mm horizontal center spacing; 0.125 mm offset",
+          "focusPoint": [
+            0.00563514,
+            0.001,
+            -0.00325
+          ]
+        },
+        {
+          "id": "large-bore",
+          "label": "Large bore",
+          "partId": "linkrod-body",
+          "bounds": [
+            99,
+            181,
+            47,
+            47
+          ],
+          "note": "Through-bore annotation printed as \u00d81.034 THRU. The source STEP radius is 0.517234284238 mm; the drawing rounds the diameter.",
+          "dimension": "\u00d81.034 mm THRU",
+          "focusPoint": [
+            0.003875,
+            0.001,
+            -0.00325
+          ]
+        },
+        {
+          "id": "small-bore",
+          "label": "Small bore",
+          "partId": "linkrod-body",
+          "bounds": [
+            222,
+            195,
+            27,
+            26
+          ],
+          "note": "Through-bore annotation printed as \u00d80.440 THRU. The source STEP radius is 0.219923711459 mm; the drawing rounds the diameter.",
+          "dimension": "\u00d80.440 mm THRU",
+          "focusPoint": [
+            0.00775,
+            0.001,
+            -0.003125
+          ]
+        },
+        {
+          "id": "connecting-web",
+          "label": "Connecting web",
+          "partId": "linkrod-body",
+          "bounds": [
+            143,
+            194,
+            80,
+            23
+          ],
+          "note": "The web is a feature of the same solid. Source review flags freeform surfaces as not fully dimensioned; this region identifies geometry, not a manufacturing requirement.",
+          "focusPoint": [
+            0.0059,
+            0.001,
+            -0.0032
+          ]
+        }
+      ]
+    }
+  ]
+}

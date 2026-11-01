@@ -129,7 +129,7 @@ function ContextSummary({
                   {context[key].title}{context[key].revision ? ` · ${context[key].revision}` : ""}{" "}
                   <span className="pw-muted">· {referenceLabels[key]}</span>
                 </p>
-                {onRemove && (
+                {onRemove && !(key === "part" && context.drawing) && (
                   <Button
                     variant="quiet"
                     disabled={disabled}
@@ -142,6 +142,23 @@ function ContextSummary({
               </div>
             ),
         )}
+        {context.drawing && (
+          <div className="pw-drawing-reference">
+            <p className="pw-eyebrow">SELECTED DRAWING DETAIL</p>
+            <strong>{context.drawing.regionLabel}</strong>
+            <dl className="pw-drawing-facts">
+              <div><dt>Drawing</dt><dd>{context.drawing.title}</dd></div>
+              <div><dt>Revision</dt><dd>{context.drawing.revision}</dd></div>
+              <div><dt>Sheet</dt><dd>{context.drawing.sheetTitle}</dd></div>
+            </dl>
+            <p className="pw-muted">Saved as viewing context. Dimensions and tolerances remain subject to confirmation.</p>
+            <details>
+              <summary>Exact drawing reference</summary>
+              <p>Drawing: {context.drawing.id}<br />Sheet: {context.drawing.sheetId}<br />Region: {context.drawing.regionId}<br />Part: {context.drawing.partId}<br />Asset: {context.drawing.assetId}<br />Asset revision: {context.drawing.assetRevision}</p>
+              <a href={context.drawing.sourceURL} target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
+            </details>
+          </div>
+        )}
       </div>
       {onExplore && (
         <Button
@@ -149,7 +166,7 @@ function ContextSummary({
           disabled={disabled}
           onClick={() => onExplore(context)}
         >
-          View in 3D <span aria-hidden="true">↗</span>
+          {context.drawing ? "View selected detail" : "View in 3D"} <span aria-hidden="true">↗</span>
         </Button>
       )}
       {onAdopt && (
@@ -158,7 +175,7 @@ function ContextSummary({
         </Button>
       )}
       <p className="pw-muted pw-release-reference">
-        {context.roomReleaseId ? (context.roomSnapshot?.source === "preview" ? "Draft product preview" : `Product version ${context.roomSnapshot?.version}`) : "Earlier project · Product version not recorded."}
+        {context.roomReleaseId ? (context.roomSnapshot?.source === "preview" ? "Draft product preview" : `Product version ${context.roomSnapshot?.version}`) : context.drawing ? "Exact model and drawing references saved." : "Earlier project · Product version not recorded."}
       </p>
       {context.roomSnapshot && (
         <details className="pw-release-evidence">
@@ -286,6 +303,7 @@ function ProjectProgress({ project }) {
 }
 function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   const isPreview = repository.mode === "preview";
+  const inquiryOnly = repository.capabilities?.inquiryOnly === true;
   const [projects, setProjects] = useState([]),
     [drafts, setDrafts] = useState([]),
     [project, setProject] = useState(null),
@@ -358,7 +376,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
       const container = heading.current?.closest('.room-workspace');
       const top = container?.querySelector('.pw-topline') || container;
       if (top) {
-        const headerBottom = document.querySelector('.room-header')?.getBoundingClientRect().bottom || 0;
+        const headerBottom = document.querySelector('[data-workspace-header], .room-header')?.getBoundingClientRect().bottom || 0;
         window.scrollTo({top:Math.max(0,window.scrollY + top.getBoundingClientRect().top - headerBottom - 12),behavior:'instant'});
       }
     });
@@ -503,6 +521,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   function removeDraftReference(key) {
     if (!["part", "document", "chapter"].includes(key) || !draftRef.current)
       return;
+    if (key === "part" && draftRef.current.context.drawing) return;
     const next = copy(draftRef.current.context);
     delete next[key];
     void changeDraftContext(next);
@@ -596,7 +615,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           setProject(next);
           const selectedQuote = next.quotes.find(item => item.id === route.quoteId) || next.quotes.at(-1);
           setQuoteIdState(selectedQuote?.id || null);
-          setTabState(route.tab || (pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry"));
+          setTabState(inquiryOnly ? "inquiry" : route.tab || (pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry"));
           setAllComparisonFieldsState(route.compare === 'all');
           const snapshot = history.state?.annoraBuyerDraft;
           const resumable = snapshot?.projectId === next.id && snapshot?.mode === route.mode && (route.mode === 'message' || snapshot?.quoteId === selectedQuote?.id);
@@ -732,7 +751,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     draft &&
     route.context &&
     projectContextKey(draft.context) === projectContextKey(route.context) &&
-    ["part", "document", "chapter"].some(
+    ["part", "document", "chapter", "drawing"].some(
       (key) =>
         !sameProjectValue(draft.context[key], route.context[key]),
     );
@@ -817,7 +836,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
       No request, quotation or message is sent.
     </p>
   );
-  const sellerLink = project && !isPreview ? (
+  const sellerLink = project && !isPreview && !inquiryOnly ? (
     <a className="ar-button pw-role-link" data-variant="quiet" href={contextualURL(`../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
       View as seller <span aria-hidden="true">↗</span>
     </a>
@@ -972,7 +991,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
         {header(
           "YOUR PRODUCT CONVERSATIONS",
           "My projects.",
-          "Pick up a request, review a quotation, or continue the conversation.",
+          inquiryOnly ? "Continue a draft or reopen the exact model and drawing reference saved with an inquiry." : "Pick up a request, review a quotation, or continue the conversation.",
           <Button
             onClick={() => goto(repository.mode === "walkthrough" && projects.length ? {view:"project",projectId:projects[0].id} : { view: "inquiry", context: defaultContext })}
           >
@@ -1013,7 +1032,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           title="Saved projects"
           description={
             projects.length
-              ? `${projects.length} project${projects.length === 1 ? "" : "s"} · inquiries and quotation history`
+              ? `${projects.length} project${projects.length === 1 ? "" : "s"} · ${inquiryOnly ? "saved drawing inquiries" : "inquiries and quotation history"}`
               : undefined
           }
         >
@@ -1037,7 +1056,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       <small>
                         {item.quotes.length
                           ? `Quotation v${item.quotes.at(-1).version}`
-                          : "No quotation yet"}
+                          : inquiryOnly ? `Drawing ${item.context.drawing?.revision || "reference saved"}` : "No quotation yet"}
                       </small>
                     </p>
                     <Button
@@ -1055,7 +1074,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           ) : (
             <EmptyState
               title="Your next conversation starts here."
-              description="Bring a requirement from the 3D model, review your inquiry, then keep quotations and replies together."
+              description={inquiryOnly ? "Select a detail in 3D or on the drawing, add your question, then review and confirm the inquiry." : "Bring a requirement from the 3D model, review your inquiry, then keep quotations and replies together."}
             >
               <Button
                 variant="secondary"
@@ -1135,7 +1154,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 >
                   <Section
                     title="Application"
-                    description="What should this mechanism help you do?"
+                    description={draft.context.drawing ? "What should we review about this part or drawing detail?" : "What should this mechanism help you do?"}
                     actions={
                       <Button
                         variant="quiet"
@@ -1375,12 +1394,16 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                 {reviewed ? "BEFORE YOU CONFIRM" : "WHAT HAPPENS NEXT"}
               </p>
               <h2>
-                {reviewed
+                {inquiryOnly
+                  ? "Keep the exact reference."
+                  : reviewed
                   ? "One request. A lasting record."
                   : "Keep the conversation together."}
               </h2>
               <p>
-                {reviewed
+                {inquiryOnly
+                  ? reviewed ? "Confirmation saves this inquiry with its selected part, drawing revision and detail. It stays in this preview only." : "Review your question and drawing reference, then confirm to save the inquiry in this browser."
+                  : reviewed
                   ? "Confirmation saves this exact inquiry as a project. Later changes and quotations stay linked to it."
                   : "Review your inquiry, then the seller prepares and issues a quotation in the same project."}
               </p>
@@ -1760,10 +1783,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           project.inquiry.values.application,
           <Status tone={status.tone}>{status.label}</Status>,
         )}
-        <ProjectProgress project={project} />
-        <div className="pw-shared-status"><p><strong>{projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{projectStatus(project).next}</span></p>{sellerLink}</div>
+        {!inquiryOnly && <ProjectProgress project={project} />}
+        <div className="pw-shared-status"><p><strong>{inquiryOnly ? "Inquiry saved" : projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{inquiryOnly ? "Your confirmed question and exact drawing reference stay together in this preview." : projectStatus(project).next}</span></p>{sellerLink}</div>
         {feedback}
-        <div
+        {!inquiryOnly && <div
           className="pw-project-tabs"
           role="tablist"
           aria-label="Project information"
@@ -1805,11 +1828,12 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               )}
             </button>
           ))}
-        </div>
+        </div>}
         <div
-          role="tabpanel"
+          role={inquiryOnly ? "region" : "tabpanel"}
           id={`pw-panel-${tab}`}
-          aria-labelledby={`pw-tab-${tab}`}
+          aria-labelledby={inquiryOnly ? undefined : `pw-tab-${tab}`}
+          aria-label={inquiryOnly ? "Saved inquiry" : undefined}
           tabIndex={0}
         >
           {tab === "inquiry" && (
@@ -1829,8 +1853,9 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               <aside className="pw-sidebar">
                 <div className="pw-side-note">
                   <p className="pw-eyebrow">{question ? "YOUR REPLY NEEDED" : "NEXT STEP"}</p>
-                  <h2>{question ? "A question from the seller." : project.quotes.length ? "Your quotation is ready." : "Awaiting a quotation."}</h2>
-                  <p>{question ? question.body : project.quotes.length ? "Review the proposed scope and continue the same project." : "Your confirmed inquiry is available in the seller workspace. A quotation appears here after the seller reviews and issues it."}</p>
+                  <h2>{inquiryOnly ? "Return to the detail." : question ? "A question from the seller." : project.quotes.length ? "Your quotation is ready." : "Awaiting a quotation."}</h2>
+                  <p>{inquiryOnly ? "Reopen the selected part and drawing region with the same revision. This preview stores the inquiry in this browser; it does not send it to a seller." : question ? question.body : project.quotes.length ? "Review the proposed scope and continue the same project." : "Your confirmed inquiry is available in the seller workspace. A quotation appears here after the seller reviews and issues it."}</p>
+                  {inquiryOnly && <Button variant="secondary" onClick={() => onExplore(project.context)}>View selected detail <span aria-hidden="true">↗</span></Button>}
                   {question ? <Button onClick={openReply}>Reply to question <span aria-hidden="true">→</span></Button>
                     : project.quotes.length > 0 && <Button onClick={() => setTab("quotation")}>Review quotation <span aria-hidden="true">→</span></Button>}
                 </div>

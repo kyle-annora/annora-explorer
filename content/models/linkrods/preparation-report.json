@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "modelId": "linkrods",
+  "sourceSha256": "c29032b59d0274c6617e2919f613694e87c8f12982f0ea29e8929a2d6bbdc199",
+  "preservedSource": true,
+  "limits": {
+    "sourceBytes": 67108864,
+    "jsonBytes": 2097152,
+    "meshes": 2000,
+    "nodes": 10000,
+    "triangles": 1000000,
+    "trianglesPerGeometry": 250000,
+    "vertices": 3000000,
+    "animationKeys": 100000,
+    "clipSeconds": 120,
+    "outputBytes": 201326592
+  },
+  "counts": {
+    "meshes": 1,
+    "nodes": 1,
+    "triangles": 15242,
+    "vertices": 9252,
+    "uniqueGeometries": 1,
+    "sourceAnimationClips": 0
+  },
+  "bytes": {
+    "source": 406220,
+    "compressedModel": 196902,
+    "creases": 7488,
+    "contours": 279248,
+    "total": 1063991
+  },
+  "operation": null,
+  "tour": null,
+  "warnings": [
+    "No guided tour was authored; none was generated."
+  ],
+  "assets": {
+    "model.glb": {
+      "bytes": 406220,
+      "sha256": "c29032b59d0274c6617e2919f613694e87c8f12982f0ea29e8929a2d6bbdc199"
+    },
+    "model.glb.gz": {
+      "bytes": 196902,
+      "sha256": "1cefdb553b6bf661a0140fa2dca94def8f1e5de635f81cf0a1c1f47140eb14d0"
+    },
+    "metadata.json": {
+      "bytes": 3021,
+      "sha256": "a7c57c236e418a31cd3294400467b8baa36883ca67c990a65c74d818ce7cf309"
+    },
+    "edges.bin": {
+      "bytes": 7488,
+      "sha256": "c9bc1f6893660a557276b1da30728971c9e13bd8388c36bca3d85f8ea8a44798"
+    },
+    "edges.bin.gz": {
+      "bytes": 4364,
+      "sha256": "d34baf22ee53304879edd063a940c352d7dfa6bdca5b9148d953efc61577f1d0"
+    },
+    "edge-metadata.json": {
+      "bytes": 1277,
+      "sha256": "ec8c7943078b6d4143beb63515692c5e6545afb24d3d6c64000a5ff93727210a"
+    },
+    "silhouettes.bin": {
+      "bytes": 279248,
+      "sha256": "b2cf8ae232cdb583b9819982d400471c9da3928680b15331e51187e14b9b21a9"
+    },
+    "silhouettes.bin.gz": {
+      "bytes": 135542,
+      "sha256": "73f1a93cc8f96509742302e8ca346b3b3b043d2ebfcd00f928345798765e8968"
+    },
+    "silhouette-metadata.json": {
+      "bytes": 958,
+      "sha256": "205787fa2f4a7e0a108332348e229e6afd1d1df2d23a760b938faeae80a29cfd"
+    },
+    "LICENSE.txt": {
+      "bytes": 27472,
+      "sha256": "fb577a54b16a4e05039ff905105e588c2289b5bdd37975c5f6ef2be226ac2e2e"
+    },
+    "manifest.json": {
+      "bytes": 1499,
+      "sha256": "61420eaad0d46a2c17ee2949eb0962c94cb954e5031bb8f8a6a9d9b6ec7ca292"
+    }
+  }
+}

@@ -635,4 +635,50 @@ export const MODEL_CATALOG = freeze({
 "silhouetteMetadataUrl": new URL("../../content/models/apollo/silhouette-metadata.json", import.meta.url),
 "licenseUrl": new URL("../../content/models/apollo/LICENSE.txt", import.meta.url)
 },
+"linkrods": {
+  "id": "linkrods",
+  "packageId": "linkrods",
+  "rootId": "linkrods",
+  "title": "Connecting rod reference",
+  "shortTitle": "Connecting rod",
+  "capabilities": {
+    "operation": false,
+    "renderStyles": [
+      "engineering",
+      "linework",
+      "flat"
+    ]
+  },
+  "operationClipId": null,
+  "presentationPolicy": {},
+  "tour": null,
+  "defaultDirection": [
+    0.7,
+    1.8,
+    2.6
+  ],
+  "normalizeWidth": 4.4,
+  "viewLabels": [
+    "Isometric",
+    "Reverse"
+  ],
+  "facts": [],
+  "attribution": "OCCT linkrods sample, copyright Open CASCADE SAS. Published drawing: pzfreo/dw-examples, draftwright v0.2.5.",
+  "sourceUrl": "https://github.com/pzfreo/dw-examples/tree/c4c72a71c6440f0c824678660b59d0474f105e71",
+  "sourceLabel": "View model source",
+  "sourceDescription": "One connected CAD solid with two bores and a connecting web. The drawing and preview derive from the identical pinned STEP source.",
+  "sourceNote": "Reference drawing: unreviewed automatic output, not manufacturing approval. Source snapshot c4c72a71; no manufacturer revision or tolerances supplied. Display finish is illustrative. STEP coordinates are millimeters; preview coordinates are meters with Y up.",
+  "revision": "sha256:0fcf3da383d9da8cb65f870d50bc24200864254a23192ad5c10646804de4076a"
+,
+"modelUrl": new URL("../../content/models/linkrods/model.glb", import.meta.url),
+"compressedUrl": new URL("../../content/models/linkrods/model.glb.gz", import.meta.url),
+"metadataUrl": new URL("../../content/models/linkrods/metadata.json", import.meta.url),
+"edgesUrl": new URL("../../content/models/linkrods/edges.bin", import.meta.url),
+"compressedEdgesUrl": new URL("../../content/models/linkrods/edges.bin.gz", import.meta.url),
+"edgeMetadataUrl": new URL("../../content/models/linkrods/edge-metadata.json", import.meta.url),
+"silhouettesUrl": new URL("../../content/models/linkrods/silhouettes.bin", import.meta.url),
+"compressedSilhouettesUrl": new URL("../../content/models/linkrods/silhouettes.bin.gz", import.meta.url),
+"silhouetteMetadataUrl": new URL("../../content/models/linkrods/silhouette-metadata.json", import.meta.url),
+"licenseUrl": new URL("../../content/models/linkrods/LICENSE.txt", import.meta.url)
+},
 });

@@ -2,6 +2,7 @@ import { sellerProjectStatus } from './project-state.js';
 import { requestContext } from './request-state.js';
 import { normalizeInquiryProfile } from './inquiry-profile.js';
 import { validHistoricalRoomSnapshot } from './release-snapshot.js';
+import { drawingVersionKey } from './drawing-context.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
 export class ProjectError extends Error {
@@ -12,7 +13,7 @@ const text = value => typeof value === 'string' ? value.trim() : '';
 const fieldNames = ['name', 'email', 'company', 'application', 'quantity', 'targetWeeks', 'stroke', 'load', 'notes'];
 const blankValues = () => Object.fromEntries(fieldNames.map(key => [key, '']));
 const id = () => `DRAFT-${globalThis.crypto.randomUUID()}`;
-export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null]);
+export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
 function contextOf(input) {
   let context;
@@ -45,6 +46,11 @@ function contextOf(input) {
     const doc = context.roomSnapshot.content.documents.find(item=>item.id===context.document.id);
     if (!doc || doc.revision !== context.document.revision || doc.title !== context.document.title)
       throw new ProjectError('VALIDATION', 'The linked document does not match its saved product version.');
+  }
+  if (context.drawing && context.roomSnapshot) {
+    const doc = context.roomSnapshot.content.documents.find(item => item.id === context.drawing.id);
+    if (!doc || doc.title !== context.drawing.title || doc.revision !== context.drawing.revision || doc.assetId !== context.drawing.assetId)
+      throw new ProjectError('VALIDATION', 'The drawing does not match its saved product version.');
   }
   return context;
 }
