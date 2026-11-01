@@ -84,3 +84,13 @@ test('line assets must match their source model and contain bounded per-mesh ran
   records.source.sha256 = hash(glb()); records.meshes.Housing.segmentCount = 2; await save(); await assert.rejects(loadProject(f.root), /invalid edges range/);
   records.meshes.Housing.segmentCount = 1; await save(); await loadProject(f.root);
 });
+
+
+test('manual action duration accepts finite presentation time and rejects invalid overrides',async t=>{
+  const f=await fixture(t);
+  f.manifest.presentationPolicy={actionDuration:2.5};await f.save();await loadProject(f.root);
+  for(const actionDuration of [0,-1,11,'2.5']){
+    f.manifest.presentationPolicy.actionDuration=actionDuration;await f.save();
+    await assert.rejects(loadProject(f.root),/actionDuration/);
+  }
+});

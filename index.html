@@ -131,13 +131,14 @@
         <p id="operation-availability" class="operation-availability">This package contains a structural model without operating motion.</p>
         <div class="explosion-control" id="explode-controls" hidden>
           <button type="button" class="tool-button" id="explode-toggle" aria-pressed="false"><svg><use href="#i-expand"/></svg><span>Separate</span></button>
+          <button type="button" class="icon-button" id="explode-replay" aria-label="Replay separation" title="Replay separation"><svg><use href="#i-reset"/></svg></button>
           <div class="explosion-range"><label class="sr-only" for="explode-range">Assembly separation</label><input type="range" id="explode-range" min="0" max="100" step="1" value="0"><output id="explode-value" for="explode-range">0%</output></div>
         </div>
         <div class="operation-controls" id="operation-controls" hidden>
           <div class="operation-heading"><span id="operation-stage">Ready to operate</span><label class="follow-view" for="operation-follow"><input id="operation-follow" type="checkbox"><span>Follow view</span></label></div>
           <div class="operation-transport">
             <button id="operation-play" type="button" class="play-button" aria-label="Play operation" aria-pressed="false"><svg><use href="#i-play"/></svg><span>Play</span></button>
-            <button id="operation-reset" type="button" class="icon-button" aria-label="Reset operation" title="Reset operation"><svg><use href="#i-reset"/></svg></button>
+            <button id="operation-reset" type="button" class="icon-button" aria-label="Replay operating cycle" title="Replay operating cycle"><svg><use href="#i-reset"/></svg></button>
             <div class="operation-timeline"><label class="sr-only" for="operation-range">Operating cycle</label><input id="operation-range" type="range" min="0" max="100" step="0.1" value="0"><output id="operation-progress" for="operation-range">0%</output></div>
             <label class="sr-only" for="operation-speed">Playback speed</label><select id="operation-speed" aria-label="Playback speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option></select>
           </div>

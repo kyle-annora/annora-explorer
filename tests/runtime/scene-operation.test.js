@@ -83,3 +83,30 @@ test('scrubbing or reassembling to zero keeps the explosion workspace until Expl
   scene.setMode('operate');settle(scene);scene.setPlaybackProgress(.5);scene.setMode('explode');scene.explode(0,false);
   assert.equal(scene.mode,'explode');assert.equal(scene.fraction,0);scene.setMode('explore');assert.equal(scene.mode,'explore');
 });
+
+test('manual separation transport freezes, reverses and returns exact source rest transforms',()=>{
+  const scene=fixture(),rest=matrices(scene);
+  scene.explode(1);scene.stepSeparation(0);scene.stepSeparation(1000);
+  assert.ok(scene.fraction>0&&scene.fraction<1);const paused=matrices(scene),fraction=scene.fraction;
+  scene.pausePresentation();scene.stepSeparation(9000);assert.equal(scene.fraction,fraction);assert.deepEqual(matrices(scene),paused);
+  scene.explode(.25,false);assert.equal(scene.fraction,.25);assert.equal(scene.getSeparationState().playing,false);
+  scene.resumeSeparation({replay:true});assert.equal(scene.fraction,0);
+  scene.stepSeparation(10000);for(let t=10100;t<=12600;t+=100)scene.stepSeparation(t);
+  assert.equal(scene.fraction,1);assert.equal(scene.getSeparationState().playing,false);
+  scene.explode(0);scene.stepSeparation(13000);for(let t=13100;t<=15600;t+=100)scene.stepSeparation(t);
+  assert.equal(scene.fraction,0);assert.deepEqual(matrices(scene),rest);
+  scene.setMode('operate');assert.equal(scene.getSeparationState().available,false);
+});
+
+
+test('pause during operation-to-separation alignment resumes without losing source rotations',()=>{
+  const scene=fixture(),rest=matrices(scene);
+  scene.setMode('operate');settle(scene);scene.setPlaybackProgress(.5);
+  scene.explode(1);scene.stepTransformTransition(.05);scene.pauseSeparation();
+  const frozen=matrices(scene);assert.equal(scene.presentationPoseDetached,true);
+  scene.resumeSeparation();assert.deepEqual(matrices(scene),frozen);assert.ok(scene.transformTransition);
+  settle(scene);scene.stepSeparation(0);for(let t=100;t<=2600;t+=100)scene.stepSeparation(t);
+  assert.equal(scene.fraction,1);
+  scene.explode(0);scene.stepSeparation(3000);for(let t=3100;t<=5600;t+=100)scene.stepSeparation(t);
+  assert.equal(scene.fraction,0);assert.deepEqual(matrices(scene),rest);
+});

@@ -14,6 +14,7 @@ const requested=new URLSearchParams(location.search).get('explorer');
 const explorerURL=new URL(requested||'../../',location.href);
 if(!['http:','https:'].includes(explorerURL.protocol))throw new Error('Explorer URL must use HTTP or HTTPS.');
 let client=null,iframe=null,mountVersion=0,actionVersion=0,state=null,capabilities=null,tourId=null,rootId=null,initialized=false;
+let tourDescription=null;
 const nodes=new Map();
 const requestedNames=new Set();
 const human=value=>String(value||'').replaceAll('-',' ').replaceAll('_',' ');
@@ -66,7 +67,9 @@ function draw(next){
   const component=nodes.get(navigation.selectedId)?.title||human(navigation.selectedId)||'Whole model';
   const touring=tour.active;
   $('tour-start').hidden=touring||capabilities?.tours?.enabled===false;$('tour-playback').hidden=!touring;
-  $('tour-toggle').textContent=tour.status==='playing'?'Pause tour':tour.status==='completed'?'Replay tour':'Resume tour';
+  const heldStep=tour.playback==='steps'&&(tour.reason==='chapter-end'||tour.status==='completed');
+  const finalStep=heldStep&&tour.chapterId===tourDescription?.chapters.at(-1)?.id;
+  $('tour-toggle').textContent=tour.status==='playing'?'Pause tour':heldStep?(finalStep?'Explore freely':'Next step'):tour.status==='completed'?'Replay tour':'Resume tour';
   $('tour-time').textContent=`${clock(tour.time)}${tour.duration?` / ${clock(tour.duration)}`:''}`;
   if(tour.chapterId)$('chapter').value=tour.chapterId;
   $('actual-state').textContent=state.lifecycle==='ready'?`${component} · ${human(presentation.renderStyle)}${presentation.explosion>0?` · ${Math.round(presentation.explosion*100)}% exploded`:''}${touring?` · Tour ${tour.status}`:''}`:'Loading the model and its available controls.';
@@ -96,7 +99,7 @@ async function hydrate(connection){
     const tour=capabilities.tours?.items?.[0];tourId=tour?.id||null;
     $('tour-start').disabled=!tourId;$('chapter').disabled=!tourId;
     if(tourId){
-      const description=await invoke('getTour',{tourId},connection);if(client!==connection)return;
+      const description=await invoke('getTour',{tourId},connection);if(client!==connection)return;tourDescription=description;
       const prompt=document.createElement('option');prompt.value='';prompt.textContent='Choose a chapter';
       $('chapter').replaceChildren(prompt,...description.chapters.map(chapter=>{const option=document.createElement('option');option.value=chapter.id;option.textContent=chapter.label||chapter.title;return option;}));
     }
@@ -114,7 +117,7 @@ function receive(event,connection){
 }
 async function disconnect(){
   const previous=client,previousFrame=iframe;client=null;iframe=null;
-  $('model-controls').disabled=true;initialized=false;state=null;capabilities=null;tourId=null;nodes.clear();requestedNames.clear();
+  $('model-controls').disabled=true;initialized=false;state=null;capabilities=null;tourId=null;tourDescription=null;nodes.clear();requestedNames.clear();
   if(previous){try{await previous.request('dispose',{}, {timeoutMs:1500});}catch{/* Removing the frame is the final disposal boundary. */}finally{previous.close();}}
   previousFrame?.remove();
   if(!client&&!iframe){$('viewer-empty').hidden=false;$('connection-status').textContent='Disconnected';$('actual-state').textContent='The Explorer has been released.';}
@@ -149,7 +152,12 @@ $('explosion').addEventListener('change',action(()=>present('setExplosion',{prog
 $('tour-start').addEventListener('click',action(()=>present('startTour',{tourId})));
 $('tour-toggle').addEventListener('click',action(async()=>{
   const connection=client;
-  if(state.tour.status==='completed'){await present('seekTour',{seconds:0},connection);await present('resumeTour',{},connection);}
+  if(state.tour.playback==='steps'&&(state.tour.reason==='chapter-end'||state.tour.status==='completed')){
+    const index=tourDescription.chapters.findIndex(chapter=>chapter.id===state.tour.chapterId),next=tourDescription.chapters[index+1];
+    if(next){await present('goToTourChapter',{chapterId:next.id},connection);await present('resumeTour',{},connection);}
+    else await present('exitTour',{restore:false},connection);
+  }
+  else if(state.tour.status==='completed'){await present('seekTour',{seconds:0},connection);await present('resumeTour',{},connection);}
   else await present(state.tour.status==='playing'?'pauseTour':'resumeTour',{},connection);
 }));
 $('tour-exit').addEventListener('click',action(()=>present('exitTour',{restore:true})));

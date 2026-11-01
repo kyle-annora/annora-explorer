@@ -23,11 +23,12 @@ const fraction = value => Number.isFinite(value) && value >= 0 && value <= 1;
 const canonical = value => JSON.stringify(value, (_, item) => plain(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
 
 function validatePolicy(policy = {}, metadata, rootId) {
-  keys(policy, ['root', 'subassemblyDescription', 'spatialGrouping', 'explosion', 'finishes', 'navigationIcons'], 'presentationPolicy');
+  keys(policy, ['root', 'subassemblyDescription', 'spatialGrouping', 'explosion', 'finishes', 'navigationIcons', 'actionDuration'], 'presentationPolicy');
   const groups = new Set(metadata.groups.map(group => group.id)), ids = new Set([rootId, ...groups, ...metadata.parts.map(part => part.id), ...metadata.groups.flatMap(group => (group.children || []).filter(child => child.id !== group.id).map(child => child.id))]);
   const vector = (value, label) => requireValue(finiteVector(value) && value.every(number => Math.abs(number) <= 1e6), `${label} needs three bounded finite numbers.`);
   const groupId = (value, label) => requireValue(groups.has(value), `${label} references an unknown assembly group: ${value}`);
   const family = value => requireValue(Object.hasOwn(FINISHES, value), `Unknown presentation finish family: ${value}`);
+  if (policy.actionDuration !== undefined) requireValue(Number.isFinite(policy.actionDuration) && policy.actionDuration >= .5 && policy.actionDuration <= 10, 'actionDuration must be 0.5–10 presentation seconds.');
   if (policy.root) { keys(policy.root, ['id', 'title', 'description'], 'presentationPolicy.root'); requireValue(policy.root.id === rootId, 'presentationPolicy.root.id differs from the manifest.'); text(policy.root.title, 'presentation root title', 200); if (policy.root.description !== undefined) text(policy.root.description, 'presentation root description'); }
   text(metadata.root?.title || policy.root?.title, 'assembly root title', 200);
   for (const group of metadata.groups) { text(group.title, 'assembly group title', 200); for (const child of group.children || []) if (child.id !== group.id) text(child.title, 'subassembly title', 200); }

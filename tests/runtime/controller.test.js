@@ -272,3 +272,32 @@ test('malformed or executable parameter shapes are rejected before side effects'
   const object = { progress: .2 }; object.self = object;
   assert.equal((await f.command('setExplosion', object)).payload.error.code, 'INVALID_REQUEST');
 });
+
+test('separation transport is capability-gated and does not wait for playback completion',async()=>{
+  const f=fixture();let active=false;
+  f.scene.getSeparationState=()=>({available:active,playing:false,progress:.5});
+  assert.equal((await f.command('resumeExplosion')).payload.error.code,'UNSUPPORTED_ACTION');
+  active=true;f.scene.pauseSeparation=()=>f.calls.push(['pause-separation']);
+  f.scene.resumeSeparation=options=>f.calls.push(['resume-separation',options.replay]);
+  for(const method of ['pauseExplosion','resumeExplosion','replayExplosion'])assert.equal((await f.command(method)).payload.status,'completed');
+  assert.ok(f.calls.some(call=>call[0]==='pause-separation'));
+  assert.ok(f.calls.some(call=>call[0]==='resume-separation'&&call[1]===true));
+  assert.equal(f.calls.filter(call=>call[0]==='wait').every(call=>call[1]===false),true);
+  const restricted=fixture({enabled:{modes:['explore']}});
+  assert.equal((await restricted.command('pauseExplosion')).payload.error.code,'UNSUPPORTED_ACTION');
+});
+
+test('operation replay is one atomic command and never accepts unsupported source motion',async()=>{
+  const f=fixture();f.scene.playOneCycle=()=>{f.scene.setMode('operate');f.scene.operationState.playing=true;};
+  assert.equal((await f.command('replayOperation')).payload.status,'completed');assert.equal(f.scene.operationState.progress,0);assert.equal(f.scene.operationState.playing,true);
+  assert.equal((await fixture({operation:false}).command('replayOperation')).payload.error.code,'UNSUPPORTED_ACTION');
+});
+
+test('local tour endpoint seeks require a matching chapter and preserve command arguments',async()=>{
+  const f=fixture();await f.command('startTour',{tourId:f.model.tour.id});
+  let received;f.tour.jump=(...args)=>{received=args;};const chapter=f.model.tour.chapters[0];
+  assert.equal((await f.command('seekTour',{seconds:chapter.end,chapterId:chapter.id})).payload.status,'completed');
+  assert.deepEqual(received,['seek',chapter.end,chapter.id]);
+  assert.equal((await f.command('seekTour',{seconds:chapter.end+1,chapterId:chapter.id})).payload.error.code,'INVALID_ARGUMENT');
+  assert.equal((await f.command('seekTour',{seconds:0,chapterId:'missing'})).payload.error.code,'INVALID_ARGUMENT');
+});

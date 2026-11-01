@@ -87,3 +87,14 @@ test('a cancelled replay seek cannot restart playback after a newer intent', asy
   assert.deepEqual(commands, ['seekTour', 'seekTour']);
   tour.dispose();
 });
+
+test('short-step replay and progress stay scoped to the current chapter',async t=>{
+  const data=structuredClone(TOUR_CATALOG['kinetic-01']);data.playback='steps';
+  const commands=[];const {tour,elements}=setup(t,async()=>{},{model:{tour:data},command(method,params){commands.push({method,params});}});
+  tour.player.seek(data.chapters[1].start);
+  elements.get('tour-replay').dispatchEvent(new Event('click'));
+  elements.get('tour-progress').value='100';elements.get('tour-progress').dispatchEvent(new Event('input'));
+  assert.deepEqual(commands[0],{method:'goToTourChapter',params:{chapterId:data.chapters[1].id}});
+  assert.deepEqual(commands[1],{method:'seekTour',params:{seconds:data.chapters[1].end,chapterId:data.chapters[1].id}});
+  tour.dispose();
+});

@@ -11,9 +11,9 @@ const ERROR_CODES = new Set(['NOT_READY', 'UNKNOWN_NODE', 'UNKNOWN_TOUR', 'UNKNO
 const PARAMETERS = {
   getState: [], getCapabilities: [], getNode: ['nodeId'], getChildren: ['nodeId'], getTour: ['tourId'],
   select: ['nodeId'], focus: ['nodeId'], frame: ['nodeId', 'view'], isolate: ['nodeId'],
-  setRenderStyle: ['style'], setMode: ['mode'], setExplosion: ['progress', 'transition'],
-  playOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
-  startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
+  setRenderStyle: ['style'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
+  playOperation: [], replayOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
+  startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
   setTheme: ['themeId'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], cancel: ['requestId'], dispose: [],
 };
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
@@ -34,7 +34,7 @@ function jsonValue(value, depth = 0) {
 }
 const laneFor = method => method === 'setRenderStyle' ? ['render']
   : ['startTour', 'exitTour', 'restoreView'].includes(method) ? ['pose', 'render', 'tour']
-  : ['focus', 'frame', 'isolate', 'setMode', 'setExplosion', 'seekOperation', 'playOperation', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter'].includes(method) ? ['pose'] : [];
+  : ['focus', 'frame', 'isolate', 'setMode', 'setExplosion', 'pauseExplosion', 'resumeExplosion', 'replayExplosion', 'seekOperation', 'playOperation', 'replayOperation', 'pauseOperation', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter'].includes(method) ? ['pose'] : [];
 
 /** The scene is private. Both the existing shell and an iframe host use this boundary.
  * Port getters allow loading-time discovery without constructing a second scene or clock.
@@ -99,22 +99,22 @@ export class ExplorerController {
     const activity = this.lifecycle === 'disposed' ? [] : [...this.requests.values()].filter(item => !item.terminal && !QUERIES.has(item.method)).map(item => ({ requestId: item.id, activity: item.method }));
     return copy({ protocolVersion: EXPLORER_PROTOCOL, instanceId: this.instanceId, stateRevision: this.stateRevision, lifecycle: this.lifecycle, model: this.identity,
       navigation: { selectedId: available ? scene.selectedId : null, scopeId: available ? scene.scopeId : null, isolated: available ? Boolean(scene.isolated) : null },
-      presentation: { mode: available ? scene.mode : null, renderStyle: available ? scene.renderStyle || 'engineering' : null, explosion: available ? scene.fraction || 0 : null, explosionTarget: available ? scene.explosionTarget || 0 : null, transitioning: available ? this.transitioning() : null },
-      operation: { available: Boolean(available && operation.available && this.getCapabilities().operation.enabled), clipId: this.getCapabilities().operation.clips[0] || null, status: !available || !operation.available ? 'unavailable' : operation.playing ? 'playing' : operation.progress >= 1 ? 'completed' : 'paused', progress: available && operation.available ? operation.progress : null, speed: available && operation.available ? operation.speed : null, followCamera: Boolean(available && operation.followCamera) },
-      tour: { active: Boolean(tour?.active), tourId: tour?.tour?.id || null, status: tour?.pending ? 'preparing' : tour?.active ? transport.status : 'idle', time: transport?.time || 0, duration: tour?.tour?.duration || 0, chapterId: tour?.active ? transport?.chapter?.id || null : null, reason: tour?.active ? transport.reason : null },
+      presentation: { mode: available ? scene.mode : null, renderStyle: available ? scene.renderStyle || 'engineering' : null, explosion: available ? scene.fraction || 0 : null, explosionTarget: available ? scene.explosionTarget || 0 : null, separation: available ? scene.getSeparationState?.() || null : null, transitioning: available ? this.transitioning() : null },
+      operation: { available: Boolean(available && operation.available && this.getCapabilities().operation.enabled), clipId: this.getCapabilities().operation.clips[0] || null, status: !available || !operation.available ? 'unavailable' : operation.playing ? 'playing' : operation.progress >= 1 ? 'completed' : 'paused', progress: available && operation.available ? operation.progress : null, duration: available && operation.available ? operation.duration ?? null : null, sourceDuration: available && operation.available ? operation.sourceDuration ?? null : null, speed: available && operation.available ? operation.speed : null, followCamera: Boolean(available && operation.followCamera) },
+      tour: { active: Boolean(tour?.active), tourId: tour?.tour?.id || null, playback: tour?.tour?.playback || 'continuous', status: tour?.pending ? 'preparing' : tour?.active ? transport.status : 'idle', time: transport?.time || 0, duration: tour?.tour?.duration || 0, chapterId: tour?.active ? transport?.chapter?.id || null : null, reason: tour?.active ? transport.reason : null },
       appearance: { theme: this.port.getTheme?.() || { id: 'ember', revision: '1' }, quality: scene?.quality || 'balanced', effectiveQuality: scene?.effectiveQuality || 'balanced' },
       environment: this.environment, busy: activity,
     });
   }
   transitioning() {
     const scene = this.scene;
-    return Boolean(scene && (scene.transformTransition || scene.cameraMotion?.active || scene.separationMotion?.active || [...(scene.movingMeshes || [])].some(mesh => mesh.userData.pose?.active || mesh.userData.visibility?.active)));
+    return Boolean(scene && (scene.transformTransition || scene.separationAction?.playing || scene.cameraMotion?.active || scene.separationMotion?.active || [...(scene.movingMeshes || [])].some(mesh => mesh.userData.pose?.active || mesh.userData.visibility?.active)));
   }
   notify({ force = false } = {}) {
     if (this.lifecycle === 'disposed') return;
     const state = this.getState(), key = canonical({ ...state, stateRevision: 0 });
     if (key === this.lastPublished) return;
-    const discrete = canonical({ ...state, stateRevision: 0, presentation: { ...state.presentation, explosion: null }, operation: { ...state.operation, progress: null }, tour: { ...state.tour, time: null } });
+    const discrete = canonical({ ...state, stateRevision: 0, presentation: { ...state.presentation, explosion: null, explosionTarget: null, separation: state.presentation.separation ? { ...state.presentation.separation, progress:null, time:null, value:null } : null }, operation: { ...state.operation, progress: null }, tour: { ...state.tour, time: null } });
     const now = globalThis.performance?.now?.() || Date.now();
     if (!force && discrete === this.lastDiscrete && now - this.lastNotify < 100) return;
     this.lastPublished = key; this.lastDiscrete = discrete; this.lastNotify = now;
@@ -261,13 +261,23 @@ export class ExplorerController {
       check(params.progress === 0 || this.node(scene.scopeId).type !== 'component', 'An individual component cannot be separated.', 'UNSUPPORTED_ACTION');
       return async record => { scene.explode(params.progress, params.transition !== 'immediate'); await this.wait(record, params.transition !== 'immediate'); return { explosion: scene.fraction }; };
     }
-    if (['playOperation', 'pauseOperation', 'seekOperation', 'setOperationSpeed', 'setFollowCamera'].includes(method)) {
+    if (['pauseExplosion', 'resumeExplosion', 'replayExplosion'].includes(method)) {
+      check(caps.modes.enabled.includes('explode'), 'Exploded presentation is not enabled.', 'UNSUPPORTED_ACTION');
+      check(scene.getSeparationState?.().available, 'Start a separation action before using its transport.', 'UNSUPPORTED_ACTION');
+      return async record => {
+        if (method === 'pauseExplosion') scene.pauseSeparation();
+        else scene.resumeSeparation({ replay: method === 'replayExplosion' });
+        await this.wait(record, false); return scene.getSeparationState();
+      };
+    }
+    if (['playOperation', 'replayOperation', 'pauseOperation', 'seekOperation', 'setOperationSpeed', 'setFollowCamera'].includes(method)) {
       check(caps.operation.available, 'This model has no enabled operating clip.', 'UNSUPPORTED_ACTION');
       if (method === 'seekOperation') check(fraction(params.progress), 'Operation progress must be a finite fraction from 0 to 1.');
       if (method === 'setOperationSpeed') check(SPEEDS.includes(params.speed), 'Use an advertised operation speed.');
       if (method === 'setFollowCamera') check(typeof params.enabled === 'boolean', 'enabled must be a boolean.');
       return async record => {
         if (method === 'playOperation') { if (scene.mode !== 'operate') scene.setMode('operate'); if (!scene.operationPlayer.state().playing) scene.togglePlayback(); }
+        if (method === 'replayOperation') scene.playOneCycle();
         if (method === 'pauseOperation') { scene.operationPlayer.pause(); scene.emitOperation(true); scene.invalidate(); }
         if (method === 'seekOperation') scene.setPlaybackProgress(params.progress);
         if (method === 'setOperationSpeed') scene.setPlaybackSpeed(params.speed);
@@ -278,16 +288,22 @@ export class ExplorerController {
     if (method === 'getTour' || TOUR_COMMANDS.has(method)) {
       check(caps.tours.enabled && tour, 'This model has no enabled guided tour.', 'UNSUPPORTED_ACTION');
       if (['getTour', 'startTour'].includes(method)) check(params.tourId === tour.tour.id, 'This tour is not available for this model.', 'UNKNOWN_TOUR');
-      if (method === 'getTour') return () => ({ id: tour.tour.id, title: tour.tour.title, duration: tour.tour.duration, chapters: tour.tour.chapters.map(({ id, label, title, start, duration, previewAt = 0, settledAt }) => ({ id, label: label || title, start, duration, previewAt, ...(settledAt === undefined ? {} : { settledAt }) })) });
+      if (method === 'getTour') return () => ({ id: tour.tour.id, title: tour.tour.title, duration: tour.tour.duration, playback: tour.tour.playback || 'continuous', chapters: tour.tour.chapters.map(({ id, label, title, start, duration, previewAt = 0, settledAt }) => ({ id, label: label || title, start, duration, previewAt, ...(settledAt === undefined ? {} : { settledAt }) })) });
       if (method !== 'startTour') check(tour.active || method === 'exitTour' && tour.pending, 'Start a tour before using its transport.', 'UNSUPPORTED_ACTION');
-      if (method === 'seekTour') check(finite(params.seconds) && params.seconds >= 0 && params.seconds <= tour.tour.duration, 'Tour time is outside the authored duration.');
+      if (method === 'seekTour') {
+        check(finite(params.seconds) && params.seconds >= 0 && params.seconds <= tour.tour.duration, 'Tour time is outside the authored duration.');
+        if (params.chapterId !== undefined) {
+          const chapter = tour.tour.chapters.find(chapter => chapter.id === params.chapterId);
+          check(chapter && params.seconds >= chapter.start && params.seconds <= chapter.end, 'The requested time is outside this chapter.');
+        }
+      }
       if (method === 'goToTourChapter') check(tour.tour.chapters.some(chapter => chapter.id === params.chapterId), 'The chapter is not present in this tour.', 'UNKNOWN_CHAPTER');
       if (method === 'exitTour') check(params.restore === undefined || typeof params.restore === 'boolean', 'restore must be a boolean.');
       return async record => {
         if (method === 'startTour') { const started = await tour.start({ signal: record.abort.signal }); if (!record.abort.signal.aborted) check(started !== false && tour.active, 'The tour could not be prepared.', 'ASSET_LOAD_FAILED'); }
         if (method === 'pauseTour') tour.pause('user');
         if (method === 'resumeTour') tour.resume();
-        if (method === 'seekTour') tour.jump('seek', params.seconds);
+        if (method === 'seekTour') tour.jump('seek', params.seconds, params.chapterId);
         if (method === 'goToTourChapter') tour.jump('chapter', tour.tour.chapters.findIndex(chapter => chapter.id === params.chapterId));
         if (method === 'exitTour') await tour.exit({ restore: params.restore !== false, signal: record.abort.signal });
         await this.wait(record, method === 'exitTour'); return this.getState().tour;

@@ -161,7 +161,8 @@
       "gearbox": "gear",
       "linkages": "linkages",
       "latches": "latch"
-    }
+    },
+    "actionDuration": 2.5
   },
   "tour": "tour.json"
 }

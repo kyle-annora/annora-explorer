@@ -80,3 +80,10 @@ The local review used desktop Chrome and viewport emulation. Physical-phone and
 ordinary-laptop GPU/thermal qualification remains open. Apollo is a larger
 optional sample; its transfer and frame-rate costs should be measured on target
 hardware before making a production performance promise.
+
+
+## Short-action integration
+
+See [short-action release evidence](short-actions.md) for the integrated 2.5-second
+crank and Apollo actions, mobile checks and updated API behavior. Earlier evidence
+above describes the previous continuous-tour release.

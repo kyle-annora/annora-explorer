@@ -148,7 +148,7 @@ function renderDetails(){
   const selected=hierarchy.nodes.get(navigation.selectedId), scopePath=ancestors(hierarchy.nodes,navigation.scopeId), selectedPath=ancestors(hierarchy.nodes,selected.id);
   $('breadcrumbs').replaceChildren();scopePath.forEach((node,index)=>{if(index){const separator=textNode('span','/');separator.className='separator';separator.setAttribute('aria-hidden','true');$('breadcrumbs').append(separator);}const item=textNode(index===scopePath.length-1?'span':'button',node.title);if(item.tagName==='BUTTON'){item.type='button';listenDetail(item,'click',()=>inspect(node.id));}else item.setAttribute('aria-current','page');$('breadcrumbs').append(item);});
   $('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;
-  $('selection-title').textContent=selected.title;$('selection-description').textContent=mode==='operate'&&selected.id===model.rootId&&operationState?.stage?operationState.stage.description:selected.description;$('selection-badge').textContent=selected.type.toUpperCase();
+  $('selection-title').textContent=selected.title;$('selection-description').textContent=mode==='operate'&&selected.id===model.rootId&&operationState?.stage?operationState.stage.description:selected.id===model.rootId?(model.presentationPolicy?.root?.description||selected.description):selected.description;$('selection-badge').textContent=selected.type.toUpperCase();
   const context=$('selection-context');context.hidden=!selected.parent;context.textContent=selected.parent?'Within '+hierarchy.nodes.get(selected.parent).title:'';
   const meta=[['Components',selected.meshNames.length.toLocaleString()],['Depth',selectedPath.length-1]];
   if(selected.type==='component'){const finish=explorer?.meshes.get(selected.meshName)?.userData.spec?.label;if(finish)meta.push(['Display finish',finish]);}
@@ -197,22 +197,32 @@ listen($('reset-view'),'click',()=>setView());listen($('view-front'),'click',()=
 function syncOperation(state){
   if(!state)return;operationState=state;mode=state.mode;document.body.dataset.mode=mode;document.body.dataset.playing=String(state.playing);document.body.dataset.operationProgress=String(state.progress);
   for(const value of ['explore','explode','operate'])$('mode-'+value).setAttribute('aria-pressed',String(mode===value));
-  $('mode-operate').disabled=!state.available||!policy.operation;$('operation-availability').hidden=state.available||!PROJECT_CONFIG.features.operation;$('explode-controls').hidden=mode!=='explode';$('operation-controls').hidden=mode!=='operate';
+  $('mode-operate').disabled=!state.available||!policy.operation;$('operation-availability').hidden=state.available||!PROJECT_CONFIG.features.operation;$('explode-controls').hidden=mode!=='explode'&&!state.separation?.playing&&!(state.separation?.available&&state.separation.progress<1);$('operation-controls').hidden=mode!=='operate';
+  const separation=state.separation||{}, resumable=separation.available&&separation.progress>0&&separation.progress<1;
+  const separationLabel=separation.playing?'Pause':resumable?'Resume':explorer?.fraction>.001?'Reassemble':'Separate';
+  $('explode-toggle').querySelector('span').textContent=separationLabel;$('explode-toggle').setAttribute('aria-label',separationLabel+' assembly');$('explode-toggle').setAttribute('aria-pressed',String(Boolean(separation.playing)));$('explode-toggle').querySelector('use').setAttribute('href',separation.playing?'#i-pause':resumable?'#i-play':'#i-expand');
+  $('explode-replay').disabled=!separation.available;
   $('operation-play').querySelector('span').textContent=state.playing?'Pause':state.progress>=1?'Replay cycle':state.progress>0?'Resume':'Run cycle';$('operation-play').querySelector('use').setAttribute('href',state.playing?'#i-pause':'#i-play');$('operation-play').setAttribute('aria-label',state.playing?'Pause operation':'Run one operating cycle');$('operation-play').setAttribute('aria-pressed',String(state.playing));
-  $('operation-range').value=String(state.progress*100);$('operation-progress').value=Math.round(state.progress*100)+'%';$('operation-range').setAttribute('aria-valuetext',`${Math.round(state.progress*100)} percent · ${state.stage?.title||'Ready'}`);
+  $('operation-range').value=String(state.progress*100);$('operation-progress').value=`${state.time.toFixed(1)} / ${state.duration.toFixed(1)} s`;$('operation-range').setAttribute('aria-valuetext',`${Math.round(state.progress*100)} percent · ${state.stage?.title||'Ready'}`);
   $('operation-stage').textContent=state.stage?`${String(state.stage.index+1).padStart(2,'0')} / ${String(state.stage.count).padStart(2,'0')} · ${state.stage.title}`:'Ready to operate';$('operation-stage').title=state.stage?.description||'';$('operation-speed').value=String(state.speed);$('operation-follow').checked=Boolean(state.followCamera);
   if(hierarchy&&state.scopeId&&state.scopeId!==navigation.scopeId){navigation=enterScope(navigation,hierarchy.nodes,state.scopeId);renderTree();renderDetails();}
   if(hierarchy&&state.selectedId&&state.selectedId!==navigation.selectedId){navigation=selectNode(navigation,hierarchy.nodes,state.selectedId);renderTree();renderDetails();}
   if(hierarchy&&navigation.isolated!==state.isolated){navigation={...navigation,isolated:state.isolated};renderDetails();}
-  if(hierarchy&&navigation.selectedId===model.rootId)$('selection-description').textContent=state.mode==='operate'&&state.stage?state.stage.description:hierarchy.root.description;
+  if(hierarchy&&navigation.selectedId===model.rootId)$('selection-description').textContent=state.mode==='operate'&&state.stage?state.stage.description:(model.presentationPolicy?.root?.description||hierarchy.root.description);
 }
 for(const value of ['explore','explode','operate'])listen($('mode-'+value),'click',()=>command('setMode',{mode:value}));
 listen($('operation-play'),'click',()=>command(explorer?.getOperationState().playing?'pauseOperation':'playOperation'));
-listen($('operation-reset'),'click',()=>command('seekOperation',{progress:0}));
+listen($('operation-reset'),'click',()=>command('replayOperation'));
 listen($('operation-speed'),'change',event=>command('setOperationSpeed',{speed:Number(event.target.value)}));
 listen($('operation-follow'),'change',event=>command('setFollowCamera',{enabled:event.target.checked}));
 listen($('operation-range'),'input',event=>command('seekOperation',{progress:Number(event.target.value)/100}));
-listen($('explode-toggle'),'click',()=>command('setExplosion',{progress:explorer?.explosionTarget>.001?0:1}));
+listen($('explode-toggle'),'click',()=>{
+  const state=explorer?.getSeparationState();
+  if(state?.playing)command('pauseExplosion');
+  else if(state?.available&&state.progress>0&&state.progress<1)command('resumeExplosion');
+  else command('setExplosion',{progress:explorer?.fraction>.001?0:1});
+});
+listen($('explode-replay'),'click',()=>command('replayExplosion'));
 listen($('explode-range'),'pointerdown',()=>{controller.takeover();explorer?.pauseCamera();});
 listen($('explode-range'),'input',event=>command('setExplosion',{progress:Number(event.target.value)/100,transition:'immediate'}));
 listen($('explode-range'),'change',()=>command('frame',{nodeId:navigation.scopeId}));
@@ -264,7 +274,7 @@ async function start(){
       benchmarkSelection(id){navigation=selectNode(navigation,hierarchy.nodes,id);renderTree();renderDetails();},report:showReport,
       benchmarkProgress(value){const progress=Math.floor(value*10)*10;if(progress!==lastProgress){lastProgress=progress;$('perf-status').textContent='Motion check · '+progress+'%';}},
       hover(node,position){const label=$('hover-label');label.hidden=!node;if(node){label.textContent=node.title;label.style.left=Math.min(position.x,$('viewport').clientWidth-200)+'px';label.style.top=Math.min(position.y,$('viewport').clientHeight-70)+'px';}},
-      explosion(fraction){const percent=Math.round(fraction*100);$('explode-range').value=String(percent);$('explode-value').value=percent+'%';const separated=(explorer?.explosionTarget??fraction)>.001;$('explode-toggle').setAttribute('aria-pressed',String(separated));$('explode-toggle').querySelector('span').textContent=separated?'Reassemble':'Separate';document.body.dataset.explosion=fraction.toFixed(4);},
+      explosion(fraction){const percent=Math.round(fraction*100);$('explode-range').value=String(percent);$('explode-value').value=percent+'%';document.body.dataset.explosion=fraction.toFixed(4);},
     },config);
     await explorer.load(model.modelUrl,progress=>{$('loading-progress').style.width=Math.round(progress*100)+'%';$('loading-label').textContent=progress<1?`Loading ${metadata.parts.length} components · ${Math.round(progress*100)}%`:'Preparing materials and lighting…';});
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);

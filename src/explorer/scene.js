@@ -17,6 +17,7 @@ import { abortable, throwIfAborted } from './network-load.js';
 import { DampedMotion, nearestAngle, fitProjectedPoints } from './motion.js';
 import { materialSpec, technicalSpec, FINISHES } from './appearance.js';
 import { OperationPlayer, SourceAnimationPose } from './operation-player.js';
+import { SeparationPlayer } from './separation-player.js';
 import { BenchmarkRecorder, QUALITY_PROFILES, AdaptiveBudget, renderPixelRatio } from './performance.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -85,7 +86,7 @@ export class AssemblyScene {
     this.addPicking();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(mount);
     this.frame = this.frame.bind(this);
-    document.addEventListener('visibilitychange',()=>{this.operationPlayer.setVisibility(document.hidden);this.lastFrame=null;this.emitOperation(true);if(!document.hidden)this.invalidate();},{signal:this.abort.signal});
+    document.addEventListener('visibilitychange',()=>{this.operationPlayer.setVisibility(document.hidden);if(document.hidden)this.separationAction?.pause();this.lastFrame=null;this.emitOperation(true);if(!document.hidden)this.invalidate();},{signal:this.abort.signal});
     this.resize();this.invalidate();
   }
 
@@ -105,7 +106,7 @@ export class AssemblyScene {
   }
 
   isSettled({ignorePlayback=false}={}) {
-    return !this.disposed&&!this.cameraMotion?.active&&!this.separationMotion?.active&&!this.transformTransition&&(ignorePlayback||!this.operationPlayer?.playing)&&!this.benchmark?.active&&!this.controlsMoving&&![...this.meshes.values()].some(mesh=>mesh.userData.pose?.active||mesh.userData.visibility?.active);
+    return !this.disposed&&!this.cameraMotion?.active&&!this.separationMotion?.active&&!this.transformTransition&&!this.separationAction?.playing&&(ignorePlayback||!this.operationPlayer?.playing)&&!this.benchmark?.active&&!this.controlsMoving&&![...this.meshes.values()].some(mesh=>mesh.userData.pose?.active||mesh.userData.visibility?.active);
   }
 
   flushSettledWaiters() {
@@ -179,7 +180,7 @@ export class AssemblyScene {
     if (this.meshes.size !== records.size) throw new Error(`Incomplete model: ${this.meshes.size} / ${records.size} components.`);
     const operation=this.model.operation||this.metadata.operation;const clip=operation&&(operation.clipName?gltf.animations.find(item=>item.name===operation.clipName):gltf.animations[0]);
     if(operation&&!clip)throw new Error(`Missing authored animation clip: ${operation.clipName||'first clip'}.`);
-    if(clip){this.operationConfig=operation;this.operationSampler=new SourceAnimationPose(gltf.scene,clip,normalize);this.operationPlayer=new OperationPlayer({duration:operation.duration||clip.duration,stages:operation.stages||[]});}
+    if(clip){this.operationConfig=operation;this.operationSampler=new SourceAnimationPose(gltf.scene,clip,normalize);this.operationPlayer=new OperationPlayer({duration:this.model.presentationPolicy?.actionDuration||operation.duration||clip.duration,stages:operation.stages||[]});}
     this.modelBounds = this.boxFor([...this.meshes.values()]);
     this.addGrid(); this.active = [...this.meshes.values()];
     this.offsets = createOffsets(this.metadata.parts, this.nodes, this.rootId, this.scale, this.model.presentationPolicy);
@@ -226,7 +227,7 @@ export class AssemblyScene {
   fit(animate = true, viewDirection = this.currentDirection(true)) {
     if (!this.active.length) return;
     this.cancelBenchmark('settings-changed');
-    this.fitMeshes(this.active,animate,viewDirection);
+    this.fitMeshes(this.active,animate,viewDirection,this.separationAction?.playing ? this.restTargets(Math.max(this.separationAction.from,this.separationAction.to)) : null);
   }
 
   fitMeshes(meshes, animate = true, viewDirection = this.currentDirection(true), poses = null) {
@@ -349,7 +350,7 @@ export class AssemblyScene {
   }
 
   setScope(id) {
-    if(!this.nodes.has(id))return;this.cancelBenchmark('user-input');
+    if(!this.nodes.has(id))return;this.cancelBenchmark('user-input');this.separationAction?.clear(this.fraction);
     const restoring=this.mode==='operate'||Boolean(this.transformTransition)||Boolean(this.presentationPoseDetached);
     if(restoring){this.operationPlayer.pause();this.operationSampler?.restore();this.transformTransition=null;this.mode='explore';}
     if(id===this.scopeId&&!restoring){this.selectedId=id;this.hideHover();this.fit();this.emitOperation(true);return;}
@@ -382,24 +383,43 @@ export class AssemblyScene {
     this.retargetPose(value,true); this.invalidate();
   }
 
+  getSeparationState() { return this.separationAction?.state() || { available:false, playing:false, progress:0, value:this.fraction, from:this.fraction, to:this.fraction, duration:this.model?.presentationPolicy?.actionDuration || 2.5 }; }
+
   explode(value, animate = true, requestedMode = null) {
     this.cancelBenchmark('user-input');
-    // Reassembly is still part of the explosion workspace; keep its slider
-    // mounted at zero until the user explicitly chooses Explore.
     const nextMode=requestedMode||(value>.001||this.mode==='explode'?'explode':'explore');
-    if(this.mode==='operate'||this.transformTransition||this.presentationPoseDetached){this.leaveOperation(nextMode,value,animate);return;}
+    if(this.mode==='operate'||this.transformTransition||this.presentationPoseDetached) this.leaveOperation(nextMode,animate?0:value,animate);
     this.mode=nextMode;
+    this.separationAction ??= new SeparationPlayer(this.model?.presentationPolicy?.actionDuration || 2.5);
     this.explosionTarget = THREE.MathUtils.clamp(value,0,1);
-    if (!animate || reducedMotion.matches) this.applyFraction(this.explosionTarget);
+    if (!animate) { this.separationAction.seekValue(value); this.applyFraction(value); }
+    else if (reducedMotion.matches) { this.separationAction.start(this.fraction,value); this.separationAction.seek(1); this.applyFraction(value); }
     else {
-      this.separationMotion.to([this.explosionTarget]);
-      this.retargetPose(this.explosionTarget);
-      this.reportSeparation(this.fraction);
+      this.separationAction.start(this.fraction,this.explosionTarget);
+      this.separationMotion.to([this.fraction],true);
+      if(!this.transformTransition)this.retargetPose(this.fraction,true);
     }
-    // Pointer scrubbing holds the camera; fit once on release. A button action
-    // coordinates camera and parts without changing the user's orbit angle.
     if (animate) this.fit(true,this.currentDirection(true));
     this.emitOperation(true);this.invalidate();
+  }
+
+  pauseSeparation() { this.pausePresentation(); }
+  resumeSeparation({ replay=false } = {}) {
+    const action=this.separationAction;
+    if (!action?.state().available) return false;
+    this.explosionTarget=action.to;
+    if (reducedMotion.matches) { action.seek(1); this.applyFraction(action.to); }
+    else {
+      const detached=this.presentationPoseDetached;
+      action.play({once:true,restart:replay});
+      if(detached){this.operationSampler?.restore();this.beginTransformTransition(this.restTargets(action.state().value));}
+      else if(replay)this.applyFraction(action.from);
+    }
+    this.fit(true,this.currentDirection(true));this.emitOperation(true);this.invalidate();return true;
+  }
+  stepSeparation(timestamp) {
+    if(this.tourFrame||!this.separationAction?.tick(timestamp,{blocked:Boolean(this.transformTransition)}))return false;
+    this.applyFraction(this.separationAction.state().value); this.emitOperation(); return true;
   }
 
   restTargets(fraction = 0) {
@@ -457,14 +477,14 @@ export class AssemblyScene {
   }
 
   getOperationState() {
-    return {...this.operationPlayer.state(),mode:this.mode,scopeId:this.scopeId,selectedId:this.selectedId,isolated:this.isolated,followCamera:this.followCamera,transitioning:Boolean(this.transformTransition)};
+    return {...this.operationPlayer.state(),separation:this.getSeparationState(),sourceDuration:this.operationConfig?.duration,mode:this.mode,scopeId:this.scopeId,selectedId:this.selectedId,isolated:this.isolated,followCamera:this.followCamera,transitioning:Boolean(this.transformTransition)};
   }
 
   emitOperation(force = false) {
     if(this.disposed)return;
     const now=performance.now(),state=this.getOperationState();
     this.refreshOutline(state.stage);
-    const key=[state.mode,state.playing,state.stage?.index,state.transitioning,state.scopeId,state.selectedId,state.isolated,state.followCamera].join(':');
+    const key=[state.mode,state.playing,state.stage?.index,state.transitioning,state.scopeId,state.selectedId,state.isolated,state.followCamera,state.separation.playing,state.separation.progress===1].join(':');
     if(!force&&key===this.operationKey&&now-(this.lastOperationReport||0)<80)return;
     this.operationKey=key;this.lastOperationReport=now;this.callbacks.operation?.(state);
   }
@@ -475,7 +495,7 @@ export class AssemblyScene {
     if(mode==='explode'){this.explode(1);return true;}
     if(mode!=='operate'||!this.operationPlayer.state().available)return false;
     if(this.mode==='operate')return true;
-    this.cancelBenchmark('user-input');this.setScope(this.rootId);
+    this.cancelBenchmark('user-input');this.separationAction?.clear(this.fraction);this.setScope(this.rootId);
     this.isolated=false;this.updateContextVisibility();this.mode='operate';this.selectedId=this.rootId;this.followStage=null;
     this.explosionTarget=0;this.separationMotion.to([0],true);this.reportSeparation(0);this.operationPlayer.reset();
     this.beginTransformTransition(this.operationTargets(0));this.syncEdges();this.hideHover();
@@ -484,7 +504,7 @@ export class AssemblyScene {
 
   leaveOperation(mode, fraction = 0, animate = true) {
     if(this.disposed)return;
-    this.operationPlayer.pause();this.operationSampler?.restore();this.mode=mode;
+    this.separationAction?.clear(this.fraction);this.operationPlayer.pause();this.operationSampler?.restore();this.mode=mode;
     this.hideHover();
     this.explosionTarget=THREE.MathUtils.clamp(fraction,0,1);this.separationMotion.to([this.explosionTarget],true);this.reportSeparation(this.explosionTarget);
     this.beginTransformTransition(this.restTargets(this.explosionTarget),animate);this.syncEdges();
@@ -548,7 +568,7 @@ export class AssemblyScene {
   /** Freeze every presentation channel before giving OrbitControls back to the visitor. */
   pausePresentation() {
     this.cameraMotion?.stop();this.controls.enableDamping=true;this.followCamera=false;
-    this.operationPlayer.pause();this.separationMotion.to([this.fraction],true);this.explosionTarget=this.fraction;
+    this.operationPlayer.pause();this.separationAction?.pause();this.separationMotion.to([this.fraction],true);this.explosionTarget=this.fraction;
     this.presentationPoseDetached=Boolean(this.presentationPoseDetached||this.transformTransition);this.transformTransition=null;
     for(const mesh of this.meshes.values()){
       mesh.userData.pose.to(mesh.position.toArray(),true);mesh.userData.visibility.stop();
@@ -573,7 +593,7 @@ export class AssemblyScene {
     this.selectedId=this.nodes.has(snapshot.selectedId)?snapshot.selectedId:this.scopeId;
     this.isolated=Boolean(snapshot.isolated);this.renderStyle=renderStyle;this.technical=renderStyle!=='engineering';this.mode=snapshot.mode;
     this.scopeViews=new Map(snapshot.scopeViews);this.offsets=createOffsets(this.metadata.parts,this.nodes,this.scopeId,this.scale,this.model.presentationPolicy);
-    this.operationPlayer.seek(snapshot.operation.progress);this.operationPlayer.setSpeed(snapshot.operation.speed);
+    this.separationAction?.clear(snapshot.explosion);this.operationPlayer.seek(snapshot.operation.progress);this.operationPlayer.setSpeed(snapshot.operation.speed);
     if(this.mode==='operate'&&this.operationSampler)this.operationSampler.sample(snapshot.operation.progress);
     else this.operationSampler?.restore();
     this.explosionTarget=snapshot.explosion;this.separationMotion.to([snapshot.explosion],true);this.reportSeparation(snapshot.explosion);
@@ -613,7 +633,7 @@ export class AssemblyScene {
     if(immediate)for(const mesh of this.meshes.values())mesh.userData.visibility.to(mesh.userData.visibility.target,true);
     if(contextChanged||appearanceChanged)this.syncEdges();
     if(appearanceChanged)this.resizeDrawingBuffer();
-    this.operationPlayer.pause();
+    this.operationPlayer.pause();this.separationAction?.clear(explosion);
     const progress=operation?THREE.MathUtils.clamp(frame.operationProgress,0,1):null;
     const poseKey=JSON.stringify([this.scopeId,explosion,progress,mode]);
     if(this.tourPoseKey!==poseKey){
@@ -865,7 +885,7 @@ export class AssemblyScene {
   dispose() {
     if(this.disposed)return;this.disposed=true;this.modeRequest=(this.modeRequest||0)+1;this.presentationRequest=(this.presentationRequest||0)+1;
     if(this.raf!==null)cancelAnimationFrame(this.raf);this.raf=null;
-    this.abort.abort();this.resizeObserver.disconnect();this.controls.dispose();this.operationPlayer.pause();this.operationSampler?.dispose();
+    this.abort.abort();this.resizeObserver.disconnect();this.controls.dispose();this.separationAction?.pause();this.operationPlayer.pause();this.operationSampler?.dispose();
     this.benchmark.cancel?.('cancelled');this.benchmarkStarted=null;
     for(const waiter of this.settleWaiters||[])waiter.finish(new DOMException('Explorer disposed.','AbortError'));
     this.firstFrame?.();this.firstFrame=null;
@@ -902,12 +922,13 @@ export class AssemblyScene {
       if(pose.active||visibility.active)posesMoving=true;else this.movingMeshes.delete(mesh);
     }
     const transformMoving=this.stepTransformTransition(seconds);
+    this.stepSeparation(time);
     if(this.mode==='operate'&&!this.tourFrame){const advanced=this.operationPlayer.tick(time,{blocked:Boolean(this.transformTransition)});if(advanced){this.applyOperationPose();this.dirty=true;}this.updateFollowCamera();this.emitOperation();}
     if(this.separationMotion.step(seconds))this.reportSeparation(this.separationMotion.values[0]);
     if(this.cameraMotion?.step(seconds)){this.applyCamera();this.dirty=true;}
     if(!this.cameraMotion?.active)this.controls.enableDamping=true;
     const controlsMoving=this.controls.update();this.controlsMoving=controlsMoving;
-    const moving=Boolean(transformMoving||this.transformTransition||this.mode==='operate'&&this.operationPlayer.playing||posesMoving||this.cameraMotion?.active||this.separationMotion.active||this.benchmark.active||controlsMoving);
+    const moving=Boolean(transformMoving||this.transformTransition||this.separationAction?.playing||this.mode==='operate'&&this.operationPlayer.playing||posesMoving||this.cameraMotion?.active||this.separationMotion.active||this.benchmark.active||controlsMoving);
     this.mount.dataset.motion=moving?'moving':'settled';
     let renderMs=null;
     if(this.dirty){

@@ -240,6 +240,7 @@ function prepareLines(meshes,sourceHash,creaseAngle){
 export function prepareTour(input,ids,operation){
   check(safeJSON(input)&&plain(input)&&identifier(input.id)&&string(input.title)&&Array.isArray(input.chapters)&&input.chapters.length>0&&input.chapters.length<=50,'An authored tour needs id, title and 1–50 chapters.');
   const tour=structuredClone(input),chapterIds=new Set();let duration=0;
+  check(tour.playback === undefined || ['continuous','steps'].includes(tour.playback), 'Tour playback must be continuous or steps.');
   const reference=id=>check(ids.has(id),`Tour references an unknown navigation node: ${id}`);
   const pose=(value,complete)=>{
     if(complete){for(const key of ['scopeId','selectedId','camera','renderStyle','highlightIds','annotations'])check(value[key]!==undefined,`A tour chapter needs ${key}.`);}

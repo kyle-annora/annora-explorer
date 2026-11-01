@@ -41,7 +41,7 @@ Public values are JSON-compatible. Model `id` means manifest `packageId`; curren
 | `getState()` | Current lifecycle and presentation state, described below; never a live Three.js object |
 | `getNode({ nodeId })` | ID, title, kind, parent ID, child IDs and source-backed description/attribution where available |
 | `getChildren({ nodeId })` | Immediate child descriptors in authored navigation order; no vertex arrays or geometry payload |
-| `getTour({ tourId })` | Tour ID, duration and ordered chapter descriptors with ID, label, start, duration, chapter-relative `previewAt` and optional `settledAt`; no executable script |
+| `getTour({ tourId })` | Tour ID, duration, `playback` (`continuous` or `steps`) and ordered chapter descriptors with ID, label, start, duration, chapter-relative `previewAt` and optional `settledAt`; no executable script |
 
 Distinguish unsupported from unavailable: Apollo has `operation.supported: false`; Kinetic may be supported but unavailable during loading.
 
@@ -53,9 +53,9 @@ The state shape is:
 | `lifecycle` | `created`, `loading`, `ready`, `error`, `disposing` or `disposed` |
 | `model` | `null` before resolution, otherwise `{ id, revision }` |
 | `navigation` | `{ selectedId, scopeId, isolated }`; disclosure/expanded rows are shell state |
-| `presentation` | `{ mode, renderStyle, explosion, explosionTarget, transitioning }`; modes are `explore`, `explode`, `operate`; styles are `engineering`, `linework`, `flat` |
-| `operation` | `{ available, clipId, status, progress, speed, followCamera }`; status is `unavailable`, `paused`, `playing` or `completed` |
-| `tour` | `{ active, tourId, status, time, duration, chapterId, reason }`; status is `idle`, `preparing`, `paused`, `playing` or `completed` |
+| `presentation` | `{ mode, renderStyle, explosion, explosionTarget, separation, transitioning }`; modes are `explore`, `explode`, `operate`; styles are `engineering`, `linework`, `flat` |
+| `operation` | `{ available, clipId, status, progress, duration, sourceDuration, speed, followCamera }`; status is `unavailable`, `paused`, `playing` or `completed` |
+| `tour` | `{ active, tourId, playback, status, time, duration, chapterId, reason }`; status is `idle`, `preparing`, `paused`, `playing` or `completed` |
 | `appearance` | Resolved theme ID/revision; requested and effective quality profile |
 | `environment` | `{ visible, reducedMotion }`, sufficient to explain paused/adapted behavior |
 | `busy` | Array of pending request IDs and activities; preparation/transition is not GPU completion |
@@ -75,15 +75,19 @@ These signatures share the result/event contract below.
 | `setRenderStyle` | `style` | Use Engineering, Linework or Flat without resetting camera, selection, scope or source time. Prepare optional line data before committing a style. |
 | `setMode` | `mode` | Mirror current Explore/Explode/Operate semantics. Operate enters the assembled root paused; explicit mode changes restore source poses as necessary. |
 | `setExplosion` | `progress`, optional `transition` | Set a finite fraction in `[0,1]`. `transition` is `animate` by default or `immediate` for host scrubbing; immediate updates do not refit the camera. An animated update fits once. |
+| `pauseExplosion` | none | Freeze separation and any alignment/camera movement at the current display pose. |
+| `resumeExplosion` | none | Resume the retained separation action toward its original endpoint. |
+| `replayExplosion` | none | Restart the retained separation or reassembly action, preserving its direction. Requires a prior nonzero action range. |
+| `replayOperation` | none | Atomically rewind and play one authored operating cycle; align to the first source pose before advancing its clock. |
 | `playOperation` | none | Resume one authored cycle from the current manual operation position; restart at zero when already completed. Enter Operate first if needed. Never synthesize an animation. |
 | `pauseOperation` | none | Freeze source time; let an already requested pose/camera transition settle. |
 | `seekOperation` | `progress` | Enter Operate if needed, sample the authored clip at a finite fraction in `[0,1]`, and remain paused. |
 | `setOperationSpeed` | `speed` | Use only package/runtime-advertised speeds; preserve phase. Current UI speeds are `0.25`, `0.5`, `1`. |
 | `setFollowCamera` | `enabled` | Enable or stop authored stage following. Manual orbit turns following off. |
-| `startTour` | `tourId` | Prepare required assets, capture the prior presentation, then start. Under reduced motion, enter the stable chapter presentation paused. |
+| `startTour` | `tourId` | Prepare required assets, capture the prior presentation, then start. Step tours enter their first chapter paused and ready; continuous tours retain autoplay after this explicit command. Under reduced motion, enter the stable chapter presentation paused. |
 | `pauseTour` | none | Pause the clock and presentation control; retain the current explanation and exact time. |
-| `resumeTour` | none | Explicitly rejoin the authored presentation at retained time. Reduced motion remains visitor-paced; hidden instances remain paused. |
-| `seekTour` | `seconds` | Seek to an exact valid timeline time and remain paused; deterministic pose sampling must support backward seeks. |
+| `resumeTour` | none | Explicitly rejoin the authored presentation at retained time. At a held step endpoint, replay that step; use `goToTourChapter` followed by `resumeTour` to advance. Reduced motion remains visitor-paced; hidden instances remain paused. |
+| `seekTour` | `seconds`, optional `chapterId` | Seek and remain paused. Supply the current `chapterId` when scrubbing a step, including its exact endpoint; this keeps the endpoint in that chapter instead of entering the next. Time must fall within the named chapter. Backward seeks sample deterministically. |
 | `goToTourChapter` | `chapterId` | Require an active tour. Seek to chapter start plus `previewAt` and remain paused. Under reduced motion, sample its `settledAt` state as the current player does. The controller, not the host, resolves these authoring semantics. |
 | `exitTour` | optional `restore` | Default `true`: restore the captured prior view with playback paused. `false`: retain the current scene for free exploration, matching the existing completion action. |
 | `setTheme` | approved `themeId` | Change client accent roles without changing geometry or navigation. Custom theme registration belongs to host configuration, not arbitrary remote CSS. |
@@ -225,3 +229,26 @@ Preserve decisions D-02, D-05, D-08, D-09, D-11, D-13 and D-14 in the [register]
 ## Version 0.1 compatibility notes
 
 The iframe adapter is the implemented initialization surface. The controller supports configured feature restrictions; the shell enforces the project configuration. The current bookmark adapter retains the authored camera-up direction and rejects unsupported roll before mutation. Projection offsets use the current viewport layout, with a layout key for same-layout restoration; changed layouts refit the authored direction. `startTour` is idempotent while that tour is active; replay uses `seekTour(0)` followed by `resumeTour`. Browser history-cache suspension preserves the instance; normal departure disposes it. See [integration.md](integration.md) for working initialization and teardown examples.
+
+
+## Short-action transport
+
+The bundled crank and Apollo tours use `playback: "steps"`. Each 2.5-second
+chapter holds at its endpoint with `status: "paused"` and `reason: "chapter-end"`.
+`time` stays global; local slider progress is `(time - chapter.start) / duration`.
+A host can show **Next step**, **Replay** and **Explore freely** using chapter IDs
+from `getTour()`. See the [independent host](../examples/embed/host.js).
+Existing tours without this flag keep continuous playback.
+
+`presentation.separation` reports `{ available, playing, time, duration, progress,
+from, to, value, speed, once, stage }`. Here `progress` is action time, while
+`value` is the actual separation amount. Reassembly runs from a larger `from` to
+a smaller `to`; a resumed action keeps that direction. The shell's slider uses
+absolute separation, and `setExplosion({progress, transition: "immediate"})`
+pauses at the chosen amount. `duration` is active animation time, excluding source
+alignment and camera preparation. State notifications remain rate limited.
+
+Manual operation exposes `duration` for presentation playback and `sourceDuration`
+for the original animation clip. The bundled crank retimes its full 4-second
+source clip to 2.5 seconds at speed 1. This is explanatory playback, not a measured
+machine speed. Pause, replay and scrubbing never invent new operating constraints.

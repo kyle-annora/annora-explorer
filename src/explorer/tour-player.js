@@ -1,6 +1,6 @@
 /** A renderer-independent clock. The host owns RAF, visibility events and scene sampling. */
 export class TourPlayer {
-  constructor(tour, { reducedMotion = false } = {}) {
+  constructor(tour, { reducedMotion = false, pauseAtChapterEnd = tour?.playback === 'steps' } = {}) {
     if (!tour?.chapters?.length) throw new TypeError('A tour needs chapters.');
     let duration = 0;
     this.chapters = tour.chapters.map(chapter => {
@@ -11,6 +11,8 @@ export class TourPlayer {
     if (!Number.isFinite(tour.duration) || Math.abs(tour.duration - duration) > 1e-6) throw new TypeError('Tour duration must match its chapters.');
     this.duration = duration;
     this.reducedMotion = Boolean(reducedMotion);
+    this.pauseAtChapterEnd = pauseAtChapterEnd;
+    this.heldChapterIndex = null;
     this.hidden = false;
     this.time = 0;
     this.status = 'idle';
@@ -19,6 +21,7 @@ export class TourPlayer {
   }
 
   start() {
+    this.heldChapterIndex = null;
     this.time = 0; this.status = 'paused'; this.lastTimestamp = null;
     return this.resume();
   }
@@ -30,6 +33,10 @@ export class TourPlayer {
   }
 
   resume() {
+    if (this.heldChapterIndex !== null) {
+      this.time = this.chapters[this.heldChapterIndex].start;
+      this.heldChapterIndex = null;
+    }
     this.lastTimestamp = null;
     if (this.time >= this.duration) { this.status = 'completed'; this.reason = null; }
     else if (this.hidden) { this.status = 'paused'; this.reason = 'hidden'; }
@@ -38,12 +45,22 @@ export class TourPlayer {
     return this.state();
   }
 
-  seek(seconds) {
+  seek(seconds, { chapterIndex } = {}) {
     if (!Number.isFinite(seconds)) return this.state();
+    this.heldChapterIndex = null;
     this.time = Math.max(0, Math.min(this.duration, seconds));
     this.status = this.time === this.duration ? 'completed' : 'paused';
     this.reason = this.status === 'completed' ? null : 'seek';
     this.lastTimestamp = null;
+    if (Number.isInteger(chapterIndex) && this.chapters[chapterIndex]?.end === this.time) return this.holdChapterEnd(chapterIndex);
+    return this.state();
+  }
+
+  holdChapterEnd(index) {
+    if (!this.pauseAtChapterEnd || !this.chapters[index]) return this.state();
+    this.time = this.chapters[index].end;
+    this.heldChapterIndex = index;
+    this.status = 'paused'; this.reason = 'chapter-end'; this.lastTimestamp = null;
     return this.state();
   }
 
@@ -60,6 +77,7 @@ export class TourPlayer {
   replay() { return this.start(); }
 
   stop() {
+    this.heldChapterIndex = null;
     this.time = 0; this.status = 'idle'; this.reason = null; this.lastTimestamp = null;
     return this.state();
   }
@@ -77,13 +95,18 @@ export class TourPlayer {
     const previous = this.lastTimestamp;
     this.lastTimestamp = timestamp;
     if (previous === null || timestamp <= previous || timestamp - previous > 1000) return false;
-    this.time = Math.min(this.duration, this.time + (timestamp - previous) / 1000);
+    const index = this.state().index;
+    const next = this.time + (timestamp - previous) / 1000;
+    if (this.pauseAtChapterEnd && next >= this.chapters[index].end) {
+      this.holdChapterEnd(index); return true;
+    }
+    this.time = Math.min(this.duration, next);
     if (this.time >= this.duration) { this.status = 'completed'; this.reason = null; this.lastTimestamp = null; }
     return true;
   }
 
   state() {
-    let index = this.chapters.findIndex(chapter => this.time < chapter.end);
+    let index = this.heldChapterIndex ?? this.chapters.findIndex(chapter => this.time < chapter.end);
     if (index < 0) index = this.chapters.length - 1;
     return {
       status: this.status, reason: this.reason, time: this.time, duration: this.duration,

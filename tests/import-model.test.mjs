@@ -59,7 +59,9 @@ test('only an explicitly selected real source clip enables motion and sampled fr
 });
 test('authored tour references are checked and chapter timing is compiled deterministically',async()=>{
   const def=definition();def.tour='tour.json';const tour={id:'fixture-tour',title:'Inspect the plates',chapters:[{id:'whole',label:'Whole',title:'Two plates.',duration:5,scopeId:'fixture',selectedId:'fixture',highlightIds:[],annotations:[],renderStyle:'linework',explosion:[0,.4],camera:{focusId:'fixture',direction:[0,0,1],scale:1}}]};
-  const result=await prepare(glb(),def,{tour}),compiled=JSON.parse(result.files.get('tour.json'));assert.equal(compiled.duration,5);assert.equal(compiled.chapters[0].start,0);assert.equal(compiled.chapters[0].end,5);
+  tour.playback='steps';
+  const result=await prepare(glb(),def,{tour}),compiled=JSON.parse(result.files.get('tour.json'));assert.equal(compiled.playback,'steps');
+  tour.playback='unknown';await assert.rejects(prepare(glb(),def,{tour}),/playback/);tour.playback='steps';assert.equal(compiled.duration,5);assert.equal(compiled.chapters[0].start,0);assert.equal(compiled.chapters[0].end,5);
   tour.chapters[0].selectedId='missing';await assert.rejects(prepare(glb(),def,{tour}),/unknown navigation node/);
 });
 

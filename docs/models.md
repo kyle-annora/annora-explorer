@@ -98,3 +98,22 @@ or 5 MiB compressed model data. Prefer fewer draw calls, repeated geometry,
 embedded rigid clips and small downloads. Test with reduced quality and a mobile
 viewport. Apollo is an intentionally large optional sample; it is not the
 recommended size for every customer project.
+
+
+### Optional short actions
+
+Set `presentationPolicy.actionDuration` in the prepared manifest to the manual
+presentation cycle length in seconds (finite, 0.5–10). The bundled models use 2.5.
+Source clip metadata and geometry stay unchanged. Without this override,
+operation retains the source duration; separation defaults to 2.5 seconds.
+
+Set `playback: "steps"` at the top of a tour to hold at each chapter endpoint.
+Omit it or use `"continuous"` for the original continuous player. Each chapter's
+`duration` controls its active time independently; the bundled short tours use
+2.5 seconds. Use `previewAt: 0` for a ready-to-play start and choose `settledAt`
+for reduced-motion visitors. Keep a stable camera during causal motion; use a
+separate chapter for decomposition. Restore separation to zero before changing
+assembly scope. Scope transitions prepare the next view before playback.
+
+The [short-action review](short-actions.md) records the reference decisions,
+transport behavior, API additions and validation boundaries.
