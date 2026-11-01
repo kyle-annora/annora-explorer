@@ -6,8 +6,14 @@ capabilities to expose. The runtime is not yet a same-document component SDK.
 
 The working example is `examples/embed/`. Run `npm run dev` and open
 `http://127.0.0.1:8095/examples/embed/`, or open the same path on your deployed site.
-It discovers configured models, their component IDs and capabilities, supports
+It reads the model catalog for this project, discovers component IDs and runtime
+capabilities, supports
 tour controls and camera bookmarks, and demonstrates disconnect/remount.
+
+The example's model selector is built from this project's configuration. When
+pointing it at another deployment, supply that deployment's model IDs in the host
+configuration; `getCapabilities` describes the currently loaded model, not a
+remote project catalog.
 
 ## Minimal host
 
@@ -30,7 +36,7 @@ const client = createExplorerClient({ iframe, origin: explorer.origin });
 const handshake = await client.ready;
 // A handshake can arrive while geometry is still loading.
 const unsubscribe = client.subscribe(event => {
-  if (event.type === 'stateChanged') renderHostState(event.payload);
+  if (event.type === 'stateChanged') console.log('Explorer state:', event.payload);
 });
 const capabilities = await client.request('getCapabilities');
 const state = await client.request('getState');

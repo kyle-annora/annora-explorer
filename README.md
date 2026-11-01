@@ -13,6 +13,8 @@ demonstrates a third, original model imported through the same pipeline. Brand,
 model selection and feature availability are configured without modifying the
 renderer. This is a static application: no backend, accounts or customer data.
 
+![A newly imported bench vise in the shared Explorer](docs/images/bench-vise.png)
+
 ## Start your own project
 
 1. Choose **Use this template → Create a new repository** on GitHub. Use a public
@@ -68,7 +70,7 @@ disabled function is disabled as well. See [configuration](docs/configuration.md
 
 Another website or tool can embed the Explorer and use the JSON controller to
 select a part, frame a component, start a tour or save a compatible camera view.
-The [integration example](examples/embed/) discovers models and capabilities
+The [integration example](examples/embed/) reads the configured model catalog and discovers runtime capabilities
 instead of assuming particular component names. See [integration](docs/integration.md).
 
 ## Repository map

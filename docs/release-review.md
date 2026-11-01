@@ -11,7 +11,7 @@ part of this repository or its history.
 
 ## Completed local evidence
 
-- Full template verification: 243 tests pass; configured packages validate and
+- Full template verification: 247 tests pass; configured packages validate and
   production build succeeds. Dependency audit reports zero known vulnerabilities
   at review time. The bundled skill passes its structural validator.
 - The original stylesheet, appearance system, line renderer, tour UI/player,
