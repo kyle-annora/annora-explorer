@@ -1,6 +1,6 @@
 # Product Room and Studio — discussion proposal
 
-Date: 2026-11-01. Status: **Initial presentation scope delivered; the approved second phase adds the complete crank customer-project demonstration. Studio remains deferred.**
+Date: 2026-11-01. Status: **Product Room and the first crank Studio authoring workflow are implemented. This document preserves the original scope discussion; see [Studio](studio.md) for the current implementation, capabilities and publication boundary.**
 
 ## Scope update: customer projects
 

@@ -1,0 +1,15 @@
+{
+  "base": "http://127.0.0.1:8102/annora-explorer/",
+  "checks": [
+    "Created existing buyer project + quotation v1 before Studio edits",
+    "Actual Explorer part selection bound rod explanation and managed checklist; picker disposed on close",
+    "Exact buyer preview applies title/profile; preview confirmation leaves ordinary project store byte-identical",
+    "Explicit review + confirmation creates immutable demo v2, preserves existing project",
+    "New release creates a separately version-pinned inquiry; old quotation remains identical",
+    "Historical inquiry uses its original label/profile after publishing a replacement",
+    "Unavailable draft preview fails visibly, does not show another release"
+  ],
+  "errors": [],
+  "oldProjectId": "PRJ-DEMO-AB9D6BF7",
+  "releaseId": "ROOM-DEMO-0c588697-90d8-4a6f-be7c-95b89dacf245"
+}

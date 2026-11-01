@@ -11,6 +11,7 @@
     "test": "npm run prepare:project && node --test tests/*.test.mjs tests/runtime/*.test.js",
     "check": "node scripts/check-project.mjs",
     "import:model": "node scripts/import-model.mjs",
+    "apply:room-release": "node scripts/apply-room-release.mjs",
     "verify": "npm run check && npm test && npm run build"
   },
   "dependencies": {

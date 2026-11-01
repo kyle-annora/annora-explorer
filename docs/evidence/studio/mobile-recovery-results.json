@@ -1,0 +1,11 @@
+{
+  "base": "http://127.0.0.1:8102/annora-explorer/",
+  "checks": [
+    "320px save failure retains inputs and retry succeeds",
+    "Real pending save keeps a visible busy control until persistence completes",
+    "All four editor sections fit 320px",
+    "Phone-sized actual buyer inquiry reaches review",
+    "Mobile release review and explicit confirmation complete"
+  ],
+  "errors": []
+}

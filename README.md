@@ -4,6 +4,7 @@ A reusable, browser-based assembly Explorer. Select and isolate parts, follow
 the component tree, explode and restore an assembly, switch between engineering
 materials and crisp linework, or run an authored guided tour.
 
+**[Studio](https://kyle-annora.github.io/annora-explorer/studio/)** ·
 **[Live Explorer](https://kyle-annora.github.io/annora-explorer/)** ·
 **[Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)** ·
 **[New-model example](https://kyle-annora.github.io/annora-explorer-bench-vise/)** ·
@@ -82,6 +83,8 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `content/models/` | Prepared model packages, source credits and authored tours |
 | `src/explorer/` | Shared UI, renderer, controller and player |
 | `src/product-room/` | Buyer-facing product host, local demo projects and versioned quotation workflow |
+| `src/studio/` and `studio/` | Seller-facing content editor, isolated buyer preview and reviewed demo releases |
+| `content/rooms/` | Reviewed Room content for the static deployment pipeline |
 | `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |
 | `scripts/` | Configuration validation and deterministic asset preparation |
@@ -97,6 +100,7 @@ removing those source fixtures also requires updating their tests.
 
 ## Delivery documentation
 
+- [Studio guide and publishing walkthrough](docs/studio.md), [repository API](docs/studio-api.md) and [design decisions](docs/studio-design.md)
 - [Product Room guide and acceptance walkthrough](docs/product-room.md)
 - [Product Room component catalog](https://kyle-annora.github.io/annora-explorer/product-room/#components) and [component contract](docs/product-room-components.md)
 - [Customer-project repository API](docs/product-room-api.md)

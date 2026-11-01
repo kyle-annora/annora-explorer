@@ -1,4 +1,6 @@
 import { requestContext } from './request-state.js';
+import { normalizeInquiryProfile } from './inquiry-profile.js';
+import { validHistoricalRoomSnapshot } from './release-snapshot.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
 export class ProjectError extends Error {
@@ -9,12 +11,40 @@ const text = value => typeof value === 'string' ? value.trim() : '';
 const fieldNames = ['name', 'email', 'company', 'application', 'quantity', 'targetWeeks', 'stroke', 'load', 'notes'];
 const blankValues = () => Object.fromEntries(fieldNames.map(key => [key, '']));
 const id = () => `DRAFT-${globalThis.crypto.randomUUID()}`;
-export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision]);
+export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null]);
 
 function contextOf(input) {
   let context;
   try { context = requestContext(input); } catch (error) { throw new ProjectError('VALIDATION', error.message); }
   if (!context.modelId || !context.modelRevision) throw new ProjectError('VALIDATION', 'An inquiry needs the exact model and revision.');
+  // Legacy records intentionally keep no release attribution. Never assign today's
+  // product content or form to an older customer record during normalization.
+  if (input.roomReleaseId !== undefined || input.inquiryProfile !== undefined || input.roomSnapshot !== undefined) {
+    if (!text(input.roomReleaseId) || !text(input.inquiryProfileVersion)) throw new ProjectError('VALIDATION', 'A versioned inquiry needs its product release and inquiry profile.');
+    let profile;
+    try { profile = normalizeInquiryProfile(input.inquiryProfile); } catch (error) { throw new ProjectError('VALIDATION', error.message); }
+    if (profile.version !== input.inquiryProfileVersion) throw new ProjectError('VALIDATION', 'The inquiry profile does not match its saved version.');
+    const snapshot = input.roomSnapshot;
+    let snapshotProfile;
+    try { snapshotProfile = normalizeInquiryProfile(snapshot?.inquiryProfile); }
+    catch { throw new ProjectError('VALIDATION', 'The saved product release has an invalid inquiry profile.'); }
+    if (!validHistoricalRoomSnapshot(snapshot,{...context,roomReleaseId:input.roomReleaseId})
+        || JSON.stringify(snapshotProfile) !== JSON.stringify(profile) || JSON.stringify(snapshot).length > 200000)
+      throw new ProjectError('VALIDATION', 'The saved product release is incomplete or does not match this inquiry.');
+    context.roomReleaseId = text(input.roomReleaseId);
+    context.inquiryProfileVersion = text(input.inquiryProfileVersion);
+    context.inquiryProfile = profile;
+    context.roomSnapshot = cloneProjectValue(snapshot);
+  }
+  if (context.document && input.document.revision !== undefined) {
+    if (!text(input.document.revision)) throw new ProjectError('VALIDATION', 'A linked document needs its revision.');
+    context.document.revision = text(input.document.revision);
+  }
+  if (context.document && context.roomSnapshot) {
+    const doc = context.roomSnapshot.content.documents.find(item=>item.id===context.document.id);
+    if (!doc || doc.revision !== context.document.revision || doc.title !== context.document.title)
+      throw new ProjectError('VALIDATION', 'The linked document does not match its saved product version.');
+  }
   return context;
 }
 

@@ -34,6 +34,7 @@ export default defineConfig({
         explorer: fileURLToPath(new URL('./index.html', import.meta.url)),
         embed: fileURLToPath(new URL('./examples/embed/index.html', import.meta.url)),
         room: fileURLToPath(new URL('./product-room/index.html', import.meta.url)),
+        studio: fileURLToPath(new URL('./studio/index.html', import.meta.url)),
       },
       output: { manualChunks: id => id.includes('/node_modules/three/') ? 'three' : undefined },
     },

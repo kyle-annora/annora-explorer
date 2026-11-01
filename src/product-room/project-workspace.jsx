@@ -6,7 +6,10 @@ import {
   reviewNextStep,
   compareQuotes,
   projectStatus,
+  projectContextKey,
+  sameProjectValue,
 } from "./project-domain.js";
+import { inquiryField, inquiryFields } from "./inquiry-profile.js";
 import { sampleInquiryValues } from "./project-fixtures.js";
 import {
   Button,
@@ -50,6 +53,14 @@ const fieldLabels = {
   name: "Name",
   email: "Email",
 };
+function ConfiguredInquiryField({ context, ...props }) {
+  const field = inquiryField(context, props.name);
+  if (!field?.enabled) return null;
+  return <Field {...props} label={field.label} hint={field.hint || undefined}
+    unit={field.unit || undefined} required={field.required} optional={!field.required} />;
+}
+const hasInquiryFields = (context, ids) => ids.some(id => inquiryField(context, id)?.enabled);
+
 function savedStatus(project) {
   const state = projectStatus(project),
     latest = project.quotes.at(-1);
@@ -100,7 +111,7 @@ function ContextSummary({
             context[key] && (
               <div className="pw-context-reference" key={key}>
                 <p>
-                  {context[key].title}{" "}
+                  {context[key].title}{context[key].revision ? ` · ${context[key].revision}` : ""}{" "}
                   <span className="pw-muted">· {referenceLabels[key]}</span>
                 </p>
                 {onRemove && (
@@ -131,11 +142,29 @@ function ContextSummary({
           Use current product reference
         </Button>
       )}
+      <p className="pw-muted pw-release-reference">
+        {context.roomReleaseId ? (context.roomSnapshot?.source === "preview" ? "Draft product preview" : `Product version ${context.roomSnapshot?.version}`) : "Earlier project · Product version not recorded."}
+      </p>
+      {context.roomSnapshot && (
+        <details className="pw-release-evidence">
+          <summary>Product information at inquiry</summary>
+          <p>{context.roomSnapshot.content.description}</p>
+          {context.roomSnapshot.content.specGroups?.map(group => (
+            <div key={group.id}><strong>{group.title}</strong><dl className="pw-facts">
+              {group.facts.map((fact, index) => <div key={index}><dt>{fact.label}</dt><dd>{fact.value}<small>{fact.source}</small></dd></div>)}
+            </dl></div>
+          ))}
+          <strong>Reference documents</strong>
+          <ul>{context.roomSnapshot.content.documents.map(doc => <li key={doc.id}>{doc.title} · {doc.revision}</li>)}</ul>
+          <small>Saved with this inquiry. Later product edits do not change this information.</small>
+        </details>
+      )}
       {!compact && (
         <details>
           <summary>Model reference</summary>
           <p>
             {context.modelId} · {context.modelRevision}
+            {context.roomReleaseId && <><br />{context.roomReleaseId}</>}
           </p>
           <p>
             Viewing context helps locate the discussion. It does not confirm a
@@ -152,12 +181,12 @@ function InquiryDocument({ draft, onExplore }) {
   return (
     <div className="pw-document">
       <ContextSummary context={draft.context} onExplore={onExplore} compact />
-      <Section title="Application & requirements">
+      <Section title={`${inquiryField(draft.context, "application").label} & requirements`}>
         <p className="pw-application">{values.application}</p>
         <dl className="pw-facts">
-          {["quantity", "targetWeeks", "stroke", "load"].map((key) => (
+          {["quantity", "targetWeeks", "stroke", "load"].filter(key => inquiryField(draft.context, key)?.enabled || values[key]).map((key) => (
             <div key={key}>
-              <dt>{fieldLabels[key]}</dt>
+              <dt>{inquiryField(draft.context, key)?.label || fieldLabels[key]}</dt>
               <dd>
                 {values[key]
                   ? `${values[key]}${key === "quantity" ? " units" : key === "targetWeeks" ? " weeks requested" : key === "stroke" ? " mm" : ""}`
@@ -191,20 +220,20 @@ function InquiryDocument({ draft, onExplore }) {
         )}
       </Section>
       {values.notes && (
-        <Section title="Additional notes">
+        <Section title={inquiryField(draft.context, "notes").label}>
           <p className="pw-preserve">{values.notes}</p>
         </Section>
       )}
-      <Section title="Contact">
+      {hasInquiryFields(draft.context, ["name", "company", "email"]) && <Section title="Contact">
         <dl className="pw-contact">
-          {["name", "company", "email"].map((key) => (
+          {["name", "company", "email"].filter(key => inquiryField(draft.context, key)?.enabled || values[key]).map((key) => (
             <div key={key}>
-              <dt>{fieldLabels[key]}</dt>
+              <dt>{inquiryField(draft.context, key)?.label || fieldLabels[key]}</dt>
               <dd>{values[key] || "Not provided"}</dd>
             </div>
           ))}
         </dl>
-      </Section>
+      </Section>}
     </div>
   );
 }
@@ -244,6 +273,7 @@ function ProjectProgress({ project }) {
   );
 }
 function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
+  const isPreview = repository.mode === "preview";
   const [projects, setProjects] = useState([]),
     [drafts, setDrafts] = useState([]),
     [project, setProject] = useState(null),
@@ -332,10 +362,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           saved = await repository.saveDraft(source);
         if (draftRef.current?.id === saved.id) {
           const editedDuringSave =
-            JSON.stringify(draftRef.current.values) !==
-              JSON.stringify(source.values) ||
-            JSON.stringify(draftRef.current.requirements) !==
-              JSON.stringify(source.requirements);
+            !sameProjectValue(draftRef.current.values, source.values) ||
+            !sameProjectValue(draftRef.current.requirements, source.requirements);
           setDraft({
             ...draftRef.current,
             revision: saved.revision,
@@ -345,7 +373,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
             setSaveState(
               editedDuringSave
                 ? "Unsaved changes"
-                : "Draft saved in this browser",
+                : (isPreview ? "Draft saved in this preview" : "Draft saved in this browser"),
             );
         }
         return saved;
@@ -403,9 +431,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   async function changeDraftContext(nextContext) {
     if (!draftRef.current || stage !== "details" || lifecycle.leaving) return;
     if (
-      !["productId", "modelId", "modelRevision"].every(
-        (key) => draftRef.current.context[key] === nextContext[key],
-      )
+      projectContextKey(draftRef.current.context) !== projectContextKey(nextContext)
     )
       return;
     await run("context", async () => {
@@ -415,7 +441,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           !(
             item.id === "stroke-confirmed" &&
             item.part &&
-            JSON.stringify(item.part) !== JSON.stringify(nextContext.part)
+            !sameProjectValue(item.part, nextContext.part)
           ),
       );
       const confirmationCleared =
@@ -503,13 +529,13 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
         const next = await repository.getDraft(route.context);
         if (id !== loadId.current) return;
         setDraft(next);
-        if (JSON.stringify(next.context) !== JSON.stringify(route.context))
+        if (next.revision > 0 && !sameProjectValue(next.context, route.context))
           setNotice(
             "Your saved draft keeps its original product reference. The recently viewed component or document has not replaced it.",
           );
         setSaveState(
           next.updatedAt
-            ? "Draft saved in this browser"
+            ? (isPreview ? "Draft saved in this preview" : "Draft saved in this browser")
             : "Your draft saves as you type",
         );
       } else {
@@ -592,13 +618,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   const canAdoptCurrentReference =
     draft &&
     route.context &&
-    ["productId", "modelId", "modelRevision"].every(
-      (key) => draft.context[key] === route.context[key],
-    ) &&
+    projectContextKey(draft.context) === projectContextKey(route.context) &&
     ["part", "document", "chapter"].some(
       (key) =>
-        JSON.stringify(draft.context[key]) !==
-        JSON.stringify(route.context[key]),
+        !sameProjectValue(draft.context[key], route.context[key]),
     );
   function openMode(nextMode) {
     setMode(nextMode);
@@ -662,7 +685,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   );
   const demo = (
     <p className="pw-demo">
-      <span aria-hidden="true">◌</span> Demonstration · Saved in this browser.
+      <span aria-hidden="true">◌</span> {isPreview ? "Draft preview · Customer records disappear when this preview closes." : "Demonstration · Saved in this browser."}
       No request, quotation or message is sent.
     </p>
   );
@@ -858,7 +881,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         onClick={() => {
                           setDraft((current) => ({
                             ...current,
-                            values: sampleInquiryValues(current.context),
+                            values: Object.fromEntries(Object.entries(sampleInquiryValues(current.context)).map(([key, value]) => [key, inquiryField(current.context, key)?.enabled ? value : ""])),
                             requirements: [],
                           }));
                           setNotice(
@@ -871,7 +894,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       </Button>
                     }
                   >
-                    <Field
+                    <ConfiguredInquiryField
+                      context={draft.context}
                       label="Application"
                       name="application"
                       required
@@ -886,7 +910,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       hint="Describe the task, installation or process."
                     />
                     <div className="pw-field-grid">
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Quantity"
                         name="quantity"
                         required
@@ -902,7 +927,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         error={errors.quantity}
                         unit="units"
                       />
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Requested timing"
                         name="targetWeeks"
                         optional
@@ -921,12 +947,13 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       />
                     </div>
                   </Section>
-                  <Section
+                  {hasInquiryFields(draft.context, ["stroke", "load", "notes"]) && <Section
                     title="Technical details"
                     description="Leave anything you do not know open for discussion."
                   >
                     <div className="pw-field-grid">
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Required stroke"
                         name="stroke"
                         optional
@@ -941,7 +968,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         placeholder="e.g. 70"
                         hint="Your required travel, in millimeters."
                       />
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Required load"
                         name="load"
                         optional
@@ -953,7 +981,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         hint="Include the unit and operating conditions."
                       />
                     </div>
-                    <Field
+                    <ConfiguredInquiryField
+                      context={draft.context}
                       label="Notes or questions"
                       name="notes"
                       optional
@@ -964,7 +993,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       value={draft.values.notes}
                       onChange={(e) => updateDraft("notes", e.target.value)}
                     />
-                    <label className="pw-check">
+                    {inquiryField(draft.context, "stroke")?.enabled && <label className="pw-check">
                       <input
                         type="checkbox"
                         disabled={!!pending || !draft.values.stroke.trim()}
@@ -1008,17 +1037,18 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           does not verify suitability.
                         </small>
                       </span>
-                    </label>
+                    </label>}
                     {errors.requirements && (
                       <p className="pw-field-error">{errors.requirements}</p>
                     )}
-                  </Section>
-                  <Section
+                  </Section>}
+                  {hasInquiryFields(draft.context, ["name", "company", "email"]) && <Section
                     title="Contact details"
                     description="Use fictional contact details for this demonstration."
                   >
                     <div className="pw-field-grid">
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Name"
                         name="name"
                         optional
@@ -1028,7 +1058,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         value={draft.values.name}
                         onChange={(e) => updateDraft("name", e.target.value)}
                       />
-                      <Field
+                      <ConfiguredInquiryField
+                      context={draft.context}
                         label="Company"
                         name="company"
                         optional
@@ -1039,7 +1070,8 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                         onChange={(e) => updateDraft("company", e.target.value)}
                       />
                     </div>
-                    <Field
+                    <ConfiguredInquiryField
+                      context={draft.context}
                       label="Email"
                       name="email"
                       optional
@@ -1050,7 +1082,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       onChange={(e) => updateDraft("email", e.target.value)}
                       error={errors.email}
                     />
-                  </Section>
+                  </Section>}
                 </fieldset>
               </form>
             )}
@@ -1137,7 +1169,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                   run("save", async () => {
                     await persistDraft();
                     setNotice(
-                      "Draft saved. You can continue it from My projects.",
+                      isPreview ? "Draft saved for this preview session. Closing it discards these test projects." : "Draft saved. You can continue it from My projects.",
                     );
                   })
                 }
@@ -1866,7 +1898,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
       {header(
         "PRODUCT ROOM",
         "This project needs another look.",
-        "Your saved projects are kept in this browser.",
+        isPreview ? "Projects created here stay in this preview session only." : "Your saved projects are kept in this browser.",
       )}
       {feedback}
       <ActionGroup align="start">

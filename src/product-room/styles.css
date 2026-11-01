@@ -1161,3 +1161,27 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .room-product-image[data-model="apollo"] img {
   transform-origin: 50% 20%;
 }
+
+/* Product authoring context stays outside the unchanged Explorer iframe. */
+.room-version-banner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 28px; border-bottom:1px solid #d4d5d6; background:#eee8dc; color:#46403a; font-size:12px; }
+.room-version-banner[hidden],.room-part-information[hidden] { display:none; }
+.room-version-banner a { flex-shrink:0; display:inline-flex; align-items:center; min-height:36px; color:inherit; text-underline-offset:4px; }
+.room-version-banner strong { color:#292b2e; }
+.room-part-information { padding:0 28px; border-bottom:1px solid #d4d5d6; background:#f4f4f3; font-size:13px; }
+.room-part-information summary { min-height:44px; display:list-item; padding:12px 0; cursor:pointer; font-weight:600; }
+.room-part-information details>p { margin:0 0 12px; max-width:85ch; color:#64686c; }
+.room-part-information details>a { display:inline-flex; min-height:44px; align-items:center; margin-right:20px; text-underline-offset:4px; }
+.room-explore { height:calc(100svh - var(--header) - var(--room-host-chrome,0px)); }
+.room-part-library article { padding:20px 0; border-top:1px solid #d4d5d6; }
+.room-part-library h3 { margin:0 0 8px; font-size:17px; }
+.room-part-library p { color:#64686c; }
+.room-part-library a { color:#292b2e; text-underline-offset:4px; }
+.pw-release-reference { overflow-wrap:anywhere; font-size:12px; }
+.pw-release-evidence { width:100%; max-width:100%; overflow-wrap:anywhere; }
+.pw-release-evidence summary { min-height:44px; cursor:pointer; padding:12px 0; }
+.pw-release-evidence small { display:block; color:#64686c; margin-top:4px; }
+.pw-release-evidence .pw-facts { margin-block:12px; }
+@media (max-width:600px) { .room-version-banner { align-items:flex-start; flex-direction:column; gap:0; padding:10px 16px; } .room-part-information { padding-inline:16px; } }
+
+.room-workspace .pw-context { flex-wrap:wrap; }
+.room-workspace .pw-context>.pw-release-reference,.room-workspace .pw-context>.pw-release-evidence { flex-basis:100%; margin-block:0; }

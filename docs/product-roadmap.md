@@ -3,8 +3,10 @@
 Updated November 1, 2026. The Explorer and Engineering refinement are shipped.
 [Product Room](product-room.md) adds three buyer-facing destinations and a
 crank customer-project flow, using the unchanged Explorer. The public template
-remains static. [Studio](product-room-studio-proposal.md) follows Room review; it
-is not implemented yet.
+remains static. [Studio](studio.md) now provides the crank product editor,
+part/document association, inquiry configuration, isolated buyer preview and
+reviewed local demo releases. Hosted content uses an exported release and the
+existing GitHub deployment pipeline.
 
 ## Product Room
 
@@ -26,8 +28,9 @@ current browser; no backend, login or cross-device sharing is implemented.
 
 ## Annora Studio
 
-Start with repeatable delivery work: model readiness, approved names and facts,
-materials, short-story authoring, device evaluation and release review.
+The first authoring release covers product copy/facts, part/document links,
+existing presentation entry points, inquiry prompts and release review. Extend
+model readiness, materials and short-story authoring after this workflow is reviewed.
 
 A Story Composer can select a component and camera, bind an approved 2–3 second
 action, supply a short explanation and preview its held endpoint. Its output
