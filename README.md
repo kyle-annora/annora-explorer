@@ -4,6 +4,7 @@ A reusable, browser-based assembly Explorer. Select and isolate parts, follow
 the component tree, explode and restore an assembly, switch between engineering
 materials and crisp linework, or run an authored guided tour.
 
+**[Customer walkthrough](https://kyle-annora.github.io/annora-explorer/walkthrough/)** ·
 **[Studio](https://kyle-annora.github.io/annora-explorer/studio/)** ·
 **[Live Explorer](https://kyle-annora.github.io/annora-explorer/)** ·
 **[Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)** ·
@@ -84,6 +85,7 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `src/explorer/` | Shared UI, renderer, controller and player |
 | `src/product-room/` | Buyer-facing product host, local demo projects and versioned quotation workflow |
 | `src/studio/` and `studio/` | Seller product editor, customer-project workspace, quotation drafts and reviewed releases |
+| `src/walkthrough/` and `walkthrough/` | Three-chapter presentation, isolated sample session and guarded buyer/seller handoffs |
 | `content/rooms/` | Reviewed Room content for the static deployment pipeline |
 | `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |

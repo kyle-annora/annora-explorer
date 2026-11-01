@@ -22,8 +22,12 @@ import {
   sellerProjectStatus,
 } from "../product-room/seller-domain.js";
 import { contextForRelease } from "../product-room/release-content.js";
-import { PROJECT_STORAGE_KEY } from "../product-room/project-repository.js";
-import { copy, date } from "./navigation.js";
+import { copy, date, routeHash } from "./navigation.js";
+import { BUNDLED_RELEASE } from "./seed.js";
+import {
+  readWalkthroughSession,
+  withWalkthroughSession,
+} from "../walkthrough/session.js";
 import {
   buyerURL,
   Conversation,
@@ -61,14 +65,14 @@ export function CustomerWorkspace({
   const [projects, setProjects] = useState([]),
     [project, setProject] = useState(null),
     [filter, setFilter] = useState("attention"),
-    [tab, setTab] = useState("inquiry"),
-    [mode, setMode] = useState("detail");
+    [tab, setTabState] = useState("inquiry"),
+    [mode, setModeState] = useState("detail");
   const [draft, setDraft] = useState(null),
     [saved, setSaved] = useState(null),
     [response, setResponse] = useState(null),
     [baseline, setBaseline] = useState(null),
     [review, setReview] = useState(null),
-    [quoteId, setQuoteId] = useState("");
+    [quoteId, setQuoteIdState] = useState("");
   const [busy, setBusy] = useState("loading"),
     [error, setError] = useState(""),
     [errors, setErrors] = useState({}),
@@ -80,7 +84,9 @@ export function CustomerWorkspace({
     currentRef = useRef({}),
     dialog = useRef(null),
     errorRef = useRef(null),
-    generation = useRef(0);
+    generation = useRef(0),
+    viewGeneration = useRef(0),
+    hydratedView = useRef("");
   const dirty =
     mode === "edit" || mode === "quote-review"
       ? !same(draft, saved) || !same(response, baseline)
@@ -88,20 +94,182 @@ export function CustomerWorkspace({
         ? !same(response, baseline)
         : false;
   dirtyRef.current = dirty;
-  currentRef.current = { route, project, draft, saved, response, mode, review };
+  currentRef.current = {
+    route,
+    project,
+    draft,
+    saved,
+    response,
+    baseline,
+    mode,
+    review,
+    tab,
+    quoteId,
+  };
   const change = project ? pendingProjectChange(project) : null,
     clarification = project ? pendingClarification(project) : null,
     acknowledgement = project ? nextStep(project) : null;
   const responseMismatch = Boolean(
     change &&
-    draft &&
-    (draft.changeId !== change.id || response?.changeId !== change.id),
+      draft &&
+      (draft.changeId !== change.id || response?.changeId !== change.id),
   );
   const status = project ? sellerProjectStatus(project) : null;
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
+  const walkthrough = readWalkthroughSession();
+  const workKey = (id) =>
+    `annora.seller.work.${walkthrough || "default"}.${id}`;
+  function moveView(patch, replace = false) {
+    const current = currentRef.current;
+    const next = {
+      page: "project",
+      id: current.project?.id || route.id,
+      tab: current.tab,
+      mode: current.mode,
+      quote: current.quoteId,
+      draft: current.route.draft || "",
+      ...patch,
+    };
+    hydratedView.current = routeHash(next);
+    onGo(next, replace);
+  }
+  function setTab(value) {
+    setTabState(value);
+    moveView({ tab: value, mode: "detail" });
+  }
+  function setQuoteId(value) {
+    setQuoteIdState(value);
+    moveView({ quote: value });
+  }
+  function setMode(value, replace = false) {
+    setModeState(value);
+    moveView({ mode: value }, replace);
+  }
+  function closeEditor() {
+    resetEditor();
+    moveView({ mode: "detail" });
+  }
+  function rememberMessage() {
+    if (
+      !project ||
+      !["reply", "reply-review", "ack", "ack-review"].includes(mode)
+    )
+      return;
+    try {
+      sessionStorage.setItem(
+        workKey(project.id),
+        JSON.stringify({
+          projectRevision: project.revision,
+          response,
+          baseline,
+        }),
+      );
+    } catch {}
+  }
+  useEffect(rememberMessage, [
+    project?.id,
+    project?.revision,
+    mode,
+    response,
+    baseline,
+  ]);
+  async function restoreView(record, next) {
+    const turn = ++viewGeneration.current;
+    hydratedView.current = routeHash(next);
+    setTabState(next.tab || "inquiry");
+    setQuoteIdState(
+      record?.quotes.some((q) => q.id === next.quote) ? next.quote : "",
+    );
+    const wanted = next.mode || "detail";
+    if (!record || wanted === "detail") {
+      resetEditor();
+      return;
+    }
+    if (["edit", "quote-review"].includes(wanted)) {
+      const value = await repository.getQuoteDraft(record.id);
+      if (turn !== viewGeneration.current) return;
+      if (next.draft && next.draft !== value.id) {
+        resetEditor();
+        setTabState("quotation");
+        onGo({ ...next, mode: "detail", tab: "quotation", draft: "" }, true);
+        setMessage(
+          "That editing session has ended. The latest issued quotation and any saved draft are available here.",
+        );
+        return;
+      }
+      const answer =
+        value.replyDraft ||
+        (pendingProjectChange(record)
+          ? responseFor(pendingProjectChange(record))
+          : null);
+      setDraft(value);
+      setSaved(copy(value));
+      setResponse(answer);
+      setBaseline(copy(answer));
+      setStale(Boolean(value.rebasedFromRevision));
+      if (wanted === "quote-review") {
+        try {
+          setReview(reviewQuote(record, value, answer));
+          setModeState(wanted);
+        } catch {
+          setReview(null);
+          setModeState("edit");
+          onGo({ ...next, mode: "edit" }, true);
+          setMessage("Review the current draft before issuing this quotation.");
+        }
+      } else {
+        setReview(null);
+        setModeState(wanted);
+      }
+      return;
+    }
+    let cached;
+    try {
+      cached = JSON.parse(sessionStorage.getItem(workKey(record.id)));
+    } catch {}
+    const ack = wanted.startsWith("ack"),
+      step = nextStep(record);
+    if (ack && !step) {
+      resetEditor();
+      onGo({ ...next, mode: "detail", tab: "conversation" }, true);
+      return;
+    }
+    const value =
+      cached?.projectRevision === record.revision &&
+      cached?.response &&
+      (ack
+        ? cached.response.nextStepId === step?.id
+        : Boolean(cached.response.kind))
+        ? cached.response
+        : ack
+          ? { nextStepId: step.id, body: "" }
+          : responseFor(pendingProjectChange(record));
+    setResponse(value);
+    setBaseline(
+      cached?.projectRevision === record.revision
+        ? cached.baseline
+        : copy(value),
+    );
+    setReview(null);
+    setStale(false);
+    if (wanted.endsWith("review")) {
+      try {
+        setReview(
+          ack
+            ? reviewAcknowledgement(record, value)
+            : reviewReply(record, value),
+        );
+        setModeState(wanted);
+      } catch {
+        const editing = ack ? "ack" : "reply";
+        setModeState(editing);
+        onGo({ ...next, mode: editing }, true);
+      }
+    } else setModeState(wanted);
+  }
   function resetEditor() {
-    setMode("detail");
+    setModeState("detail");
     setDraft(null);
     setSaved(null);
     setResponse(null);
@@ -152,19 +320,20 @@ export function CustomerWorkspace({
     setError("");
     setMessage("");
     setProject(null);
-    setTab("inquiry");
-    setQuoteId("");
+    setTabState("inquiry");
+    setQuoteIdState("");
     busyRef.current = "loading";
     setBusy("loading");
     Promise.all([
       repository.listSellerProjects(),
       route.page === "project" ? repository.getSellerProject(route.id) : null,
     ])
-      .then(([list, record]) => {
+      .then(async ([list, record]) => {
         if (active && turn === generation.current) {
           setProjects(list);
           setProject(record);
           setStale(false);
+          await restoreView(record, route);
         }
       })
       .catch((problem) => {
@@ -181,9 +350,32 @@ export function CustomerWorkspace({
     };
   }, [repository, route.page, route.id]);
   useEffect(() => {
+    if (
+      !project ||
+      busyRef.current === "loading" ||
+      hydratedView.current === routeHash(route)
+    )
+      return;
+    busyRef.current = "restore-view";
+    setBusy("restore-view");
+    restoreView(project, route)
+      .catch((problem) => setError(problem.message))
+      .finally(() => {
+        busyRef.current = "";
+        setBusy("");
+      });
+  }, [route.tab, route.mode, route.quote, route.draft, project?.id]);
+  useEffect(() => {
     guardRef.current = (next) => {
       if (busyRef.current) return true;
-      if (dirtyRef.current) {
+      const current = currentRef.current;
+      const editingBack =
+        next.page === "project" &&
+        next.id === current.route.id &&
+        ((current.mode === "quote-review" && next.mode === "edit") ||
+          (current.mode === "reply-review" && next.mode === "reply") ||
+          (current.mode === "ack-review" && next.mode === "ack"));
+      if (dirtyRef.current && !editingBack) {
         setLeave({ route: next });
         return true;
       }
@@ -198,19 +390,34 @@ export function CustomerWorkspace({
         event.returnValue = "";
       }
     };
-    const update = (event) => {
-      if (
-        event?.type === "storage" &&
-        event.key &&
-        event.key !== PROJECT_STORAGE_KEY
-      )
-        return;
+    const update = async (event) => {
+      // Focus is not itself evidence of a concurrent edit. Compare the project
+      // and saved draft revisions before interrupting an editor or review.
       if (busyRef.current) return;
-      if (dirtyRef.current || currentRef.current.mode !== "detail") {
-        setStale(true);
+      const before = currentRef.current;
+      if (!before.project) {
+        refresh().catch((problem) => setError(problem.message));
         return;
       }
-      refresh().catch((problem) => setError(problem.message));
+      try {
+        const fresh = await repository.getSellerProject(before.project.id);
+        if (currentRef.current.project?.id !== fresh.id || busyRef.current)
+          return;
+        const projectChanged = fresh.revision !== before.project.revision;
+        const draftChanged = !same(
+          fresh.quoteDraft || null,
+          before.project.quoteDraft || null,
+        );
+        if (!projectChanged && !draftChanged) return;
+        if (dirtyRef.current || currentRef.current.mode !== "detail")
+          setStale(true);
+        else {
+          setProject(fresh);
+          setProjects(await repository.listSellerProjects());
+        }
+      } catch (problem) {
+        setError(problem.message);
+      }
     };
     window.addEventListener("beforeunload", unload);
     window.addEventListener("storage", update);
@@ -237,6 +444,9 @@ export function CustomerWorkspace({
   function finishLeave() {
     const target = leave;
     setLeave(null);
+    try {
+      if (project) sessionStorage.removeItem(workKey(project.id));
+    } catch {}
     resetEditor();
     if (target.route) onGo(target.route);
     else target.action?.();
@@ -252,6 +462,11 @@ export function CustomerWorkspace({
     setResponse(copy(value.replyDraft || null));
     setBaseline(copy(value.replyDraft || null));
     currentRef.current.draft = value;
+    currentRef.current.saved = copy(value);
+    const fresh = await repository.getSellerProject(value.projectId);
+    setProject(fresh);
+    setProjects(await repository.listSellerProjects());
+    currentRef.current.project = fresh;
     dirtyRef.current = false;
     return value;
   }
@@ -267,7 +482,8 @@ export function CustomerWorkspace({
       setSaved(copy(value));
       setResponse(answer);
       setBaseline(copy(answer));
-      setMode("edit");
+      setModeState("edit");
+      moveView({ mode: "edit", draft: value.id });
       setReview(null);
       setStale(Boolean(value.rebasedFromRevision));
     });
@@ -303,9 +519,13 @@ export function CustomerWorkspace({
       const result = await repository.issueQuote(review);
       setProject(result);
       setProjects(await repository.listSellerProjects());
-      setQuoteId(result.quotes.at(-1).id);
+      setQuoteIdState(result.quotes.at(-1).id);
       resetEditor();
-      setTab("quotation");
+      setTabState("quotation");
+      moveView(
+        { mode: "detail", tab: "quotation", quote: result.quotes.at(-1).id },
+        true,
+      );
       setMessage(
         `Quotation version ${result.quotes.at(-1).version} is now visible in the buyer view in this browser.`,
       );
@@ -333,13 +553,19 @@ export function CustomerWorkspace({
       else await repository.sendReply(review);
       resetEditor();
       await refresh();
-      setTab("conversation");
+      setTabState("conversation");
+      moveView({ mode: "detail", tab: "conversation" }, true);
+      try {
+        sessionStorage.removeItem(workKey(project.id));
+      } catch {}
       setMessage("Your response is visible in the buyer view in this browser.");
     });
   }
   function sample() {
     task("sample", async () => {
-      const release = await productRepository.getPublished("kinetic-01");
+      const release = walkthrough
+        ? BUNDLED_RELEASE
+        : await productRepository.getPublished("kinetic-01");
       const result = await repository.createSampleInquiry(
         contextForRelease(release, {
           part: { id: "rod", title: "Connecting rod" },
@@ -418,7 +644,7 @@ export function CustomerWorkspace({
             onClick={() =>
               localGo(() =>
                 task("reload", async () => {
-                  resetEditor();
+                  closeEditor();
                   await refresh();
                 }),
               )
@@ -501,7 +727,17 @@ export function CustomerWorkspace({
                 <a
                   className="ar-button"
                   data-variant="secondary"
-                  href="../product-room/?model=kinetic-01#inquiry"
+                  href={
+                    walkthrough
+                      ? withWalkthroughSession(
+                          new URL(
+                            "../product-room/?model=kinetic-01#inquiry",
+                            location.href,
+                          ),
+                          walkthrough,
+                        ).href
+                      : "../product-room/?model=kinetic-01#inquiry"
+                  }
                 >
                   Open buyer inquiry
                   <Glyph name="arrow" />
@@ -596,7 +832,15 @@ export function CustomerWorkspace({
                 <p>{project.context.productTitle}</p>
               </div>
             </div>
-            <SmallLink href={buyerURL(project)} target="_blank" rel="noopener">
+            <SmallLink
+              href={buyerURL(project)}
+              onClick={(event) => {
+                if (dirtyRef.current || busyRef.current) {
+                  event.preventDefault();
+                  localGo(() => location.assign(buyerURL(project)));
+                }
+              }}
+            >
               View as buyer
             </SmallLink>
           </div>
@@ -738,14 +982,24 @@ export function CustomerWorkspace({
                         </>
                       ) : (
                         <EmptyState
-                          title="No quotation issued yet."
-                          description="Prepare a draft, review the complete quotation, then make it visible to the customer."
+                          title={
+                            project.quoteDraft
+                              ? "Your quotation draft is saved."
+                              : "No quotation issued yet."
+                          }
+                          description={
+                            project.quoteDraft
+                              ? "Continue the saved draft, review it, then issue the customer-facing version."
+                              : "Prepare a draft, review the complete quotation, then make it visible to the customer."
+                          }
                         >
                           <Button
                             onClick={openDraft}
                             disabled={Boolean(busy) || Boolean(clarification)}
                           >
-                            Prepare quotation
+                            {project.quoteDraft
+                              ? "Continue quotation"
+                              : "Prepare quotation"}
                           </Button>
                         </EmptyState>
                       ))}
@@ -1051,7 +1305,7 @@ export function CustomerWorkspace({
               <div className="customer-editor-actions">
                 <Button
                   variant="quiet"
-                  onClick={() => localGo(resetEditor)}
+                  onClick={() => localGo(closeEditor)}
                   disabled={Boolean(busy)}
                   icon="back"
                 >
@@ -1183,7 +1437,7 @@ export function CustomerWorkspace({
                   <ActionGroup align="between">
                     <Button
                       variant="quiet"
-                      onClick={() => localGo(resetEditor)}
+                      onClick={() => localGo(closeEditor)}
                       disabled={Boolean(busy)}
                       icon="back"
                     >

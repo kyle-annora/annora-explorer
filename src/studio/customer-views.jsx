@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Comparison,
@@ -10,7 +10,11 @@ import {
 } from "../product-room/ui/components.jsx";
 import { compareQuotes } from "../product-room/project-domain.js";
 import { STUDIO_ASSETS } from "./seed.js";
-import { date } from "./navigation.js";
+import { date, readRoute } from "./navigation.js";
+import {
+  readWalkthroughSession,
+  withWalkthroughSession,
+} from "../walkthrough/session.js";
 import crankImage from "../product-room/assets/crank.png";
 
 export const money = (value) =>
@@ -23,19 +27,36 @@ export const money = (value) =>
 export function buyerURL(project, explore = false) {
   const url = new URL("../product-room/", location.href);
   url.searchParams.set("model", project.context.modelId);
-  if (explore) url.hash = `explore&project=${encodeURIComponent(project.id)}`;
-  else url.hash = `project&project=${encodeURIComponent(project.id)}`;
-  return url.href;
+  if (explore) {
+    url.searchParams.set("returnRole", "seller");
+    url.searchParams.set("returnView", location.hash);
+    url.hash = `explore&project=${encodeURIComponent(project.id)}`;
+  } else {
+    const route = readRoute();
+    const query = new URLSearchParams({ project: project.id });
+    if (route.tab)
+      query.set("tab", route.tab === "conversation" ? "activity" : route.tab);
+    if (route.quote) query.set("quote", route.quote);
+    url.hash = `project&${query}`;
+  }
+  const session = readWalkthroughSession();
+  return (session ? withWalkthroughSession(url, session) : url).href;
 }
 export function SmallLink({ href, children, ...props }) {
   return (
     <a href={href} className="studio-text-link" {...props}>
       {children}
-      <Glyph name="external" />
+      <Glyph name={props.target === "_blank" ? "external" : "arrow"} />
     </a>
   );
 }
 export function QuoteSummary({ quote, previous, showComparison = true }) {
+  const [expandedFor, setExpandedFor] = useState(null);
+  const comparisonKey = `${previous?.id}:${quote?.id}:${quote?.version}`;
+  const showUnchanged = expandedFor === comparisonKey;
+  const comparisonRows =
+    previous && quote ? compareQuotes(previous, quote) : [];
+  const changedRows = comparisonRows.filter((row) => row.changed);
   if (!quote) return null;
   return (
     <div className="customer-quote-summary">
@@ -57,6 +78,30 @@ export function QuoteSummary({ quote, previous, showComparison = true }) {
           <small>Final total remains to confirm</small>
         </div>
       </div>
+      {showComparison && previous && (
+        <Section
+          className="customer-document-section"
+          title={`Changes from version ${previous.version}`}
+        >
+          <p className="customer-fine">
+            {changedRows.length
+              ? `${changedRows.length} changed fields. Unchanged terms are kept in the full quotation below.`
+              : "No commercial fields changed."}
+          </p>
+          <Comparison
+            rows={showUnchanged ? comparisonRows : changedRows}
+            beforeLabel={`Version ${previous.version}`}
+            afterLabel={quote.version ? `Version ${quote.version}` : "Draft"}
+          />
+          <Button
+            variant="quiet"
+            aria-expanded={showUnchanged}
+            onClick={() => setExpandedFor(showUnchanged ? null : comparisonKey)}
+          >
+            {showUnchanged ? "Show changes only" : "Include unchanged fields"}
+          </Button>
+        </Section>
+      )}
       <section className="customer-document-section">
         <h3>Scope</h3>
         <p className="customer-preserve">{quote.scope}</p>
@@ -137,18 +182,6 @@ export function QuoteSummary({ quote, previous, showComparison = true }) {
             ))}
           </ul>
         </details>
-      )}
-      {showComparison && previous && (
-        <Section
-          className="customer-document-section"
-          title={`Changes from version ${previous.version}`}
-        >
-          <Comparison
-            rows={compareQuotes(previous, quote)}
-            beforeLabel={`Version ${previous.version}`}
-            afterLabel={quote.version ? `Version ${quote.version}` : "Draft"}
-          />
-        </Section>
       )}
       <div className="customer-document-footer">
         <Evidence kind="sample">
@@ -262,13 +295,7 @@ export function ProductReference({ project }) {
             </dd>
           </div>
         </dl>
-        <SmallLink
-          href={buyerURL(project, true)}
-          target="_blank"
-          rel="noopener"
-        >
-          View in 3D
-        </SmallLink>
+        <SmallLink href={buyerURL(project, true)}>View in 3D</SmallLink>
         {visibleDocs.length > 0 && (
           <div className="customer-reference-docs">
             <span className="customer-label">Linked documents</span>

@@ -31,8 +31,14 @@ import {
   Comparison,
 } from "./ui/components.jsx";
 import "./project-workspace.css";
+import { updateBuyerLocation } from "./navigation.js";
+import { readWalkthroughSession, withWalkthroughSession } from "../walkthrough/session.js";
 
 const copy = (value) => JSON.parse(JSON.stringify(value));
+const contextualURL = input => {
+  const url = new URL(input,location.href), session = readWalkthroughSession();
+  return session ? withWalkthroughSession(url,session).href : url.href;
+};
 const money = (value) =>
   value == null
     ? "Pending review"
@@ -289,12 +295,12 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     [error, setError] = useState(null),
     [notice, setNotice] = useState(""),
     [errors, setErrors] = useState({});
-  const [stage, setStage] = useState("details"),
+  const [stage, setStageState] = useState("details"),
     [review, setReview] = useState(null),
-    [tab, setTab] = useState("quotation"),
-    [quoteId, setQuoteId] = useState(null);
-  const [mode, setMode] = useState(null),
-    [modeStage, setModeStage] = useState("details"),
+    [tab, setTabState] = useState("quotation"),
+    [quoteId, setQuoteIdState] = useState(null);
+  const [mode, setModeState] = useState(null),
+    [modeStage, setModeStageState] = useState("details"),
     [changeValues, setChangeValues] = useState({}),
     [nextValues, setNextValues] = useState({
       intent: "discussion",
@@ -304,7 +310,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   const [replyValues, setReplyValues] = useState({ body: "", replyTo: "" }),
     [updateAvailable, setUpdateAvailable] = useState(false);
   const [compare, setCompare] = useState(true),
-    [allComparisonFields, setAllComparisonFields] = useState(false),
+    [allComparisonFields, setAllComparisonFieldsState] = useState(false),
     [saveState, setSaveState] = useState("");
   const activeOperation = useRef(null),
     draftRef = useRef(null),
@@ -315,6 +321,16 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     busy = useRef(false),
     heading = useRef(null),
     perQuoteDrafts = useRef({});
+  const uiReady = useRef(false);
+  const setStage = value => { setStageState(value); updateBuyerLocation({stage:value}); };
+  const setTab = value => { setTabState(value); updateBuyerLocation({tab:value}); };
+  const setQuoteId = value => { setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
+  const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined}); };
+  const setModeStage = value => { setModeStageState(value); updateBuyerLocation({stage:value}); };
+  const setAllComparisonFields = value => {
+    const next = typeof value === 'function' ? value(allComparisonFields) : value;
+    setAllComparisonFieldsState(next); updateBuyerLocation({compare:next ? 'all' : undefined});
+  };
   lifecycle.route = route;
   lifecycle.requestDirty = Boolean(
     mode &&
@@ -338,7 +354,12 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   function revealHeading() {
     requestAnimationFrame(() => {
       heading.current?.focus({ preventScroll: true });
-      heading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      const container = heading.current?.closest('.room-workspace');
+      const top = container?.querySelector('.pw-topline') || container;
+      if (top) {
+        const headerBottom = document.querySelector('.room-header')?.getBoundingClientRect().bottom || 0;
+        window.scrollTo({top:Math.max(0,window.scrollY + top.getBoundingClientRect().top - headerBottom - 12),behavior:'instant'});
+      }
     });
   }
   function report(e, focus = false) {
@@ -390,7 +411,14 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     saveQueue.current = operation;
     return operation;
   }
-  lifecycle.beforeLeave = async () => {
+  lifecycle.beforeLeave = async (nextRoute) => {
+    const sameWorkspace = nextRoute?.view === route.view && nextRoute?.projectId === route.projectId;
+    if (sameWorkspace && (!mode || nextRoute.mode === mode)) {
+      if (route.view === 'inquiry' && draftRef.current) {
+        try { await persistDraft(); } catch (error) { report(error,true); return false; }
+      }
+      return true;
+    }
     lifecycle.leaving = true;
     setLeaving(true);
     if (activeOperation.current) await activeOperation.current;
@@ -515,19 +543,20 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   }
   async function load() {
     const id = ++loadId.current;
+    uiReady.current = false;
     setLoading(true);
     setLeaving(false);
     lifecycle.leaving = false;
     setError(null);
     setNotice("");
-    setMode(null);
+    setModeState(null);
     setReplyValues({ body: "", replyTo: "" });
     setUpdateAvailable(false);
     setProject(null);
-    setQuoteId(null);
+    setQuoteIdState(null);
     setProjects([]);
     setDrafts([]);
-    setStage("details");
+    setStageState("details");
     setReview(null);
     try {
       if (autoTimer.current) {
@@ -540,6 +569,10 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
         const next = await repository.getDraft(route.context);
         if (id !== loadId.current) return;
         setDraft(next);
+        if (route.stage === 'review') {
+          try { setReview(reviewInquiry(next)); setStageState('review'); }
+          catch { setNotice('Check your saved requirements before reviewing again.'); updateBuyerLocation({stage:undefined},{replace:true}); }
+        }
         if (next.revision > 0 && !sameProjectValue(next.context, route.context))
           setNotice(
             "Your saved draft keeps its original product reference. The recently viewed component or document has not replaced it.",
@@ -560,8 +593,35 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               "This project is not available in this browser. Return to My projects to choose a saved project.",
             );
           setProject(next);
-          setQuoteId(next.quotes.at(-1)?.id || null);
-          setTab(pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry");
+          const selectedQuote = next.quotes.find(item => item.id === route.quoteId) || next.quotes.at(-1);
+          setQuoteIdState(selectedQuote?.id || null);
+          setTabState(route.tab || (pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry"));
+          setAllComparisonFieldsState(route.compare === 'all');
+          const snapshot = history.state?.annoraBuyerDraft;
+          const resumable = snapshot?.projectId === next.id && snapshot?.mode === route.mode && (route.mode === 'message' || snapshot?.quoteId === selectedQuote?.id);
+          const requestedMode = route.mode;
+          const availableMode = requestedMode === 'message' ? !!pendingClarification(next) : ['revision','next'].includes(requestedMode) && selectedQuote?.id === next.quotes.at(-1)?.id && !pendingProjectChange(next) && !pendingClarification(next) && (requestedMode !== 'next' || !next.nextSteps.some(item => item.quoteId === selectedQuote?.id));
+          if (requestedMode && availableMode) {
+            const changes = resumable ? snapshot.changeValues : {quantity:String(selectedQuote?.quantity || ''),targetWeeks:String(selectedQuote?.requestedWeeks || ''),notes:''};
+            const nextStep = resumable ? snapshot.nextValues : {intent:'discussion',message:''};
+            const reply = resumable ? snapshot.replyValues : {body:'',replyTo:pendingClarification(next)?.id || ''};
+            setModeState(requestedMode); setModeStageState('details');
+            setChangeValues(changes);setNextValues(nextStep);setReplyValues(reply);
+            if (route.stage === 'review') {
+              if (resumable && snapshot.projectRevision === next.revision) {
+                try {
+                  setModeReview(requestedMode === 'message' ? reviewCustomerReply(next,reply) : requestedMode === 'revision' ? reviewRevision(next,selectedQuote.id,changes) : reviewNextStep(next,selectedQuote.id,nextStep));
+                  setModeStageState('review');
+                } catch { setNotice('Check your saved message before reviewing it again.'); updateBuyerLocation({stage:undefined},{replace:true}); }
+              } else {
+                setNotice(resumable ? 'The project changed. Your message is kept; check the latest details before reviewing again.' : 'Add your message, then review it before confirming.');
+                updateBuyerLocation({stage:undefined},{replace:true});
+              }
+            }
+          } else if (requestedMode) {
+            setNotice('This action is no longer available for this version. Review the current project state.');
+            updateBuyerLocation({mode:undefined,stage:undefined},{replace:true});
+          }
         } else {
           const [items, working] = await Promise.all([
             repository.listProjects(),
@@ -577,6 +637,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     } finally {
       if (id === loadId.current) {
         setLoading(false);
+        uiReady.current = true;
         revealHeading();
       }
     }
@@ -584,6 +645,11 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
   useEffect(() => {
     void load();
   }, [route]);
+  useEffect(() => {
+    if (!uiReady.current || loading || !mode || !project) return;
+    const snapshot = {projectId:project.id,projectRevision:project.revision,quoteId,mode,changeValues,nextValues,replyValues};
+    history.replaceState({...history.state,annoraBuyerDraft:copy(snapshot)},'',location.href);
+  }, [loading,mode,project,quoteId,changeValues,nextValues,replyValues]);
   useEffect(() => {
     alive.current = true;
     return () => {
@@ -751,7 +817,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
     </p>
   );
   const sellerLink = project && !isPreview ? (
-    <a className="ar-button pw-role-link" data-variant="quiet" href={`../studio/#project?id=${encodeURIComponent(project.id)}`}>
+    <a className="ar-button pw-role-link" data-variant="quiet" href={contextualURL(`../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
       View as seller <span aria-hidden="true">↗</span>
     </a>
   ) : null;
@@ -790,9 +856,9 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
           "My projects.",
           "Pick up a request, review a quotation, or continue the conversation.",
           <Button
-            onClick={() => goto({ view: "inquiry", context: defaultContext })}
+            onClick={() => goto(repository.mode === "walkthrough" && projects.length ? {view:"project",projectId:projects[0].id} : { view: "inquiry", context: defaultContext })}
           >
-            Start an inquiry <span aria-hidden="true">→</span>
+            {repository.mode === "walkthrough" && projects.length ? "Continue project" : "Start an inquiry"} <span aria-hidden="true">→</span>
           </Button>,
         )}
         {feedback}
@@ -1205,7 +1271,7 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
               <p>
                 {reviewed
                   ? "Confirmation saves this exact inquiry as a project. Later changes and quotations stay linked to it."
-                  : "Review your inquiry, then open a sample quotation and explore a complete revision."}
+                  : "Review your inquiry, then the seller prepares and issues a quotation in the same project."}
               </p>
               <Evidence kind="review">Engineering review required</Evidence>
             </div>
@@ -1725,6 +1791,68 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                     {quote.source === "sample" ? "Legacy sample quotation · not an offer" : "Seller-issued demo quotation · not an offer"}
                   </Evidence>
                 </div>
+                    <section className="pw-next-action" aria-label="Quotation next action">
+                      <div className="pw-next-copy">
+                      <p className="pw-eyebrow">
+                        {!isLatest
+                          ? "PRESERVED VERSION"
+                          : question ? "YOUR REPLY NEEDED" : waitingChange
+                            ? "CHANGE REQUEST SAVED"
+                            : currentNextStep ? "NEXT STEP" : "YOUR NEXT MOVE"}
+                      </p>
+                      <h2>
+                        {!isLatest
+                          ? "An earlier quotation."
+                          : waitingChange || question
+                            ? question ? "A question needs your reply." : "Your changes are under review."
+                            : currentNextStep ? nextStepConfirmation ? "Your next step is confirmed." : "Awaiting seller confirmation." : "Move the conversation forward."}
+                      </h2>
+                      <p>
+                        {!isLatest
+                          ? `Version ${quote.version} remains available as a fixed record. Use the latest quotation to request a change or next step.`
+                          : waitingChange || question
+                            ? question ? question.body : `Your request is linked to v${quote.version}. The seller can reply, clarify details, or issue a revised quotation.`
+                            : currentNextStep ? nextStepConfirmation?.body || "The seller can review your request and confirm the next discussion or engineering review." : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
+                      </p>
+                      </div>
+                      <div className="pw-next-controls">
+                      {!isLatest ? (
+                        <Button
+                          onClick={() => {
+                            setQuoteId(latestQuote.id);
+                            setError(null);
+                          }}
+                        >
+                          Open latest quotation{" "}
+                          <span aria-hidden="true">→</span>
+                        </Button>
+                      ) : waitingChange || question ? (
+                        <>
+                          <Button onClick={() => question ? openReply() : setTab("activity")}>
+                            {question ? "Reply to question" : "View conversation"} <span aria-hidden="true">→</span>
+                          </Button>
+                        </>
+                      ) : currentNextStep ? (
+                        <><Button variant="secondary" onClick={() => setTab("activity")}>View conversation <span aria-hidden="true">→</span></Button>
+                        <Button variant="quiet" onClick={() => openMode("revision")}>Request a change</Button></>
+                      ) : (
+                        <>
+                          <Button onClick={() => openMode("next")}>
+                            Choose next step <span aria-hidden="true">→</span>
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => openMode("revision")}
+                          >
+                            Request a change
+                          </Button>
+                        </>
+                      )}
+                      <Evidence kind="review">
+                        No order or acceptance is created
+                      </Evidence>
+                    </div>
+                    </section>
                 <div className="pw-layout">
                   <div className="pw-main-column">
                     <article className="pw-quote-document">
@@ -1740,6 +1868,39 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                           <span>{date(quote.createdAt)}</span>
                         </p>
                       </div>
+                      {previousQuote && (
+                        <Section
+                          title={`What changed from v${previousQuote.version}`}
+                          actions={
+                            <Button
+                              variant="quiet"
+                              aria-expanded={compare}
+                              onClick={() => setCompare((value) => !value)}
+                            >
+                              {compare ? "Hide comparison" : "Show comparison"}
+                            </Button>
+                          }
+                        >
+                          {compare && (
+                            <><Comparison
+                              rows={compareQuotes(previousQuote, quote).filter(row => allComparisonFields || row.changed)}
+                              beforeLabel={`v${previousQuote.version} · previous`}
+                              afterLabel={`v${quote.version} · current`}
+                              caption="Quotation version comparison"
+                            />
+                            <Button variant="quiet" aria-expanded={allComparisonFields} onClick={()=>setAllComparisonFields(value=>!value)}>
+                              {allComparisonFields ? "Show changed fields only" : "Include unchanged fields"}
+                            </Button></>
+                          )}
+                          <Button
+                            variant="quiet"
+                            onClick={() => setTab("activity")}
+                          >
+                            Read the conversation{" "}
+                            <span aria-hidden="true">→</span>
+                          </Button>
+                        </Section>
+                      )}
                       <p className="pw-application">{quote.scope}</p>
                       <div className="pw-price-list">
                         <div className="pw-price-row pw-price-labels">
@@ -1800,39 +1961,6 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       </Section>
                       {!!quote.exclusions?.length && <Section title="Not included"><ul className="pw-bullets">{quote.exclusions.map((item,index)=><li key={index}>{item}</li>)}</ul></Section>}
                       {quote.validity && <Section title="Quotation validity"><p className="pw-preserve">{quote.validity}</p></Section>}
-                      {previousQuote && (
-                        <Section
-                          title={`What changed from v${previousQuote.version}`}
-                          actions={
-                            <Button
-                              variant="quiet"
-                              aria-expanded={compare}
-                              onClick={() => setCompare((value) => !value)}
-                            >
-                              {compare ? "Hide comparison" : "Show comparison"}
-                            </Button>
-                          }
-                        >
-                          {compare && (
-                            <><Comparison
-                              rows={compareQuotes(previousQuote, quote).filter(row => allComparisonFields || row.changed)}
-                              beforeLabel={`v${previousQuote.version} · previous`}
-                              afterLabel={`v${quote.version} · current`}
-                              caption="Quotation version comparison"
-                            />
-                            <Button variant="quiet" aria-expanded={allComparisonFields} onClick={()=>setAllComparisonFields(value=>!value)}>
-                              {allComparisonFields ? "Show changed fields only" : "Include unchanged fields"}
-                            </Button></>
-                          )}
-                          <Button
-                            variant="quiet"
-                            onClick={() => setTab("activity")}
-                          >
-                            Read the conversation{" "}
-                            <span aria-hidden="true">→</span>
-                          </Button>
-                        </Section>
-                      )}
                       <Section
                         title="Open items"
                         description="Clear ownership for what still needs to be resolved."
@@ -1857,64 +1985,6 @@ function Workspace({ route, repository, navigate, onExplore, lifecycle }) {
                       onExplore={onExplore}
                       compact
                     />
-                    <div className="pw-side-note">
-                      <p className="pw-eyebrow">
-                        {!isLatest
-                          ? "PRESERVED VERSION"
-                          : question ? "YOUR REPLY NEEDED" : waitingChange
-                            ? "CHANGE REQUEST SAVED"
-                            : currentNextStep ? "NEXT STEP" : "YOUR NEXT MOVE"}
-                      </p>
-                      <h2>
-                        {!isLatest
-                          ? "An earlier quotation."
-                          : waitingChange || question
-                            ? question ? "A question needs your reply." : "Your changes are under review."
-                            : currentNextStep ? nextStepConfirmation ? "Your next step is confirmed." : "Awaiting seller confirmation." : "Move the conversation forward."}
-                      </h2>
-                      <p>
-                        {!isLatest
-                          ? `Version ${quote.version} remains available as a fixed record. Use the latest quotation to request a change or next step.`
-                          : waitingChange || question
-                            ? question ? question.body : `Your request is linked to v${quote.version}. The seller can reply, clarify details, or issue a revised quotation.`
-                            : currentNextStep ? nextStepConfirmation?.body || "The seller can review your request and confirm the next discussion or engineering review." : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
-                      </p>
-                      {!isLatest ? (
-                        <Button
-                          onClick={() => {
-                            setQuoteId(latestQuote.id);
-                            setError(null);
-                          }}
-                        >
-                          Open latest quotation{" "}
-                          <span aria-hidden="true">→</span>
-                        </Button>
-                      ) : waitingChange || question ? (
-                        <>
-                          <Button onClick={() => question ? openReply() : setTab("activity")}>
-                            {question ? "Reply to question" : "View conversation"} <span aria-hidden="true">→</span>
-                          </Button>
-                        </>
-                      ) : currentNextStep ? (
-                        <><Button variant="secondary" onClick={() => setTab("activity")}>View conversation <span aria-hidden="true">→</span></Button>
-                        <Button variant="quiet" onClick={() => openMode("revision")}>Request a change</Button></>
-                      ) : (
-                        <>
-                          <Button onClick={() => openMode("next")}>
-                            Choose next step <span aria-hidden="true">→</span>
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => openMode("revision")}
-                          >
-                            Request a change
-                          </Button>
-                        </>
-                      )}
-                      <Evidence kind="review">
-                        No order or acceptance is created
-                      </Evidence>
-                    </div>
                     {currentNextStep && (
                       <div className="pw-next-receipt">
                         <p className="pw-eyebrow">YOUR REQUEST</p>
@@ -1988,9 +2058,9 @@ export function mountProjectWorkspace(
         />,
       );
     },
-    beforeLeave() {
+    beforeLeave(nextRoute) {
       return lifecycle.beforeLeave
-        ? lifecycle.beforeLeave()
+        ? lifecycle.beforeLeave(nextRoute)
         : Promise.resolve(true);
     },
     dispose() {

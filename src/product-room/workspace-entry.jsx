@@ -12,8 +12,8 @@ export function createWorkspace(
 ) {
   let projectHost, catalogRoot;
   return {
-    async beforeLeave() {
-      return projectHost?.beforeLeave ? projectHost.beforeLeave() : true;
+    async beforeLeave(route) {
+      return projectHost?.beforeLeave ? projectHost.beforeLeave(route) : true;
     },
     open(route) {
       if (route.view === "components") {

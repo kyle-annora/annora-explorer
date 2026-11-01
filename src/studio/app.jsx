@@ -33,6 +33,12 @@ import crankImage from "../product-room/assets/crank.png";
 import "./styles.css";
 import { CustomerWorkspace } from "./customer-workspace.jsx";
 import { createDemoProjectRepository } from "../product-room/project-repository.js";
+import {
+  readWalkthroughSession,
+  hasWalkthroughRequest,
+  createWalkthroughRepository,
+  walkthroughStorageKey,
+} from "../walkthrough/session.js";
 
 function Studio({ repository, projectRepository }) {
   const customerGuard = useRef(null);
@@ -82,9 +88,14 @@ function Studio({ repository, projectRepository }) {
     })[section] || "product";
 
   function go(next, replace = false) {
+    if (next.externalURL) {
+      location.assign(next.externalURL);
+      return;
+    }
     ++navigationRef.current;
     history[replace ? "replaceState" : "pushState"]({}, "", routeHash(next));
     setRoute(next);
+    window.dispatchEvent(new CustomEvent("annora:routechange"));
     setError("");
     setErrorIssues([]);
     setMessage("");
@@ -277,6 +288,7 @@ function Studio({ repository, projectRepository }) {
       setErrorIssues([]);
       setMessage("");
       setRoute(next);
+      window.dispatchEvent(new CustomEvent("annora:routechange"));
       setConfirmed(false);
       if (next.page === "preview") setPreview(null);
       if (next.page === "release") {
@@ -301,10 +313,23 @@ function Studio({ repository, projectRepository }) {
               setError(problem.message);
           });
     };
+    const presentationNavigate = (event) => {
+      if (!event.detail?.url) return;
+      event.detail.handled = true;
+      navigate({ externalURL: event.detail.url });
+    };
+    window.addEventListener(
+      "annora:walkthrough-navigate",
+      presentationNavigate,
+    );
     window.addEventListener("beforeunload", unload);
     window.addEventListener("popstate", back);
     return () => {
       active = false;
+      window.removeEventListener(
+        "annora:walkthrough-navigate",
+        presentationNavigate,
+      );
       window.removeEventListener("beforeunload", unload);
       window.removeEventListener("popstate", back);
     };
@@ -362,12 +387,7 @@ function Studio({ repository, projectRepository }) {
             <span />
             Local demo
           </span>
-          <a
-            className="studio-text-link"
-            href={roomURL({ page: "explore" })}
-            target="_blank"
-            rel="noopener"
-          >
+          <a className="studio-text-link" href={roomURL({ page: "explore" })}>
             Product Room <Glyph name="external" />
           </a>
         </div>
@@ -944,4 +964,29 @@ export function createStudio(
   };
 }
 const mount = document.getElementById("studio-root");
-if (mount) createStudio(mount);
+if (mount) {
+  const session = readWalkthroughSession();
+  if (hasWalkthroughRequest() && !session) {
+    const root = createRoot(mount);
+    root.render(
+      <div className="room-ui studio-loading">
+        <h1>This demonstration link is incomplete.</h1>
+        <p>Existing projects have not been opened or changed.</p>
+        <a className="ar-button" href="../walkthrough/">
+          Open the walkthrough
+        </a>
+      </div>,
+    );
+  } else
+    createStudio(
+      mount,
+      session
+        ? {
+            projectRepository: createWalkthroughRepository(session),
+            repository: createStudioRepository({
+              key: walkthroughStorageKey(session) + ".studio",
+            }),
+          }
+        : undefined,
+    );
+}

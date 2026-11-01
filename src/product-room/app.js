@@ -4,6 +4,8 @@ import { MODEL_CATALOG } from '../generated/catalog.js';
 import { createRoomViewer } from './viewer.js';
 import { createRequestFlow } from './request.js';
 import { createStudioRepository } from '../studio/repository.js';
+import { readBuyerRoute, buyerRouteHash, projectReturnURL } from './navigation.js';
+import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughRepository, withWalkthroughSession } from '../walkthrough/session.js';
 import { BUNDLED_RELEASE, resolveStudioContent } from '../studio/seed.js';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
 import crankImage from './assets/crank.png';
@@ -14,25 +16,24 @@ const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<'
 const images = { 'kinetic-01': crankImage, apollo: apolloImage };
 const pages = ['explore', 'overview', 'specs'];
 const workspacePages = ['projects', 'inquiry', 'project', 'components'];
-const readRoute = () => {
-  const [view, ...params] = location.hash.slice(1).split('&');
-  const query = new URLSearchParams(params.join('&'));
-  const target = query.get('part') ? {kind:'part',nodeId:query.get('part')} : query.get('chapter') && query.get('tour') ? {kind:'chapter',chapterId:query.get('chapter'),tourId:query.get('tour')} : undefined;
-  return { view: view || 'explore', projectId: query.get('project') || undefined, ...(target ? {target} : {}) };
-};
+const readRoute = readBuyerRoute;
 async function boot() {
   const rooms = {...ROOM_CONTENT}, releaseByProduct = {};
   const parameters = new URL(location.href).searchParams;
   const initialRoute = readRoute();
+  const walkthrough = readWalkthroughSession(parameters);
+  const walkthroughRepository = walkthrough ? createWalkthroughRepository(walkthrough) : null;
+  const customerRepository = walkthroughRepository || undefined;
   const referenceProjectId = initialRoute.view === 'explore' && initialRoute.projectId || parameters.get('project');
-  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project')]);
+  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('walkthrough')]);
   let referenceProject = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
+    if (hasWalkthroughRequest(parameters) && !walkthrough) throw new Error('This demonstration link is invalid. Return to the walkthrough to open a separate sample session.');
     if (referenceProjectId) {
       if (parameters.has('studioPreview') || parameters.has('release')) throw new Error('This link mixes a customer project with another product version. Open the 3D reference from the project again.');
       const {createDemoProjectRepository} = await import('./project-repository.js');
-      referenceProject = await createDemoProjectRepository().getProject(referenceProjectId);
+      referenceProject = await (customerRepository || createDemoProjectRepository()).getProject(referenceProjectId);
       const context = referenceProject.context, model = MODEL_CATALOG[context.modelId];
       if (context.productId !== 'kinetic-01') throw new Error('The customer-project reference is available for the prepared crank product only. The original project has not been changed.');
       if (!model || model.revision !== context.modelRevision) throw new Error('The exact model revision saved with this project is not included in this deployment. Your original inquiry and quotations remain available in My projects.');
@@ -42,7 +43,7 @@ async function boot() {
       else { releaseState = {release:BUNDLED_RELEASE,preview:false,pinned:true}; releaseWarning = 'This earlier project did not record a product version. Showing the bundled product reference; the saved inquiry remains unchanged.'; }
     }
     if (MODEL_CATALOG['kinetic-01']) {
-      try { if (!referenceProject) releaseState = await loadRoomRelease(createStudioRepository(), parameters); }
+      try { if (!referenceProject) releaseState = walkthrough ? {release:BUNDLED_RELEASE,preview:false,pinned:true} : await loadRoomRelease(createStudioRepository(), parameters); }
       catch (error) {
         if (parameters.has('studioPreview') || parameters.has('release')) throw error;
         releaseState = {release:BUNDLED_RELEASE,preview:false,pinned:false};
@@ -61,7 +62,7 @@ async function boot() {
     $('room-error').querySelector('h1').textContent = 'Product version unavailable.';
     $('room-error-message').textContent = error.message;
     $('room-retry').textContent = 'Try again'; $('room-retry').addEventListener('click', () => location.reload());
-    const link = $('room-error').querySelector('a'); link.href = '../studio/'; link.target = '_top'; link.textContent = 'Return to Studio';
+    const link = $('room-error').querySelector('a'); link.href = walkthrough || hasWalkthroughRequest(parameters) ? '../walkthrough/' : '../studio/'; link.textContent = walkthrough || hasWalkthroughRequest(parameters) ? 'Open walkthrough' : 'Return to Studio';
     document.querySelector('.room-nav').hidden = true; $('room-discuss').hidden = true; $('room-product').disabled = true;
     return;
   }
@@ -85,7 +86,7 @@ async function boot() {
   if (!configuredRooms.includes(productId)) productId = configuredRooms.includes(DEFAULT_ROOM_ID) ? DEFAULT_ROOM_ID : configuredRooms[0];
   if (releaseState.preview || releaseState.pinned) { productId = 'kinetic-01'; $('room-product').disabled = true; }
   let page = 'explore', navigation = 0, action = 0, loading = null, mountedModel = null, noticeTimer;
-  let workspace, workspaceLoading, currentRoute = readRoute();
+  let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null;
   const flow = createRequestFlow({ dialog: $('room-request') });
   const viewer = createRoomViewer({
     mount: $('room-viewer'), explorerURL: new URL('../', location.href).href,
@@ -119,11 +120,9 @@ async function boot() {
   function updateURL(replace = false) {
     const url = new URL(location.href); url.searchParams.set('model', productId);
     for (const key of ['studioPreview','release','project']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
-    const destination = new URLSearchParams();
-    if (page === 'project' && currentRoute.projectId) destination.set('project',currentRoute.projectId);
-    if (page === 'explore' && currentRoute.target) { const target = currentRoute.target; if (target.kind === 'part') destination.set('part',target.nodeId); else { destination.set('chapter',target.chapterId); destination.set('tour',target.tourId); } }
-    url.hash = page + (destination.size ? `&${destination}` : '');
-    history[replace ? 'replaceState' : 'pushState']({}, '', url);
+    url.hash = buyerRouteHash({...currentRoute,view:page});
+    history[replace ? 'replaceState' : 'pushState'](replace ? history.state : {}, '', url);
+    window.dispatchEvent(new Event('annora:routechange'));
     document.title = `${rooms[productId].title} · Product Room`;
   }
   function baseContext(id = productId) {
@@ -134,7 +133,7 @@ async function boot() {
     if (workspace) return workspace;
     if (!workspaceLoading) workspaceLoading = import('./workspace-entry.jsx').then(({createWorkspace}) => {
       workspace = createWorkspace($('room-workspace'), {
-        ...(previewRepository ? {repository:previewRepository} : {}),
+        ...(previewRepository || customerRepository ? {repository:previewRepository || customerRepository} : {}),
         onNavigate: route => { ++action; void showPage(route.view, {route,focus:true}).catch(error=>notice(error.message)); },
         onExplore: async context => {
           if (!configuredRooms.includes(context.modelId)) { notice('This project’s model is not available in this deployment.'); return; }
@@ -150,6 +149,9 @@ async function boot() {
             await viewer.pause().catch(()=>{});
             const url = new URL('../product-room/',location.href);
             url.searchParams.set('model',context.modelId);
+            url.searchParams.set('returnRole','buyer');
+            url.searchParams.set('returnView',location.hash);
+            if (walkthrough) url.searchParams.set('walkthrough',walkthrough);
             url.hash = `explore&project=${encodeURIComponent(currentRoute.projectId)}`;
             location.assign(url.href); return;
           }
@@ -188,7 +190,12 @@ async function boot() {
   }
   async function showPage(next, {record = true, focus = false, route = {view:next}, modelId} = {}) {
     const turn = ++navigation;
-    if (workspace && workspacePages.includes(page) && !(await workspace.beforeLeave())) {
+    if (walkthrough && next === 'inquiry') {
+      walkthroughProject = (await walkthroughRepository.listProjects())[0] || null;
+      if (walkthroughProject) { next = 'project'; route = {view:'project',projectId:walkthroughProject.id}; }
+    }
+    if (turn !== navigation) return;
+    if (workspace && workspacePages.includes(page) && !(await workspace.beforeLeave(route))) {
       if (turn === navigation) { renderContent(); updateURL(true); }
       return;
     }
@@ -222,11 +229,11 @@ async function boot() {
   function renderContent() {
     const room = rooms[productId]; $('room-product').value = productId;
     const release = releaseByProduct[productId];
-    versionBanner.hidden = !release || release.source === 'bundled' && !releaseState.preview && !releaseState.pinned && !releaseWarning;
-    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? `../studio/#project?id=${encodeURIComponent(referenceProject.id)}` : '../studio/'}" target="_top">${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
+    versionBanner.hidden = !release || walkthrough && !referenceProject && !releaseWarning || release.source === 'bundled' && !releaseState.preview && !releaseState.pinned && !releaseWarning;
+    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview && !walkthrough ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
     renderSelectedPart(viewer.state);
-    $('room-discuss').querySelector('.room-discuss-full').textContent = productId === 'kinetic-01' ? 'Request a quote' : 'Discuss application';
-    $('room-discuss').querySelector('.room-discuss-short').textContent = productId === 'kinetic-01' ? 'Inquire' : 'Discuss';
+    $('room-discuss').querySelector('.room-discuss-full').textContent = walkthroughProject ? 'View project' : productId === 'kinetic-01' ? 'Request a quote' : 'Discuss application';
+    $('room-discuss').querySelector('.room-discuss-short').textContent = walkthroughProject ? 'Project' : productId === 'kinetic-01' ? 'Inquire' : 'Discuss';
     const source = `<div class="room-source"><span class="room-eyebrow">SOURCE & SCOPE</span><p>${escape(room.source.note)}</p><a href="${escape(room.source.url)}" target="_blank" rel="noopener">${escape(room.source.label)} <span aria-hidden="true">↗</span></a><small>${escape(room.source.license)} · ${escape(room.roomRevision)}</small></div>`;
     $('page-overview').innerHTML = `
       <div class="room-content"><div class="room-overview-hero">
@@ -308,6 +315,13 @@ async function boot() {
   });
   $('room-discuss').addEventListener('click',()=>void openRequest());
   $('room-retry').addEventListener('click',()=>void ensureViewer(true).catch(()=>{}));
+  window.addEventListener('annora:walkthrough-navigate',event=> {
+    const detail = event.detail;
+    if (!walkthrough || !detail?.url) return;
+    detail.handled = true;
+    void (async()=> { if (!workspace || await workspace.beforeLeave()) { await viewer.pause().catch(()=>{}); location.assign(detail.url); } })().catch(error=>notice(error.message));
+  });
+  window.addEventListener('annora:routechange',()=> { currentRoute = {...readRoute(),context:currentRoute.context}; });
   window.addEventListener('popstate',()=> {
     ++action;
     void (async () => {
@@ -324,6 +338,10 @@ async function boot() {
   });
   document.addEventListener('visibilitychange',()=> { if (document.hidden) void viewer.pause().catch(()=>{}); });
   window.addEventListener('pagehide',event=> { if (!event.persisted) { hostSize.disconnect(); flow.dispose(); workspace?.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
+  if (walkthrough) {
+    walkthroughProject = (await walkthroughRepository.listProjects())[0] || null;
+    window.addEventListener('annora:walkthrough-change',()=> { void walkthroughRepository.listProjects().then(items=> { walkthroughProject=items[0] || null; renderContent(); }).catch(error=>notice(error.message)); });
+  }
   renderContent(); const route = readRoute();
   if (referenceProject && route.view === 'explore' && !route.target) {
     const context = referenceProject.context;

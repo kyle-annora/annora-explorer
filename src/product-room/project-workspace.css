@@ -1067,3 +1067,27 @@
   .room-workspace .pw-shared-status { align-items: flex-start; flex-direction: column; gap: 4px; }
   .room-workspace .pw-role-link { margin-left: -12px; }
 }
+
+/* The next action stays beside its reason, before the full quotation document. */
+.room-workspace .pw-next-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
+  align-items: center;
+  gap: 24px;
+  border: 1px solid #d4d5d6;
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0 28px;
+  background: #eaeae8;
+}
+.room-workspace .pw-next-copy .pw-eyebrow { margin-bottom: 8px; }
+.room-workspace .pw-next-copy h2 { margin: 0 0 8px; font-size: 20px; font-weight: 500; letter-spacing: -.025em; }
+.room-workspace .pw-next-copy > p:last-child { margin: 0; max-width: 660px; font-size: 13px; line-height: 1.6; color: #64686c; }
+.room-workspace .pw-next-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+.room-workspace .pw-next-controls .ar-evidence { flex-basis: 100%; justify-content: flex-end; font-size: 10px; }
+@media (max-width: 760px) {
+  .room-workspace .pw-next-action { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 18px 16px; margin: 16px 0 24px; }
+  .room-workspace .pw-next-controls { justify-content: flex-start; }
+  .room-workspace .pw-next-controls .ar-button { flex: 1 1 160px; min-height: 44px; }
+  .room-workspace .pw-next-controls .ar-evidence { justify-content: flex-start; }
+}
