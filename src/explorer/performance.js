@@ -1,3 +1,4 @@
+import { displayOptions } from './display-profiles.js';
 /** Browser-local measurements. No hardware fingerprinting, storage or network use. */
 export const QUALITY_PROFILES = Object.freeze({
   balanced: Object.freeze({ label: 'Balanced', maxPixelRatio: 1.25, lineMaxPixelRatio: 2, maxPixels: 2_000_000, aoScale: .5, outlineScale: .5 }),
@@ -48,6 +49,7 @@ function cleanContext(context) {
     modelId,
     mode: MODES.includes(context.mode) ? context.mode : renderStyle || 'mixed',
     renderStyle,
+    displayOptions: displayOptions(context.displayOptions),
     quality: Object.hasOwn(QUALITY_PROFILES, context.quality) ? context.quality : 'balanced',
     viewport: fields(context.viewport, ['width', 'height', 'pixelRatio', 'renderWidth', 'renderHeight']),
     model: fields(context.modelStats, ['meshCount', 'triangles', 'glbBytes', 'edgeBytes', 'edgeSegments', 'silhouetteSegments', 'lineBytes', 'surfaceBytes', 'paletteBytes', 'lineBatchCount', 'activePartCount', 'contextPartCount', 'flatPartCount']),

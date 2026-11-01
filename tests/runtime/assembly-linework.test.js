@@ -167,3 +167,37 @@ test('invalid or interrupted preparation fails without disposing caller-owned ge
   input.edgeMetadata.meshes.selected.byteOffset = input.edgeBuffer.byteLength;
   await assert.rejects(createAssemblyLinework(input), /crease/);
 });
+
+test('display controls retain occlusion, share hidden-edge geometry and never compound stroke scaling', async () => {
+  const runtime=await createAssemblyLinework(fixture()),pass=runtime.pass;
+  const state={active:new Set(['selected','neighbor']),highlighted:new Set(['selected']),hovered:new Set(['neighbor'])};
+  runtime.resize(390,844,2);
+  runtime.sync({...state,displayOptions:{featureEdges:false,hiddenEdges:true,lineWeight:'bold'}});
+  assert.equal(pass.lineScene.children[0].visible,false);
+  assert.equal(pass.lineScene.children[1].visible,true);
+  assert.equal(pass.drawHidden,true);assert.equal(runtime.stats.lineBatchCount,2);
+  const hidden=pass.hiddenScene.children[0];
+  assert.equal(hidden.geometry,pass.lineScene.children[0].geometry);
+  assert.equal(hidden.material.depthFunc,THREE.GreaterDepth);assert.equal(hidden.material.depthWrite,false);
+  assert.match(hidden.material.vertexShader,/if\(partState.z<0.5\)/);
+  assert.match(hidden.material.fragmentShader,/mod\(point.y\/pixelRatio,8.0\)>4.0/);
+  assert.equal(pass.lineScene.children[1].material.uniforms.lineWidth.value,ASSEMBLY_LINE_WIDTHS.contour*.75*1.25*2);
+  runtime.resize(390,844,2);
+  assert.equal(pass.lineScene.children[1].material.uniforms.lineWidth.value,ASSEMBLY_LINE_WIDTHS.contour*.75*1.25*2);
+  runtime.sync({...state,highlighted:new Set(),displayOptions:{hiddenEdges:true}});
+  assert.equal(pass.drawHidden,false);assert.equal(pass.lineScene.children[0].visible,true);
+  runtime.resize(1200,800,1);
+  assert.equal(pass.lineScene.children[1].material.uniforms.lineWidth.value,ASSEMBLY_LINE_WIDTHS.contour);
+  runtime.dispose();
+});
+
+test('hover previews do not change selected emphasis or flat fill', () => {
+  const {meshes}=fixture(),palette=new PartTransformPalette(meshes);
+  const state={active:new Set(['selected','neighbor']),highlighted:new Set(['selected']),filled:new Set(['selected']),hovered:new Set(['neighbor']),renderStyle:'flat'};
+  palette.sync(state);
+  assert.deepEqual(Array.from(palette.data.slice(28,32)),[1,1,1,1]);
+  assert.deepEqual(Array.from(palette.data.slice(60,64)),[1,1,0,0]);
+  assert.equal(palette.data[51],1);assert.equal(palette.data[19],0);
+  palette.sync({...state,hovered:new Set()});assert.equal(palette.data[51],0);
+  assert.deepEqual(Array.from(palette.data.slice(28,32)),[1,1,1,1]);palette.dispose();
+});

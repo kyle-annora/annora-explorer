@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#1b1719">
+  <meta name="theme-color" content="#1b1b1b">
   <meta name="description" content="Explore prepared mechanical assemblies, their components and authored motion.">
   <title>Assembly Explorer</title>
   <link rel="stylesheet" href="./src/explorer/styles.css">
@@ -117,20 +117,38 @@
 
       <section class="stage-tools floating-panel" aria-label="Viewing and operation controls">
         <div class="dock-toolbar">
-          <div class="display-modes" role="group" aria-label="Display mode">
+          <span class="dock-label">Action</span><div class="display-modes" role="group" aria-label="Assembly action">
             <button id="mode-explore" type="button" aria-pressed="true">Explore</button>
             <button id="mode-explode" type="button" aria-pressed="false">Explode</button>
             <button id="mode-operate" type="button" aria-pressed="false" disabled aria-describedby="operation-availability">Operate</button>
           </div>
           <span class="tool-divider" aria-hidden="true"></span>
-          <div class="view-controls" role="group" aria-label="Camera views">
+          <span class="dock-label">View</span><div class="view-controls" role="group" aria-label="Camera views">
             <button type="button" id="view-front" aria-pressed="true">Interior</button>
             <button type="button" id="view-rear" aria-pressed="false">Exterior</button>
           </div>
           <span class="tool-divider orientation-divider" aria-hidden="true"></span>
-          <label class="sr-only" for="render-mode">Rendering style</label>
-          <select class="render-mode" id="render-mode" aria-label="Rendering style"><option value="engineering">Engineering</option><option value="linework">Linework</option><option value="flat" id="render-flat">Flat Ember</option></select>
+          <label hidden class="sr-only" for="render-mode">Rendering style</label>
+          <select hidden class="render-mode" id="render-mode" aria-label="Rendering style"><option value="engineering">Engineering</option><option value="linework">Linework</option><option value="flat" id="render-flat">Flat Ember</option></select>
+          <button id="display-trigger" class="display-trigger" type="button" aria-expanded="false" aria-controls="display-panel"><svg aria-hidden="true"><use href="#i-appearance"/></svg><span id="display-current">Engineering</span><svg class="display-chevron" aria-hidden="true"><use href="#i-chevron"/></svg></button>
         </div>
+        <section id="display-panel" class="display-panel floating-panel" role="dialog" aria-label="Display settings" hidden>
+          <div class="panel-heading"><h2 class="eyebrow">Display settings</h2><button id="display-close" class="icon-button" type="button" aria-label="Close display settings"><svg><use href="#i-close"/></svg></button></div>
+          <div id="display-options" class="display-options" role="group" aria-label="Rendering styles"></div>
+          <p id="display-legend" class="display-legend" role="status"></p>
+          <div id="display-engineering" class="display-settings">
+            <label><span>Contact shadows</span><input id="display-ambientOcclusion" type="checkbox" checked></label>
+            <label><span>Reference grid</span><input id="display-grid" type="checkbox"></label>
+            <p>Uses the current performance setting.</p>
+          </div>
+          <div id="display-linework" class="display-settings" hidden>
+            <label><span>Internal feature lines</span><input id="display-featureEdges" type="checkbox" checked></label>
+            <label><span>Selected part · Hidden edges</span><input id="display-hiddenEdges" type="checkbox"></label>
+            <label><span>Line weight</span><select id="display-lineWeight"><option value="fine">Fine</option><option value="standard" selected>Standard</option><option value="bold">Bold</option></select></label>
+            <p>Hidden edges are dashed. They appear only on the selected part.</p>
+          </div>
+          <div class="display-footer"><span>View preferences</span><button id="display-reset" type="button">Reset</button></div>
+        </section>
         <p id="operation-availability" class="operation-availability">This package contains a structural model without operating motion.</p>
         <div class="explosion-control" id="explode-controls" hidden>
           <button type="button" class="tool-button" id="explode-toggle" aria-pressed="false"><svg><use href="#i-expand"/></svg><span>Separate</span></button>

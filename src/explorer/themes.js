@@ -12,8 +12,8 @@ export const CLIENT_THEMES = Object.freeze([
   { id: 'magenta', name: 'Magenta', description: 'Fluorescent magenta', accent: '#ff3ed1' }
 ].map(palette => Object.freeze(palette)));
 
-const PANEL = '#211e24';
-const RAISED_SURFACE = '#2b292b';
+const PANEL = '#181a1c';
+const RAISED_SURFACE = '#292d31';
 export const normalizeHex = value => typeof value === 'string' && /^#[a-f\d]{6}$/i.test(value) ? value.toLowerCase() : null;
 const channels = value => [1, 3, 5].map(index => parseInt(value.slice(index, index + 2), 16));
 const hex = rgb => '#' + rgb.map(value => Math.round(value).toString(16).padStart(2, '0')).join('');

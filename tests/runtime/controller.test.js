@@ -37,6 +37,7 @@ function fixture({ operation = true, ready = true, enabled = {} } = {}) {
     emitOperation() {}, invalidate() {},
     async whenSettled(options) { calls.push(['wait', options.settle]); if (options.signal?.aborted) throw options.signal.reason; },
     cancelPresentationRequest({ render, motion }) { calls.push(['cancel', render, motion]); if (render) ++this.styleGeneration; if (motion) this.cameraMotion = null; },
+    setDisplayOptions(value) { this.displayOptions={...value}; },
     setQuality(value) { this.quality = this.effectiveQuality = value; }, captureCameraView: camera,
     restoreCameraView(value) { calls.push(['restore-camera', value]); },
   };
@@ -300,4 +301,17 @@ test('local tour endpoint seeks require a matching chapter and preserve command 
   assert.deepEqual(received,['seek',chapter.end,chapter.id]);
   assert.equal((await f.command('seekTour',{seconds:chapter.end+1,chapterId:chapter.id})).payload.error.code,'INVALID_ARGUMENT');
   assert.equal((await f.command('seekTour',{seconds:0,chapterId:'missing'})).payload.error.code,'INVALID_ARGUMENT');
+});
+
+
+test('display preferences are validated, observable and captured without changing navigation', async()=>{
+  const {controller,scene}=fixture();
+  const before=controller.getState().navigation;
+  const result=await controller.request({requestId:'display-1',method:'setDisplayOptions',params:{options:{lineWeight:'bold',hiddenEdges:true}}});
+  assert.equal(result.payload.status,'completed');
+  assert.equal(controller.getState().appearance.display.lineWeight,'bold');
+  assert.equal(controller.captureView().displayOptions.hiddenEdges,true);
+  assert.deepEqual(controller.getState().navigation,before);
+  const rejected=await controller.request({requestId:'display-2',method:'setDisplayOptions',params:{options:{hiddenEdges:'yes'}}});
+  assert.equal(rejected.payload.error.code,'INVALID_ARGUMENT');assert.equal(scene.displayOptions.hiddenEdges,true);
 });

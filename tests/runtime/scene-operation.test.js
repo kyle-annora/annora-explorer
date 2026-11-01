@@ -15,9 +15,9 @@ function fixture(){
   const turn=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.PI);
   const clip=new THREE.AnimationClip('Cycle',2,[new THREE.QuaternionKeyframeTrack('Pivot.quaternion',[0,2],[0,0,0,1,...turn.toArray()])]);
   const scene=Object.create(AssemblyScene.prototype);
-  Object.assign(scene,{model:{id:'fixture'},rootId:'root',scopeId:'root',selectedId:'root',metadata,nodes:hierarchy.nodes,mode:'explore',isolated:false,scale:1,meshes:new Map(),edges:new Map(),active:[],contextMeshes:[],movingMeshes:new Set(),scopeViews:new Map(),separationMotion:new DampedMotion([0]),explosionTarget:0,fraction:0,callbacks:{},benchmark:{active:false},outline:{selectedObjects:[]},controls:{target:new THREE.Vector3(),enableDamping:true},camera:{position:new THREE.Vector3(0,0,10)},defaultDirection:new THREE.Vector3(0,0,1),operationConfig:{},followCamera:false,operationPlayer:new OperationPlayer({duration:2}),operationSampler:new SourceAnimationPose(source,clip),invalidate(){},fit(){},syncEdges(){}});
+  Object.assign(scene,{model:{id:'fixture'},rootId:'root',scopeId:'root',selectedId:'root',metadata,nodes:hierarchy.nodes,mode:'explore',isolated:false,scale:1,meshes:new Map(),edges:new Map(),active:[],contextMeshes:[],movingMeshes:new Set(),scopeViews:new Map(),separationMotion:new DampedMotion([0]),explosionTarget:0,fraction:0,callbacks:{},benchmark:{active:false},outline:{selectedObjects:[],visibleEdgeColor:new THREE.Color()},controls:{target:new THREE.Vector3(),enableDamping:true},camera:{position:new THREE.Vector3(0,0,10)},defaultDirection:new THREE.Vector3(0,0,1),operationConfig:{},followCamera:false,operationPlayer:new OperationPlayer({duration:2}),operationSampler:new SourceAnimationPose(source,clip),invalidate(){},fit(){},syncEdges(){}});
   for(const original of [sourceA,sourceB]){
-    const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial());mesh.name=original.name;original.matrixWorld.decompose(mesh.position,mesh.quaternion,mesh.scale);
+    const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial());mesh.name=original.name;original.matrixWorld.decompose(mesh.position,mesh.quaternion,mesh.scale);
     mesh.userData={source:original,base:mesh.position.toArray(),baseQuaternion:mesh.quaternion.clone(),baseScale:mesh.scale.clone(),pose:new DampedMotion(mesh.position.toArray()),visibility:new DampedMotion([1]),fitCorners:[]};
     const line=new THREE.Object3D();line.position.copy(mesh.position);line.quaternion.copy(mesh.quaternion);line.scale.copy(mesh.scale);scene.meshes.set(mesh.name,mesh);scene.edges.set(mesh.name,line);
   }
@@ -40,7 +40,7 @@ test('operating pose, technical edge transforms and interrupted restore preserve
 test('selecting while paused preserves operation, while explicit inspection restores a scoped assembly',()=>{
   const scene=fixture();scene.setMode('operate');settle(scene);scene.setPlaybackProgress(.25);const before=matrices(scene);
   scene.setSelected('drive');assert.equal(scene.scopeId,'root');assert.equal(scene.mode,'operate');assert.deepEqual(matrices(scene),before);assert.equal(scene.outline.selectedObjects[0].name,'A');
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'B');scene.hideHover();assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setScope('drive');assert.equal(scene.mode,'explore');assert.equal(scene.operationPlayer.playing,false);settle(scene);
   assert.deepEqual(scene.active.map(mesh=>mesh.name),['A']);assert.deepEqual(scene.contextMeshes.map(mesh=>mesh.name),['B']);
   assert.equal(scene.meshes.get('B').userData.visibility.target[0],.06);
@@ -67,10 +67,10 @@ test('operating stages emphasize their component without changing selection and 
   const scene=fixture();scene.operationPlayer=new OperationPlayer({duration:2,stages:[{at:0,nodeId:'drive'},{at:.5,nodeId:'frame'}]});
   scene.setMode('operate');settle(scene);assert.equal(scene.selectedId,'root');assert.equal(scene.outline.selectedObjects[0].name,'A');
   const initialOutline=scene.outline.selectedObjects;scene.emitOperation();assert.equal(scene.outline.selectedObjects,initialOutline);
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'B');scene.hideHover();assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setPlaybackProgress(.6);assert.equal(scene.selectedId,'root');assert.equal(scene.outline.selectedObjects[0].name,'B');
   scene.setSelected('drive');assert.equal(scene.outline.selectedObjects[0].name,'A');scene.setPlaybackProgress(.8);assert.equal(scene.outline.selectedObjects[0].name,'A');
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'B');scene.hideHover();assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setSelected('root');assert.equal(scene.outline.selectedObjects[0].name,'B');scene.highlight('drive');scene.setMode('explore');
   assert.equal(scene.selectedId,'root');assert.deepEqual(scene.outline.selectedObjects,[]);assert.equal(scene.hoveredId,null);
 });

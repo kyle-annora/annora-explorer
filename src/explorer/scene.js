@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DISPLAY_DEFAULTS, displayOptions } from './display-profiles.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -47,10 +48,10 @@ export class AssemblyScene {
     this.defaultDirection=new THREE.Vector3(...(model.defaultDirection||[.34,.2,1])).normalize();
     this.abort=new AbortController();this.mode='explore';this.selectedId=this.rootId;this.isolated=false;this.contextMeshes=[];this.followCamera=false;this.operationPlayer=new OperationPlayer();
     this.scopeId = this.rootId; this.fraction = 0; this.explosionTarget = 0; this.meshes = new Map(); this.edges = new Map(); this.active = []; this.dirty=true;
-    this.renderStyle='engineering';this.technical=false;
+    this.renderStyle='engineering';this.technical=false;this.displayOptions={...DISPLAY_DEFAULTS};this.lineAccent=callbacks.theme?.outline||'#ff6840';
     this.raf=null;this.quality='balanced';this.effectiveQuality='balanced';this.loadMetrics={};this.benchmark=new BenchmarkRecorder();this.adaptive=new AdaptiveBudget();this.movingMeshes=new Set();
     this.scopeViews = new Map(); this.separationMotion = new DampedMotion([0], .16);
-    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#242126');
+    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#414141');
     this.camera = new THREE.PerspectiveCamera(15, 1, .05, 150);
     this.camera.position.copy(this.defaultDirection).multiplyScalar(14);
     this.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'default' });
@@ -66,8 +67,8 @@ export class AssemblyScene {
     const environment = new RoomEnvironment();
     this.environmentTarget = pmrem.fromScene(environment, .03); this.scene.environment = this.environmentTarget.texture;
     environment.dispose(); pmrem.dispose(); this.scene.environmentIntensity = .7;
-    this.scene.add(new THREE.HemisphereLight(0xf9f1e8, 0x35313a, .45));
-    for (const [color, intensity, position] of [[0xffffff, 1.6, [5,7,9]], [0xbfc4cf, .7, [-7,2,3]], [0xffdfce, 1.2, [1,3,-5]]]) {
+    this.scene.add(new THREE.HemisphereLight(0xf5f6f8, 0x303236, .45));
+    for (const [color, intensity, position] of [[0xffffff, 1.6, [5,7,9]], [0xd7dce3, .65, [-7,2,3]], [0xffffff, 1.15, [1,3,-5]]]) {
       const light = new THREE.DirectionalLight(color, intensity); light.position.set(...position); this.scene.add(light);
     }
     this.composer = new EffectComposer(this.renderer);
@@ -75,8 +76,8 @@ export class AssemblyScene {
     this.ao = new SSAOPass(this.scene, this.camera, 1, 1, 8); this.ao.kernelRadius = 7; this.ao.minDistance = .0006; this.ao.maxDistance = .016;
     this.composer.addPass(this.ao);this.outputPass=new OutputPass();this.composer.addPass(this.outputPass);
     this.outline = new OutlinePass(new THREE.Vector2(1,1), this.scene, this.camera);
-    this.outline.visibleEdgeColor.set(callbacks.theme?.outline || '#aaaaaa'); this.outline.hiddenEdgeColor.set(callbacks.theme?.outline || '#aaaaaa');
-    this.outline.edgeStrength = 3; this.outline.edgeThickness = 1.5; this.outline.edgeGlow = 0; this.outline.downSampleRatio = 2;
+    this.outline.visibleEdgeColor.setHex(parseInt(this.lineAccent.slice(1),16),THREE.LinearSRGBColorSpace); this.outline.hiddenEdgeColor.set(0x000000);
+    this.outline.edgeStrength = 3; this.outline.edgeThickness = 1; this.outline.edgeGlow = 0; this.outline.downSampleRatio = 2;
     this.composer.addPass(this.outline);
     this.fxaa = new ShaderPass(FXAAShader); this.composer.addPass(this.fxaa);
     this.copyPass=new ShaderPass(CopyShader);this.copyPass.enabled=false;this.composer.addPass(this.copyPass);
@@ -196,11 +197,11 @@ export class AssemblyScene {
     const geometry = new THREE.BufferGeometry(); const positions = []; const colors = [];
     const half = 10; const step = .5; const bottom = this.modelBounds.min.y - .12;
     for (let i = -half; i <= half; i += step) {
-      const c = new THREE.Color(i % 2 === 0 ? '#7d6a73' : '#5f5059');
+      const c = new THREE.Color(i % 2 === 0 ? '#6c7074' : '#484c50');
       for (const p of [[-half,bottom,i],[half,bottom,i],[i,bottom,-half],[i,bottom,half]]) { positions.push(...p); colors.push(c.r,c.g,c.b); }
     }
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions,3)); geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-    this.grid = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .26, depthWrite: false })); this.scene.add(this.grid);
+    this.grid = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .18, depthWrite: false })); this.scene.add(this.grid);this.grid.visible=Boolean(this.displayOptions.grid);
   }
 
   boxFor(meshes) {
@@ -308,9 +309,9 @@ export class AssemblyScene {
 
   setTheme(roles) {
     this.cancelBenchmark('settings-changed');
-    this.outline.visibleEdgeColor.setHex(parseInt(roles.outline.slice(1),16),THREE.LinearSRGBColorSpace);this.outline.hiddenEdgeColor.copy(this.outline.visibleEdgeColor).multiplyScalar(.25);
+    this.outline.visibleEdgeColor.setHex(parseInt(roles.outline.slice(1),16),THREE.LinearSRGBColorSpace);this.outline.hiddenEdgeColor.set(0x000000);
     this.mount.dataset.outline=roles.outline;
-    this.lineAccent=roles.outline;
+    this.lineAccent=roles.outline;this.outlineKey=null;this.refreshOutline();
     this.invalidate();
   }
 
@@ -319,15 +320,24 @@ export class AssemblyScene {
     if(this.tourFrame){
       const ids=this.tourFrame.highlightIds||[],key=`tour:${this.scopeId}:${ids.join(',')}`;
       if(this.outlineKey===key)return;this.outlineKey=key;
+      for(const mesh of this.hoverPreview||[])mesh.material.emissive.set(0x000000);this.hoverPreview=[];
+      this.outline.visibleEdgeColor.setHex(parseInt((this.lineAccent||this.callbacks.theme?.outline||'#ff6840').slice(1),16),THREE.LinearSRGBColorSpace);
       const active=new Set(this.active),highlighted=new Set();
       for(const id of ids)for(const name of this.nodes.get(id)?.meshNames||[]){const mesh=this.meshes.get(name);if(active.has(mesh))highlighted.add(mesh);}
       this.outline.selectedObjects=[...highlighted];this.dirty=true;return;
     }
     const selected=this.selectedId!==this.rootId?this.selectedId:null;
-    const id=this.hoveredId||selected||(this.mode==='operate'?stage?.nodeId:null)||null;
-    const key=`${this.scopeId}:${id||''}`;
+    const id=selected||(this.mode==='operate'?stage?.nodeId:null)||this.hoveredId||null;
+    const key=`${this.scopeId}:${id||''}:${this.hoveredId||''}`;
     if(this.outlineKey===key)return;
     this.outlineKey=key;const node=id&&this.nodes.get(id),active=new Set(this.active);
+    // Hover is a quiet preview; it must not steal the selected part's accent.
+    for(const mesh of this.hoverPreview||[])mesh.material.emissive.set(0x000000);
+    this.hoverPreview=[];
+    if(this.hoveredId&&this.hoveredId!==id)for(const name of this.nodes.get(this.hoveredId)?.meshNames||[]) {
+      const mesh=this.meshes.get(name);if(active.has(mesh)){mesh.material.emissive.set('#242424');this.hoverPreview.push(mesh);}
+    }
+    this.outline.visibleEdgeColor.setHex(parseInt((selected||this.mode==='operate'?this.lineAccent||'#ff6840':'#c8cdd2').slice(1),16),THREE.LinearSRGBColorSpace);
     this.outline.selectedObjects=node?node.meshNames.map(name=>this.meshes.get(name)).filter(mesh=>active.has(mesh)):[];
     this.dirty=true;
   }
@@ -748,7 +758,7 @@ export class AssemblyScene {
     let geometry=this.edgeGeometries.get(record.byteOffset);
     if(!geometry){geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(this.edgeBuffer,record.byteOffset,record.vertexCount*3),3));geometry.computeBoundingSphere();this.edgeGeometries.set(record.byteOffset,geometry);}
     this.technicalLineMaterial??=new THREE.LineBasicMaterial({color:technicalSpec().lineColor,transparent:true,opacity:.8,depthWrite:false});
-    this.contextLineMaterial??=new THREE.LineBasicMaterial({color:'#8a747c',transparent:true,opacity:.1,depthWrite:false});
+    this.contextLineMaterial??=new THREE.LineBasicMaterial({color:'#8a8d92',transparent:true,opacity:.1,depthWrite:false});
     const line=new THREE.LineSegments(geometry,this.technicalLineMaterial);
     line.position.copy(mesh.position);line.quaternion.copy(mesh.quaternion);line.scale.copy(mesh.scale);
     this.edges.set(mesh.name,line);this.scene.add(line);return line;
@@ -765,8 +775,8 @@ export class AssemblyScene {
     });
     this.surfacePass.enabled=engineering;this.outputPass.enabled=engineering;this.outline.enabled=engineering;this.fxaa.enabled=engineering;this.copyPass.enabled=!engineering;
     if(this.lineRuntime)this.lineRuntime.pass.enabled=!engineering;
-    if(this.grid)this.grid.visible=engineering;
-    this.ao.enabled=engineering&&QUALITY_PROFILES[this.effectiveQuality].aoScale>0;
+    if(this.grid)this.grid.visible=engineering&&Boolean(this.displayOptions?.grid);
+    this.ao.enabled=engineering&&this.displayOptions?.ambientOcclusion!==false&&QUALITY_PROFILES[this.effectiveQuality].aoScale>0;
     this.mount.dataset.renderStyle=presentationStyle(this);
     if(engineering)this.mount.dataset.flatPartCount='0';
     if(this.reportedRenderStyle!==presentationStyle(this)){
@@ -777,6 +787,11 @@ export class AssemblyScene {
       this.callbacks.renderStyle?.(this.reportedRenderStyle);
     }
     this.invalidate();
+  }
+
+  setDisplayOptions(patch) {
+    this.displayOptions=displayOptions(patch,this.displayOptions);this.cancelBenchmark('settings-changed');
+    this.syncEdges();this.invalidate();return {...this.displayOptions};
   }
 
   async setRenderStyle(style) {
@@ -793,11 +808,13 @@ export class AssemblyScene {
   /** Reuse source transforms and the existing visibility springs; no line topology is rebuilt. */
   syncLinePresentation(){
     if(!this.lineRuntime||presentationStyle(this)==='engineering')return;
-    const state=this.lineState??={active:new Set(),context:new Set(),highlighted:new Set(),filled:new Set(),perPartAlpha:new Map()};
-    for(const key of ['active','context','highlighted','filled'])state[key].clear();state.perPartAlpha.clear();
+    const state=this.lineState??={active:new Set(),context:new Set(),highlighted:new Set(),hovered:new Set(),filled:new Set(),perPartAlpha:new Map()};
+    for(const key of ['active','context','highlighted','hovered','filled'])state[key].clear();state.perPartAlpha.clear();
     for(const mesh of this.active)state.active.add(mesh.name);
     for(const mesh of this.contextMeshes)state.context.add(mesh.name);
-    for(const mesh of this.outline.selectedObjects)if(state.active.has(mesh.name))state.highlighted.add(mesh.name);
+    const emphasisIds=this.tourFrame?(this.tourFrame.highlightIds||[]):this.selectedId!==this.rootId?[this.selectedId]:this.mode==='operate'?[this.operationPlayer.state().stage?.nodeId]:[];
+    for(const id of emphasisIds)for(const name of this.nodes.get(id)?.meshNames||[])if(state.active.has(name))state.highlighted.add(name);
+    if(!this.tourFrame)for(const name of this.nodes.get(this.hoveredId)?.meshNames||[])if(state.active.has(name))state.hovered.add(name);
     if(presentationStyle(this)==='flat'){
       // The director's empty highlight is deliberate. Never substitute its selected scope.
       const stageId=this.mode==='operate'?this.operationPlayer.state().stage?.nodeId:null;
@@ -805,7 +822,7 @@ export class AssemblyScene {
       for(const id of ids)for(const name of this.nodes.get(id)?.meshNames||[])if(state.active.has(name))state.filled.add(name);
     }
     for(const mesh of this.meshes.values())state.perPartAlpha.set(mesh.name,THREE.MathUtils.clamp(mesh.userData.visibility.values[0],0,1));
-    state.renderStyle=presentationStyle(this);state.accent=this.lineAccent||this.callbacks.theme?.outline||'#ff6840';state.worldMatricesUpdated=true;
+    state.displayOptions=this.displayOptions;state.renderStyle=presentationStyle(this);state.accent=this.lineAccent||this.callbacks.theme?.outline||'#ff6840';state.worldMatricesUpdated=true;
     // The original scene is not rendered in line styles, so update its world matrices explicitly.
     this.scene.updateMatrixWorld(true);this.lineRuntime.sync(state);
     this.mount.dataset.flatPartCount=String(state.filled.size);this.mount.dataset.lineBatchCount=String(this.lineRuntime.stats.lineBatchCount);
@@ -875,7 +892,7 @@ export class AssemblyScene {
     }
     this.syncLinePresentation();
     const layout=this.layoutRegion(),renderStyle=presentationStyle(this),stats=this.metadata.stats||{};
-    this.benchmark.begin({modelId:this.model.id||'unknown',mode:renderStyle,renderStyle,quality:this.effectiveQuality,viewport:{width:layout.width,height:layout.height,pixelRatio:this.renderer.getPixelRatio(),renderWidth:this.renderer.domElement.width,renderHeight:this.renderer.domElement.height},modelStats:{...stats,glbBytes:stats.glbBytes||stats.bytes,edgeBytes:this.edgeBuffer?.byteLength||0,...this.lineRuntime?.stats,flatPartCount:renderStyle==='flat'?this.lineState?.filled.size||0:0},loadMetrics:this.loadMetrics});
+    this.benchmark.begin({modelId:this.model.id||'unknown',mode:renderStyle,renderStyle,quality:this.effectiveQuality,displayOptions:this.displayOptions,viewport:{width:layout.width,height:layout.height,pixelRatio:this.renderer.getPixelRatio(),renderWidth:this.renderer.domElement.width,renderHeight:this.renderer.domElement.height},modelStats:{...stats,glbBytes:stats.glbBytes||stats.bytes,edgeBytes:this.edgeBuffer?.byteLength||0,...this.lineRuntime?.stats,flatPartCount:renderStyle==='flat'?this.lineState?.filled.size||0:0},loadMetrics:this.loadMetrics});
     this.benchmarkStarted=performance.now();this.benchmarkBase=this.cameraMotion.values.slice();this.controls.enabled=false;this.invalidate();
   }
   cancelBenchmark(reason='cancelled'){

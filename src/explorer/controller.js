@@ -1,3 +1,4 @@
+import { DISPLAY_DEFAULTS, LINE_WEIGHTS, displayOptions } from './display-profiles.js';
 import { CLIENT_THEMES } from './themes.js';
 import { intersectCapabilities, tourRequirements } from './project-features.js';
 
@@ -11,7 +12,7 @@ const ERROR_CODES = new Set(['NOT_READY', 'UNKNOWN_NODE', 'UNKNOWN_TOUR', 'UNKNO
 const PARAMETERS = {
   getState: [], getCapabilities: [], getNode: ['nodeId'], getChildren: ['nodeId'], getTour: ['tourId'],
   select: ['nodeId'], focus: ['nodeId'], frame: ['nodeId', 'view'], isolate: ['nodeId'],
-  setRenderStyle: ['style'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
+  setRenderStyle: ['style'], setDisplayOptions: ['options'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
   playOperation: [], replayOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
   startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
   setTheme: ['themeId'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], cancel: ['requestId'], dispose: [],
@@ -90,6 +91,7 @@ export class ExplorerController {
       modes: { supported: supportedModes, enabled: modes, available: active ? modes : [] },
       operation: { supported: this.operationSupported, enabled: operation, available: active && operation && Boolean(this.scene.getOperationState().available), clips: clipId ? [clipId] : [], speeds: operation ? SPEEDS : [] },
       tours: { supported: Boolean(authored), enabled: Boolean(tours.length), available: active && Boolean(this.tour) && Boolean(tours.length), items: tours.map(tour => ({ id: tour.id, title: tour.title, duration: tour.duration })) },
+      displayOptions: { defaults: DISPLAY_DEFAULTS, lineWeights: Object.keys(LINE_WEIGHTS) },
       qualityProfiles: allowed('qualityProfiles', QUALITIES), themes: allowed('themes', CLIENT_THEMES.map(theme => theme.id)),
     });
   }
@@ -102,7 +104,7 @@ export class ExplorerController {
       presentation: { mode: available ? scene.mode : null, renderStyle: available ? scene.renderStyle || 'engineering' : null, explosion: available ? scene.fraction || 0 : null, explosionTarget: available ? scene.explosionTarget || 0 : null, separation: available ? scene.getSeparationState?.() || null : null, transitioning: available ? this.transitioning() : null },
       operation: { available: Boolean(available && operation.available && this.getCapabilities().operation.enabled), clipId: this.getCapabilities().operation.clips[0] || null, status: !available || !operation.available ? 'unavailable' : operation.playing ? 'playing' : operation.progress >= 1 ? 'completed' : 'paused', progress: available && operation.available ? operation.progress : null, duration: available && operation.available ? operation.duration ?? null : null, sourceDuration: available && operation.available ? operation.sourceDuration ?? null : null, speed: available && operation.available ? operation.speed : null, followCamera: Boolean(available && operation.followCamera) },
       tour: { active: Boolean(tour?.active), tourId: tour?.tour?.id || null, playback: tour?.tour?.playback || 'continuous', status: tour?.pending ? 'preparing' : tour?.active ? transport.status : 'idle', time: transport?.time || 0, duration: tour?.tour?.duration || 0, chapterId: tour?.active ? transport?.chapter?.id || null : null, reason: tour?.active ? transport.reason : null },
-      appearance: { theme: this.port.getTheme?.() || { id: 'ember', revision: '1' }, quality: scene?.quality || 'balanced', effectiveQuality: scene?.effectiveQuality || 'balanced' },
+      appearance: { display: { ...DISPLAY_DEFAULTS, ...scene?.displayOptions }, theme: this.port.getTheme?.() || { id: 'ember', revision: '1' }, quality: scene?.quality || 'balanced', effectiveQuality: scene?.effectiveQuality || 'balanced' },
       environment: this.environment, busy: activity,
     });
   }
@@ -313,6 +315,11 @@ export class ExplorerController {
       check(caps.themes.includes(params.themeId), 'Choose an enabled registered client theme.', 'UNSUPPORTED_ACTION');
       return async record => { this.port.setTheme(params.themeId); await this.wait(record, false); return this.getState().appearance; };
     }
+    if (method === 'setDisplayOptions') {
+      let options;try { options=displayOptions(params.options,scene.displayOptions); } catch(error) { throw fail('INVALID_ARGUMENT',error.message); }
+      check(plain(params.options), 'Supply display options.');
+      return async record => { scene.setDisplayOptions(options);await this.wait(record,false);return this.getState().appearance; };
+    }
     if (method === 'setQuality') {
       check(QUALITIES.includes(params.profile), 'Choose an advertised quality profile.');
       check(caps.qualityProfiles.includes(params.profile), 'This quality profile is not enabled.', 'UNSUPPORTED_ACTION');
@@ -327,6 +334,7 @@ export class ExplorerController {
         if (record.abort.signal.aborted) return;
         await scene.setRenderStyle(bookmark.renderStyle);
         if (record.abort.signal.aborted) return;
+        scene.setDisplayOptions?.(bookmark.displayOptions || DISPLAY_DEFAULTS);
         scene.setScope(bookmark.scopeId); scene.setIsolated(bookmark.isolated); scene.setSelected(bookmark.selectedId);
         if (bookmark.mode === 'operate') { scene.setMode('operate'); scene.setPlaybackProgress(bookmark.operation.progress); scene.setSelected(bookmark.selectedId); }
         else scene.explode(bookmark.separation, false, bookmark.mode);
@@ -341,11 +349,12 @@ export class ExplorerController {
     const settled = this.scene.isSettled?.() ?? (!this.transitioning() && !this.scene.controlsMoving && !this.scene.benchmark?.active);
     check(!this.tour?.active && !this.tour?.pending && settled && !this.scene.presentationPoseDetached && !this.scene.getOperationState().playing && ![...this.requests.values()].some(item => !item.terminal && item.lanes.length), 'Pause playback, exit the tour and let the presentation settle before capturing a view. Restore or seek a source pose after an interrupted pose transition.', 'BUSY_STATE');
     const scene = this.scene, operation = scene.getOperationState();
-    return copy({ viewVersion: '0.1', model: this.identity, coordinateFrame: 'normalized-assembly-v1', selectedId: scene.selectedId, scopeId: scene.scopeId, isolated: Boolean(scene.isolated), mode: scene.mode, renderStyle: scene.renderStyle, separation: scene.fraction || 0,
+    return copy({ viewVersion: '0.1', model: this.identity, coordinateFrame: 'normalized-assembly-v1', selectedId: scene.selectedId, scopeId: scene.scopeId, isolated: Boolean(scene.isolated), mode: scene.mode, renderStyle: scene.renderStyle, displayOptions: { ...DISPLAY_DEFAULTS, ...scene.displayOptions }, separation: scene.fraction || 0,
       operation: scene.mode === 'operate' ? { clipId: this.getCapabilities().operation.clips[0], progress: operation.progress, status: 'paused' } : null, camera: scene.captureCameraView() });
   }
   validateBookmark(value) {
     check(plain(value) && value.viewVersion === '0.1' && value.coordinateFrame === 'normalized-assembly-v1' && value.model?.id === this.identity.id && value.model?.revision === this.identity.revision, 'This view belongs to another model revision or coordinate convention.', 'INCOMPATIBLE_VIEW');
+    if(value.displayOptions!==undefined)try { displayOptions(value.displayOptions); } catch(error) { throw fail('INVALID_ARGUMENT',error.message); }
     this.node(value.selectedId); this.node(value.scopeId);
     check(typeof value.isolated === 'boolean' && this.getCapabilities().modes.enabled.includes(value.mode) && this.getCapabilities().renderStyles.enabled.includes(value.renderStyle) && fraction(value.separation), 'Invalid bookmark presentation.');
     check(value.separation === 0 || this.node(value.scopeId).type !== 'component', 'A component bookmark cannot be separated.');

@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
+import { DISPLAY_DEFAULTS, LINE_WEIGHTS } from './display-profiles.js';
 import { contourRecord } from './assembly-linework-data.js';
 
-export const ASSEMBLY_LINE_WIDTHS = Object.freeze({ crease: 1.4, contour: 2 });
+export const ASSEMBLY_LINE_WIDTHS = Object.freeze({ crease: 1.05, contour: 1.8 });
 const PALETTE_COLUMNS = 8, FLOATS_PER_PART = PALETTE_COLUMNS * 4, COVERAGE_WIDTH = .75;
 const yieldToBrowser = () => new Promise(resolve => setTimeout(resolve, 0));
 const abortIfNeeded = signal => { if (signal?.aborted) throw signal.reason || new DOMException('Line preparation interrupted.', 'AbortError'); };
@@ -20,7 +21,7 @@ export class PartTransformPalette {
     this.uploads = 0;
   }
 
-  sync({ active = new Set(), context = new Set(), highlighted = new Set(), filled = new Set(), renderStyle = 'linework', perPartAlpha, worldMatricesUpdated = false } = {}) {
+  sync({ active = new Set(), context = new Set(), highlighted = new Set(), hovered = new Set(), filled = new Set(), renderStyle = 'linework', perPartAlpha, worldMatricesUpdated = false } = {}) {
     let dirty = false, flatPartCount = 0, activePartCount = 0, contextPartCount = 0;
     const write = (index, value) => {
       const next = Math.fround(value);
@@ -46,6 +47,7 @@ export class PartTransformPalette {
       const suppliedAlpha = perPartAlpha?.get(mesh.name);
       const alpha = mesh.visible && (isActive || isContext) ? Math.max(0, Math.min(1, Number.isFinite(suppliedAlpha) ? suppliedAlpha : isActive ? 1 : .06)) : 0;
       const fill = renderStyle === 'flat' && isActive && filled.has(mesh.name) && alpha > .001;
+      write(base + 19, isActive && hovered.has(mesh.name) ? 1 : 0);
       write(base + 28, alpha); write(base + 29, isActive ? 1 : 0);
       write(base + 30, isActive && highlighted.has(mesh.name) ? 1 : 0); write(base + 31, fill ? 1 : 0);
       if (alpha > .001) { if (isActive) activePartCount++; else if (isContext) contextPartCount++; }
@@ -93,10 +95,10 @@ function surfaceMaterial(palette, flat, accent) {
   });
 }
 
-function ribbonMaterial(palette, contour, accent, contextOnly = false) {
+function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnly = false) {
   const width = contour ? ASSEMBLY_LINE_WIDTHS.contour : ASSEMBLY_LINE_WIDTHS.crease;
   const material = new THREE.ShaderMaterial({
-    uniforms: { ...paletteUniforms(palette), accent: { value: accent }, resolution: { value: new THREE.Vector2(1, 1) }, lineWidth: { value: width } },
+    uniforms: { ...paletteUniforms(palette), accent: { value: accent }, resolution: { value: new THREE.Vector2(1, 1) }, lineWidth: { value: width }, pixelRatio: { value: 1 } },
     vertexShader: `${paletteShader}
       attribute vec3 segmentStart;
       attribute vec3 segmentEnd;
@@ -108,16 +110,19 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false) {
         }` : ''}
       uniform vec2 resolution;
       uniform float lineWidth;
+      uniform float pixelRatio;
       varying vec4 partState;
       varying vec2 strokePointTimesW;
       varying float strokeW;
       varying float strokeLength;
+      varying float hoverState;
       void main() {
-        partState=partTexel(7.0);
+        partState=partTexel(7.0);hoverState=partTexel(4.0).w;
         strokePointTimesW=vec2(1000.0); strokeW=1.0; strokeLength=0.0;
         // Parent context uses silhouettes only. Dense hidden crease bundles can
         // otherwise accumulate into bright spots even at a low per-part opacity.
         if(partState.x<=0.001 || partState.y${contextOnly ? '>' : '<'}0.5) { gl_Position=vec4(2.0,2.0,2.0,1.0); return; }
+        ${hiddenOnly ? 'if(partState.z<0.5) { gl_Position=vec4(2.0,2.0,2.0,1.0); return; }' : ''}
         mat4 world=partMatrix();
         mat4 modelView=viewMatrix*world;
         ${contour ? `
@@ -147,10 +152,12 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false) {
     fragmentShader: `
       uniform vec3 accent;
       uniform float lineWidth;
+      uniform float pixelRatio;
       varying vec4 partState;
       varying vec2 strokePointTimesW;
       varying float strokeW;
       varying float strokeLength;
+      varying float hoverState;
       void main() {
         if(partState.x<=0.001 || partState.y${contextOnly ? '>' : '<'}0.5) discard;
         vec2 point=strokePointTimesW/strokeW;
@@ -158,7 +165,10 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false) {
         float distanceToStroke=length(vec2(point.x,beyond));
         float coverage=1.0-smoothstep(max(0.0,lineWidth*0.5-${COVERAGE_WIDTH * .5}),lineWidth*0.5+${COVERAGE_WIDTH * .5},distanceToStroke);
         if(coverage<=0.0) discard;
-        vec3 color=vec3(245.0,243.0,237.0)/255.0;
+        vec3 color=${contour ? 'vec3(229.0,232.0,235.0)' : 'vec3(150.0,157.0,165.0)'}/255.0;
+        if(hoverState>0.5) color=vec3(1.0);
+        if(partState.w>0.5) color=vec3(1.0);
+        ${hiddenOnly ? 'if(partState.z<0.5 || mod(point.y/pixelRatio,8.0)>4.0) discard; coverage*=0.42;' : ''}
         ${contextOnly ? `
           // Resolve coverage against the fixed display background before MAX
           // blending. Overlapping context never adds opacity or brightness.
@@ -175,7 +185,8 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false) {
     material.blendEquation = material.blendEquationAlpha = THREE.MaxEquation;
     material.blendSrc = material.blendDst = material.blendSrcAlpha = material.blendDstAlpha = THREE.OneFactor;
   }
-  material.userData.cssLineWidth = width;
+  if(hiddenOnly)material.depthFunc=THREE.GreaterDepth;
+  material.userData.cssLineWidth = hiddenOnly ? .85 : width;
   return material;
 }
 
@@ -264,8 +275,8 @@ async function prepareBatches(meshes, edgeMetadata, edgeBuffer, silhouetteMetada
 }
 
 class AssemblyLineworkPass extends Pass {
-  constructor(depthScene, flatScene, lineScene, camera, contextScene) {
-    super(); this.depthScene = depthScene; this.flatScene = flatScene; this.lineScene = lineScene; this.contextScene = contextScene; this.camera = camera;
+  constructor(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene) {
+    super(); this.depthScene = depthScene; this.flatScene = flatScene; this.lineScene = lineScene; this.contextScene = contextScene; this.camera = camera;this.hiddenScene=hiddenScene;this.drawHidden=false;
     this.needsSwap = false; this.enabled = false; this.drawFlat = false; this.drawContext = false;
     this.background = new THREE.Color().setHex(0x1b1b1b, THREE.LinearSRGBColorSpace);
     this.previousColor = new THREE.Color();
@@ -278,6 +289,7 @@ class AssemblyLineworkPass extends Pass {
       renderer.setClearColor(this.background, 1); renderer.clear(true, true, false);
       renderer.render(this.depthScene, this.camera);
       if (this.drawContext) renderer.render(this.contextScene, this.camera);
+      if (this.drawHidden) renderer.render(this.hiddenScene,this.camera);
       if (this.drawFlat) renderer.render(this.flatScene, this.camera);
       renderer.render(this.lineScene, this.camera);
     } finally {
@@ -299,41 +311,49 @@ export async function createAssemblyLinework({ meshes, edgeMetadata, edgeBuffer,
   const depthMaterial = surfaceMaterial(palette, false, accent), flatMaterial = surfaceMaterial(palette, true, accent);
   const creaseMaterial = ribbonMaterial(palette, false, accent), contourMaterial = ribbonMaterial(palette, true, accent);
   const contextMaterial = ribbonMaterial(palette, true, accent, true);
+  const hiddenMaterial=ribbonMaterial(palette,false,accent,false,true);
   const depthScene = new THREE.Scene(), flatScene = new THREE.Scene(), lineScene = new THREE.Scene(), contextScene = new THREE.Scene();
   const depth = new THREE.Mesh(prepared.surface, depthMaterial), flat = new THREE.Mesh(prepared.surface, flatMaterial);
   const crease = new THREE.Mesh(prepared.crease, creaseMaterial), contour = new THREE.Mesh(prepared.contour, contourMaterial);
   const contextContour = new THREE.Mesh(prepared.contour, contextMaterial);
+  const hiddenScene=new THREE.Scene(),hiddenLines=new THREE.Mesh(prepared.crease,hiddenMaterial);hiddenScene.add(hiddenLines);
   // Batches carry a moving palette, so a static model-space bounding sphere would
   // incorrectly cull exploded/operating components. Camera fitting belongs to scene.
-  for (const mesh of [depth, flat, crease, contour, contextContour]) { mesh.frustumCulled = false; mesh.matrixAutoUpdate = false; }
+  for (const mesh of [depth, flat, crease, contour, contextContour, hiddenLines]) { mesh.frustumCulled = false; mesh.matrixAutoUpdate = false; }
   crease.renderOrder = 1; contour.renderOrder = 2;
   depthScene.add(depth); flatScene.add(flat); lineScene.add(crease, contour); contextScene.add(contextContour);
-  const pass = new AssemblyLineworkPass(depthScene, flatScene, lineScene, camera, contextScene);
+  const pass = new AssemblyLineworkPass(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene);
   const stats = { ...prepared.stats, partCount: meshes.length, paletteBytes: palette.data.byteLength, paletteUploads: 0, flatPartCount: 0, prepareMs: performance.now() - start };
-  let disposed = false;
+  let disposed = false, options={...DISPLAY_DEFAULTS}, viewport=[1,1,1];
+  const updateStrokes=()=>{
+    const [width,height,pixelRatio]=viewport, scale=(width<=480?.75:1)*LINE_WEIGHTS[options.lineWeight];
+    for(const material of [creaseMaterial,contourMaterial,contextMaterial,hiddenMaterial]) {
+      material.uniforms.resolution.value.set(Math.max(1,width*pixelRatio),Math.max(1,height*pixelRatio));
+      material.uniforms.lineWidth.value=material.userData.cssLineWidth*scale*pixelRatio;
+      material.uniforms.pixelRatio.value=pixelRatio;
+    }
+  };
   return {
     pass, stats,
     sync(state) {
       if (disposed) return;
       if (state?.accent) accent.setHex(parseInt(state.accent.replace('#', ''), 16), THREE.LinearSRGBColorSpace);
+      const next={...DISPLAY_DEFAULTS,...state?.displayOptions};
+      if(next.lineWeight!==options.lineWeight){options=next;updateStrokes();}else options=next;
+      crease.visible=options.featureEdges;
+      pass.drawHidden=options.hiddenEdges&&Boolean(state?.highlighted?.size);
       Object.assign(stats, palette.sync(state)); pass.drawFlat = stats.flatPartCount > 0;
       pass.drawContext = stats.contextPartCount > 0;
-      stats.lineBatchCount = 2 + (pass.drawContext ? 1 : 0);
+      stats.lineBatchCount = 1 + (crease.visible?1:0) + (pass.drawContext ? 1 : 0) + (pass.drawHidden?1:0);
     },
     resize(width, height, pixelRatio = 1) {
-      // A full assembly occupies far fewer CSS pixels on a narrow phone. Preserve
-      // source detail and the crease/contour hierarchy with lighter screen strokes.
-      const strokeScale = width <= 480 ? .75 : 1;
-      for (const material of [creaseMaterial, contourMaterial, contextMaterial]) {
-        material.uniforms.resolution.value.set(Math.max(1, width * pixelRatio), Math.max(1, height * pixelRatio));
-        material.uniforms.lineWidth.value = material.userData.cssLineWidth * strokeScale * pixelRatio;
-      }
+      viewport=[width,height,pixelRatio];updateStrokes();
     },
     dispose() {
       if (disposed) return; disposed = true; pass.enabled = false;
       for (const geometry of [prepared.surface, prepared.crease, prepared.contour]) geometry.dispose();
-      for (const material of [depthMaterial, flatMaterial, creaseMaterial, contourMaterial, contextMaterial]) material.dispose();
-      palette.dispose(); depthScene.clear(); flatScene.clear(); lineScene.clear(); contextScene.clear();
+      for (const material of [depthMaterial, flatMaterial, creaseMaterial, contourMaterial, contextMaterial, hiddenMaterial]) material.dispose();
+      palette.dispose(); depthScene.clear(); flatScene.clear(); lineScene.clear(); contextScene.clear();hiddenScene.clear();
     }
   };
 }

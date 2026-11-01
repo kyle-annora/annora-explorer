@@ -73,6 +73,7 @@ These signatures share the result/event contract below.
 | `frame` | `nodeId`, optional `view` (`current`, `front`, `rear`) | Fit a node visible in the active scope without changing selection, scope or isolation. A hidden or out-of-scope target returns `UNSUPPORTED_ACTION` with guidance to use explicit `focus`. Front/rear use package-authored directions; the default retains the current direction. |
 | `isolate` | `nodeId` or `null` | With an ID, explicitly enter that node's scope if necessary and hide its surrounding context. With `null`, restore context in the current scope. Report all resulting state changes. |
 | `setRenderStyle` | `style` | Use Engineering, Linework or Flat without resetting camera, selection, scope or source time. Prepare optional line data before committing a style. |
+| `setDisplayOptions` | `options` | Merge validated display preferences without changing source geometry, camera, scope, selection or playback. See the display contract below. |
 | `setMode` | `mode` | Mirror current Explore/Explode/Operate semantics. Operate enters the assembled root paused; explicit mode changes restore source poses as necessary. |
 | `setExplosion` | `progress`, optional `transition` | Set a finite fraction in `[0,1]`. `transition` is `animate` by default or `immediate` for host scrubbing; immediate updates do not refit the camera. An animated update fits once. |
 | `pauseExplosion` | none | Freeze separation and any alignment/camera movement at the current display pose. |
@@ -252,3 +253,34 @@ Manual operation exposes `duration` for presentation playback and `sourceDuratio
 for the original animation clip. The bundled crank retimes its full 4-second
 source clip to 2.5 seconds at speed 1. This is explanatory playback, not a measured
 machine speed. Pause, replay and scrubbing never invent new operating constraints.
+
+
+## Display preferences
+
+The shared controller now accepts `setDisplayOptions` with an `options` object.
+It merges the supplied keys. Unknown keys, wrong types and unrecognized line weights
+return `INVALID_ARGUMENT`. The shell display panel uses this same command.
+
+```json
+{"method":"setDisplayOptions","params":{"options":{"featureEdges":true,"hiddenEdges":false,"lineWeight":"standard"}}}
+```
+
+| Option | Default | Applies to |
+| --- | --- | --- |
+| `grid` | `false` | Engineering: neutral reference ground grid |
+| `ambientOcclusion` | `true` | Engineering: contact shading, subject to the quality budget |
+| `featureEdges` | `true` | Linework / Flat: internal crease edges; silhouettes remain visible |
+| `hiddenEdges` | `false` | Linework / Flat: dashed occluded edges on selected or tour-emphasized parts only |
+| `lineWeight` | `"standard"` | Linework / Flat: `"fine"`, `"standard"` or `"bold"`, in screen space |
+
+Preferences are exposed under `getState().appearance.display`; defaults and line
+weights are advertised by `getCapabilities().displayOptions`. Inapplicable preferences
+are retained while another style is displayed. They cannot enable a disabled render
+style, override adaptive quality limits, or mutate the model package. They are local
+to the current instance, not saved as device preferences.
+
+New `captureView` bookmarks include `displayOptions`. Existing `0.1` bookmarks without
+this optional property still restore and use display defaults. Invalid supplied
+options fail before any scene mutation. Tours retain these preferences; they do not
+silently enable hidden lines or change stroke weight. More detail:
+[display craft and source review](display-craft.md).
