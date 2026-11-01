@@ -1,5 +1,5 @@
-import { DISPLAY_DEFAULTS, LINE_WEIGHTS, displayOptions } from './display-profiles.js';
-import { CLIENT_THEMES } from './themes.js';
+import { DISPLAY_DEFAULTS, LINE_WEIGHTS, APPEARANCES, displayOptions } from './display-profiles.js';
+import { CLIENT_THEMES, normalizeHex } from './themes.js';
 import { intersectCapabilities, tourRequirements } from './project-features.js';
 
 export const EXPLORER_PROTOCOL = 'annora.explorer/0.1-draft';
@@ -15,7 +15,7 @@ const PARAMETERS = {
   setRenderStyle: ['style'], setDisplayOptions: ['options'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
   playOperation: [], replayOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
   startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
-  setTheme: ['themeId'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], cancel: ['requestId'], dispose: [],
+  setTheme: ['themeId', 'accent'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], cancel: ['requestId'], dispose: [],
 };
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -91,7 +91,8 @@ export class ExplorerController {
       modes: { supported: supportedModes, enabled: modes, available: active ? modes : [] },
       operation: { supported: this.operationSupported, enabled: operation, available: active && operation && Boolean(this.scene.getOperationState().available), clips: clipId ? [clipId] : [], speeds: operation ? SPEEDS : [] },
       tours: { supported: Boolean(authored), enabled: Boolean(tours.length), available: active && Boolean(this.tour) && Boolean(tours.length), items: tours.map(tour => ({ id: tour.id, title: tour.title, duration: tour.duration })) },
-      displayOptions: { defaults: DISPLAY_DEFAULTS, lineWeights: Object.keys(LINE_WEIGHTS) },
+      displayOptions: { defaults: DISPLAY_DEFAULTS, lineWeights: Object.keys(LINE_WEIGHTS), appearances: APPEARANCES },
+      customAccent: this.enabled.themes !== false && !Array.isArray(this.enabled.themes),
       qualityProfiles: allowed('qualityProfiles', QUALITIES), themes: allowed('themes', CLIENT_THEMES.map(theme => theme.id)),
     });
   }
@@ -152,7 +153,7 @@ export class ExplorerController {
         const execute = this.prepare(method, params);
         if (!QUERIES.has(method) && !['cancel', 'dispose'].includes(method)) {
           for (const other of this.requests.values()) if (other.order < record.order && !other.terminal && record.lanes.some(lane => other.lanes.includes(lane))) this.cancelRecord(other, 'superseded');
-          if (!TOUR_COMMANDS.has(method) && (this.tour?.active || this.tour?.pending)) {
+          if (!TOUR_COMMANDS.has(method) && !['setTheme', 'setDisplayOptions'].includes(method) && (this.tour?.active || this.tour?.pending)) {
             // A pending tour still owns a future semantic commit. Even a selection
             // (which otherwise preserves camera/style preparation) must take that
             // ownership away before late line assets can start or restore a tour.
@@ -312,8 +313,10 @@ export class ExplorerController {
       };
     }
     if (method === 'setTheme') {
-      check(caps.themes.includes(params.themeId), 'Choose an enabled registered client theme.', 'UNSUPPORTED_ACTION');
-      return async record => { this.port.setTheme(params.themeId); await this.wait(record, false); return this.getState().appearance; };
+      const custom = params.themeId === 'custom';
+      check(custom ? caps.customAccent : caps.themes.includes(params.themeId), 'Choose an enabled client accent.', 'UNSUPPORTED_ACTION');
+      check(custom ? Boolean(normalizeHex(params.accent)) : params.accent === undefined, 'Custom accents require a six-digit hex color; presets do not accept an accent override.');
+      return async record => { this.port.setTheme(params.themeId, custom ? normalizeHex(params.accent) : undefined); await this.wait(record, false); return this.getState().appearance; };
     }
     if (method === 'setDisplayOptions') {
       let options;try { options=displayOptions(params.options,scene.displayOptions); } catch(error) { throw fail('INVALID_ARGUMENT',error.message); }
@@ -334,7 +337,10 @@ export class ExplorerController {
         if (record.abort.signal.aborted) return;
         await scene.setRenderStyle(bookmark.renderStyle);
         if (record.abort.signal.aborted) return;
-        scene.setDisplayOptions?.(bookmark.displayOptions || DISPLAY_DEFAULTS);
+        // Older references predate appearance. Keep the visitor's current canvas
+        // without changing any saved bookmark or its geometry/version identity.
+        scene.setDisplayOptions?.({ ...DISPLAY_DEFAULTS, ...bookmark.displayOptions,
+          appearance: bookmark.displayOptions?.appearance ?? scene.displayOptions?.appearance ?? DISPLAY_DEFAULTS.appearance });
         scene.setScope(bookmark.scopeId); scene.setIsolated(bookmark.isolated); scene.setSelected(bookmark.selectedId);
         if (bookmark.mode === 'operate') { scene.setMode('operate'); scene.setPlaybackProgress(bookmark.operation.progress); scene.setSelected(bookmark.selectedId); }
         else scene.explode(bookmark.separation, false, bookmark.mode);

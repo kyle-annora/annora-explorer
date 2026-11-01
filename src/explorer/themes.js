@@ -12,8 +12,7 @@ export const CLIENT_THEMES = Object.freeze([
   { id: 'magenta', name: 'Magenta', description: 'Fluorescent magenta', accent: '#ff3ed1' }
 ].map(palette => Object.freeze(palette)));
 
-const PANEL = '#181a1c';
-const RAISED_SURFACE = '#292d31';
+const SURFACES = Object.freeze({ dark: ['#181a1c', '#292d31'], light: ['#ffffff', '#f0f0ed'] });
 export const normalizeHex = value => typeof value === 'string' && /^#[a-f\d]{6}$/i.test(value) ? value.toLowerCase() : null;
 const channels = value => [1, 3, 5].map(index => parseInt(value.slice(index, index + 2), 16));
 const hex = rgb => '#' + rgb.map(value => Math.round(value).toString(16).padStart(2, '0')).join('');
@@ -31,9 +30,9 @@ export function resolveTheme(id, customAccent) {
   return CLIENT_THEMES.find(palette => palette.id === id) || CLIENT_THEMES[0];
 }
 
-export function themeRoles(palette) {
+export function themeRoles(palette, appearance = 'dark') {
   const accent = normalizeHex(palette?.accent) || CLIENT_THEMES[0].accent;
-  const rgb = channels(accent), bases = [channels(PANEL), channels(RAISED_SURFACE)];
+  const rgb = channels(accent), mode = appearance === 'light' ? 'light' : 'dark', bases = SURFACES[mode].map(channels);
   const washAlpha = .10, strongAlpha = .16;
   // Text must remain readable on both inactive and selected surfaces. The original
   // accent remains unchanged for swatches and fluorescent contours; text is adjusted.
@@ -41,7 +40,7 @@ export function themeRoles(palette) {
   let readable = [...rgb];
   for (let step = 0; step < 255; step++) {
     if (bases.flatMap(base => [base, composite(rgb, base, washAlpha), composite(rgb, base, strongAlpha)]).every(surface => contrast(readable, surface) >= 4.5)) break;
-    readable = readable.map(value => Math.min(255, value + 1));
+    readable = readable.map(value => mode === 'light' ? Math.max(0, value - 1) : Math.min(255, value + 1));
   }
   const content = hex(readable), joined = rgb.join(', ');
   const roles = {
@@ -53,9 +52,9 @@ export function themeRoles(palette) {
     // sRGB-to-linear conversion for raw shader uniforms. Do not apply both.
     // An outline composed before tone mapping remains affected by that pass;
     // exact display accents belong in an untonemapped overlay after it.
-    outline: luminance(rgb) < .05 ? content : accent,
-    outlineLinear: linearRGB(luminance(rgb) < .05 ? readable : rgb),
-    onAccent: '#171519'
+    outline: accent,
+    outlineLinear: linearRGB(rgb),
+    onAccent: contrast(rgb, channels('#171519')) >= contrast(rgb, channels('#ffffff')) ? '#171519' : '#ffffff'
   };
   roles.cssTokens = {
     '--accent': roles.content,
@@ -64,15 +63,16 @@ export function themeRoles(palette) {
     '--accent-light': roles.content,
     '--accent-wash': roles.wash,
     '--accent-border': roles.border,
-    '--accent-strong': roles.strong
+    '--accent-strong': roles.strong,
+    '--accent-on-fill': roles.onAccent
   };
   return roles;
 }
 
 
 /** Existing token and persistence API retained for the floating Explorer shell. */
-export function applyThemeTokens(theme, root = document.documentElement) {
-  const roles = themeRoles(theme);
+export function applyThemeTokens(theme, root = document.documentElement, appearance = 'dark') {
+  const roles = themeRoles(theme, appearance);
   for (const [token, value] of Object.entries(roles.cssTokens)) root.style.setProperty(token, value);
   root.dataset.theme = theme.id;
   return roles;

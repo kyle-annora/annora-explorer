@@ -222,10 +222,10 @@ test('explicit render style survives tour exit and overrides the legacy technica
 });
 
 
-test('tour emphasis restores the client accent and clears any neutral hover preview',()=>{
+test('tour emphasis restores the client accent and clears hover contours without mutating engineering materials',()=>{
   const scene=fixture();scene.lineAccent='#42d6ff';scene.setSelected('drive');scene.highlight('frame');
-  assert.ok(scene.meshes.get('B').material.emissive.r>0);
+  assert.equal(scene.outline.hoveredObjects[0].name,'B');assert.equal(scene.meshes.get('B').material.emissive.r,0);
   scene.applyTourFrame(shot({highlightIds:['drive']}));
-  assert.equal(scene.meshes.get('B').material.emissive.r,0);
+  assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.deepEqual(scene.outline.hoveredObjects,[]);
   assert.equal(scene.outline.visibleEdgeColor.getHex(THREE.LinearSRGBColorSpace),0x42d6ff);
 });

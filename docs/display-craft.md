@@ -33,7 +33,7 @@ copies are local ignored files, not part of the published repository or build.
 ## Decisions implemented
 
 - Neutral graphite replaces the purple cast in surfaces, studio lights and the
-  optional grid. The default grid is off. The model remains the dominant object.
+  optional grid. The default shell opens Engineering with a subtle reference grid; Linework and Flat start without it. Explicit choices are remembered per style. The model remains the dominant object.
 - Tree rows stay on one line, retaining full accessible titles and tooltips. Root
   labels use the package's short title. Branch disclosure never changes selection
   or camera scope. Arrow keys move focus / open branches; Enter selects; Inspect
@@ -44,8 +44,10 @@ copies are local ignored files, not part of the published repository or build.
 - The bottom dock separates Action, View and Display. Mode-specific settings live
   in one floating panel. Mobile uses a bounded, scrollable overlay with 44 px rows.
   Escape, outside press and competing overlays close it; focus returns to the trigger.
-- Hover previews are neutral. A selected part keeps its Ember outline even when
-  another part is hovered. Hover never paints a different part with flat fill.
+- Hover and persistent selection use the chosen interaction accent. A selected
+  part retains its stronger contour while another part receives a lighter hover
+  contour. Hover never changes engineering material emission or paints another
+  part with flat fill. Ember remains the initial accent.
 
 ## Rendering contract
 
@@ -53,12 +55,12 @@ copies are local ignored files, not part of the published repository or build.
 | --- | --- | --- | --- |
 | Purpose | Read finishes, form and contact | Read silhouettes and internal features | Explain one part in context |
 | Surfaces | Package-authored PBR finishes under neutral studio lights | Depth-only surfaces: no surface shading | Selected / tour-emphasized part uses unlit accent fill |
-| Visible outlines | Selected part only | Bright neutral, 1.8 CSS px standard | Bright neutral; filled-part boundary white |
-| Internal features | Physical material boundaries | Quieter gray, 1.05 CSS px standard; optional | Same, with white boundaries on fill |
+| Visible outlines | Distinct selected and hovered contours | Appearance-aware neutral strokes; selected/hover accent | Appearance-aware neutral strokes; readable filled-part boundary |
+| Internal features | Physical material boundaries | Quieter theme-aware gray; optional | Same, with contrasting boundaries on fill |
 | Hidden geometry | No through-surface selection glow | Hidden by depth; optional selected dashed edges | Same; solid selected fill remains legible |
-| Hover | Quiet emissive preview, or neutral outline if nothing selected | White preview; selection stays accent | White preview; fill remains selected |
+| Hover | Thin accent contour; selected contour persists | Accent preview; selection stays stronger | Accent preview; fill remains selected |
 | Context outside scope | Faint neutral context | Faint silhouettes; overlap brightness capped | Same |
-| Quality controls | Contact shadows and optional grid; AO respects device budget | Fine / Standard / Bold; feature lines; selected hidden edges | Same |
+| Quality controls | Contact shadows and reference grid; AO respects device budget | Fine / Standard / Bold; feature lines; selected hidden edges; reference grid | Same |
 
 Line weights are multiplied by 0.75 at viewports up to 480 CSS px. Ratios are
 computed from immutable base widths at each resize, so switching DPR or weight

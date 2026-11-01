@@ -118,3 +118,18 @@ test('desktop and already visible mobile viewers do not move the page',async()=>
   assert.equal(await revealMobileViewer({window:{matchMedia:()=>({matches:false})},viewer}),false);
   assert.equal(await revealMobileViewer({window:{matchMedia:()=>({matches:true}),innerHeight:700},viewer}),false);assert.equal(scrolls,0);
 });
+
+
+test('exact-origin embeds can share display preferences and bounded custom accents through the controller', async () => {
+  const wire=transport(),runtime=controller();
+  const stop=createEmbedBridge({controller:runtime,parentOrigin:'https://host.test',window:wire.child});
+  wire.send(hello('display-settings')); const session=lastAck(wire).sessionId;
+  wire.send(command(session,'display','setDisplayOptions',{options:{appearance:'dark',grid:true}}));
+  wire.send(command(session,'accent','setTheme',{themeId:'custom',accent:'#ff3b5c'}));
+  await tick();
+  assert.deepEqual(runtime.calls.map(({method,params})=>({method,params})),[
+    {method:'setDisplayOptions',params:{options:{appearance:'dark',grid:true}}},
+    {method:'setTheme',params:{themeId:'custom',accent:'#ff3b5c'}}
+  ]);
+  stop();
+});

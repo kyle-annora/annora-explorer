@@ -120,12 +120,15 @@ test('context contours share geometry and cap overlap brightness before active f
   assert.equal(context.material.blendEquation, THREE.MaxEquation); assert.equal(context.material.blendEquationAlpha, THREE.MaxEquation);
   assert.equal(context.material.blendSrc, THREE.OneFactor); assert.equal(context.material.blendDst, THREE.OneFactor);
   assert.match(context.material.vertexShader, /partState\.y>0\.5/);
-  assert.match(context.material.fragmentShader, /mix\(vec3\(27\.0\/255\.0\),color,partState\.x\*coverage\)/);
+  assert.match(context.material.fragmentShader, /mix\(background,color,partState\.x\*coverage\)/);
   assert.equal(pass.drawContext, false);
   runtime.sync({ active: new Set(['selected']), context: new Set(['neighbor']), perPartAlpha: new Map([['selected', 1], ['neighbor', .06]]) });
   assert.equal(pass.drawContext, true); assert.equal(runtime.stats.lineBatchCount, 3);
   // MAX compositing uses the greatest resolved coverage, not repeated source-over.
   // Ten thousand overlapping lines at six percent cannot exceed one fully covered line.
+  assert.equal(context.material.blendEquation,THREE.MinEquation,'light context uses MIN to bound dark overlap');
+  runtime.sync({active:new Set(['selected']),context:new Set(['neighbor']),displayOptions:{appearance:'dark'}});
+  assert.equal(context.material.blendEquation,THREE.MaxEquation);
   const background = 27 / 255, white = 245 / 255, cap = background + (white - background) * .06;
   let pixel = background;
   for (let i = 0; i < 10000; i++) pixel = Math.max(pixel, background + (white - background) * .06 * (i % 11) / 10);
@@ -200,4 +203,18 @@ test('hover previews do not change selected emphasis or flat fill', () => {
   assert.equal(palette.data[51],1);assert.equal(palette.data[19],0);
   palette.sync({...state,hovered:new Set()});assert.equal(palette.data[51],0);
   assert.deepEqual(Array.from(palette.data.slice(28,32)),[1,1,1,1]);palette.dispose();
+});
+
+test('light and dark linework update ink and context composition without rebuilding batches; grid shares depth', async()=>{
+  const runtime=await createAssemblyLinework(fixture()),pass=runtime.pass;
+  const contour=pass.lineScene.children[1],geometry=contour.geometry,grid=new THREE.GridHelper(10,10);
+  const state={active:new Set(['selected','neighbor']),highlighted:new Set(['selected']),hovered:new Set(['neighbor']),referenceGrid:grid};
+  runtime.sync({...state,displayOptions:{appearance:'light',grid:true}});
+  assert.equal(pass.background.getHexString(THREE.LinearSRGBColorSpace),'f3f3f1');assert.equal(pass.contextScene.children[0].material.blendEquation,THREE.MinEquation);
+  assert.equal(pass.drawGrid,true);assert.equal(pass.gridScene.children[0].geometry,grid.geometry);assert.equal(pass.gridScene.children[0].material.depthTest,true);assert.equal(pass.gridScene.children[0].material.depthWrite,false);
+  assert.equal(contour.material.uniforms.ink.value.getHexString(THREE.LinearSRGBColorSpace),'303337');
+  runtime.sync({...state,accent:'#000000',displayOptions:{appearance:'dark',grid:false}});
+  assert.equal(pass.background.getHexString(THREE.LinearSRGBColorSpace),'1b1b1b');assert.equal(pass.contextScene.children[0].material.blendEquation,THREE.MaxEquation);
+  assert.equal(pass.drawGrid,false);assert.equal(contour.geometry,geometry);assert.equal(contour.material.uniforms.accent.value.getHexString(THREE.LinearSRGBColorSpace),'000000');
+  runtime.dispose();grid.geometry.dispose();grid.material.dispose();
 });

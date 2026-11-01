@@ -40,7 +40,7 @@ test('operating pose, technical edge transforms and interrupted restore preserve
 test('selecting while paused preserves operation, while explicit inspection restores a scoped assembly',()=>{
   const scene=fixture();scene.setMode('operate');settle(scene);scene.setPlaybackProgress(.25);const before=matrices(scene);
   scene.setSelected('drive');assert.equal(scene.scopeId,'root');assert.equal(scene.mode,'operate');assert.deepEqual(matrices(scene),before);assert.equal(scene.outline.selectedObjects[0].name,'A');
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.equal(scene.outline.hoveredObjects[0].name,'B');assert.equal(scene.meshes.get('B').material.emissive.r,0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setScope('drive');assert.equal(scene.mode,'explore');assert.equal(scene.operationPlayer.playing,false);settle(scene);
   assert.deepEqual(scene.active.map(mesh=>mesh.name),['A']);assert.deepEqual(scene.contextMeshes.map(mesh=>mesh.name),['B']);
   assert.equal(scene.meshes.get('B').userData.visibility.target[0],.06);
@@ -67,10 +67,10 @@ test('operating stages emphasize their component without changing selection and 
   const scene=fixture();scene.operationPlayer=new OperationPlayer({duration:2,stages:[{at:0,nodeId:'drive'},{at:.5,nodeId:'frame'}]});
   scene.setMode('operate');settle(scene);assert.equal(scene.selectedId,'root');assert.equal(scene.outline.selectedObjects[0].name,'A');
   const initialOutline=scene.outline.selectedObjects;scene.emitOperation();assert.equal(scene.outline.selectedObjects,initialOutline);
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.equal(scene.outline.hoveredObjects[0].name,'B');assert.equal(scene.meshes.get('B').material.emissive.r,0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setPlaybackProgress(.6);assert.equal(scene.selectedId,'root');assert.equal(scene.outline.selectedObjects[0].name,'B');
   scene.setSelected('drive');assert.equal(scene.outline.selectedObjects[0].name,'A');scene.setPlaybackProgress(.8);assert.equal(scene.outline.selectedObjects[0].name,'A');
-  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.ok(scene.meshes.get('B').material.emissive.r>0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
+  scene.highlight('frame');assert.equal(scene.outline.selectedObjects[0].name,'A');assert.equal(scene.outline.hoveredObjects[0].name,'B');assert.equal(scene.meshes.get('B').material.emissive.r,0);scene.hideHover();assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.equal(scene.outline.selectedObjects[0].name,'A');
   scene.setSelected('root');assert.equal(scene.outline.selectedObjects[0].name,'B');scene.highlight('drive');scene.setMode('explore');
   assert.equal(scene.selectedId,'root');assert.deepEqual(scene.outline.selectedObjects,[]);assert.equal(scene.hoveredId,null);
 });

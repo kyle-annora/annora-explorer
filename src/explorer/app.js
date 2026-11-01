@@ -1,4 +1,5 @@
 import { createDisplayUI } from './display-ui.js';
+import { readDisplayPreferences, writeDisplayPreferences, normalizeDisplayPreferences } from './display-preferences.js';
 import { PROJECT_CONFIG } from '../generated/project.js';
 import { applyProjectBrand, openingTheme, preferenceNamespace } from './project-brand.js';
 import { buildHierarchy, ancestors } from './model-state.js';
@@ -11,7 +12,7 @@ import { createPageLifecycle } from './controller/page-lifecycle.js';
 import { createEmbedBridge, configuredParentOrigin } from './embed-bridge.js';
 import { serializeBenchmark } from './performance.js';
 import { createAssemblySearch, inspectionState, inspectionFacts } from './inspection-ui.js';
-import { CLIENT_THEMES, resolveTheme, applyThemeTokens, themeRoles } from './themes.js';
+import { CLIENT_THEMES, resolveTheme, normalizeHex, applyThemeTokens, themeRoles } from './themes.js';
 
 const $ = id => document.getElementById(id);
 const shellAbort = new AbortController();
@@ -27,11 +28,14 @@ document.body.dataset.embedded = String(embedded);
 document.body.dataset.compactChrome = String(compactChrome);
 const model = resolveModel(params.get('model'));
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
+const displayStorageKey=`${themeStorageKey}.display.v1`;
+let preferenceStorage;try{preferenceStorage=localStorage;}catch{}
+let displayPreferences=readDisplayPreferences(preferenceStorage,displayStorageKey,params), appearance=displayPreferences.appearance;
 const allowedStyles=policy.renderStyles;
 const openingStyle=allowedStyles.includes(params.get('render'))?params.get('render'):allowedStyles.includes('engineering')?'engineering':allowedStyles[0];
 applyProjectBrand(PROJECT_CONFIG,document);
 let explorer, hierarchy, navigation=createNavigation(model.rootId), renderStyle='engineering', mode='explore';
-let displayUI;
+let displayUI, appearanceFrame;
 const closeDisplay=(restore=false)=>displayUI?.close(restore);
 let performanceReport,lastProgress=-1,lastFocus,operationState,guidedTour;
 let searchAssembly, treeQuery='', treeSearchResult=null, lastDetailId;
@@ -39,9 +43,9 @@ let requestSequence = 0;
 const controller = new ExplorerController({ model, port: {
   getScene: () => explorer, getTour: () => guidedTour, getHierarchy: () => hierarchy,
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
-  setTheme: id => chooseTheme(resolveTheme(id)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
+  setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); treeAbort.abort(); detailAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); treeAbort.abort(); detailAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -54,7 +58,8 @@ const shortLandscape=matchMedia(embedded?'(max-width:600px) and (max-height:520p
 let storedTheme;
 try { storedTheme=JSON.parse(localStorage.getItem(themeStorageKey)||'null'); } catch {}
 let clientTheme=openingTheme(PROJECT_CONFIG,params,storedTheme);
-applyThemeTokens(clientTheme);
+document.documentElement.dataset.appearance=appearance;document.body.dataset.appearance=appearance;
+applyThemeTokens(clientTheme,document.documentElement,appearance);
 document.body.dataset.model=model.id;
 document.title=model.title+' · '+PROJECT_CONFIG.title;
 $('loading-label').textContent=`Preparing ${model.title}…`;
@@ -72,7 +77,9 @@ sourceDialog.querySelector('.source-note').textContent=model.sourceNote;
 const sourceLink=sourceDialog.querySelector('a');sourceLink.hidden=!model.sourceUrl;if(model.sourceUrl)sourceLink.href=model.sourceUrl;sourceLink.replaceChildren(document.createTextNode(model.sourceLabel),icon('external'));
 if(model.licenseUrl){const license=textNode('a','Read model license');license.href=model.licenseUrl;license.target='_blank';license.rel='noopener noreferrer';sourceDialog.append(license);}
 $('open-sources').querySelector('span').textContent=model.attribution;
-$('theme-trigger').hidden=!PROJECT_CONFIG.features.themes;
+$('theme-options').hidden=!PROJECT_CONFIG.features.themes;
+document.querySelector('.custom-accent-row').hidden=!PROJECT_CONFIG.features.themes;
+document.querySelector('.accent-section-label').hidden=!PROJECT_CONFIG.features.themes;
 $('mode-explode').hidden=!PROJECT_CONFIG.features.explode;
 $('mode-operate').hidden=!PROJECT_CONFIG.features.operation;
 $('tour-start').hidden=!policy.tours.length;
@@ -111,25 +118,73 @@ function closeTree({restoreFocus=false}={}){
 function closeTheme(restore=false){$('theme-panel').hidden=true;$('theme-trigger').setAttribute('aria-expanded','false');if(restore)$('theme-trigger').focus();}
 function closePerformance(){ $('perf-panel').hidden=true;document.body.classList.remove('performance-open');$('perf-toggle').setAttribute('aria-expanded','false');explorer?.refitLayout(); }
 function chooseTheme(theme,persist=true){
-  clientTheme=theme;explorer?.setTheme(applyThemeTokens(theme));$('theme-label').textContent=theme.name;$('theme-trigger').setAttribute('aria-label',`Accent color: ${theme.name}`);$('custom-accent').value=theme.accent;$('render-flat').textContent=`Flat ${theme.name==='Custom'?'accent':theme.name}`;
-  const channels=[1,3,5].map(index=>parseInt(theme.accent.slice(index,index+2),16)/255).map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4);
-  const luminance=channels.reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);
-  document.body.style.setProperty('--action-ink',luminance>.179?'#211b18':'#fff');
+  clientTheme=theme;explorer?.setTheme(applyThemeTokens(theme,document.documentElement,appearance));$('theme-label').textContent='Appearance';$('theme-trigger').setAttribute('aria-label',`Appearance: ${appearance==='dark'?'Dark':'Light'} · ${theme.name}`);$('custom-accent').value=theme.accent;$('custom-accent-hex').value=theme.accent;$('custom-accent-hex').removeAttribute('aria-invalid');$('accent-validation').hidden=true;$('render-flat').textContent=`Flat ${theme.name==='Custom'?'accent':theme.name}`;
   document.querySelectorAll('.theme-option').forEach(button=>{const active=button.dataset.theme===theme.id;button.classList.toggle('is-selected',active);button.setAttribute('aria-pressed',String(active));});
   displayUI?.sync();
   if(persist&&PROJECT_CONFIG.features.themes){try{localStorage.setItem(themeStorageKey,JSON.stringify({id:theme.id,accent:theme.accent}));}catch{}
     const url=new URL(location.href);url.searchParams.set('theme',theme.id);if(theme.id==='custom')url.searchParams.set('accent',theme.accent);else url.searchParams.delete('accent');history.replaceState(null,'',url);}
 }
+function saveDisplayPreferences(){displayPreferences=writeDisplayPreferences(preferenceStorage,displayStorageKey,displayPreferences);}
+function syncAppearanceUI(){
+  const value=explorer?.displayOptions?.appearance||appearance;
+  const changed=appearance!==value;appearance=value;
+  if(changed){
+    cancelAnimationFrame(appearanceFrame);document.documentElement.classList.add('appearance-changing');
+    appearanceFrame=requestAnimationFrame(()=>{appearanceFrame=requestAnimationFrame(()=>document.documentElement.classList.remove('appearance-changing'));});
+  }
+  document.documentElement.dataset.appearance=appearance;document.body.dataset.appearance=appearance;
+  for(const mode of ['light','dark']){$('appearance-'+mode).setAttribute('aria-pressed',String(mode===appearance));$('appearance-'+mode).disabled=!explorer?.ready;}
+  for(const input of [...$('theme-options').querySelectorAll('button'),$('custom-accent'),$('custom-accent-hex')])input.disabled=!explorer?.ready;
+  if(changed)chooseTheme(clientTheme,false);
+  $('theme-trigger').setAttribute('aria-label',`Appearance: ${appearance==='dark'?'Dark':'Light'} · ${clientTheme.name}`);
+}
+async function displayCommand(method,options={}){
+  const preferenceStyle=explorer?.renderStyle;
+  const event=await command(method,options);
+  if(event.payload.status!=='completed')return event;
+  if(method==='setRenderStyle')await command('setDisplayOptions',{options:{grid:displayPreferences.grids[options.style]}});
+  else if(method==='setDisplayOptions'&&typeof options.options?.grid==='boolean'){
+    displayPreferences.grids[preferenceStyle]=options.options.grid;saveDisplayPreferences();
+  }
+  return event;
+}
+listen(window,'storage',async event=>{
+  if(event.key===displayStorageKey){
+    let incoming;try{incoming=JSON.parse(event.newValue||'null');}catch{return;}
+    displayPreferences=normalizeDisplayPreferences(incoming);
+    const url=new URL(location.href);url.searchParams.set('appearance',displayPreferences.appearance);history.replaceState(null,'',url);
+    if(explorer?.ready)await command('setDisplayOptions',{options:{appearance:displayPreferences.appearance,grid:displayPreferences.grids[explorer.renderStyle]}});
+    else appearance=displayPreferences.appearance;
+    syncAppearanceUI();chooseTheme(clientTheme,false);
+  }else if(event.key===themeStorageKey&&PROJECT_CONFIG.features.themes){
+    let incoming;try{incoming=JSON.parse(event.newValue||'null');}catch{return;}
+    chooseTheme(openingTheme(PROJECT_CONFIG,new URLSearchParams(),incoming),false);controller.notify({force:true});
+    const url=new URL(location.href);url.searchParams.set('theme',clientTheme.id);if(clientTheme.id==='custom')url.searchParams.set('accent',clientTheme.accent);else url.searchParams.delete('accent');history.replaceState(null,'',url);
+  }
+});
 for(const theme of CLIENT_THEMES){
   const button=document.createElement('button');button.type='button';button.className='theme-option';button.dataset.theme=theme.id;
   const swatch=textNode('span','');swatch.className='theme-swatch';swatch.style.background=theme.accent;
   const copy=textNode('span','');copy.className='theme-option-copy';copy.append(textNode('strong',theme.name),textNode('small',theme.description));
   const check=textNode('span','✓');check.className='theme-check';check.setAttribute('aria-hidden','true');button.append(swatch,copy,check);listen(button,'click',()=>command('setTheme',{themeId:theme.id}));$('theme-options').append(button);
 }
-chooseTheme(clientTheme,false);
-listen($('theme-trigger'),'click',()=>{const open=$('theme-panel').hidden;closeDisplay();closePerformance();closeTree();$('theme-panel').hidden=!open;$('theme-trigger').setAttribute('aria-expanded',String(open));if(open)($('theme-options').querySelector('[aria-pressed="true"]')||$('custom-accent')).focus();});
+chooseTheme(clientTheme,false);syncAppearanceUI();
+listen($('theme-trigger'),'click',()=>{const open=$('theme-panel').hidden;closeDisplay();closePerformance();closeTree();$('theme-panel').hidden=!open;$('theme-trigger').setAttribute('aria-expanded',String(open));if(open)$('appearance-'+appearance).focus();});
 listen($('theme-close'),'click',()=>closeTheme(true));
-listen($('custom-accent'),'input',e=>{if(PROJECT_CONFIG.features.themes){chooseTheme(resolveTheme('custom',e.target.value));controller.notify({force:true});}});
+listen($('custom-accent'),'input',e=>{if(PROJECT_CONFIG.features.themes)void command('setTheme',{themeId:'custom',accent:e.target.value});});
+listen($('custom-accent-hex'),'change',event=>{
+  const accent=normalizeHex(event.target.value);
+  $('custom-accent-hex').setAttribute('aria-invalid',String(!accent));$('accent-validation').hidden=Boolean(accent);
+  if(accent&&PROJECT_CONFIG.features.themes)void command('setTheme',{themeId:'custom',accent});
+});
+listen($('custom-accent-hex'),'keydown',event=>{if(event.key==='Enter'){event.preventDefault();event.target.dispatchEvent(new Event('change'));}});
+for(const value of ['light','dark'])listen($('appearance-'+value),'click',async()=>{
+  const previous=displayPreferences.appearance;
+  displayPreferences.appearance=value;saveDisplayPreferences();
+  const url=new URL(location.href);url.searchParams.set('appearance',value);history.replaceState(null,'',url);
+  const event=await command('setDisplayOptions',{options:{appearance:value}});
+  if(event.payload.status==='failed'){displayPreferences.appearance=previous;saveDisplayPreferences();url.searchParams.set('appearance',previous);history.replaceState(null,'',url);}
+});
 listen(document,'pointerdown',e=>{if(!$('theme-panel').hidden&&!$('theme-panel').contains(e.target)&&!$('theme-trigger').contains(e.target))closeTheme();});
 listen($('toggle-details'),'click',()=>setDetailsCollapsed(!document.body.classList.contains('details-collapsed')));
 
@@ -284,7 +339,7 @@ listen($('explode-replay'),'click',()=>command('replayExplosion'));
 listen($('explode-range'),'pointerdown',()=>{controller.takeover();explorer?.pauseCamera();});
 listen($('explode-range'),'input',event=>command('setExplosion',{progress:Number(event.target.value)/100,transition:'immediate'}));
 listen($('explode-range'),'change',()=>command('frame',{nodeId:navigation.scopeId}));
-displayUI=createDisplayUI({document,command,scene:()=>explorer,styles:allowedStyles,signal:shellAbort.signal,accentName:()=>clientTheme.name==='Custom'?'accent':clientTheme.name,beforeOpen:()=>{closeTheme();closePerformance();closeTree();}});
+displayUI=createDisplayUI({document,command:displayCommand,scene:()=>explorer,styles:allowedStyles,signal:shellAbort.signal,accentName:()=>clientTheme.name==='Custom'?'accent':clientTheme.name,beforeOpen:()=>{closeTheme();closePerformance();closeTree();}});
 
 listen($('perf-toggle'),'click',()=>{const open=$('perf-panel').hidden;if(!open){closePerformance();return;}if(guidedTour?.active)command('pauseTour');closeDisplay();closeTheme();closeTree();$('perf-panel').hidden=false;document.body.classList.add('performance-open');$('perf-toggle').setAttribute('aria-expanded','true');$('perf-close').focus();explorer?.refitLayout();});
 listen($('perf-close'),'click',()=>{closePerformance();$('perf-toggle').focus();});listen($('perf-quality'),'change',event=>command('setQuality',{profile:event.target.value}));
@@ -304,8 +359,7 @@ function syncPresentationUI(){
   if($('render-mode').value!==renderStyle)$('render-mode').value=renderStyle;
   document.body.dataset.technical=String(renderStyle!=='engineering');
   document.body.dataset.renderStyle=renderStyle;
-  const stageColor=renderStyle==='engineering'?'#f3f3f1':'#414141';
-  if(explorer.scene.background.getHexString()!==stageColor.slice(1)){explorer.scene.background.set(stageColor);explorer.invalidate();}
+  syncAppearanceUI();
   if(previousStyle!==renderStyle)$('status-message').textContent=$('render-mode').selectedOptions[0].textContent;
   // The scene already emits operation/scope changes; avoid rebuilding DOM at frame rate.
   if(!guidedTour?.active)syncOperation(explorer.getOperationState());
@@ -317,7 +371,7 @@ async function start(){
     const response=await fetch(model.metadataUrl,{signal:shellAbort.signal});if(!response.ok)throw new Error('Model metadata could not be loaded.');const metadata=await response.json();validatePackage(metadata,model);if(shellAbort.signal.aborted)return;hierarchy=buildHierarchy(metadata,model.presentationPolicy);searchAssembly=createAssemblySearch(hierarchy.nodes);
     const config={...model,operation:metadata.operation?{...metadata.operation,cameraDirection:model.defaultDirection}:null};
     explorer=new AssemblyScene($('scene'),metadata,hierarchy,{
-      select,inspect,operation:syncOperation,insets:viewportInsets,theme:themeRoles(clientTheme),
+      select,inspect,operation:syncOperation,insets:viewportInsets,theme:themeRoles(clientTheme,appearance),
       tourTick:time=>guidedTour?.tick(time)||false,frame:()=>{guidedTour?.updateAnnotations();controller.notify();},interact:()=>controller.takeover(),
       edgeStatus(state){if(state==='loading')$('status-message').textContent='Preparing technical linework…';},
       quality(requested,effective){$('perf-status').textContent=requested===effective?'Quality: '+requested:'Balanced adapted to Performance for smoother motion';document.body.dataset.quality=effective;},
@@ -329,6 +383,7 @@ async function start(){
     },config);
     await explorer.load(model.modelUrl,progress=>{$('loading-progress').style.width=Math.round(progress*100)+'%';$('loading-label').textContent=progress<1?`Loading ${model.shortTitle} · ${Math.round(progress*100)}%`:'Preparing materials and lighting…';});
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);
+    explorer.setDisplayOptions({appearance,grid:displayPreferences.grids[openingStyle]});
     if(shellAbort.signal.aborted)return;syncPresentationUI();
     if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
     renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');

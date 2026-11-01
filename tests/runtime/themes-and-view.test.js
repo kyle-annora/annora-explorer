@@ -51,7 +51,7 @@ test('very dark client colors retain their brand fill while producing readable l
     assert.ok(contrast(roles.content, '#1f1f22') >= 4.5, accent);
     assert.notEqual(roles.content, accent, 'Dark accents need a readable content variant');
     assert.ok(normalizeHex(roles.outline), 'Renderer receives a valid explicit outline color');
-    assert.notEqual(roles.outline, '#000000');
+    assert.equal(roles.outline, accent, 'Contours preserve the chosen color; renderer supplies contrast keyline');
   }
 });
 
@@ -69,7 +69,19 @@ test('CSS tokens and renderer roles come from the same theme snapshot', () => {
     assert.equal(values.get('--accent-wash'), roles.wash);
     assert.equal(values.get('--accent-border'), roles.border);
     assert.equal(values.get('--accent-strong'), roles.strong);
-    assert.equal(values.size, 7, 'Theme switches should overwrite the same semantic roles');
+    assert.equal(values.get('--accent-on-fill'), roles.onAccent);
+    assert.equal(values.size, 8, 'Theme switches should overwrite the same semantic roles');
+  }
+});
+
+test('light and dark surface variants preserve every raw accent while keeping UI text and filled actions legible', () => {
+  for (const appearance of ['light', 'dark']) for (const theme of [...CLIENT_THEMES, ...['#000000','#ffffff','#010203','#fefdfc'].map(hex => resolveTheme('custom',hex))]) {
+    const roles = themeRoles(theme,appearance);
+    assert.equal(roles.outline,theme.accent,'Hover and selection receive the exact custom color');
+    assert.equal(roles.accent,theme.accent);
+    assert.ok(contrast(roles.content,appearance==='light'?'#ffffff':'#181a1c')>=4.5,`${appearance} ${theme.id}: text`);
+    assert.ok(contrast(roles.content,appearance==='light'?'#f0f0ed':'#292d31')>=4.5,`${appearance} ${theme.id}: raised text`);
+    assert.ok(contrast(roles.onAccent,roles.accent)>=4.5,`${appearance} ${theme.id}: filled action`);
   }
 });
 

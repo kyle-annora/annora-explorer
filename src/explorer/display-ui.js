@@ -1,3 +1,4 @@
+import { GRID_DEFAULTS } from './display-preferences.js';
 import { DISPLAY_DEFAULTS, DISPLAY_PROFILES } from './display-profiles.js';
 
 /** A shell surface over the same controller used by embedding clients. */
@@ -19,7 +20,7 @@ export function createDisplayUI({ document, command, scene, styles, signal, befo
     $('display-options').append(button);buttons.push(button);
   }
   for(const id of ['grid','ambientOcclusion','featureEdges','hiddenEdges','lineWeight'])listen($('display-'+id),'change',event=>command('setDisplayOptions',{options:{[id]:id==='lineWeight'?event.target.value:event.target.checked}}));
-  listen($('display-reset'),'click',()=>command('setDisplayOptions',{options:{...DISPLAY_DEFAULTS}}));
+  listen($('display-reset'),'click',()=>{const {appearance,...defaults}=DISPLAY_DEFAULTS;return command('setDisplayOptions',{options:{...defaults,grid:GRID_DEFAULTS[scene()?.renderStyle||'engineering']}});});
   listen(trigger,'click',()=>{const open=panel.hidden;if(open){beforeOpen();panel.hidden=false;trigger.setAttribute('aria-expanded','true');sync();(buttons.find(button=>button.getAttribute('aria-pressed')==='true')||$('display-close')).focus();}else close(true);});
   listen($('display-close'),'click',()=>close(true));
   listen(document,'pointerdown',event=>{if(!panel.hidden&&!panel.contains(event.target)&&!trigger.contains(event.target))close();});
@@ -31,7 +32,7 @@ export function createDisplayUI({ document, command, scene, styles, signal, befo
     for(const button of buttons){button.disabled=busy||!current?.ready;button.setAttribute('aria-pressed',String(button.dataset.style===style));if(button.dataset.style==='flat')button.querySelector('strong').textContent=`Flat ${accentName()}`;}
     panel.setAttribute('aria-busy',String(busy));$('display-legend').textContent=busy?'Preparing display…':DISPLAY_PROFILES[style].legend;
     $('display-engineering').hidden=style!=='engineering';$('display-linework').hidden=style==='engineering';
-    for(const [id,value] of Object.entries(options)){const input=$('display-'+id);if(id==='lineWeight')input.value=value;else input.checked=value;input.disabled=!current?.ready;}
+    for(const [id,value] of Object.entries(options)){const input=$('display-'+id);if(!input)continue;if(id==='lineWeight')input.value=value;else input.checked=value;input.disabled=busy||!current?.ready;}
     $('display-reset').disabled=!current?.ready;
   }
   sync();return {sync,close};

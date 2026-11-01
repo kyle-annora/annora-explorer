@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { DISPLAY_DEFAULTS, LINE_WEIGHTS } from './display-profiles.js';
+import { getAppearanceProfile, displayChannels, interactionKeyline } from './render-theme.js';
 import { contourRecord } from './assembly-linework-data.js';
 
 export const ASSEMBLY_LINE_WIDTHS = Object.freeze({ crease: 1.05, contour: 1.8 });
@@ -98,7 +99,7 @@ function surfaceMaterial(palette, flat, accent) {
 function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnly = false) {
   const width = contour ? ASSEMBLY_LINE_WIDTHS.contour : ASSEMBLY_LINE_WIDTHS.crease;
   const material = new THREE.ShaderMaterial({
-    uniforms: { ...paletteUniforms(palette), accent: { value: accent }, resolution: { value: new THREE.Vector2(1, 1) }, lineWidth: { value: width }, pixelRatio: { value: 1 } },
+    uniforms: { ...paletteUniforms(palette), accent: { value: accent }, resolution: { value: new THREE.Vector2(1, 1) }, lineWidth: { value: width }, pixelRatio: { value: 1 }, ink:{value:new THREE.Color()}, background:{value:new THREE.Color()}, keyline:{value:new THREE.Color()} },
     vertexShader: `${paletteShader}
       attribute vec3 segmentStart;
       attribute vec3 segmentEnd;
@@ -116,6 +117,7 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnl
       varying float strokeW;
       varying float strokeLength;
       varying float hoverState;
+      varying float effectiveWidth;
       void main() {
         partState=partTexel(7.0);hoverState=partTexel(4.0).w;
         strokePointTimesW=vec2(1000.0); strokeW=1.0; strokeLength=0.0;
@@ -140,7 +142,9 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnl
         float lengthPixels=length(delta);
         vec2 along=lengthPixels>0.0001?delta/lengthPixels:vec2(1.0,0.0);
         vec2 across=vec2(-along.y,along.x);
-        float halfWidth=(lineWidth+${COVERAGE_WIDTH})*0.5;
+        effectiveWidth=lineWidth*(partState.z>0.5?1.30:1.0);
+        float backing=(partState.z>0.5||hoverState>0.5)?1.2*pixelRatio:0.0;
+        float halfWidth=(effectiveWidth+backing+${COVERAGE_WIDTH})*0.5;
         vec2 offset=across*position.x*halfWidth+along*(position.y*2.0-1.0)*halfWidth;
         vec4 projected=mix(start,end,position.y);
         projected.xy+=offset*2.0/resolution*projected.w;
@@ -151,6 +155,7 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnl
       }`,
     fragmentShader: `
       uniform vec3 accent;
+      uniform vec3 ink; uniform vec3 background; uniform vec3 keyline;
       uniform float lineWidth;
       uniform float pixelRatio;
       varying vec4 partState;
@@ -158,25 +163,30 @@ function ribbonMaterial(palette, contour, accent, contextOnly = false, hiddenOnl
       varying float strokeW;
       varying float strokeLength;
       varying float hoverState;
+      varying float effectiveWidth;
       void main() {
         if(partState.x<=0.001 || partState.y${contextOnly ? '>' : '<'}0.5) discard;
         vec2 point=strokePointTimesW/strokeW;
         float beyond=max(0.0,max(-point.y,point.y-strokeLength));
         float distanceToStroke=length(vec2(point.x,beyond));
-        float coverage=1.0-smoothstep(max(0.0,lineWidth*0.5-${COVERAGE_WIDTH * .5}),lineWidth*0.5+${COVERAGE_WIDTH * .5},distanceToStroke);
-        if(coverage<=0.0) discard;
-        vec3 color=${contour ? 'vec3(229.0,232.0,235.0)' : 'vec3(150.0,157.0,165.0)'}/255.0;
-        if(hoverState>0.5) color=vec3(1.0);
-        if(partState.w>0.5) color=vec3(1.0);
-        ${hiddenOnly ? 'if(partState.z<0.5 || mod(point.y/pixelRatio,8.0)>4.0) discard; coverage*=0.42;' : ''}
+        float coverage=1.0-smoothstep(max(0.0,effectiveWidth*0.5-${COVERAGE_WIDTH * .5}),effectiveWidth*0.5+${COVERAGE_WIDTH * .5},distanceToStroke);
+        bool emphasized=partState.z>0.5||hoverState>0.5;
+        float backingWidth=effectiveWidth+(emphasized?1.2*pixelRatio:0.0);
+        float backing=1.0-smoothstep(max(0.0,backingWidth*0.5-${COVERAGE_WIDTH * .5}),backingWidth*0.5+${COVERAGE_WIDTH * .5},distanceToStroke);
+        if(backing<=0.0) discard;
+        vec3 color=ink;
+        if(emphasized) color=accent;
+        // Flat selected surfaces retain a clean neutral boundary around their fill.
+        if(partState.w>0.5) color=ink;
+        ${hiddenOnly ? 'if(partState.z<0.5 || mod(point.y/pixelRatio,8.0)>4.0) discard; coverage*=0.42; backing*=0.42;' : ''}
         ${contextOnly ? `
-          // Resolve coverage against the fixed display background before MAX
-          // blending. Overlapping context never adds opacity or brightness.
-          gl_FragColor=vec4(mix(vec3(27.0/255.0),color,partState.x*coverage),1.0);
+          // MAX on dark / MIN on light caps overlap at one faint context stroke.
+          gl_FragColor=vec4(mix(background,color,partState.x*coverage),1.0);
         ` : `
-          if(partState.z>0.5 && partState.w<0.5) color=accent;
-          gl_FragColor=vec4(color,partState.x*coverage);
+          vec3 stroke=emphasized?mix(keyline,color,coverage/max(backing,0.001)):color;
+          gl_FragColor=vec4(stroke,partState.x*backing);
         `}
+
       }`,
     transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, forceSinglePass: true, toneMapped: false
   });
@@ -275,8 +285,8 @@ async function prepareBatches(meshes, edgeMetadata, edgeBuffer, silhouetteMetada
 }
 
 class AssemblyLineworkPass extends Pass {
-  constructor(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene) {
-    super(); this.depthScene = depthScene; this.flatScene = flatScene; this.lineScene = lineScene; this.contextScene = contextScene; this.camera = camera;this.hiddenScene=hiddenScene;this.drawHidden=false;
+  constructor(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene, gridScene) {
+    super(); this.gridScene=gridScene;this.drawGrid=false;this.depthScene = depthScene; this.flatScene = flatScene; this.lineScene = lineScene; this.contextScene = contextScene; this.camera = camera;this.hiddenScene=hiddenScene;this.drawHidden=false;
     this.needsSwap = false; this.enabled = false; this.drawFlat = false; this.drawContext = false;
     this.background = new THREE.Color().setHex(0x1b1b1b, THREE.LinearSRGBColorSpace);
     this.previousColor = new THREE.Color();
@@ -288,6 +298,7 @@ class AssemblyLineworkPass extends Pass {
       renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
       renderer.setClearColor(this.background, 1); renderer.clear(true, true, false);
       renderer.render(this.depthScene, this.camera);
+      if(this.drawGrid)renderer.render(this.gridScene,this.camera);
       if (this.drawContext) renderer.render(this.contextScene, this.camera);
       if (this.drawHidden) renderer.render(this.hiddenScene,this.camera);
       if (this.drawFlat) renderer.render(this.flatScene, this.camera);
@@ -322,7 +333,10 @@ export async function createAssemblyLinework({ meshes, edgeMetadata, edgeBuffer,
   for (const mesh of [depth, flat, crease, contour, contextContour, hiddenLines]) { mesh.frustumCulled = false; mesh.matrixAutoUpdate = false; }
   crease.renderOrder = 1; contour.renderOrder = 2;
   depthScene.add(depth); flatScene.add(flat); lineScene.add(crease, contour); contextScene.add(contextContour);
-  const pass = new AssemblyLineworkPass(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene);
+  const gridScene=new THREE.Scene();
+  const gridMaterial=new THREE.ShaderMaterial({transparent:true,depthTest:true,depthWrite:false,toneMapped:false,vertexColors:true,uniforms:{opacity:{value:.3}},vertexShader:'varying vec3 gridColor; void main(){gridColor=color;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'varying vec3 gridColor; uniform float opacity; void main(){vec3 c=mix(12.92*gridColor,1.055*pow(gridColor,vec3(1.0/2.4))-.055,step(vec3(.0031308),gridColor));gl_FragColor=vec4(c,opacity);}'});
+  let grid=null;
+  const pass = new AssemblyLineworkPass(depthScene, flatScene, lineScene, camera, contextScene, hiddenScene, gridScene);
   const stats = { ...prepared.stats, partCount: meshes.length, paletteBytes: palette.data.byteLength, paletteUploads: 0, flatPartCount: 0, prepareMs: performance.now() - start };
   let disposed = false, options={...DISPLAY_DEFAULTS}, viewport=[1,1,1];
   const updateStrokes=()=>{
@@ -340,11 +354,22 @@ export async function createAssemblyLinework({ meshes, edgeMetadata, edgeBuffer,
       if (state?.accent) accent.setHex(parseInt(state.accent.replace('#', ''), 16), THREE.LinearSRGBColorSpace);
       const next={...DISPLAY_DEFAULTS,...state?.displayOptions};
       if(next.lineWeight!==options.lineWeight){options=next;updateStrokes();}else options=next;
+      const profile=getAppearanceProfile(options.appearance);
+      pass.background.setRGB(...displayChannels(profile.background));
+      for(const material of [creaseMaterial,contourMaterial,contextMaterial,hiddenMaterial]){
+        material.uniforms.ink.value.setRGB(...displayChannels(material===creaseMaterial||material===hiddenMaterial?profile.feature:profile.contour));
+        material.uniforms.background.value.copy(pass.background);
+        material.uniforms.keyline.value.setRGB(...displayChannels(interactionKeyline(options.appearance,state?.accent||'#ff6840')));
+      }
+      contextMaterial.blendEquation=contextMaterial.blendEquationAlpha=options.appearance==='dark'?THREE.MaxEquation:THREE.MinEquation;
+      if(state?.referenceGrid&&!grid){grid=new THREE.LineSegments(state.referenceGrid.geometry,gridMaterial);grid.matrixAutoUpdate=false;grid.frustumCulled=false;gridScene.add(grid);}
+      if(grid&&state?.referenceGrid){grid.matrix.copy(state.referenceGrid.matrixWorld);gridMaterial.uniforms.opacity.value=profile.gridOpacity;}
+      pass.drawGrid=Boolean(grid&&options.grid);
       crease.visible=options.featureEdges;
       pass.drawHidden=options.hiddenEdges&&Boolean(state?.highlighted?.size);
       Object.assign(stats, palette.sync(state)); pass.drawFlat = stats.flatPartCount > 0;
       pass.drawContext = stats.contextPartCount > 0;
-      stats.lineBatchCount = 1 + (crease.visible?1:0) + (pass.drawContext ? 1 : 0) + (pass.drawHidden?1:0);
+      stats.lineBatchCount = (pass.drawGrid?1:0) + 1 + (crease.visible?1:0) + (pass.drawContext ? 1 : 0) + (pass.drawHidden?1:0);
     },
     resize(width, height, pixelRatio = 1) {
       viewport=[width,height,pixelRatio];updateStrokes();
@@ -353,7 +378,7 @@ export async function createAssemblyLinework({ meshes, edgeMetadata, edgeBuffer,
       if (disposed) return; disposed = true; pass.enabled = false;
       for (const geometry of [prepared.surface, prepared.crease, prepared.contour]) geometry.dispose();
       for (const material of [depthMaterial, flatMaterial, creaseMaterial, contourMaterial, contextMaterial, hiddenMaterial]) material.dispose();
-      palette.dispose(); depthScene.clear(); flatScene.clear(); lineScene.clear(); contextScene.clear();hiddenScene.clear();
+      gridMaterial.dispose();gridScene.clear();palette.dispose(); depthScene.clear(); flatScene.clear(); lineScene.clear(); contextScene.clear();hiddenScene.clear();
     }
   };
 }

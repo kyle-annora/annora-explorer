@@ -51,8 +51,8 @@ function fixture({ operation = true, ready = true, enabled = {} } = {}) {
     interact() { calls.push(['takeover']); player.pause('takeover'); },
     async exit() { this.active = false; player.stop(); }, cancelPending() { this.pending = false; calls.push(['cancel-tour']); },
   };
-  let disposed = 0, theme = 'ember';
-  const controller = new ExplorerController({ model, instanceId: 'test-instance', enabled, port: { getScene: () => scene, getTour: () => tour, getHierarchy: () => ({ nodes }), getTheme: () => ({ id: theme, revision: '1' }), setTheme: id => { theme = id; }, dispose: () => { disposed++; scene.ready = false; } } });
+  let disposed = 0, theme = 'ember', accent;
+  const controller = new ExplorerController({ model, instanceId: 'test-instance', enabled, port: { getScene: () => scene, getTour: () => tour, getHierarchy: () => ({ nodes }), getTheme: () => ({ id: theme, revision: accent || '1' }), setTheme: (id, color) => { theme = id; accent = color; }, dispose: () => { disposed++; scene.ready = false; } } });
   controller.setLifecycle('loading'); if (ready) controller.setLifecycle('ready');
   let serial = 0;
   const command = (method, params = {}, requestId = `test-${++serial}`) => controller.request({ requestId, method, params });
@@ -175,8 +175,8 @@ test('exit during tour preparation cancels the pending start without a late acti
   barrier.resolve(); await tick(); assert.equal(f.tour.active, false); assert.equal(f.tour.pending, false);
 });
 
-test('selection and appearance changes take control from a preparing tour before its late commit', async () => {
-  for (const [method, params] of [['select', { nodeId: 'part' }], ['setTheme', { themeId: 'arc-cyan' }], ['setQuality', { profile: 'performance' }]]) {
+test('selection and quality changes take control from a preparing tour before its late commit', async () => {
+  for (const [method, params] of [['select', { nodeId: 'part' }], ['setQuality', { profile: 'performance' }]]) {
     const f = fixture(), barrier = deferred();
     f.tour.start = async ({ signal }) => {
       f.tour.pending = true; await barrier.promise;
@@ -189,7 +189,6 @@ test('selection and appearance changes take control from a preparing tour before
     barrier.resolve(); await tick();
     assert.equal(f.tour.active, false); assert.equal(f.tour.pending, false);
     if (method === 'select') assert.equal(f.scene.selectedId, 'part');
-    if (method === 'setTheme') assert.equal(f.controller.getState().appearance.theme.id, 'arc-cyan');
     if (method === 'setQuality') assert.equal(f.scene.quality, 'performance');
   }
 });
@@ -314,4 +313,55 @@ test('display preferences are validated, observable and captured without changin
   assert.deepEqual(controller.getState().navigation,before);
   const rejected=await controller.request({requestId:'display-2',method:'setDisplayOptions',params:{options:{hiddenEdges:'yes'}}});
   assert.equal(rejected.payload.error.code,'INVALID_ARGUMENT');assert.equal(scene.displayOptions.hiddenEdges,true);
+});
+
+
+test('cosmetic display and accent changes preserve playing and preparing tours', async () => {
+  const f = fixture(), barrier = deferred();
+  f.tour.start = async ({ signal }) => { f.tour.pending = true; await barrier.promise; if(signal.aborted) return false; f.tour.pending = false; f.tour.active = true; f.tour.player.start(); return true; };
+  const starting = f.command('startTour', { tourId: f.tour.tour.id }); await tick();
+  await f.command('setDisplayOptions', { options: { appearance: 'dark', grid: true } });
+  await f.command('setTheme', { themeId: 'custom', accent: '#12ABEF' });
+  assert.equal(f.tour.pending, true); assert.equal(f.calls.some(call => call[0] === 'cancel-tour'), false);
+  barrier.resolve(); assert.equal((await starting).payload.status, 'completed');
+  const before = f.tour.player.state();
+  await f.command('setDisplayOptions', { options: { appearance: 'light' } });
+  await f.command('setTheme', { themeId: 'laser-red' });
+  assert.equal(f.tour.player.state().status, before.status); assert.equal(f.tour.player.state().time, before.time);
+  assert.equal(f.calls.some(call => call[0] === 'takeover'), false);
+  assert.equal(f.scene.displayOptions.grid, true);
+});
+
+test('custom accents are bounded colors and cannot bypass disabled or narrowed theme policy', async () => {
+  const f = fixture();
+  assert.equal(f.controller.getCapabilities().customAccent, true);
+  assert.equal((await f.command('setTheme', { themeId: 'custom', accent: '#A1B2C3' })).payload.status, 'completed');
+  assert.deepEqual(f.controller.getState().appearance.theme, { id: 'custom', revision: '#a1b2c3' });
+  for (const accent of ['red', '#fff', '#12345678', 'url(secret)', 123, null]) {
+    assert.equal((await f.command('setTheme', { themeId: 'custom', accent })).payload.error.code, 'INVALID_ARGUMENT');
+  }
+  assert.equal((await f.command('setTheme', { themeId: 'ember', accent: '#abcdef' })).payload.error.code, 'INVALID_ARGUMENT');
+  assert.equal(f.controller.getState().appearance.theme.revision, '#a1b2c3');
+  for (const themes of [false, ['ember']]) {
+    const limited = fixture({ enabled: { themes } });
+    assert.equal(limited.controller.getCapabilities().customAccent, false);
+    assert.equal((await limited.command('setTheme', { themeId: 'custom', accent: '#abcdef' })).payload.error.code, 'UNSUPPORTED_ACTION');
+  }
+});
+
+test('appearance bookmarks round-trip while legacy references preserve the current canvas', async () => {
+  const f = fixture();
+  await f.command('setDisplayOptions', { options: { appearance: 'dark', grid: true } });
+  await f.command('seekOperation', { progress: .62 });
+  const bookmark = (await f.command('captureView')).payload.result;
+  const saved = JSON.stringify(bookmark);
+  await f.command('setDisplayOptions', { options: { appearance: 'light' } });
+  await f.command('restoreView', { bookmark });
+  assert.equal(f.scene.displayOptions.appearance, 'dark'); assert.equal(f.scene.operationState.progress, .62);
+  const legacy = structuredClone(bookmark); delete legacy.displayOptions.appearance;
+  await f.command('restoreView', { bookmark: legacy });
+  assert.equal(f.scene.displayOptions.appearance, 'dark'); assert.equal(JSON.stringify(bookmark), saved);
+  const invalid = structuredClone(bookmark); invalid.displayOptions.appearance = 'auto';
+  assert.equal((await f.command('restoreView', { bookmark: invalid })).payload.error.code, 'INVALID_ARGUMENT');
+  assert.equal(f.scene.displayOptions.appearance, 'dark');
 });

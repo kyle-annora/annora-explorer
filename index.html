@@ -78,9 +78,11 @@
     <div class="appearance-control">
       <button class="appearance-trigger floating-panel" id="theme-trigger" type="button" aria-expanded="false" aria-controls="theme-panel"><svg><use href="#i-appearance"/></svg><span id="theme-label">Appearance</span><svg class="appearance-chevron"><use href="#i-chevron"/></svg></button>
       <section class="theme-panel floating-panel" id="theme-panel" role="dialog" aria-label="Appearance settings" hidden>
-        <div class="theme-heading"><h2 class="eyebrow">Accent color</h2><button class="icon-button" id="theme-close" type="button" aria-label="Close appearance settings"><svg><use href="#i-close"/></svg></button></div>
+        <div class="theme-heading"><h2 class="eyebrow">Appearance</h2><button class="icon-button" id="theme-close" type="button" aria-label="Close appearance settings"><svg><use href="#i-close"/></svg></button></div>
+        <div class="appearance-modes" role="group" aria-label="Color mode"><button id="appearance-light" type="button" aria-pressed="true">Light</button><button id="appearance-dark" type="button" aria-pressed="false">Dark</button></div>
+        <p class="accent-section-label">Interaction color</p>
         <div id="theme-options" class="theme-options"></div>
-        <label class="custom-accent-row" for="custom-accent"><span>Custom color</span><input id="custom-accent" type="color" value="#ff6840" aria-label="Choose a custom accent color"></label>
+        <div class="custom-accent-row"><label for="custom-accent-hex">Custom color</label><div class="custom-accent-inputs"><input id="custom-accent-hex" type="text" value="#ff6840" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Custom accent hex color" aria-describedby="accent-validation"><input id="custom-accent" type="color" value="#ff6840" aria-label="Choose a custom accent color"></div></div><p id="accent-validation" class="accent-validation" role="status" hidden>Enter a six-digit hex color, such as #ff6840.</p>
       </section>
     </div>
 
@@ -96,9 +98,9 @@
           </div>
           <div id="display-options" class="display-options" role="group" aria-label="Rendering styles"></div>
           <p id="display-legend" class="display-legend" role="status"></p>
+          <div class="display-settings display-scene"><label><span>Reference grid</span><input id="display-grid" type="checkbox"></label><p>A visual guide, not a measurement scale.</p></div>
           <div id="display-engineering" class="display-settings">
             <label><span>Contact shadows</span><input id="display-ambientOcclusion" type="checkbox" checked></label>
-            <label><span>Reference grid</span><input id="display-grid" type="checkbox"></label>
             <p>Uses the current performance setting.</p>
           </div>
           <div id="display-linework" class="display-settings" hidden>

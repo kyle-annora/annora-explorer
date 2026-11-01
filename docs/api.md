@@ -91,7 +91,7 @@ These signatures share the result/event contract below.
 | `seekTour` | `seconds`, optional `chapterId` | Seek and remain paused. Supply the current `chapterId` when scrubbing a step, including its exact endpoint; this keeps the endpoint in that chapter instead of entering the next. Time must fall within the named chapter. Backward seeks sample deterministically. |
 | `goToTourChapter` | `chapterId` | Require an active tour. Seek to chapter start plus `previewAt` and remain paused. Under reduced motion, sample its `settledAt` state as the current player does. The controller, not the host, resolves these authoring semantics. |
 | `exitTour` | optional `restore` | Default `true`: restore the captured prior view with playback paused. `false`: retain the current scene for free exploration, matching the existing completion action. |
-| `setTheme` | approved `themeId` | Change client accent roles without changing geometry or navigation. Custom theme registration belongs to host configuration, not arbitrary remote CSS. |
+| `setTheme` | registered `themeId`, or `"custom"` with `accent` | Change interaction accent without changing geometry, navigation or tour playback. A custom accent must be a six-digit hex color and requires the advertised `customAccent` capability. Presets reject accent overrides; arbitrary CSS is never accepted. |
 | `setQuality` | `profile` | Set an advertised profile; expose requested/effective values when adaptive reduction occurs. Preserve semantic state and camera. |
 | `captureView` | none | Return the versioned JSON bookmark specified below. This is not image capture. |
 | `restoreView` | `bookmark` | Validate compatibility first, then restore a supported bookmark with operation paused. |
@@ -259,7 +259,7 @@ machine speed. Pause, replay and scrubbing never invent new operating constraint
 
 The shared controller now accepts `setDisplayOptions` with an `options` object.
 It merges the supplied keys. Unknown keys, wrong types and unrecognized line weights
-return `INVALID_ARGUMENT`. The shell display panel uses this same command.
+return `INVALID_ARGUMENT`. The shell display panel uses this same command. Appearance, grid and accent changes do not take control from a playing or preparing tour, move the camera, or reset an operating pose.
 
 ```json
 {"method":"setDisplayOptions","params":{"options":{"featureEdges":true,"hiddenEdges":false,"lineWeight":"standard"}}}
@@ -267,20 +267,21 @@ return `INVALID_ARGUMENT`. The shell display panel uses this same command.
 
 | Option | Default | Applies to |
 | --- | --- | --- |
-| `grid` | `false` | Engineering: neutral reference ground grid |
+| `appearance` | `"light"` | All styles: `"light"` or `"dark"` canvas, ink and interface treatment |
+| `grid` | `false` | All styles: depth-occluded reference ground grid; not a measurement scale |
 | `ambientOcclusion` | `true` | Engineering: contact shading, subject to the quality budget |
 | `featureEdges` | `true` | Linework / Flat: internal crease edges; silhouettes remain visible |
 | `hiddenEdges` | `false` | Linework / Flat: dashed occluded edges on selected or tour-emphasized parts only |
 | `lineWeight` | `"standard"` | Linework / Flat: `"fine"`, `"standard"` or `"bold"`, in screen space |
 
 Preferences are exposed under `getState().appearance.display`; defaults and line
-weights are advertised by `getCapabilities().displayOptions`. Inapplicable preferences
+weights and appearances are advertised by `getCapabilities().displayOptions`. Inapplicable preferences
 are retained while another style is displayed. They cannot enable a disabled render
 style, override adaptive quality limits, or mutate the model package. They are local
-to the current instance, not saved as device preferences.
+to the current instance. The default shell separately saves explicit visitor appearance and per-style grid choices under its project-scoped display-preference key. A new visitor starts with the Engineering grid on and Linework/Flat grids off; hosts can override the instance through the same exact-origin `setDisplayOptions` bridge command. Preferences never write project, drawing or quotation records.
 
 New `captureView` bookmarks include `displayOptions`. Existing `0.1` bookmarks without
-this optional property still restore and use display defaults. Invalid supplied
+this optional property still restore and use display defaults. Older bookmarks lacking `appearance` keep the current canvas appearance; newly captured bookmarks include it. Invalid supplied
 options fail before any scene mutation. Tours retain these preferences; they do not
 silently enable hidden lines or change stroke weight. More detail:
 [display craft and source review](display-craft.md).
