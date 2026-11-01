@@ -128,6 +128,8 @@ function mountWalkthrough(sessionId) {
       void refresh();
     }
   });
+  // Holding Enter is one gesture, not consent to the review that just opened.
+  handoff.addEventListener('keydown',event=>{if(event.repeat && ['Enter',' '].includes(event.key))event.preventDefault();});
   steps.addEventListener('click',event=>{const button=event.target.closest('button');if(!button||button.disabled||!flow)return;const n=Number(button.dataset.chapter);if(n===2&&!project&&document.getElementById('room-discuss')&&!document.getElementById('room-discuss').hidden)document.getElementById('room-discuss').click();else navigate(chapterURL(n));});
   strip.querySelector('.wt-restart').addEventListener('click',()=>navigate(new URL('../walkthrough/?new=1',location.href)));
   const schedule=()=>{clearTimeout(timer);timer=setTimeout(refresh,80);};
