@@ -9,6 +9,7 @@ import { ExplorerController } from './controller.js';
 import { createPageLifecycle } from './controller/page-lifecycle.js';
 import { createEmbedBridge, configuredParentOrigin } from './embed-bridge.js';
 import { serializeBenchmark } from './performance.js';
+import { createAssemblySearch, inspectionState, inspectionFacts } from './inspection-ui.js';
 import { CLIENT_THEMES, resolveTheme, applyThemeTokens, themeRoles } from './themes.js';
 
 const $ = id => document.getElementById(id);
@@ -27,6 +28,7 @@ const openingStyle=allowedStyles.includes(params.get('render'))?params.get('rend
 applyProjectBrand(PROJECT_CONFIG,document);
 let explorer, hierarchy, navigation=createNavigation(model.rootId), renderStyle='engineering', mode='explore';
 let performanceReport,lastProgress=-1,lastFocus,operationState,guidedTour;
+let searchAssembly, treeQuery='', treeSearchResult=null, lastDetailId;
 let requestSequence = 0;
 const controller = new ExplorerController({ model, port: {
   getScene: () => explorer, getTour: () => guidedTour, getHierarchy: () => hierarchy,
@@ -121,45 +123,69 @@ listen(document,'pointerdown',e=>{if(!$('theme-panel').hidden&&!$('theme-panel')
 listen($('toggle-details'),'click',()=>setDetailsCollapsed(!document.body.classList.contains('details-collapsed')));
 
 function renderTree(){
+  if(!hierarchy)return;
   treeAbort.abort(); treeAbort = new AbortController();
   const tree=$('component-tree'), focused=document.activeElement;
   const focusId=focused?.dataset.node,focusRole=focused?.dataset.treeRole;
+  treeSearchResult=searchAssembly(treeQuery);
+  const search=treeSearchResult;
+  $('clear-search').hidden=!treeQuery;
+  $('tree-search-status').hidden=!search;
+  $('tree-search-status').textContent=search?(search.total?`${search.total} ${search.total===1?'match':'matches'}${search.total>search.shown?` · First ${search.shown}. Refine your search.`:''}`:'No matching parts. Try another name.') : '';
+  $('collapse-tree').disabled=Boolean(search);
   tree.replaceChildren();
   const render=(id,parent,depth)=>{
+    if(search&&!search.visible.has(id))return;
     const node=hierarchy.nodes.get(id), row=textNode('div','');row.className='tree-row'+(id===hierarchy.root.id?' tree-root':'')+(id===navigation.selectedId?' is-selected':'');row.dataset.inScope=String(id===navigation.scopeId);row.style.setProperty('--depth',depth);
-    const expanded=navigation.expanded.has(id);
-    if(node.children.length){const toggle=document.createElement('button');toggle.type='button';toggle.className='tree-toggle';toggle.dataset.node=id;toggle.dataset.treeRole='toggle';toggle.setAttribute('aria-label',`${expanded?'Collapse':'Expand'} ${node.title}`);toggle.setAttribute('aria-expanded',String(expanded));toggle.append(icon('chevron'));listenTree(toggle,'click',()=>{controller.takeover();navigation=toggleBranch(navigation,hierarchy.nodes,id);renderTree();});row.append(toggle);}
+    const expanded=(search?search.expanded:navigation.expanded).has(id);
+    if(node.children.length&&!search){const toggle=document.createElement('button');toggle.type='button';toggle.className='tree-toggle';toggle.dataset.node=id;toggle.dataset.treeRole='toggle';toggle.setAttribute('aria-label',`${expanded?'Collapse':'Expand'} ${node.title}`);toggle.setAttribute('aria-expanded',String(expanded));toggle.append(icon('chevron'));listenTree(toggle,'click',()=>{controller.takeover();navigation=toggleBranch(navigation,hierarchy.nodes,id);renderTree();});row.append(toggle);}
     else {const spacer=textNode('span','');spacer.className='tree-toggle-spacer';spacer.setAttribute('aria-hidden','true');row.append(spacer);}
     const button=document.createElement('button');button.type='button';button.className='tree-select';button.dataset.node=id;button.dataset.treeRole='select';button.title=node.title;
     const symbols=model.presentationPolicy.navigationIcons||{};
     const mark=icon(symbols[id]||(node.type==='component'?'cube':'layers'));mark.classList.add('node-icon');const label=textNode('span',node.title);label.className='tree-label';button.append(mark,label);
-    if(node.children.length)button.append(textNode('small',node.meshNames.length));
-    if(id===navigation.selectedId)button.setAttribute('aria-current','true');
+    button.setAttribute('aria-pressed',String(id===navigation.selectedId));
+    if(id===navigation.scopeId){const badge=textNode('small','Viewing');badge.className='tree-scope-badge';button.append(badge);}
     listenTree(button,'click',()=>select(id));listenTree(button,'pointerenter',event=>{if(event.pointerType!=='touch')explorer?.highlight(id);});listenTree(button,'pointerleave',()=>explorer?.hideHover());listenTree(button,'focus',()=>explorer?.highlight(id));listenTree(button,'blur',()=>explorer?.hideHover());row.append(button);
-    if(node.children.length&&id===navigation.selectedId&&id!==navigation.scopeId){const enter=document.createElement('button');enter.type='button';enter.className='tree-enter';enter.dataset.node=id;enter.dataset.treeRole='enter';enter.setAttribute('aria-label','Focus '+node.title);enter.title='Focus '+node.title;enter.append(icon('arrow'));listenTree(enter,'click',()=>inspect(id,{restoreFocus:true}));row.append(enter);}
+    if(id===navigation.selectedId&&inspectionState(hierarchy.nodes,id,navigation.scopeId).canInspect){const enter=document.createElement('button');enter.type='button';enter.className='tree-enter';enter.dataset.node=id;enter.dataset.treeRole='enter';enter.setAttribute('aria-label','Inspect '+node.title);enter.title='Inspect '+node.title;enter.append(icon('arrow'));listenTree(enter,'click',()=>inspect(id,{restoreFocus:true}));row.append(enter);}
     parent.append(row);
     if(node.children.length&&expanded){const children=textNode('div','');children.className='tree-children';parent.append(children);node.children.forEach(child=>render(child,children,depth+1));}
   };
   render(hierarchy.root.id,tree,0);
   if(focusId&&focusRole)tree.querySelector(`[data-node="${CSS.escape(focusId)}"][data-tree-role="${focusRole}"]`)?.focus({preventScroll:true});
 }
+function clearSearch(){treeQuery='';$('assembly-search').value='';renderTree();}
+listen($('assembly-search'),'input',event=>{treeQuery=event.target.value;renderTree();});
+listen($('assembly-search'),'keydown',event=>{if(event.key==='Escape'&&treeQuery){event.preventDefault();event.stopPropagation();clearSearch();}});
+listen($('clear-search'),'click',()=>{clearSearch();$('assembly-search').focus();});
+listen($('reveal-selection'),'click',()=>{
+  treeQuery='';$('assembly-search').value='';navigation=selectNode(navigation,hierarchy.nodes,navigation.selectedId);renderTree();
+  const item=$('component-tree').querySelector(`[data-node="${CSS.escape(navigation.selectedId)}"][data-tree-role="select"]`);item?.focus({preventScroll:true});item?.scrollIntoView({block:'nearest'});
+});
+listen($('collapse-tree'),'click',()=>{navigation={...navigation,expanded:new Set(ancestors(hierarchy.nodes,navigation.scopeId).map(node=>node.id))};renderTree();});
 function renderDetails(){
   detailAbort.abort(); detailAbort = new AbortController();
-  const selected=hierarchy.nodes.get(navigation.selectedId), scopePath=ancestors(hierarchy.nodes,navigation.scopeId), selectedPath=ancestors(hierarchy.nodes,selected.id);
+  const state=inspectionState(hierarchy.nodes,navigation.selectedId,navigation.scopeId),{selected}=state,scopePath=ancestors(hierarchy.nodes,navigation.scopeId);
+  if(lastDetailId!==selected.id){$('model-details').open=false;lastDetailId=selected.id;}
   $('breadcrumbs').replaceChildren();scopePath.forEach((node,index)=>{if(index){const separator=textNode('span','/');separator.className='separator';separator.setAttribute('aria-hidden','true');$('breadcrumbs').append(separator);}const item=textNode(index===scopePath.length-1?'span':'button',node.title);if(item.tagName==='BUTTON'){item.type='button';listenDetail(item,'click',()=>inspect(node.id));}else item.setAttribute('aria-current','page');$('breadcrumbs').append(item);});
   $('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;
-  $('selection-title').textContent=selected.title;$('selection-description').textContent=mode==='operate'&&selected.id===model.rootId&&operationState?.stage?operationState.stage.description:selected.id===model.rootId?(model.presentationPolicy?.root?.description||selected.description):selected.description;$('selection-badge').textContent=selected.type.toUpperCase();
-  const context=$('selection-context');context.hidden=!selected.parent;context.textContent=selected.parent?'Within '+hierarchy.nodes.get(selected.parent).title:'';
-  const meta=[['Components',selected.meshNames.length.toLocaleString()],['Depth',selectedPath.length-1]];
-  if(selected.type==='component'){const finish=explorer?.meshes.get(selected.meshName)?.userData.spec?.label;if(finish)meta.push(['Display finish',finish]);}
-  else if(selected.id===model.rootId)meta.push(...model.facts.map(fact=>[fact.label,fact.value]));
-  if(selected.sourceName)meta.push(['Source name',selected.sourceName]);
-  $('selection-meta').replaceChildren();for(const[label,value]of meta)$('selection-meta').append(textNode('dt',label),textNode('dd',value));
-  $('focus-selection').querySelector('span').textContent=selected.children.length&&selected.id!==navigation.scopeId?'Focus assembly':'Frame selection';
-  $('isolate-selection').setAttribute('aria-pressed',String(navigation.isolated));$('isolate-selection').querySelector('span').textContent=navigation.isolated?'Show context':'Isolate';$('isolate-selection').disabled=selected.id===model.rootId;
-  $('status-message').textContent=selected.id===model.rootId?'Select a component · Focus to explore inside':`${selected.title} · ${selected.meshNames.length} ${selected.meshNames.length===1?'component':'components'}`;
+  $('back-scope').hidden=!state.scopeParent;
+  if(state.scopeParent){$('back-scope').setAttribute('aria-label',`Back to ${state.scopeParent.title}`);$('back-scope').title=`Back to ${state.scopeParent.title}`;}
+  $('selection-title').textContent=selected.title;$('selection-description').textContent=mode==='operate'&&selected.id===model.rootId&&operationState?.stage?operationState.stage.description:selected.id===model.rootId?(model.presentationPolicy?.root?.description||selected.description):selected.description;$('selection-badge').textContent=state.kind;
+  const context=$('selection-context');context.hidden=false;context.textContent=navigation.isolated&&selected.id===navigation.scopeId?'Isolated · Surrounding parts hidden.':state.context;context.dataset.outside=String(!state.within);
+  $('selection-meta').replaceChildren();for(const[label,value]of inspectionFacts(state,model))$('selection-meta').append(textNode('dt',label),textNode('dd',value));
+  const source=[['Source meshes',selected.meshNames.length.toLocaleString()]];
+  const finish=explorer?.meshes.get(selected.meshName)?.userData.spec?.label;if(finish)source.push(['Display finish',finish]);
+  if(selected.sourceName)source.push(['Source label',selected.sourceName]);
+  $('source-meta').replaceChildren();for(const[label,value]of source)$('source-meta').append(textNode('dt',label),textNode('dd',value));
+  $('focus-selection').disabled=false;$('focus-selection').querySelector('span').textContent=state.action;$('focus-selection').title=state.canInspect?'Enter this item and bring it into view':'Center this selection without changing the assembly';$('focus-selection').querySelector('use').setAttribute('href',state.canInspect?'#i-arrow':'#i-focus');
+  const isolatedSelection=navigation.isolated&&selected.id===navigation.scopeId;
+  $('isolate-selection').setAttribute('aria-pressed',String(isolatedSelection));$('isolate-selection').querySelector('span').textContent=isolatedSelection?'Show context':'Isolate';$('isolate-selection').disabled=selected.id===model.rootId;$('isolate-selection').hidden=selected.id===model.rootId;
+  $('isolate-selection').title=isolatedSelection?'Show the surrounding assembly':'View only this selection';
+  $('status-message').textContent=state.canInspect?'Selected · Inspect to enter':state.context;
   document.body.dataset.selection=selected.id;document.body.dataset.scope=navigation.scopeId;document.body.dataset.depth=String(scopePath.length-1);
-  const scope=hierarchy.nodes.get(navigation.scopeId);$('explode-toggle').disabled=scope.type==='component';$('explode-range').disabled=scope.type==='component';
+  const scope=hierarchy.nodes.get(navigation.scopeId),canSeparate=scope.type!=='component';
+  $('mode-explode').disabled=!canSeparate;$('mode-explode').title=canSeparate?'Separate the current assembly':'Return to an assembly to separate its parts';
+  $('explode-toggle').disabled=!canSeparate;$('explode-range').disabled=!canSeparate;
 }
 function select(id){
   if(!explorer?.ready||!hierarchy.nodes.has(id))return;
@@ -167,11 +193,13 @@ function select(id){
 }
 function inspect(id,{restoreFocus:requestedFocus=false}={}){
   if(!explorer?.ready||!hierarchy.nodes.has(id))return;
-  const restoreFocus=(mobileLayout.matches||Boolean(guidedTour?.active))&&(requestedFocus||[$('assembly-panel'),$('detail-body'),$('breadcrumbs')].some(panel=>panel.contains(document.activeElement)));
-  command('focus',{nodeId:id});closeTree({restoreFocus});
+  const pathFocus=$('breadcrumbs').contains(document.activeElement)||document.activeElement===$('back-scope');
+  const restoreFocus=(mobileLayout.matches||Boolean(guidedTour?.active))&&(requestedFocus||[$('assembly-panel'),document.querySelector('.detail-panel'),$('breadcrumbs')].some(panel=>panel.contains(document.activeElement)));
+  command('focus',{nodeId:id}).then(()=>{if(pathFocus&&!shellAbort.signal.aborted)($('back-scope').hidden?$('model-select'):$('back-scope')).focus({preventScroll:true});});closeTree({restoreFocus});
 }
-listen($('focus-selection'),'click',()=>command('focus',{nodeId:navigation.selectedId}));
-listen($('isolate-selection'),'click',()=>command('isolate',{nodeId:navigation.isolated?null:navigation.selectedId}));
+listen($('focus-selection'),'click',()=>{const state=inspectionState(hierarchy.nodes,navigation.selectedId,navigation.scopeId);if(state.canInspect)inspect(navigation.selectedId);else command('frame',{nodeId:navigation.selectedId});});
+listen($('back-scope'),'click',()=>{const parent=hierarchy?.nodes.get(navigation.scopeId)?.parent;if(parent)inspect(parent);});
+listen($('isolate-selection'),'click',()=>command('isolate',{nodeId:navigation.isolated&&navigation.selectedId===navigation.scopeId?null:navigation.selectedId}));
 listen($('toggle-tree'),'click',()=>{
   if(document.body.classList.contains('tree-open')){closeTree();$('toggle-tree').focus({preventScroll:true});return;}
   guidedTour?.closeChapters();controller.takeover();closePerformance();closeTheme();lastFocus=document.activeElement;
@@ -263,7 +291,7 @@ function syncPresentationUI(){
 async function start(){
   try{
     controller.setLifecycle('loading');
-    const response=await fetch(model.metadataUrl,{signal:shellAbort.signal});if(!response.ok)throw new Error('Model metadata could not be loaded.');const metadata=await response.json();validatePackage(metadata,model);if(shellAbort.signal.aborted)return;hierarchy=buildHierarchy(metadata,model.presentationPolicy);
+    const response=await fetch(model.metadataUrl,{signal:shellAbort.signal});if(!response.ok)throw new Error('Model metadata could not be loaded.');const metadata=await response.json();validatePackage(metadata,model);if(shellAbort.signal.aborted)return;hierarchy=buildHierarchy(metadata,model.presentationPolicy);searchAssembly=createAssemblySearch(hierarchy.nodes);
     const config={...model,operation:metadata.operation?{...metadata.operation,cameraDirection:model.defaultDirection}:null};
     explorer=new AssemblyScene($('scene'),metadata,hierarchy,{
       select,inspect,operation:syncOperation,insets:viewportInsets,theme:themeRoles(clientTheme),
@@ -276,11 +304,11 @@ async function start(){
       hover(node,position){const label=$('hover-label');label.hidden=!node;if(node){label.textContent=node.title;label.style.left=Math.min(position.x,$('viewport').clientWidth-200)+'px';label.style.top=Math.min(position.y,$('viewport').clientHeight-70)+'px';}},
       explosion(fraction){const percent=Math.round(fraction*100);$('explode-range').value=String(percent);$('explode-value').value=percent+'%';document.body.dataset.explosion=fraction.toFixed(4);},
     },config);
-    await explorer.load(model.modelUrl,progress=>{$('loading-progress').style.width=Math.round(progress*100)+'%';$('loading-label').textContent=progress<1?`Loading ${metadata.parts.length} components · ${Math.round(progress*100)}%`:'Preparing materials and lighting…';});
+    await explorer.load(model.modelUrl,progress=>{$('loading-progress').style.width=Math.round(progress*100)+'%';$('loading-label').textContent=progress<1?`Loading ${model.shortTitle} · ${Math.round(progress*100)}%`:'Preparing materials and lighting…';});
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);
     if(shellAbort.signal.aborted)return;syncPresentationUI();
     if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
-    renderTree();renderDetails();syncOperation(explorer.getOperationState());$('model-count').textContent=`${metadata.parts.length} components · ${metadata.groups.length} assemblies`;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
+    renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
     overlayObserver=new ResizeObserver(()=>{if(!explorer.ready||shellAbort.signal.aborted)return;cancelAnimationFrame(overlayFrame);overlayFrame=requestAnimationFrame(()=>{document.documentElement.style.setProperty('--dock-height',`${document.querySelector('.stage-tools').getBoundingClientRect().height}px`);explorer.refitLayout();$('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;});});
     for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel'])overlayObserver.observe(document.querySelector(selector));
     listen($('scene'),'keydown',event=>{
