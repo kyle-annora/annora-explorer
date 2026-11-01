@@ -43,12 +43,16 @@ function mountWalkthrough(sessionId) {
   }
   function focusAction() {
     const labels=[...flow.focus].reverse();
-    const controls=[...document.querySelectorAll('main button, .customer-workspace button')].filter(el=>el.getClientRects().length&&!el.disabled);
-    const found=labels.map(label=>controls.find(el=>el.textContent.trim().replace(/[→↗]/g,'').trim()===label)).find(Boolean);
+    // Shared buttons keep an invisible pending label mounted to preserve width.
+    // Match the active label, not the concatenated text of both states.
+    const labelOf=el=>(el.querySelector('.ar-button-label')?.textContent||el.getAttribute('aria-label')||el.innerText).replace(/[→↗]/g,'').replace(/\s+/g,' ').trim();
+    const available=el=>el.getClientRects().length&&!el.disabled&&el.getAttribute('aria-disabled')!=='true'&&el.getAttribute('aria-busy')!=='true';
+    const controls=[...document.querySelectorAll('main button, .customer-workspace button')].filter(available);
+    const found=labels.map(label=>controls.find(el=>labelOf(el)===label)).find(Boolean);
     if(found){found.scrollIntoView({block:'center',behavior:'instant'});found.focus({preventScroll:true});return;}
     // A quotation can be reached without creating a new business action.
-    const tab=controls.find(el=>/^Quotation(?:\s|$)/.test(el.textContent.trim()));
-    if(tab) {tab.click();setTimeout(()=>{const target=[...document.querySelectorAll('button')].find(el=>el.getClientRects().length&&labels.includes(el.textContent.trim()));target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});},50);}
+    const tab=controls.find(el=>el.closest('.pw-project-tabs,.customer-tabs')&&/^Quotation(?:\s|\d|v\d|$)/.test(labelOf(el)));
+    if(tab) {tab.click();setTimeout(()=>{const target=[...document.querySelectorAll('button')].find(el=>available(el)&&labels.includes(labelOf(el)));target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});},50);}
   }
   async function refresh() {
     const turn=++generation;

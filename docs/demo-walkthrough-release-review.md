@@ -39,6 +39,12 @@ reachable return controls, unsaved input guards, role-aware 3D return, historica
 quotation selection, and editor/review reload. An issued draft's old review URL
 returns to the project instead of opening an unintended new quotation.
 
+The Product Room header was additionally checked at 14 widths between 320 and
+1440 pixels. Its two-row navigation now begins at the tablet breakpoint, keeping
+the inquiry control inside the viewport. Guide-action focusing was checked on
+the historical-version control and each request/reply review and confirmation
+control; it ignores the shared button's hidden pending label.
+
 ## Recovery and isolation
 
 - Guide restart creates an empty new sample namespace and preserves the completed
