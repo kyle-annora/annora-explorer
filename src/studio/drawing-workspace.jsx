@@ -117,7 +117,11 @@ function ModelPreview({ entry, partId, explorerURL, onPartSelect }) {
       if (selected.current) { lastId = selected.current; await host.request('select', { nodeId: selected.current }); }
       if (active) { initial = false; setReady(true); }
     }).catch(next => { if (active) setError(next.message); });
-    return () => { active = false; viewer.current = null; void host.dispose(); };
+    const observer = new IntersectionObserver(entries => { if (entries[0] && !entries[0].isIntersecting) void host.pause().catch(() => {}); });
+    observer.observe(mount.current);
+    const pauseWhenHidden = () => { if (document.hidden) void host.pause().catch(() => {}); };
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    return () => { active = false; observer.disconnect(); document.removeEventListener('visibilitychange', pauseWhenHidden); viewer.current = null; void host.dispose(); };
   }, [entry, explorerURL]);
   useEffect(() => { if (ready && partId && viewer.current?.state?.navigation?.selectedId !== partId) void viewer.current.request('select', { nodeId: partId }).catch(next => setError(next.message)); }, [partId, ready]);
   return <div className="sd-model-preview"><div className="sd-model-mount" ref={mount} />
@@ -169,13 +173,8 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   const [draft, setDraft] = useState(null), [saved, setSaved] = useState(null), [selection, setSelection] = useState({}), [form, setForm] = useState(regionForm());
   const [stage, setStage] = useState('edit'), [mode, setMode] = useState('drawings'), [previewPackage, setPreviewPackage] = useState(null);
   const [workspaceSection, setWorkspaceSection] = useState('overview');
-  const [sourceOptionsOpen, setSourceOptionsOpen] = useState(() => window.innerWidth > 700);
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 700px)');
-    const change = () => setSourceOptionsOpen(!media.matches);
-    media.addEventListener('change', change);
-    return () => media.removeEventListener('change', change);
-  }, []);
+  const [sourceOptionsOpen, setSourceOptionsOpen] = useState(false);
+  const [associationPanel, setAssociationPanel] = useState('preview');
   const [busy, setBusy] = useState(null), [error, setError] = useState(null), [message, setMessage] = useState(null), [review, setReview] = useState(null);
   const [history, setHistory] = useState([]), [release, setRelease] = useState(null), [confirmed, setConfirmed] = useState(false), [evidence, setEvidence] = useState('');
   const [sourceVersions, setSourceVersions] = useState([]), [importOpen, setImportOpen] = useState(false), [importFile, setImportFile] = useState(null), [revisionLabel, setRevisionLabel] = useState('');
@@ -208,7 +207,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     Promise.all([repository.getDraft(productId), repository.listReleases(productId), repository.listSourceVersions(productId)]).then(([next, releases, versions]) => {
       if (turn !== lifecycle.current) return;
       setDraft(next); setSaved(copyDrawingValue(next)); setHistory(releases); setSourceVersions(versions); setDrawIntent(null); setImportOpen(false); const first = firstRegion(next.packageSnapshot); setSelection(first);
-      setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null); setStage('edit'); setReview(null); setRelease(null); setMode('drawings'); setWorkspaceSection('overview'); setAuthoring(false); setMessage(null);
+      setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null); setStage('edit'); setReview(null); setRelease(null); setMode('drawings'); setWorkspaceSection('overview'); setAssociationPanel('preview'); setAuthoring(false); setMessage(null);
     }).catch(next => { if (turn === lifecycle.current) setError(next); }).finally(() => { if (turn === lifecycle.current) setBusy(null); });
   }, [productId, repository]);
   useEffect(() => { if (stage !== 'edit') heading.current?.focus(); }, [stage]);
@@ -249,7 +248,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     catch (next) { setError(next); }
   }
   function openSourceAssociation(nextSelection) {
-    choose(nextSelection); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true);
+    choose(nextSelection); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true); setAssociationPanel('preview');
     requestAnimationFrame(() => drawingStage.current?.scrollIntoView({ block: 'start', behavior: 'auto' }));
   }
   async function run(name, action) {
@@ -270,7 +269,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
   function loadSourceDraft(next) {
     setDraft(next); setSaved(copyDrawingValue(next)); const first = firstRegion(next.packageSnapshot);
     setSelection(first); setForm(regionForm(next.packageSnapshot.sheets[0]?.regions[0])); setPreviewPackage(null);
-    setStage('edit'); setReview(null); setDrawIntent(null); setRemoveIntent(null); setMode('drawings'); setWorkspaceSection('overview'); setAuthoring(false);
+    setStage('edit'); setReview(null); setDrawIntent(null); setRemoveIntent(null); setMode('drawings'); setWorkspaceSection('overview'); setAssociationPanel('preview'); setAuthoring(false);
   }
   const changeSourceVersion = async id => {
     if (id === draft.sourceVersionId || !(await guard())) return;
@@ -283,7 +282,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     setMessage('New PDF version imported. Check each region and confirm its part before publishing. Earlier releases remain unchanged.');
   });
   function startDraw(intent) {
-    try { setDraft(staged()); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true); setDrawIntent(intent); setRemoveIntent(null); setError(null); setMessage(null);
+    try { setDraft(staged()); setWorkspaceSection('associations'); setMode('drawings'); setAuthoring(true); setAssociationPanel('preview'); setDrawIntent(intent); setRemoveIntent(null); setError(null); setMessage(null);
       requestAnimationFrame(() => drawingStage.current?.scrollIntoView({ block: 'center', behavior: 'auto' })); }
     catch (next) { setError(next); }
   }
@@ -298,7 +297,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       } else {
         edit('bounds', bounds.map(String));
       }
-      setDrawIntent(null); setPreviewPackage(null);
+      setDrawIntent(null); setPreviewPackage(null); setAssociationPanel('settings');
     } catch (next) { setError(next); }
   }
   const removeRegion = () => run('remove', async () => {
@@ -317,7 +316,7 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       const next = staged(), candidate = next.packageSnapshot.sheets.find(item => item.id === selection.sheetId).regions.find(item => item.id === selection.regionId);
       const issues = drawingMappingIssues(next.packageSnapshot, selection.sheetId, candidate, drawingPartIds(entry));
       if (issues.length) throw Object.assign(new Error('Check the linked part and region before previewing.'), { issues });
-      setAuthoring(true); setPreviewPackage(next.packageSnapshot); setMode('drawings'); setMessage('Previewing the edited region on the original sheet. Confirm it to update the association.'); setError(null);
+      setAuthoring(true); setPreviewPackage(next.packageSnapshot); setMode('drawings'); setAssociationPanel('preview'); setMessage('Previewing the edited region on the original sheet. Confirm it to update the association.'); setError(null);
     } catch (next) { setError(next); }
   };
   const beginReview = () => run('review', async () => { const next = await saveCurrent(); const packet = await repository.reviewDraft(next); setReview(packet); setConfirmed(false); setStage('review'); });
@@ -339,21 +338,23 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
     return rect?.every(Number.isFinite) && rect[2] > 0 && rect[3] > 0 && rect[0] >= 0 && rect[1] >= 0 && rect[0] + rect[2] <= sheet.viewBox[2] + 1e-7 && rect[1] + rect[3] <= sheet.viewBox[3] + 1e-7 ? rect : null;
   }, [sheet, region, form, formChanged]);
   const removalPrompt = removeIntent && <Notice title={`Remove “${removeIntent.label}” from this draft?`}><p>Earlier versions keep their original details.</p><ActionGroup><Button variant="secondary" onClick={() => setRemoveIntent(null)} disabled={!!busy}>Keep detail</Button><Button variant="secondary" onClick={removeRegion} pending={busy === 'remove'} disabled={!!busy && busy !== 'remove'}>Remove from draft</Button></ActionGroup></Notice>;
-  return <main className="room-ui sd-workspace" aria-busy={busy === 'load' || undefined}>
+  return <section className="room-ui sd-workspace" data-stage={stage} data-section={workspaceSection} data-association-panel={associationPanel} aria-busy={busy === 'load' || undefined}>
     <header className="sd-header">
       <div><p className="ar-eyebrow">STUDIO / DRAWINGS</p><h1 ref={heading} tabIndex="-1">{stage === 'review' ? 'Review this release.' : stage === 'published' ? 'Drawing release ready.' : stage === 'history' ? `Release ${release?.version}` : 'Drawing workspace'}</h1>
-        <p>{stage === 'edit' ? 'Arrange the views, connect their details, then preview and publish.' : 'The overview, source drawing and confirmed associations stay together in this release.'}</p></div>
-      {onBack && <Button variant="quiet" icon="back" disabled={!!busy} onClick={async () => { if (await guard()) onBack(); }}>Back to Studio</Button>}
+        <p>{stage === 'edit' ? dirty ? 'Unsaved changes' : draft?.revision ? `Draft saved · ${dateLabel(draft.updatedAt)}` : 'New draft · Not published' : 'The overview, source drawing and confirmed associations stay together in this release.'}</p></div>
+      {draft && stage === 'edit' ? <ActionGroup className="sd-document-actions">
+        <Button variant="quiet" onClick={() => run('save', async () => { await saveCurrent(); setMessage('Drawing draft saved in this browser.'); })} pending={busy === 'save'} disabled={!!busy && busy !== 'save'}>Save draft</Button>
+        {onPreview && <Button variant="secondary" onClick={() => previewBuyer()} pending={busy === 'preview'} disabled={!!busy && busy !== 'preview'}>Buyer preview</Button>}
+        <Button icon="arrow" onClick={beginReview} pending={busy === 'review'} pendingLabel="Checking…" disabled={!!busy && busy !== 'review'}>Review release</Button>
+      </ActionGroup> : onBack && <Button variant="quiet" icon="back" disabled={!!busy} onClick={async () => { if (await guard()) onBack(); }}>Back to Studio</Button>}
     </header>
-    <p className="sd-demo-note"><Status tone="neutral">Local demo</Status> Drafts and releases stay in this browser. Existing customer projects are unchanged.</p>
     {error && !leave && <Notice kind="error" title={error.message || 'This action could not be completed.'}>{errors.length > 0 && <ul>{errors.map((item, index) => <li key={`${item.path}:${index}`}>{item.message}</li>)}</ul>}</Notice>}
     {message && <Notice role="status">{message}</Notice>}
     {!draft && !error && <p role="status">Opening the prepared product…</p>}
     {draft && stage === 'edit' && <>
-      <details className="sd-source-options" open={sourceOptionsOpen} onToggle={event => setSourceOptionsOpen(event.currentTarget.open)}><summary><span>Source & version<strong>{entry.title}</strong></span><span>{sourceVersions.find(item => item.id === draft.sourceVersionId)?.label || pkg.revision}<Glyph name="info"/></span></summary><div className="sd-source-bar">
+      <details className="sd-source-options" open={sourceOptionsOpen} onToggle={event => setSourceOptionsOpen(event.currentTarget.open)}><summary><span className="sd-source-context"><strong>{entry.title}</strong><span>{sourceVersions.find(item => item.id === draft.sourceVersionId)?.label || pkg.revision}</span></span><span className="sd-source-summary"><span>{summary.confirmed - (formChanged && region?.mappingStatus === 'confirmed' ? 1 : 0)} / {summary.total} linked</span><span>Source & version <Glyph name="arrow" className="sd-disclosure-icon"/></span></span></summary><div className="sd-source-bar">
         <Field label="Product" value={productId} options={packages.map(item => [item.id, item.title])} onChange={event => void changeProduct(event.target.value)} disabled={!!busy} />
         <Field label="Source version" value={draft.sourceVersionId || sourceVersions[0]?.id || ''} options={sourceVersions.map(item => [item.id, `${item.label || item.revision}${item.kind === 'local-pdf' ? ' · imported PDF' : ' · prepared source'}`])} onChange={event => void changeSourceVersion(event.target.value)} disabled={!!busy} />
-        <div className="sd-source-meta"><strong>{summary.confirmed - (formChanged && region?.mappingStatus === 'confirmed' ? 1 : 0)} of {summary.total} associations confirmed</strong><span>{dirty ? 'Unsaved changes' : draft.revision ? `Draft ${draft.revision} · saved ${dateLabel(draft.updatedAt)}` : 'New drawing draft'}</span></div>
         <Button variant="secondary" onClick={() => setImportOpen(value => !value)} disabled={!!busy} aria-expanded={importOpen}>Import new PDF</Button>
         <a href={pkg.sourceURL} target="_blank" rel="noreferrer">{pkg.sourceOrigin?.kind === "local-pdf" ? "Prepared model source" : "Source provenance"} <Glyph name="external" /></a>
       </div></details>
@@ -371,17 +372,16 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       <div className="sd-workspace-tabs" role="group" aria-label="Drawing workspace section">
         <button type="button" aria-pressed={workspaceSection === 'overview'} disabled={!!busy} onClick={() => changeWorkspaceSection('overview')}>Overview</button>
         <button type="button" aria-pressed={workspaceSection === 'associations'} disabled={!!busy} onClick={() => changeWorkspaceSection('associations')}>Source associations</button>
-        <span>{workspaceSection === 'overview' ? 'Customer-facing views and clickable details' : 'Original PDF coordinates and linked model parts'}</span>
+        <span>{workspaceSection === 'overview' ? 'Arrange what customers see' : 'Link drawing details to model parts'}</span>
       </div>
       {workspaceSection === 'overview' && <DrawingOverviewEditor key={`${draft.id}:${draft.sourceSignature}`} draft={draft} entry={entry} assetStore={repository.assetStore} disabled={!!busy} onChange={changeOverview} onOpenAssociation={openSourceAssociation} />}
-      {workspaceSection === 'associations' && <div className="sd-editor-grid">
+      {workspaceSection === 'associations' && <><div className="sd-association-tabs" role="group" aria-label="Association editor panel">{[['details', 'Details'], ['preview', 'Drawing'], ['settings', 'Settings']].map(([id, label]) => <button key={id} type="button" aria-pressed={associationPanel === id} onClick={() => setAssociationPanel(id)}>{label}</button>)}</div><div className="sd-editor-grid">
         <aside className="sd-region-nav" aria-label="Drawing details">
           <Field label="Drawing sheet" value={selection.sheetId || ''} options={pkg.sheets.map(item => [item.id, item.title])} onChange={event => { const target = pkg.sheets.find(item => item.id === event.target.value); choose({ sheetId: target.id, regionId: target.regions[0]?.id }); }} disabled={!!busy} />
-          <div className="sd-region-list">{(sheet?.regions || []).map(item => <button type="button" key={item.id} aria-current={selection.regionId === item.id ? 'true' : undefined} onClick={() => choose({ sheetId: sheet.id, regionId: item.id })} disabled={!!busy}>
+          <div className="sd-region-list">{(sheet?.regions || []).map(item => <button type="button" key={item.id} aria-current={selection.regionId === item.id ? 'true' : undefined} onClick={() => { choose({ sheetId: sheet.id, regionId: item.id }); setAssociationPanel('preview'); }} disabled={!!busy}>
             <span>{item.label}</span><small><i data-state={item.mappingStatus} />{labels[item.mappingStatus] || 'Needs review'}</small>
           </button>)}</div>
           {!sheet?.regions.length && <p className="sd-hint">No regions yet. Draw a detail on this page to link it to a part.</p>}
-          <p className="sd-hint">One region can describe a detail within a single part. It does not create a new physical component.</p>
         </aside>
         <section ref={drawingStage} className="sd-stage" aria-label="Association preview">
           <div className="sd-stage-tabs" role="group" aria-label="Preview view">
@@ -400,14 +400,14 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
             : <DrawingPreview assetStore={repository.assetStore} pkg={pkg} presentationSnapshot={draft.presentationSnapshot} sheetId={selection.sheetId} regionId={selection.regionId} onSelect={id => choose({ sheetId: selection.sheetId, regionId: id })} />)}
           {mode === '3d' && <ModelPreview entry={entry} partId={form.partId} explorerURL={explorerURL} onPartSelect={id => { if (id !== current.current.form.partId) edit('partId', id); }} />}
         </section>
-        <form className="sd-region-editor" onSubmit={event => event.preventDefault()} onFocusCapture={() => setAuthoring(true)} aria-label="Edit drawing association">
+        <form className="sd-region-editor" onSubmit={event => event.preventDefault()} aria-label="Edit drawing association">
           <div className="sd-editor-title"><p className="ar-eyebrow">SELECTED DETAIL</p><Status tone={formChanged || region?.mappingStatus !== 'confirmed' ? 'active' : 'neutral'}>{formChanged ? 'Edited · not confirmed' : labels[region?.mappingStatus] || 'Not linked'}</Status></div>
           <Field label="Detail name" value={form.label} onChange={event => edit('label', event.target.value)} disabled={!!busy || !region} maxLength={160} />
           <Field label="Linked model part" value={form.partId} options={partOptions} onChange={event => edit('partId', event.target.value)} disabled={!!busy || !region} />
           <Button variant="secondary" disabled={!!busy || !region} onClick={() => startDraw({ kind: 'redraw' })}>Redraw selected region</Button>
-          <fieldset className="sd-bounds"><legend>Region on the source page</legend><p>Page units from the upper-left corner. These are drawing coordinates, not part dimensions.</p>
+          <details className="sd-coordinate-details"><summary>Region coordinates</summary><fieldset className="sd-bounds"><legend>Region on the source page</legend><p>Page units from the upper-left corner. These are drawing coordinates, not part dimensions.</p>
             {['Left', 'Top', 'Width', 'Height'].map((label, index) => <Field key={label} label={label} type="number" inputMode="decimal" step="any" value={form.bounds[index]} onChange={event => { const values = [...form.bounds]; values[index] = event.target.value; edit('bounds', values); }} disabled={!!busy || !region} />)}
-          </fieldset>
+          </fieldset></details>
           <Field label="Association note" textarea optional value={form.note} onChange={event => edit('note', event.target.value)} disabled={!!busy || !region} maxLength={1000} rows={2} />
           {!removeIntent?.unplacedId && removalPrompt}
           <Button variant="quiet" onClick={() => setRemoveIntent({ label: region.label })} disabled={!!busy || !region}>Remove region</Button>
@@ -415,16 +415,11 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
           <ActionGroup><Button variant="quiet" onClick={() => { setForm(regionForm(region)); setPreviewPackage(null); setError(null); }} disabled={!!busy || !formChanged}>Cancel edit</Button>
             <Button variant="secondary" icon="check" onClick={confirmMapping} pending={busy === 'confirm'} disabled={!!busy && busy !== 'confirm' || !region}>Confirm mapping</Button></ActionGroup>
         </form>
-      </div>}
+      </div></>}
       {pkg.pairing.status === 'unverified' && <Section className="sd-pairing" title="Confirm the source pairing" description="Record why this drawing and model belong to the same source version. This confirms the association, not manufacturing approval.">
         <Field label="Pairing evidence" textarea value={evidence} onChange={event => setEvidence(event.target.value)} rows={2} placeholder="For example, both source files came from the same pinned engineering package." />
         <Button variant="secondary" disabled={!!busy} onClick={() => run('pairing', async () => { setDraft(confirmDrawingPairing(staged(), entry, evidence)); setMessage('Source pairing confirmed in this draft.'); })}>Confirm source pairing</Button>
       </Section>}
-      <div className="sd-action-bar"><div><strong>Preview, then publish.</strong><span>Save keeps the draft. Review checks the overview and every source association.</span></div>
-        <ActionGroup><Button variant="secondary" onClick={() => run('save', async () => { await saveCurrent(); setMessage('Drawing draft saved in this browser.'); })} pending={busy === 'save'} disabled={!!busy && busy !== 'save'}>Save draft</Button>
-          {onPreview && <Button variant="secondary" onClick={() => previewBuyer()} pending={busy === 'preview'} disabled={!!busy && busy !== 'preview'}>Buyer preview</Button>}
-          <Button icon="arrow" onClick={beginReview} pending={busy === 'review'} pendingLabel="Checking…" disabled={!!busy && busy !== 'review'}>Review release</Button></ActionGroup>
-      </div>
       <details className="sd-history"><summary>Release history <span>{history.length} local {history.length === 1 ? 'release' : 'releases'}</span></summary>
         {!history.length ? <p>No releases yet. Review and publish the current draft to create the first fixed version.</p> : history.map(item => <div className="sd-history-row" key={item.id}><div><strong>Release {item.version}</strong><span>{item.packageSnapshot.revisionLabel || item.sourceRevision} · {dateLabel(item.createdAt)}</span></div><Button variant="quiet" icon="arrow" onClick={async () => { if (await guard()) { setRelease(item); setStage('history'); } }}>View release</Button></div>)}
       </details>
@@ -456,12 +451,13 @@ export const DrawingWorkspace = forwardRef(function DrawingWorkspace({ packages 
       </Section>
       <div className="sd-action-bar"><p>This release is read-only. Further edits create a new reviewed version.</p><ActionGroup><Button variant="secondary" icon="back" disabled={!!busy} onClick={() => { setStage('edit'); setError(null); }}>Back to draft</Button><Button variant="secondary" onClick={downloadRelease} pending={busy === 'export'} disabled={!!busy && busy !== 'export'}>Export release</Button>{onPreview && <Button icon="arrow" onClick={() => previewBuyer(release)} pending={busy === 'preview'} disabled={!!busy && busy !== 'preview'}>Open buyer preview</Button>}</ActionGroup></div>
     </>}
+    <p className="sd-demo-note">Local demo · Saved in this browser. Existing customer projects keep their published versions.</p>
     {leave && <div className="sd-dialog-backdrop"><div ref={dialog} tabIndex="-1" className="sd-leave-dialog" role="dialog" aria-modal="true" aria-labelledby="sd-leave-title"><h2 id="sd-leave-title">Keep your drawing edits?</h2><p>Save the draft to continue later, or discard the edits since the last save.</p>{error && <Notice kind="error" title="Draft not saved">{error.message}</Notice>}<ActionGroup>
       <Button variant="quiet" onClick={() => finishLeave(false)} disabled={!!busy}>Keep editing</Button>
       <Button variant="secondary" onClick={() => { setDraft(copyDrawingValue(saved)); const target = saved.packageSnapshot.sheets.find(item => item.id === selection.sheetId)?.regions.find(item => item.id === selection.regionId); setForm(regionForm(target)); finishLeave(true); }} disabled={!!busy}>Discard edits</Button>
       <Button onClick={() => run('leave', async () => { await saveCurrent(); finishLeave(true); })} pending={busy === 'leave'} disabled={!!busy && busy !== 'leave'}>Save and continue</Button>
     </ActionGroup></div></div>}
-  </main>;
+  </section>;
 });
 
 export function mountDrawingWorkspace(element, options = {}) {
