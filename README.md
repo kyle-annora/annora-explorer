@@ -5,6 +5,7 @@ the component tree, explode and restore an assembly, switch between engineering
 materials and crisp linework, or run an authored guided tour.
 
 **[Live Explorer](https://kyle-annora.github.io/annora-explorer/)** ·
+**[Product Room](https://kyle-annora.github.io/annora-explorer/product-room/)** ·
 **[New-model example](https://kyle-annora.github.io/annora-explorer-bench-vise/)** ·
 **[Create your project](https://github.com/new?template_name=annora-explorer&template_owner=kyle-annora)**
 
@@ -80,6 +81,8 @@ instead of assuming particular component names. See [integration](docs/integrati
 | `project.config.json` | Project identity, brand, models and enabled features |
 | `content/models/` | Prepared model packages, source credits and authored tours |
 | `src/explorer/` | Shared UI, renderer, controller and player |
+| `src/product-room/` | Buyer-facing host, sample product content and reviewed demo requests |
+| `product-room/` | Product Room entry and printable sample briefs |
 | `src/generated/` | Configuration output consumed by the build |
 | `scripts/` | Configuration validation and deterministic asset preparation |
 | `examples/bench-vise/` | Original source model, generator and onboarding definition |
@@ -94,6 +97,7 @@ removing those source fixtures also requires updating their tests.
 
 ## Delivery documentation
 
+- [Product Room guide and acceptance walkthrough](docs/product-room.md)
 - [Release review and live verification](docs/release-review.md)
 - [Configuration](docs/configuration.md) and [model package contract](docs/models.md)
 - [Host integration](docs/integration.md) and [API reference](docs/api.md)

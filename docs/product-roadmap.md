@@ -1,14 +1,17 @@
 # Product opportunities after interface clarity
 
-Recorded November 1, 2026. These are future proposals, not shipped capabilities.
-The current milestone is limited to the existing Explorer's navigation, customer
-information and control states. The public template remains a static application.
+Updated November 1, 2026. The Explorer and Engineering refinement are shipped.
+[Product Room](product-room.md) now adds three buyer-facing destinations and a
+demo-only reviewed request flow, using the unchanged Explorer. The public template
+remains static. [Studio](product-room-studio-proposal.md) follows Room review; it
+is not implemented yet.
 
 ## Product Room
 
-Connect three approved buyer questions to relevant views, product documents and
-one next action. A future **Ask about this part** flow should carry the product,
-exact model revision, selected part and saved view into a question or inquiry.
+The Room connects three sample buyer questions to relevant views, product
+documents and one next action. Its request flow carries the product, exact model
+revision and optional selected part, document or chapter. Saved-view capture
+is reserved for a later iteration.
 An optional project review host can later add an owner, response, decision and
 quotation feedback. This continues the product-understanding-to-sales journey.
 
@@ -33,11 +36,15 @@ customer product before deciding which authoring tasks to automate.
 
 ## Evidence and order
 
-1. Complete interface clarity with the approved floating visual style.
-2. Validate a single Product Room and contextual inquiry with a real product.
-3. Build a narrow Studio around the repeated preparation tasks.
-4. Add durable review, integrations and sales insight only when real workflows
-   and the Annora backend are available.
+1. Review the shipped Product Room with sample products and demo requests.
+2. Build the derived Studio editors around shared versioned content, preserving
+   the existing Explorer.
+3. Validate the complete authoring, review and Room experience.
+4. Then plan durable sharing and the first real customer pilot. Real accounts,
+   customer data, integrations and sales insight require future Annora services.
+
+This order supersedes the earlier proposal to run the real-product pilot before
+Studio. The user explicitly requested Product Room and Studio first.
 
 References: [Speckle model review](https://speckle.systems/blog/introducing-fe2-the-new-speckle-front-end/),
 [Kaamos look-development](https://github.com/AtomiLabSlop/kaamos). The separately maintained customer pilot discussion pack remains the scope reference.
