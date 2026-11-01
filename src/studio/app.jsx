@@ -41,16 +41,24 @@ import {
 } from "../walkthrough/session.js";
 
 import { DrawingWorkspace } from "./drawing-workspace.jsx";
-import { DRAWING_CATALOG } from "../drawings/catalog.js";
+import { DRAWING_CATALOG, DRAWING_RELEASES, resolveDrawingRelease, resolveDrawingEntry } from "../drawings/catalog.js";
+import { createDrawingRepository } from "./drawing-repository.js";
+import { ProjectDrawingRevision } from "./project-drawing-revision.jsx";
 import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.js";
 import { createDrawingContext } from "../drawing-preview/context.js";
 
-const drawingProjects = createDrawingProjectRepository();
 const editableDrawingPackages = DRAWING_CATALOG.filter(
   (entry) =>
     entry.model?.revision &&
     entry.package.modelRevision === entry.model.revision,
 );
+const drawingPackages = createDrawingRepository({ packages: editableDrawingPackages });
+const drawingProjects = createDrawingProjectRepository({ getDrawingRelease: async id => {
+  const record = resolveDrawingRelease(id) || await drawingPackages.getRelease(id);
+  const lease = await resolveDrawingEntry(editableDrawingPackages.find(entry => entry.id === record.productId), record.packageSnapshot);
+  lease.dispose();
+  return record;
+} });
 const drawingSample = DRAWING_CATALOG.filter(
   (entry) => entry.available,
 ).flatMap((entry) =>
@@ -79,6 +87,7 @@ const drawingBuyerHref = (project, explore = false) => {
   );
   if (ref) {
     url.searchParams.set("drawing", ref.revision);
+    url.searchParams.set("asset", ref.assetRevision);
     url.searchParams.set("sheet", ref.sheetId);
     url.searchParams.set("detail", ref.regionId);
     if (ref.mappingRevision)
@@ -86,7 +95,7 @@ const drawingBuyerHref = (project, explore = false) => {
   }
   url.hash = explore
     ? "explore"
-    : `project&project=${encodeURIComponent(project.id)}`;
+    : `project&project=${encodeURIComponent(project.id)}${readRoute().tab ? `&tab=${readRoute().tab === "conversation" ? "activity" : readRoute().tab}` : ""}${readRoute().quote ? `&quote=${encodeURIComponent(readRoute().quote)}` : ""}`;
   return url.href;
 };
 const drawingPreviewURL = (record) => {
@@ -586,6 +595,7 @@ function Studio({ repository, projectRepository }) {
             buyerHref={drawingBuyerHref}
             buyerHomeHref="../drawing-preview/"
             sampleContext={drawingSampleContext}
+            renderDrawingRevision={({ key, ...props }) => <ProjectDrawingRevision key={key} {...props} packages={editableDrawingPackages} releasesRepository={drawingPackages} staticReleases={DRAWING_RELEASES} resolveEntry={resolveDrawingEntry} repository={drawingProjects} hrefFor={context => drawingBuyerHref({ id: props.project.id, context }, true)} />}
           />
         )}
         {customerScreen && !drawingCustomer && (

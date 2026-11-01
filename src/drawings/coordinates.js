@@ -14,6 +14,21 @@ export function rotatePoint([x, y], [px, py, width, height], rotation) {
   }
 }
 
+/** Display coordinates back to canonical, unrotated page units. */
+export function unrotatePoint([x, y], [px, py, width, height], rotation) {
+  switch (normalizeRotation(rotation)) {
+    case 90: return [y + px, height - x + py];
+    case 180: return [width - x + px, height - y + py];
+    case 270: return [width - y + px, x + py];
+    default: return [x + px, y + py];
+  }
+}
+export function unrotateBounds([x, y, width, height], paper, rotation) {
+  const points = [[x, y], [x + width, y], [x, y + height], [x + width, y + height]].map(point => unrotatePoint(point, paper, rotation));
+  const xs = points.map(point => point[0]), ys = points.map(point => point[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
+}
+
 export function rotateBounds([x, y, width, height], paper, rotation) {
   const points = [[x, y], [x + width, y], [x, y + height], [x + width, y + height]].map(point => rotatePoint(point, paper, rotation));
   const xs = points.map(point => point[0]), ys = points.map(point => point[1]);
@@ -23,7 +38,7 @@ export function rotateBounds([x, y, width, height], paper, rotation) {
 export function rotateSheet(sheet, rotation = sheet.rotation || 0) {
   const angle = normalizeRotation(rotation), [, , width, height] = sheet.viewBox;
   return { ...sheet, rotation: angle, viewBox: [0, 0, angle % 180 ? height : width, angle % 180 ? width : height],
-    regions: sheet.regions.map(region => ({ ...region, bounds: rotateBounds(region.bounds, sheet.viewBox, angle) })),
+    regions: sheet.regions.map(region => ({ ...region, bounds: region.bounds ? rotateBounds(region.bounds, sheet.viewBox, angle) : null })),
   };
 }
 

@@ -15,10 +15,10 @@ export function normalizeDrawingContext(input, context) {
   if (!['http:', 'https:'].includes(source.protocol) || source.username || source.password) throw new TypeError('A drawing source needs an HTTP or HTTPS address.');
   // Existing projects predate mapping versions. Do not assign today's mapping
   // to those records; only preserve a version that the host explicitly supplied.
-  if (input.mappingRevision !== undefined) {
-    const value = typeof input.mappingRevision === 'string' ? input.mappingRevision.trim() : '';
-    if (!value || value.length > 320 || /[\u0000-\u001f]/.test(value)) throw new TypeError('A drawing reference needs a valid mappingRevision.');
-    result.mappingRevision = value;
+  for (const key of ['mappingRevision','revisionLabel']) if (input[key] !== undefined) {
+    const value = typeof input[key] === 'string' ? input[key].trim() : '';
+    if (!value || value.length > (key==='revisionLabel'?160:320) || /[\u0000-\u001f]/.test(value)) throw new TypeError(`A drawing reference needs a valid ${key}.`);
+    result[key] = value;
   }
   return result;
 }
@@ -29,3 +29,12 @@ export const drawingVersionKey = context => context.drawing
   ? [context.drawing.id, context.drawing.revision, context.drawing.assetId, context.drawing.assetRevision,
     ...(context.drawing.mappingRevision ? [context.drawing.mappingRevision] : [])]
   : null;
+
+
+/** Active project work and historical records deliberately have different fallbacks. */
+export const projectDrawingContext = project => project.activeDrawingContext || project.context;
+export const recordContext = (project, record) => record?.context || project.context;
+export const drawingReferenceKey = context => JSON.stringify([context.modelId,context.modelRevision,
+  ...(drawingVersionKey(context) || []),context.drawing?.sheetId,context.drawing?.regionId,context.drawing?.partId]);
+
+export const drawingVersionLabel = drawing => drawing?.revisionLabel || drawing?.revision;

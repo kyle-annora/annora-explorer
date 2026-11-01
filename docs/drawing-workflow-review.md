@@ -1,6 +1,8 @@
 # Drawing workflow and Explorer delivery review
 
-Delivery date: 2026-11-01. This increment implements the approved drawing-package plan, then returns to the existing Explorer interaction refinements. Public demo data remains browser-local. No backend, account service, email, order or payment integration was added.
+Historical baseline: commit `f45e1f8`, 2026-11-01. This increment completed the generic reader and mapping-release infrastructure, a commercial loop around one fixed drawing, and Explorer interaction refinements. It did not yet complete source PDF import, visual region authoring or same-project A→B adoption. Public demo data remains browser-local. No backend, account service, email, order or payment integration was added.
+
+> Current delivery: [Drawing A → B acceptance review](drawing-revision-review.md). The source import, authoring and historical-reference gaps described above are addressed in that follow-up. The checks below describe the earlier baseline only.
 
 ## Review links
 

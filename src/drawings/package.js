@@ -104,8 +104,8 @@ function structuralIssues(pkg) {
       if (!['confirmed', 'needs-review', 'missing'].includes(region.mappingStatus)) add('mapping-status', `${regionPath}.mappingStatus`, 'Use confirmed, needs-review or missing.');
       if (region.mappingStatus === 'confirmed' && !nonempty(region.partId)) add('part-id', `${regionPath}.partId`, 'Confirmed regions must reference a real model part ID.');
       const validRect = vector(rect, 4) && rect[2] > 0 && rect[3] > 0;
-      if (!validRect) add('region-bounds', `${regionPath}.bounds`, 'Use finite x, y, width and height values with positive dimensions.');
-      else if (validPaper && (rect[0] < paper[0] || rect[1] < paper[1] || rect[0] + rect[2] > paper[0] + paper[2] + 1e-7 || rect[1] + rect[3] > paper[1] + paper[3] + 1e-7))
+      if (!validRect && !(rect === null && region.mappingStatus === 'missing')) add('region-bounds', `${regionPath}.bounds`, 'Use finite x, y, width and height values with positive dimensions.');
+      else if (validRect && validPaper && (rect[0] < paper[0] || rect[1] < paper[1] || rect[0] + rect[2] > paper[0] + paper[2] + 1e-7 || rect[1] + rect[3] > paper[1] + paper[3] + 1e-7))
         add('region-outside', `${regionPath}.bounds`, 'The semantic region must stay inside its source page.');
       if (region.focusPoint !== undefined && !vector(region.focusPoint, 3)) add('focus-point', `${regionPath}.focusPoint`, 'A focus point must contain three finite model-space coordinates.');
       if (region.camera !== undefined) {
@@ -154,6 +154,7 @@ export function releaseDiagnostic(input, { partIds, modelRevision } = {}) {
   if (pkg.pairing.status === 'unverified') issues.push(issue('pairing-unverified', 'pairing', 'Confirm evidence that these source documents and geometry belong together.'));
   if (pkg.units === 'unknown') issues.push(issue('units-unverified', 'units', 'Source units have not been verified.', 'warning'));
   if (pkg.status === 'unreviewed-reference') issues.push(issue('reference-only', 'status', 'This is an unreviewed reference, not a manufacturing-approved drawing.', 'warning'));
+  if (pkg.unplacedMappings?.length) issues.push(issue('unplaced-mappings', 'unplacedMappings', 'Place or explicitly remove all details whose original sheet is no longer present.'));
   const registry = partIds ? new Set(partIds) : null;
   if (!registry) issues.push(issue('part-registry', 'modelId', 'Validate against the exact imported model part registry before publication.'));
   pkg.sheets.forEach((sheet, sheetIndex) => sheet.regions.forEach((region, index) => {

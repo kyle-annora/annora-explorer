@@ -43,6 +43,8 @@ import {
   SmallLink,
 } from "./customer-views.jsx";
 import "./customer-workspace.css";
+import { recordContext, projectDrawingContext } from "../product-room/drawing-revision.js";
+import { DrawingReference } from "../product-room/drawing-reference.jsx";
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const nextStep = (p) =>
@@ -66,7 +68,10 @@ export function CustomerWorkspace({
   buyerHref = buyerURL,
   buyerHomeHref = "../product-room/?model=kinetic-01#inquiry",
   sampleContext = null,
+  renderDrawingRevision,
 }) {
+  const [drawingEditing, setDrawingEditing] = useState(false), [drawingEpoch, setDrawingEpoch] = useState(0);
+  const drawingBusy = useRef(false);
   const [projects, setProjects] = useState([]),
     [project, setProject] = useState(null),
     [filter, setFilter] = useState("attention"),
@@ -92,12 +97,12 @@ export function CustomerWorkspace({
     generation = useRef(0),
     viewGeneration = useRef(0),
     hydratedView = useRef("");
-  const dirty =
+  const dirty = drawingEditing || (
     mode === "edit" || mode === "quote-review"
       ? !same(draft, saved) || !same(response, baseline)
       : ["reply", "ack", "reply-review", "ack-review"].includes(mode)
         ? !same(response, baseline)
-        : false;
+        : false);
   dirtyRef.current = dirty;
   currentRef.current = {
     route,
@@ -119,6 +124,7 @@ export function CustomerWorkspace({
       draft &&
       (draft.changeId !== change.id || response?.changeId !== change.id),
   );
+  const obsoleteDrawingDraft = Boolean(project?.context.drawing && draft && !same(recordContext(project, draft).drawing, projectDrawingContext(project).drawing));
   const status = project ? sellerProjectStatus(project) : null;
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
@@ -274,6 +280,8 @@ export function CustomerWorkspace({
     } else setModeState(wanted);
   }
   function resetEditor() {
+    setDrawingEditing(false);
+    setDrawingEpoch(value => value + 1);
     setModeState("detail");
     setDraft(null);
     setSaved(null);
@@ -372,7 +380,7 @@ export function CustomerWorkspace({
   }, [route.tab, route.mode, route.quote, route.draft, project?.id]);
   useEffect(() => {
     guardRef.current = (next) => {
-      if (busyRef.current) return true;
+      if (busyRef.current || drawingBusy.current) return true;
       const current = currentRef.current;
       const editingBack =
         next.page === "project" &&
@@ -439,7 +447,7 @@ export function CustomerWorkspace({
     else if (!leave && dialog.current.open) dialog.current.close();
   }, [leave]);
   function localGo(action) {
-    if (busyRef.current) return;
+    if (busyRef.current || drawingBusy.current) return;
     if (dirtyRef.current) {
       setLeave({ action });
       return;
@@ -781,7 +789,7 @@ export function CustomerWorkspace({
             {(repository.mode !== "drawing-preview" || sampleContext) && <Button
               variant="secondary"
               pending={busy === "sample"}
-              disabled={Boolean(busy)}
+              disabled={Boolean(busy) || drawingEditing}
               onClick={sample}
               icon="plus"
             >
@@ -970,7 +978,7 @@ export function CustomerWorkspace({
                   {acknowledgement ? (
                     <Button
                       onClick={openAcknowledgement}
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                     >
                       Confirm next step
                     </Button>
@@ -984,7 +992,7 @@ export function CustomerWorkspace({
                   ) : change ? (
                     <Button
                       onClick={() => openReply()}
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                     >
                       Respond to changes
                     </Button>
@@ -993,7 +1001,7 @@ export function CustomerWorkspace({
                     !project.quoteDraft ? (
                     <Button
                       variant="secondary"
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                       onClick={() =>
                         setTab(
                           status.label === "Next step confirmed"
@@ -1010,7 +1018,7 @@ export function CustomerWorkspace({
                     <Button
                       onClick={openDraft}
                       pending={busy === "open-draft"}
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                       icon="arrow"
                     >
                       {project.quoteDraft
@@ -1032,7 +1040,7 @@ export function CustomerWorkspace({
                       <button
                         key={id}
                         aria-current={tab === id ? "page" : undefined}
-                        onClick={() => setTab(id)}
+                        onClick={() => localGo(() => setTab(id))}
                       >
                         {id[0].toUpperCase() + id.slice(1)}
                         {id === "quotation" && project.quotes.length > 0 && (
@@ -1045,11 +1053,12 @@ export function CustomerWorkspace({
                     {tab === "inquiry" && (
                       <>
                         <InquiryDetails project={project} />
+                        {renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy), onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage("Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}
                         <ActionGroup align="start">
                           <Button
                             variant="secondary"
                             onClick={() => openReply("clarification")}
-                            disabled={Boolean(busy) || Boolean(clarification)}
+                            disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
                           >
                             Ask for clarification
                           </Button>
@@ -1068,7 +1077,7 @@ export function CustomerWorkspace({
                             <Button
                               variant="secondary"
                               onClick={openDraft}
-                              disabled={Boolean(busy) || Boolean(clarification)}
+                              disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
                             >
                               {project.quoteDraft
                                 ? "Continue draft"
@@ -1081,10 +1090,12 @@ export function CustomerWorkspace({
                               Continue the draft when you are ready.
                             </Notice>
                           )}
+                          <DrawingReference context={recordContext(project, quote)} label={`Quotation v${quote.version} drawing`} href={buyerHref({ ...project, context: recordContext(project, quote) }, true)} />
                           <QuoteSummary
+                            project={project}
                             quote={quote}
                             productTitle={quoteProductTitle(project)}
-                            drawing={project.context.drawing}
+                            drawing={recordContext(project, quote).drawing}
                             previous={project.quotes.find(
                               (q) => q.version === quote.version - 1,
                             )}
@@ -1105,7 +1116,7 @@ export function CustomerWorkspace({
                         >
                           <Button
                             onClick={openDraft}
-                            disabled={Boolean(busy) || Boolean(clarification)}
+                            disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
                           >
                             {project.quoteDraft
                               ? "Continue quotation"
@@ -1119,7 +1130,7 @@ export function CustomerWorkspace({
                           <Button
                             variant="secondary"
                             onClick={() => openReply()}
-                            disabled={Boolean(busy)}
+                            disabled={Boolean(busy) || drawingEditing}
                           >
                             Reply to customer
                           </Button>
@@ -1127,24 +1138,25 @@ export function CustomerWorkspace({
                             <Button
                               variant="quiet"
                               onClick={openDraft}
-                              disabled={Boolean(busy)}
+                              disabled={Boolean(busy) || drawingEditing}
                             >
                               Revise quotation
                             </Button>
                           )}
                         </ActionGroup>
-                        <Conversation project={project} />
+                        <Conversation project={project} buyerHref={buyerHref} />
                       </>
                     )}
                   </div>
                 </div>
                 <aside>
-                  <ProductReference project={project} buyerHref={buyerHref} />
+                  <ProductReference project={tab === "quotation" && quote ? { ...project, context: recordContext(project, quote) } : project} buyerHref={buyerHref} />
                 </aside>
               </div>
             </>
           ) : mode === "edit" ? (
             <div className="customer-editor-page">
+              {obsoleteDrawingDraft && <Notice title="This draft still references an earlier drawing">Review and explicitly replace this draft for the current drawing before saving or issuing it. Issued quotations remain unchanged.<Button variant="secondary" onClick={() => localGo(() => { closeEditor(); setTab("inquiry"); })}>Review project drawing</Button></Notice>}
               <div className="customer-editor-heading">
                 <div>
                   <p className="ar-eyebrow">
@@ -1166,7 +1178,7 @@ export function CustomerWorkspace({
                 </span>
               </div>
               <fieldset
-                disabled={Boolean(busy)}
+                disabled={Boolean(busy) || drawingEditing}
                 className="customer-editor-fields"
               >
                 <Section
@@ -1416,7 +1428,7 @@ export function CustomerWorkspace({
                 <Button
                   variant="quiet"
                   onClick={() => localGo(closeEditor)}
-                  disabled={Boolean(busy)}
+                  disabled={Boolean(busy) || drawingEditing}
                   icon="back"
                 >
                   Back to project
@@ -1433,14 +1445,14 @@ export function CustomerWorkspace({
                       })
                     }
                     pending={busy === "save"}
-                    disabled={Boolean(busy)}
+                    disabled={Boolean(busy) || drawingEditing}
                   >
                     Save draft
                   </Button>
                   <Button
                     onClick={reviewCurrent}
                     pending={busy === "review"}
-                    disabled={Boolean(busy) || responseMismatch}
+                    disabled={Boolean(busy) || responseMismatch || obsoleteDrawingDraft}
                     icon="arrow"
                   >
                     Review quotation
@@ -1457,7 +1469,8 @@ export function CustomerWorkspace({
                   Version {project.quotes.length + 1} · {customerName(project)}
                 </p>
               </div>
-              <QuoteSummary quote={preview} previous={project.quotes.at(-1)} productTitle={quoteProductTitle(project)} drawing={project.context.drawing} />
+              <DrawingReference context={recordContext(project, draft)} label="Drawing included in this quotation" href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
+              <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
               {response && <ResponseSummary value={response} />}
               <div className="customer-confirmation">
                 <Notice title="Ready to make this version visible?">
@@ -1471,7 +1484,7 @@ export function CustomerWorkspace({
                       setMode("edit");
                       setReview(null);
                     }}
-                    disabled={Boolean(busy)}
+                    disabled={Boolean(busy) || drawingEditing}
                     icon="back"
                   >
                     Back to editing
@@ -1480,7 +1493,7 @@ export function CustomerWorkspace({
                     onClick={issue}
                     pending={busy === "issue"}
                     pendingLabel="Issuing…"
-                    disabled={Boolean(busy)}
+                    disabled={Boolean(busy) || drawingEditing}
                     icon="arrow"
                   >
                     Issue demo quotation
@@ -1510,7 +1523,7 @@ export function CustomerWorkspace({
               {mode === "reply" || mode === "ack" ? (
                 <>
                   <fieldset
-                    disabled={Boolean(busy)}
+                    disabled={Boolean(busy) || drawingEditing}
                     className="customer-editor-fields"
                   >
                     {mode === "reply" ? (
@@ -1548,7 +1561,7 @@ export function CustomerWorkspace({
                     <Button
                       variant="quiet"
                       onClick={() => localGo(closeEditor)}
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                       icon="back"
                     >
                       Back to project
@@ -1556,7 +1569,7 @@ export function CustomerWorkspace({
                     <Button
                       onClick={reviewMessage}
                       pending={busy === "review-message"}
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                       icon="arrow"
                     >
                       Review response
@@ -1578,7 +1591,7 @@ export function CustomerWorkspace({
                       onClick={() =>
                         setMode(mode === "ack-review" ? "ack" : "reply")
                       }
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                       icon="back"
                     >
                       Back to editing
@@ -1587,7 +1600,7 @@ export function CustomerWorkspace({
                       onClick={sendMessage}
                       pending={busy === "send"}
                       pendingLabel="Saving…"
-                      disabled={Boolean(busy)}
+                      disabled={Boolean(busy) || drawingEditing}
                     >
                       Confirm demo response
                     </Button>

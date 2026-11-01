@@ -2,7 +2,7 @@ import { sellerProjectStatus } from './project-state.js';
 import { requestContext } from './request-state.js';
 import { normalizeInquiryProfile } from './inquiry-profile.js';
 import { validHistoricalRoomSnapshot } from './release-snapshot.js';
-import { drawingVersionKey } from './drawing-context.js';
+import { drawingVersionKey, recordContext, drawingVersionLabel } from './drawing-context.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
 export class ProjectError extends Error {
@@ -15,7 +15,7 @@ const blankValues = () => Object.fromEntries(fieldNames.map(key => [key, '']));
 const id = () => `DRAFT-${globalThis.crypto.randomUUID()}`;
 export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
-function contextOf(input) {
+export function normalizeProjectContext(input) {
   let context;
   try { context = requestContext(input); } catch (error) { throw new ProjectError('VALIDATION', error.message); }
   if (!context.modelId || !context.modelRevision) throw new ProjectError('VALIDATION', 'An inquiry needs the exact model and revision.');
@@ -56,7 +56,7 @@ function contextOf(input) {
 }
 
 export function createInquiryDraft(context, draftId = id()) {
-  return { id: draftId, revision: 0, context: contextOf(context), values: blankValues(), requirements: [], updatedAt: null };
+  return { id: draftId, revision: 0, context: normalizeProjectContext(context), values: blankValues(), requirements: [], updatedAt: null };
 }
 
 /** Normalization is intentionally separate from final review: incomplete drafts can be saved. */
@@ -76,7 +76,7 @@ export function normalizeInquiryDraft(input) {
   });
   if (new Set(requirements.map(item => item.id)).size !== requirements.length) throw new ProjectError('VALIDATION', 'Each requirement needs a unique identity.');
   if (Object.values(values).some(value => value.length > 4000)) throw new ProjectError('VALIDATION', 'Keep individual fields within 4,000 characters.');
-  return { id: text(input.id), revision: input.revision, context: contextOf(input.context), values, requirements, updatedAt: input.updatedAt || null };
+  return { id: text(input.id), revision: input.revision, context: normalizeProjectContext(input.context), values, requirements, updatedAt: input.updatedAt || null };
 }
 
 export function inquiryErrors(draft) {
@@ -103,7 +103,7 @@ function canonical(value) {
 }
 export const sameProjectValue = (left, right) => canonical(left) === canonical(right);
 function seal(payload) { return canonical(payload); }
-function reviewed(payload) { return { ...cloneProjectValue(payload), token: seal(payload) }; }
+export function reviewedProjectValue(payload) { return { ...cloneProjectValue(payload), token: seal(payload) }; }
 export function assertReview(review, kind) {
   if (!review || review.kind !== kind || typeof review.token !== 'string') throw new ProjectError('STALE_REVIEW', 'Review the details before confirming.');
   const { token, ...payload } = review;
@@ -114,7 +114,7 @@ export function reviewInquiry(input) {
   const draft = normalizeInquiryDraft(input), fields = inquiryErrors(draft);
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the highlighted inquiry details.', fields);
   if (draft.revision < 1) throw new ProjectError('STALE_REVIEW', 'Save the draft before reviewing it.');
-  return reviewed({ kind: 'inquiry', draft });
+  return reviewedProjectValue({ kind: 'inquiry', draft });
 }
 
 function quoteOf(project, quoteId) {
@@ -135,7 +135,7 @@ export function reviewRevision(project, quoteId, input) {
   if (values.notes.length > 2000) fields.notes = 'Keep the question within 2,000 characters.';
   if (!Object.keys(fields).length && +values.quantity === quote.quantity && (values.targetWeeks ? +values.targetWeeks : null) === quote.requestedWeeks && !values.notes) fields.notes = 'Describe what you want to change, or update quantity or timing.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the requested changes.', fields);
-  return reviewed({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values });
+  return reviewedProjectValue({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values, ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 export function reviewNextStep(project, quoteId, input) {
   const quote = assertCurrentQuote(project, quoteId);
@@ -144,13 +144,22 @@ export function reviewNextStep(project, quoteId, input) {
   if (!message) fields.message = 'Add what you would like to discuss or review.';
   else if (message.length > 2000) fields.message = 'Keep the message within 2,000 characters.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the next-step request.', fields);
-  return reviewed({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message });
+  return reviewedProjectValue({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message, ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 
 const money = value => value === null ? 'Pending review' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value);
-export function compareQuotes(before, after) {
+export function compareQuotes(before, after, project) {
   if (!before || !after) return [];
+  const leftContext=project?recordContext(project,before):before.context,rightContext=project?recordContext(project,after):after.context;
+  const describeDrawing = context => context?.drawing ? `${context.drawing.title} · ${drawingVersionLabel(context.drawing)} · ${context.drawing.sheetTitle} · ${context.drawing.regionLabel}` : 'Original inquiry reference';
   const rows = [
+    ...(leftContext?.drawing || rightContext?.drawing ? [
+      ['drawingReference', 'Drawing reference', describeDrawing(leftContext), describeDrawing(rightContext)],
+      ['drawingSource', 'Drawing source identity',leftContext?.drawing?.assetRevision || 'Original inquiry reference',rightContext?.drawing?.assetRevision || 'Original inquiry reference'],
+      ['drawingMapping', 'Association version',leftContext?.drawing?.mappingRevision || 'Legacy association',rightContext?.drawing?.mappingRevision || 'Legacy association'],
+      ['drawingModel', 'Model version',leftContext?.modelRevision || 'Original inquiry reference',rightContext?.modelRevision || 'Original inquiry reference'],
+      ...(leftContext?.drawing?.revisionLabel || rightContext?.drawing?.revisionLabel ? [['drawingVersionId','Drawing version identity',leftContext?.drawing?.revision,rightContext?.drawing?.revision]] : [])
+    ] : []),
     ['quantity', 'Quantity', `${before.quantity} units`, `${after.quantity} units`],
     ['unitPrice', 'Unit price', money(before.unitPrice), money(after.unitPrice)],
     ['requestedWeeks', 'Requested timing', before.requestedWeeks === null ? 'To discuss' : `${before.requestedWeeks} weeks`, after.requestedWeeks === null ? 'To discuss' : `${after.requestedWeeks} weeks`],

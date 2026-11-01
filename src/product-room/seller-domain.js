@@ -1,6 +1,8 @@
-import { ProjectError, cloneProjectValue } from './project-domain.js';
+import { ProjectError, cloneProjectValue, normalizeProjectContext, sameProjectValue } from './project-domain.js';
 import { pendingProjectChange, pendingClarification, changeTopics, changeIsResolved } from './project-state.js';
 export { pendingProjectChange, pendingClarification, changeIsResolved, sellerProjectStatus, changeTopics } from './project-state.js';
+
+import { projectDrawingContext, recordContext } from './drawing-context.js';
 
 const text = value => typeof value === 'string' ? value.trim() : '';
 const numeric = value => /^\d+(\.\d{1,2})?$/.test(value) && Number.isFinite(+value) && +value <= 100000000;
@@ -23,6 +25,7 @@ export function createQuoteDraft(project, id) {
   return {
     id, revision: 0, projectId: project.id, projectRevision: project.revision,
     previousQuoteId: quote?.id || null, changeId: change?.id || null,
+    ...(project.context.drawing ? {context:cloneProjectValue(projectDrawingContext(project))} : {}),
     replyDraft: pending ? {kind:'change-response',body:'',changeId:pending.id,resolutions:changeTopics(pending).map(topic=>({topic,status:'needs-info',response:''}))} : null,
     values: {
       quantity: String(quote?.quantity ?? project.inquiry.values.quantity),
@@ -55,7 +58,8 @@ export function normalizeQuoteDraft(input) {
     if (replyDraft.body.length > 4000 || replyDraft.resolutions.some(item=>item.response.length > 2000 || !['quantity','timing','notes'].includes(item.topic) || !['accepted','alternative','needs-info'].includes(item.status)) || new Set(replyDraft.resolutions.map(item=>item.topic)).size !== replyDraft.resolutions.length || (replyDraft.changeId !== null && replyDraft.changeId !== input.changeId) || !['reply','clarification','change-response'].includes(replyDraft.kind)) throw new ProjectError('VALIDATION','Check the saved reply draft.');
   }
   return { id:text(input.id), revision:input.revision, projectId:text(input.projectId), projectRevision:input.projectRevision,
-    previousQuoteId:input.previousQuoteId,changeId:input.changeId,replyDraft,values,updatedAt:input.updatedAt || null };
+    previousQuoteId:input.previousQuoteId,changeId:input.changeId,replyDraft,values,updatedAt:input.updatedAt || null,
+    ...(input.context!==undefined ? {context:normalizeProjectContext(input.context)} : {}) };
 }
 export function quoteDraftErrors(input) {
   const {values} = normalizeQuoteDraft(input), fields = {};
@@ -85,7 +89,7 @@ export function quoteDraftPreview(input, project) {
   const resolvedQuestions = new Set((project.messages || []).flatMap(message => message.resolutions?.some(item => item.topic === 'notes' && item.status !== 'needs-info') ? [project.changes.find(item => item.id === message.changeId)?.values.notes] : []));
   const openItems = existingOpenItems.filter(item => !item.id.startsWith('unpriced-') && !resolvedQuestions.has(item.label));
   for (const item of lineItems.filter(item => item.amount === null)) if (!openItems.some(existing => existing.label === item.label)) openItems.push({id:`unpriced-${item.id}`,label:item.label,owner:'Sales / customer',status:'Unpriced'});
-  return { version:project.quotes.length+1,quantity:+values.quantity,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
+  return { ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,draft))} : {}),version:project.quotes.length+1,quantity:+values.quantity,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
     subtotal:cents(lineItems.reduce((sum,item) => sum+(item.amount ?? 0),0)),total:null,requestedWeeks:requestedWeeks ? +requestedWeeks : null,
     proposedLeadTime:values.proposedLeadTime,scope:values.scope,assumptions:lines(values.assumptions),exclusions:lines(values.exclusions),validity:values.validity,
     openItems,
@@ -114,6 +118,7 @@ export function reviewQuote(project,input,optionalReply = null) {
   requireProject(project); const draft = normalizeQuoteDraft(input), fields = quoteDraftErrors(draft);
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION','Check the quotation details.',fields);
   if (draft.revision < 1 || draft.projectId !== project.id || draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('STALE_REVIEW','Save and review the latest quotation draft before issuing it.');
+  if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project))) throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Explicitly review and replace it before issuing a new quotation.');
   const replyInput = optionalReply || draft.replyDraft;
   const reply = replyInput ? normalizeReply(project,replyInput) : null;
   if (pendingClarification(project)) throw new ProjectError('CONFLICT','Wait for the customer clarification before issuing a quotation.');

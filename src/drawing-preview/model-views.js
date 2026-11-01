@@ -178,6 +178,12 @@ export async function focusDrawingRegion(viewer, region, model) {
     await previous.catch(() => {});
     const superseded = () => sequence !== session.sequence;
     if (superseded()) return { focused: false, superseded: true };
+    // New Studio regions link a real part without inventing a geometric feature
+    // camera. Frame that part through the public controller until a camera exists.
+    if (model && !region?.camera && model.parts?.some(part => part.id === region?.partId)) {
+      await viewer.request("focus", { nodeId: region.partId });
+      return superseded() ? { focused: false, superseded: true } : { focused: true, regionId: region.id, framing: "part" };
+    }
     const captureSettled = async () => {
       for (let attempt = 0; attempt < 35; attempt++) {
         if (superseded()) return null;

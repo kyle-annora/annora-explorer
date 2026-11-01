@@ -42,11 +42,11 @@ function cornerPath([x, y, width, height], scale) {
 /** A single, event-driven SVG sheet. The host owns navigation and toolbar UI;
  * this module owns only document pan, zoom and accessible linked regions.
  * Programmatic selection does not call onSelect, avoiding a 3D/2D echo loop. */
-export function createDrawingView({ mount, assetURL, sheet, showOverview = false, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
+export function createDrawingView({ mount, assetURL, sheet, showOverview = false, interactionMode = 'inspect', onRegionDraw = () => {}, onRegionDrawCancel = () => {}, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
   document: doc = globalThis.document, window: win = globalThis.window, ResizeObserver: Observer = globalThis.ResizeObserver } = {}) {
   if (!mount?.replaceChildren || !doc?.createElementNS) throw new TypeError('A drawing mount and browser document are required.');
   const paper = bounds(sheet?.viewBox, 'Sheet viewBox');
-  const regions = (sheet.regions || []).map(region => ({ ...region, bounds: bounds(region.bounds, `Region ${region.id}`) }));
+  const regions = (sheet.regions || []).filter(region => !(region.bounds === null && region.mappingStatus === 'missing')).map(region => ({ ...region, bounds: bounds(region.bounds, `Region ${region.id}`) }));
   if (new Set(regions.map(region => region.id)).size !== regions.length) throw new TypeError('Drawing region IDs must be unique.');
   if (regions.some(({ bounds: [x, y, w, h] }) => x < paper[0] || y < paper[1] || x + w > paper[0] + paper[2] || y + h > paper[1] + paper[3]))
     throw new TypeError('Linked drawing regions must stay inside the paper.');
@@ -54,6 +54,7 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
   const source = new URL(assetURL, doc.baseURI || win?.location?.href || 'http://localhost/');
   if (!['http:', 'https:', 'blob:'].includes(source.protocol)) throw new TypeError('A drawing must use a local or HTTP image URL.');
   let disposed = false, selectedId = null, width = 1, height = 1, fitScale = 1, scale = 1, tx = 0, ty = 0, initialized = false;
+  let tool = interactionMode, draftBounds = null, drawGesture = null;
   let gestureMoved = false, gestureHadPinch = false, downPoint = null;
   const pointers = new Map(), removers = [], regionElements = new Map();
   const svg = (tag, attributes = {}) => {
@@ -74,6 +75,8 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
   Object.assign(root.style, { position: 'absolute', inset: '0', display: 'block', width: '100%', height: '100%', overflow: 'hidden', touchAction: 'none', background: 'var(--drawing-canvas, #e9e9e7)', cursor: 'grab', userSelect: 'none' });
   const styles = svg('style');
   styles.textContent = `
+    .drawing-sheet-view:focus { outline: none; }
+    .drawing-sheet-view:focus-visible { outline: 2px solid var(--accent, #ff6840); outline-offset: -2px; }
     .drawing-region { -webkit-tap-highlight-color: transparent; }
     .drawing-region-corners { stroke: #73777b; opacity: .35; transition: opacity 100ms ease; }
     .drawing-region-fill { fill: var(--accent, #ff6840); opacity: 0; }
@@ -115,6 +118,10 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
       if (tx + x * scale < 0 || ty + y * scale < 0 || tx + (x + w) * scale > width || ty + (y + h) * scale > height) focusRegion(region.id);
     });
   }
+  const draftLayer = svg('g', { 'data-drawing-draft': 'true', 'aria-hidden': 'true', 'pointer-events': 'none' });
+  const draftRect = svg('rect', { fill: 'var(--accent, #ff6840)', 'fill-opacity': '.08', stroke: 'var(--accent, #ff6840)', 'stroke-width': '1.5', 'vector-effect': 'non-scaling-stroke' });
+  const handles = Array.from({ length: 4 }, () => svg('rect', { fill: '#fff', stroke: 'var(--accent, #ff6840)', 'stroke-width': '1.5', 'vector-effect': 'non-scaling-stroke' }));
+  draftLayer.append(draftRect, ...handles); stage.append(draftLayer);
   root.append(styles, title, stage);
   mount.replaceChildren(root);
 
@@ -132,6 +139,14 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
       const [x, y, w, h] = drawingHitBounds(region.bounds, scale, paper);
       if (hit) for (const [name, value] of Object.entries({ x, y, width: w, height: h })) hit.setAttribute(name, String(value));
       corners.setAttribute('d', cornerPath(region.bounds, scale));
+    }
+    draftLayer.setAttribute('display', draftBounds ? 'inline' : 'none');
+    if (draftBounds) {
+      const [x, y, w, h] = draftBounds;
+      for (const [key, value] of Object.entries({ x, y, width: w, height: h })) draftRect.setAttribute(key, value);
+      [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].forEach(([hx, hy], index) => {
+        for (const [key, value] of Object.entries({ x: hx - 5 / scale, y: hy - 5 / scale, width: 10 / scale, height: 10 / scale })) handles[index].setAttribute(key, value);
+      });
     }
     onViewChange({ zoom: scale / fitScale, canZoomIn: scale / fitScale < MAX_ZOOM - .001, canZoomOut: scale / fitScale > 1.001 });
   }
@@ -184,17 +199,45 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
     return true;
   }
   function choose(region) {
-    if (disposed) return;
+    if (disposed || tool !== 'inspect' || drawGesture) return;
     select(region.id); onSelect(region.id, region);
   }
   function localPoint(event) {
     const rect = root.getBoundingClientRect();
     return { x: (event.clientX - rect.left) * width / (rect.width || width), y: (event.clientY - rect.top) * height / (rect.height || height) };
   }
+  const paperPoint = point => ({ x: clamp((point.x - tx) / scale, paper[0], paper[0] + paper[2]), y: clamp((point.y - ty) / scale, paper[1], paper[1] + paper[3]) });
+  const rectBetween = (a, b) => [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(a.x - b.x), Math.abs(a.y - b.y)];
+  function cancelRegionDraw() {
+    if (drawGesture) draftBounds = drawGesture.previous;
+    drawGesture = null; render();
+  }
+  function setDraftBounds(value) {
+    if (disposed) return;
+    if (value !== null) {
+      bounds(value, 'Draft region');
+      if (!contains(paper, { x: value[0], y: value[1] }) || value[0] + value[2] > paper[0] + paper[2] + 1e-7 || value[1] + value[3] > paper[1] + paper[3] + 1e-7) throw new TypeError('The draft region must stay inside its source page.');
+    }
+    draftBounds = value?.slice() || null; render();
+  }
+  function setInteractionMode(value) {
+    if (!['inspect', 'draw-region'].includes(value)) throw new TypeError('Choose inspect or draw-region mode.');
+    if (disposed) return;
+    cancelRegionDraw(); tool = value; root.style.cursor = tool === 'draw-region' ? 'crosshair' : 'grab';
+    root.setAttribute('data-interaction-mode', tool);
+    root.setAttribute('tabindex', tool === 'draw-region' ? '0' : '-1');
+  }
+  function draftCorner(point) {
+    if (!draftBounds) return null;
+    const [x, y, w, h] = draftBounds;
+    const points = [[x, y], [x + w, y], [x, y + h], [x + w, y + h]];
+    const nearest = points.map(([hx, hy], index) => ({ index, distance: Math.hypot(tx + hx * scale - point.x, ty + hy * scale - point.y) })).sort((a, b) => a.distance - b.distance)[0];
+    return nearest.distance > 22 ? null : { x: points[3 - nearest.index][0], y: points[3 - nearest.index][1] };
+  }
   const midpoint = ([a, b]) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
   const separation = ([a, b]) => Math.hypot(a.x - b.x, a.y - b.y);
   function hoverAt(point) {
-    const hovered = point && drawingRegionAtPoint(interactiveRegions, { x: (point.x - tx) / scale, y: (point.y - ty) / scale }, scale, paper);
+    const hovered = tool === 'inspect' && point && drawingRegionAtPoint(interactiveRegions, { x: (point.x - tx) / scale, y: (point.y - ty) / scale }, scale, paper);
     for (const [id, { group }] of regionElements) group.setAttribute('data-hover', String(id === hovered?.id));
   }
   listen(root, 'pointerdown', event => {
@@ -202,8 +245,13 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
     const point = localPoint(event);
     if (!pointers.size) { gestureMoved = false; gestureHadPinch = false; downPoint = point; }
     pointers.set(event.pointerId, point);
-    if (pointers.size > 1) gestureHadPinch = true;
-    root.setPointerCapture?.(event.pointerId); root.style.cursor = 'grabbing';
+    if (pointers.size > 1) { gestureHadPinch = true; cancelRegionDraw(); }
+    else {
+      const anchor = tool === 'inspect' ? draftCorner(point) : null;
+      const inside = contains(paper, { x: (point.x - tx) / scale, y: (point.y - ty) / scale });
+      if (anchor || (tool === 'draw-region' && inside)) { drawGesture = { anchor: anchor || paperPoint(point), previous: draftBounds?.slice() || null }; root.focus?.({ preventScroll: true }); }
+    }
+    root.setPointerCapture?.(event.pointerId); root.style.cursor = drawGesture ? 'crosshair' : 'grabbing';
   });
   listen(root, 'pointermove', event => {
     if (disposed) return;
@@ -215,17 +263,28 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
     if (pointers.size >= 2) {
       const after = [...pointers.values()], oldMid = midpoint(before), nextMid = midpoint(after), distance = separation(before);
       if (distance > 0) zoomAt(separation(after) / distance, oldMid, { x: nextMid.x - oldMid.x, y: nextMid.y - oldMid.y });
-    } else if (gestureMoved) {
+    } else if (drawGesture) {
+      draftBounds = rectBetween(drawGesture.anchor, paperPoint(point)); render();
+    } else if (gestureMoved && tool === 'inspect') {
       tx += point.x - previous.x; ty += point.y - previous.y; render();
     }
   });
   function finishPointer(event, cancelled = false) {
     if (!pointers.has(event.pointerId)) return;
     const point = localPoint(event);
-    const activate = !cancelled && pointers.size === 1 && !gestureMoved && !gestureHadPinch;
+    const drawing = drawGesture;
+    const activate = tool === 'inspect' && !drawing && !cancelled && pointers.size === 1 && !gestureMoved && !gestureHadPinch;
+    if (drawing && pointers.size === 1) {
+      const result = rectBetween(drawing.anchor, paperPoint(point));
+      drawGesture = null;
+      if (!cancelled && !gestureHadPinch && result[2] * scale >= 6 && result[3] * scale >= 6) {
+        draftBounds = result; onRegionDraw(result.slice());
+      } else draftBounds = drawing.previous;
+      render();
+    }
     pointers.delete(event.pointerId);
     if (root.hasPointerCapture?.(event.pointerId)) root.releasePointerCapture(event.pointerId);
-    if (!pointers.size) root.style.cursor = 'grab';
+    if (!pointers.size) root.style.cursor = tool === 'draw-region' ? 'crosshair' : 'grab';
     if (activate) {
       const region = drawingRegionAtPoint(interactiveRegions, { x: (point.x - tx) / scale, y: (point.y - ty) / scale }, scale, paper);
       if (region) choose(region);
@@ -234,20 +293,21 @@ export function createDrawingView({ mount, assetURL, sheet, showOverview = false
   listen(root, 'pointerup', event => finishPointer(event));
   listen(root, 'pointerleave', () => hoverAt(null));
   listen(root, 'pointercancel', event => finishPointer(event, true));
-  listen(root, 'lostpointercapture', event => { pointers.delete(event.pointerId); if (!pointers.size) root.style.cursor = 'grab'; });
+  listen(root, 'lostpointercapture', event => { if (pointers.has(event.pointerId)) cancelRegionDraw(); pointers.delete(event.pointerId); if (!pointers.size) root.style.cursor = tool === 'draw-region' ? 'crosshair' : 'grab'; });
+  listen(root, 'keydown', event => { if (event.key === 'Escape' && (drawGesture || tool === 'draw-region')) { event.preventDefault(); cancelRegionDraw(); setInteractionMode('inspect'); onRegionDrawCancel(); } });
   listen(root, 'wheel', event => {
     // Ordinary wheel scrolling belongs to the page. Trackpad pinch/Ctrl+wheel
     // opts into document zoom; the host provides explicit zoom buttons too.
     if (!event.ctrlKey || disposed) return;
-    event.preventDefault(); zoomAt(Math.exp(-clamp(event.deltaY, -100, 100) * .01), localPoint(event));
+    event.preventDefault(); cancelRegionDraw(); zoomAt(Math.exp(-clamp(event.deltaY, -100, 100) * .01), localPoint(event));
   }, { passive: false });
   listen(artwork, 'error', () => { if (!disposed) onError(new Error('The drawing could not be loaded. Reload the page or open the original PDF.')); });
   const observer = Observer ? new Observer(resize) : null;
   if (observer) observer.observe(mount);
   else if (win?.addEventListener) listen(win, 'resize', resize);
-  resize();
+  resize(); setInteractionMode(interactionMode);
 
-  return { select, focusRegion, fit, zoomBy, resize,
+  return { setInteractionMode, setDraftBounds, cancelRegionDraw, select, focusRegion, fit, zoomBy, resize,
     get selectedId() { return selectedId; },
     get element() { return root; },
     get zoom() { return scale / fitScale; },

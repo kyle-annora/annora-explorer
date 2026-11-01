@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { DrawingPackageError, normalizeDrawingPackage, releaseDiagnostic, resolveSheetContext, sourceAssetFor } from '../src/drawings/package.js';
-import { normalizeRotation, pdfRasterSize, rotateBounds, rotatePoint, rotateSheet } from '../src/drawings/coordinates.js';
+import { normalizeRotation, pdfRasterSize, rotateBounds, rotatePoint, rotateSheet, unrotatePoint, unrotateBounds } from '../src/drawings/coordinates.js';
 
 const hash = 'a'.repeat(64);
 const sourcePackage = () => ({
@@ -120,4 +120,24 @@ test('PDF pixel budgets remain bounded at extreme zoom and high device pixel rat
   }
   assert.deepEqual(pdfRasterSize({ width: 800, height: 600, scale: 1, pixelRatio: 1 }), { width: 800, height: 600, scale: 1 });
   assert.throws(() => pdfRasterSize({ width: -1, height: 600 }));
+});
+
+
+test('authoring display rectangles round-trip to canonical page units at every PDF rotation', () => {
+  for (const paper of [[0, 0, 842, 595], [12, 15, 800, 600]]) for (const rotation of [0, 90, 180, 270]) {
+    const original = [paper[0] + 25, paper[1] + 30, 120, 55];
+    assert.deepEqual(unrotateBounds(rotateBounds(original, paper, rotation), paper, rotation), original);
+    const point = [original[0], original[1]];
+    assert.deepEqual(unrotatePoint(rotatePoint(point, paper, rotation), paper, rotation), point);
+  }
+});
+
+test('unplaced source-revision details can persist honestly but never pass release', () => {
+  const pkg = sourcePackage(); pkg.sheets[0].regions[0].bounds = null; pkg.sheets[0].regions[0].mappingStatus = 'missing';
+  assert.equal(normalizeDrawingPackage(pkg).sheets[0].regions[0].bounds, null);
+  assert.equal(rotateSheet(pkg.sheets[0], 90).regions[0].bounds, null);
+  assert.equal(releaseDiagnostic(pkg, { partIds: ['bearing-body'], modelRevision: 'geometry-001' }).valid, false);
+  pkg.sheets[0].regions[0].mappingStatus = 'confirmed'; assert.throws(() => normalizeDrawingPackage(pkg), DrawingPackageError);
+  const ready = sourcePackage(); ready.unplacedMappings = [{ id: 'old-sheet:bore' }];
+  assert.ok(releaseDiagnostic(ready, { partIds: ['bearing-body'], modelRevision: 'geometry-001' }).issues.some(item => item.code === 'unplaced-mappings'));
 });

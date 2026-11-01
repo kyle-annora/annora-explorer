@@ -16,6 +16,8 @@ import {
   readWalkthroughSession,
   withWalkthroughSession,
 } from "../walkthrough/session.js";
+import { recordContext } from "../product-room/drawing-revision.js";
+import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import crankImage from "../product-room/assets/crank.png";
 
 export const money = (value) =>
@@ -51,12 +53,12 @@ export function SmallLink({ href, children, ...props }) {
     </a>
   );
 }
-export function QuoteSummary({ quote, previous, productTitle = "Crank-slider assembly", drawing = null, showComparison = true }) {
+export function QuoteSummary({ quote, previous, productTitle = "Crank-slider assembly", drawing = null, showComparison = true, project }) {
   const [expandedFor, setExpandedFor] = useState(null);
   const comparisonKey = `${previous?.id}:${quote?.id}:${quote?.version}`;
   const showUnchanged = expandedFor === comparisonKey;
   const comparisonRows =
-    previous && quote ? compareQuotes(previous, quote) : [];
+    previous && quote ? compareQuotes(previous, quote, project) : [];
   const changedRows = comparisonRows.filter((row) => row.changed);
   if (!quote) return null;
   return (
@@ -79,7 +81,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
           <small>Final total remains to confirm</small>
         </div>
       </div>
-      {drawing && <p className="customer-fine">Drawing reference: {drawing.title} · {drawing.revision} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this project; dimensions remain to confirm.</p>}
+      {drawing && <p className="customer-fine">Drawing reference: {drawing.title} · {drawing.revisionLabel || drawing.revision} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this project; dimensions remain to confirm.</p>}
       {showComparison && previous && (
         <Section
           className="customer-document-section"
@@ -291,7 +293,7 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
           </div>
           {context.drawing && <>
             <div><dt>Drawing</dt><dd>{context.drawing.title}</dd></div>
-            <div><dt>Source edition</dt><dd>{context.drawing.revision}</dd></div>
+            <div><dt>Source edition</dt><dd>{context.drawing.revisionLabel || context.drawing.revision}</dd></div>
             <div><dt>Sheet</dt><dd>{context.drawing.sheetTitle}</dd></div>
             <div><dt>Selected detail</dt><dd>{context.drawing.regionLabel}</dd></div>
             {context.drawing.mappingRevision && <div><dt>Mapping edition</dt><dd>{context.drawing.mappingRevision}</dd></div>}
@@ -507,7 +509,7 @@ export function ResponseSummary({ value }) {
     </div>
   );
 }
-export function Conversation({ project }) {
+export function Conversation({ project, buyerHref = buyerURL }) {
   const events = [
     {
       id: project.inquiry.id,
@@ -516,6 +518,7 @@ export function Conversation({ project }) {
       role: "Customer",
       body: project.inquiry.values.application,
     },
+    ...(project.drawingRevisions || []).map(change => ({ ...change, label: `Drawing reference reviewed · ${change.fromContext.drawing.revisionLabel || change.fromContext.drawing.revision} → ${change.context.drawing.revisionLabel || change.context.drawing.revision}`, role: "Seller", body: change.note })),
     ...project.quotes.map((q) => ({
       ...q,
       label: `Quotation version ${q.version} issued`,
@@ -569,6 +572,7 @@ export function Conversation({ project }) {
             </div>
             <h3>{event.label}</h3>
             <p className="customer-preserve">{event.body}</p>
+            <DrawingReference context={recordContext(project, event)} href={buyerHref({ ...project, context: recordContext(project, event) }, true)} compact />
             {event.resolutions?.length > 0 && (
               <ResponseSummary value={{ ...event, body: "" }} />
             )}

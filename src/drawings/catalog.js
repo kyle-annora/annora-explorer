@@ -1,5 +1,6 @@
 import { MODEL_CATALOG } from "../generated/catalog.js";
 import { normalizeDrawingPackage, releaseDiagnostic } from "./package.js";
+import { resolveDrawingAssets } from "../studio/drawing-asset-store.js";
 
 // Discovery is data-driven. A prepared model and package can be added without
 // adding a product branch to the Explorer, document reader or seller workspace.
@@ -90,4 +91,32 @@ const staticReleases = import.meta.glob(
 export const DRAWING_RELEASES = Object.values(staticReleases);
 export function resolveDrawingRelease(id) {
   return DRAWING_RELEASES.find((record) => record.id === id);
+}
+
+/** Async host boundary for immutable uploaded files and archived bundled editions.
+ * The returned object owns URL leases; dispose it after its readers are disposed. */
+export async function resolveDrawingEntry(entry, snapshot) {
+  if (!entry || snapshot.modelId !== entry.model.id || snapshot.modelRevision !== entry.model.revision)
+    throw new Error("This saved model version is unavailable. Its drawing record is preserved.");
+  const lease = await resolveDrawingAssets(snapshot, {
+    resolveBundledAsset(asset) {
+      const sources = [
+        ...Object.entries(packages).map(([path, pkg]) => ({ path, pkg })),
+        ...Object.entries(staticReleases).map(([path, record]) => ({ path, pkg: record.packageSnapshot })),
+      ];
+      for (const { path, pkg } of sources) {
+        const known = pkg?.assets?.find(item => item.sha256 === asset.sha256 && item.kind === asset.kind);
+        if (known) {
+          const url = files[path.slice(0, path.lastIndexOf('/') + 1) + known.file];
+          if (url) return url;
+        }
+      }
+      return null;
+    },
+  });
+  try {
+    const pkg = normalizeDrawingPackage(lease.package, { assetURLs: lease.assets });
+    const diagnostic = releaseDiagnostic(pkg, { partIds: entry.model.parts.map(part => part.id), modelRevision: entry.model.revision });
+    return { ...entry, package: pkg, assets: lease.assets, diagnostic, available: diagnostic.valid, dispose: lease.dispose };
+  } catch (error) { lease.dispose(); throw error; }
 }

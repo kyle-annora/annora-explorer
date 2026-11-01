@@ -1,8 +1,8 @@
 # Open source integration plan for linked product drawings
 
-Implementation update (2026-11-01): phases 1–3 are implemented in the drawing package, reader and Studio workflow. See [delivery review](drawing-workflow-review.md) for verification and the separately scoped Explorer refinements. The baseline audit below records the state before these changes.
+Implementation update (2026-11-01): the earlier release completed phase 1 and parts of phases 2–3 around one fixed drawing. The follow-up now implements actual PDF source import, direct region authoring, explicit A→B project adoption and separately pinned quotation/discussion references. See [A→B acceptance review](drawing-revision-review.md) for the current scope, checks and deployment record. The baseline below is retained to show the original plan, not the current completion state.
 
-Status: proposal for review. Date: 2026-11-01.
+Original plan: retained for traceability. Date: 2026-11-01.
 
 Annora should connect product understanding, engineering references and a reviewed
 commercial conversation. The next delivery should make the existing linked

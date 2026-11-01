@@ -149,3 +149,40 @@ test('authoring can show a selected overview outline without adding a target or 
   f.pointer('pointerdown', 120, 120); f.pointer('pointerup', 120, 120); assert.equal(f.selected[0][0], 'large');
   f.viewer.zoomBy(2); assert.ok(overview.children[0].getAttribute('d').startsWith('M'));
 });
+
+test('authoring draws canonical bounds after zoom and pan without selecting an existing feature', () => {
+  const drawn = [], f = fixture(undefined, { onRegionDraw: rect => drawn.push(rect) });
+  f.viewer.zoomBy(2); f.viewer.setInteractionMode('draw-region');
+  f.pointer('pointerdown', 110, 105); f.pointer('pointermove', 190, 165); f.pointer('pointerup', 190, 165);
+  assert.deepEqual(drawn[0], [110, 105, 80, 60]); assert.equal(f.selected.length, 0);
+  assert.equal(f.root.getAttribute('data-interaction-mode'), 'draw-region');
+  f.viewer.setInteractionMode('inspect');
+  // The preview's lower-right corner can be resized; the confirmed region is untouched.
+  f.pointer('pointerdown', 190, 165); f.pointer('pointermove', 210, 180); f.pointer('pointerup', 210, 180);
+  assert.deepEqual(drawn[1], [110, 105, 100, 75]);
+  assert.deepEqual(sheet.regions[1].bounds, [100, 100, 40, 40]);
+});
+
+test('authoring clamps to paper, ignores clicks and outside starts, and cancels escape/pointer loss', () => {
+  const drawn = [], cancelled = [], f = fixture(undefined, { onRegionDraw: rect => drawn.push(rect), onRegionDrawCancel: () => cancelled.push(true) });
+  f.viewer.setInteractionMode('draw-region');
+  f.pointer('pointerdown', 20, 20); f.pointer('pointerup', 20, 20); assert.equal(drawn.length, 0);
+  f.pointer('pointerdown', -10, 20); f.pointer('pointermove', 80, 80); f.pointer('pointerup', 80, 80); assert.equal(drawn.length, 0);
+  f.pointer('pointerdown', 700, 500); f.pointer('pointermove', 900, 700); f.pointer('pointerup', 900, 700);
+  assert.deepEqual(drawn[0].map(Math.round), [700, 500, 100, 100]);
+  f.pointer('pointerdown', 40, 40); f.pointer('pointermove', 80, 80); f.root.emit('keydown', { key: 'Escape' }); f.pointer('pointerup', 80, 80);
+  assert.equal(drawn.length, 1); assert.equal(cancelled.length, 1);
+  f.viewer.setInteractionMode('draw-region'); f.pointer('pointerdown', 40, 40); f.pointer('pointermove', 80, 80); f.pointer('pointercancel', 80, 80);
+  assert.equal(drawn.length, 1);
+  assert.throws(() => f.viewer.setDraftBounds([790, 590, 20, 20]), /inside/);
+});
+
+test('touch drawing cancels when a second pointer begins a pinch and missing regions never capture input', () => {
+  const drawn = [], f = fixture({ width: 320, height: 390 }, { onRegionDraw: rect => drawn.push(rect), sheet: { ...sheet, regions: [...sheet.regions, { id: 'unplaced', label: 'Unplaced', bounds: null, mappingStatus: 'missing' }] } });
+  assert.equal(f.region('unplaced'), undefined); f.viewer.setInteractionMode('draw-region');
+  f.pointer('pointerdown', 100, 100, { pointerType: 'touch' }); f.pointer('pointermove', 150, 150, { pointerType: 'touch' });
+  f.pointer('pointerdown', 220, 150, { pointerId: 2, pointerType: 'touch' });
+  f.pointer('pointermove', 300, 150, { pointerId: 2, pointerType: 'touch' });
+  f.pointer('pointerup', 300, 150, { pointerId: 2, pointerType: 'touch' }); f.pointer('pointerup', 150, 150, { pointerType: 'touch' });
+  assert.equal(drawn.length, 0); assert.equal(f.selected.length, 0); assert.ok(f.viewer.zoom > 1);
+});

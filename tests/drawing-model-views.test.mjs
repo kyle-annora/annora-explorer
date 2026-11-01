@@ -13,6 +13,14 @@ const bookmark = (width = 1200, height = 700) => ({
 });
 const distance = camera => Math.hypot(...camera.position.map((value, axis) => value - camera.target[axis]));
 
+test('a newly drawn association frames the linked real part without inventing a feature camera', async () => {
+  const calls = [];
+  const viewer = { request: async (...args) => { calls.push(args); } };
+  const result = await focusDrawingRegion(viewer, { id: 'new-detail', partId: 'body' }, { id: 'fixture', parts: [{ id: 'body' }] });
+  assert.deepEqual(calls, [['focus', { nodeId: 'body' }]]);
+  assert.deepEqual(result, { focused: true, regionId: 'new-detail', framing: 'part' });
+});
+
 test('source bounds map to the exact 4.4-unit assembly frame; bores stay on opposite ends', () => {
   const low = normalizeDrawingPoint([0.0031250000465661287, 0, -0.004000000189989805]);
   const high = normalizeDrawingPoint([0.008145284838974476, 0.0020000000949949026, -0.0024999999441206455]);

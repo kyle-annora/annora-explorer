@@ -130,3 +130,40 @@ separate version identity, changed-selection review rejection, invalid context,
 historical release matching, storage isolation and corruption preservation.
 Run the normal project verification and test the mounted host on desktop and
 mobile before release.
+
+
+## Reviewed drawing revision in an existing project
+
+The commercial repository receives `getDrawingRelease(id)`, an asynchronous host
+adapter resolving an immutable published release from the drawing repository.
+The Studio host also verifies original file availability before adopting it.
+The user selects a real confirmed sheet/detail, then calls:
+
+```js
+const review = await projects.reviewDrawingRevision(projectId, {
+  context: selectedDrawingContext,
+  releaseId: publishedRelease.id,
+  note: "Reviewed the revised bore view and its model association.",
+  quoteDraftAction: "keep", // or explicitly "replace"
+});
+// Present the comparison and confirmation control before calling:
+await projects.confirmDrawingRevision(review, { confirmed: true });
+```
+
+`project.context` remains the submitted inquiry reference A. The reviewed current
+reference is `activeDrawingContext`; `drawingRevisions` stores from/to contexts,
+source release, reason and review/confirmation times. Each quote draft, issued
+quotation, customer change, message and next-step request pins its own `context`.
+Legacy records without one fall back to the original inquiry, never today's source.
+Replies inherit the context of the message/change they answer. New unthreaded work
+uses the reviewed project reference. Human `revisionLabel` is display-only;
+canonical revision, source hash and association identity still validate the record.
+
+A retained A quote draft cannot silently become a B quote. An explicit replacement
+review can discard that seller draft and create a B draft, preserving all issued
+quotes. Stale project/draft/publication reviews reject without changing history.
+An association-only release is distinguishable from a changed source document.
+
+The async interfaces are production extension points, not a server implementation.
+A production adapter must enforce permissions, durable assets, review/audit identity,
+concurrency and recipient delivery. This demo uses no real submission endpoint.

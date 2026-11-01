@@ -151,6 +151,7 @@ export function createDrawingContext({
       id: pkg.id,
       title: pkg.title,
       revision: pkg.revision,
+      ...(pkg.revisionLabel ? { revisionLabel: pkg.revisionLabel } : {}),
       assetId: asset.id,
       assetRevision: asset.sha256,
       partId: region.partId,

@@ -44,6 +44,7 @@ try {
           );
       }
       for (const asset of pkg.assets) {
+        if (asset.localBlobKey || (asset.url && /^(blob:|data:)/i.test(asset.url))) throw new Error(`${pkg.id}: browser-local file references must be exported and installed before deployment.`);
         const assetFile = await containedFile(
           root,
           dirname(file),

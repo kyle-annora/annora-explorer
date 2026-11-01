@@ -83,3 +83,14 @@ warnings except the intentionally absent tour; both PDF pages visually inspected
 derived page 1 rendered pixel-identically to `source.pdf`; seven overlay regions
 checked against the original PDF vectors; v2 schema and exact part registry
 validated. Browser/mobile integration is validated by the host application.
+
+
+## Fictional document B for workflow acceptance
+
+`demo-revision-b.pdf` is a clearly labelled Annora demonstration edition. Page 1
+retains the original source drawing; page 2 swaps the two enlarged source views
+and adds a request to confirm bore inspection scope. The STEP/model, dimensions
+and manufacturing approval status are unchanged. It tests actual PDF version
+import, manual reassociation and quotation history; it is not a supplier revision.
+`source-tools/make-demo-revision.py` reproduces it using PyMuPDF and reportlab.
+The source attribution and CC BY 3.0 notice are retained on the PDF.

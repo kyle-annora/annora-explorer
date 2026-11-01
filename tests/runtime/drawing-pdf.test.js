@@ -7,7 +7,7 @@ const deferred = () => { let resolve, reject; const promise = new Promise((a, b)
 const sheet = { id: 'sheet-2', title: 'Original PDF page', pdfPage: 2, viewBox: [0, 0, 800, 600], rotation: 0,
   regions: [{ id: 'bore', label: 'Bore', partId: 'body', bounds: [100, 150, 60, 40] }] };
 
-function fixture({ autoRender = true, documentPending = false, runtimePending = false, pageCount = 2, pageWidth = 800, initialRotation = 0 } = {}) {
+function fixture({ autoRender = true, documentPending = false, runtimePending = false, pageCount = 2, pageWidth = 800, initialRotation = 0, onRegionDraw = () => {} } = {}) {
   const renders = [], canvases = [], views = [], selections = [], errors = [], stateChanges = [], urls = new Map(), revoked = [], requestedPages = [], runtimeWait = deferred(), documentWait = deferred();
   let loads = 0, destroyed = 0, nextURL = 0;
   const page = {
@@ -31,6 +31,7 @@ function fixture({ autoRender = true, documentPending = false, runtimePending = 
     const image = { href: options.assetURL, setAttribute(key, value) { this[key] = value; } };
     const view = { options, image, element: { querySelector: () => image }, zoom: 1, selectedId: null,
       select(id, { focus } = {}) { view.selectedId = id; if (focus) view.zoomBy(2); return true; },
+      setDraftBounds(value) { view.draftBounds = value; }, setInteractionMode(value) { view.mode = value; }, cancelRegionDraw() { view.drawCancelled = true; },
       focusRegion() { view.zoomBy(2); return true; },
       zoomBy(factor) { view.zoom *= factor; options.onViewChange({ zoom: view.zoom, canZoomIn: true, canZoomOut: view.zoom > 1 }); },
       fit() { view.zoom = 1; options.onViewChange({ zoom: 1 }); }, resize() { options.onViewChange({ zoom: view.zoom }); },
@@ -41,7 +42,7 @@ function fixture({ autoRender = true, documentPending = false, runtimePending = 
   const reader = createPdfDrawingView({ mount, assetURL: './source.pdf', sheet: { ...sheet, rotation: initialRotation }, document: doc,
     window: { devicePixelRatio: 2 }, loadPDF: async () => runtimePending ? runtimeWait.promise : runtime, createView, renderDelay: 0,
     URL: { createObjectURL(blob) { const url = `blob:page-${++nextURL}`; urls.set(url, blob); return url; }, revokeObjectURL(url) { revoked.push(url); urls.delete(url); } },
-    onSelect: (...args) => selections.push(args), onError: error => errors.push(error), onViewChange: state => stateChanges.push(state),
+    onRegionDraw, onSelect: (...args) => selections.push(args), onError: error => errors.push(error), onViewChange: state => stateChanges.push(state),
   });
   return { reader, renders, canvases, views, selections, errors, stateChanges, urls, revoked, requestedPages, runtimeWait, documentWait, runtime, pdf,
     get loads() { return loads; }, get destroyed() { return destroyed; } };
@@ -119,4 +120,20 @@ test('the reader rejects mismatched source page coordinates or nonexistent pages
     assert.equal(f.views.length, 0); assert.equal(f.renders.length, 0); assert.equal(f.errors.length, 1);
     f.reader.dispose();
   }
+});
+
+
+test('PDF authoring returns canonical bounds and restores pending rectangles across display rotation', async () => {
+  const drawn = [], f = fixture({ initialRotation: 90, onRegionDraw: rect => drawn.push(rect) });
+  f.reader.setInteractionMode('draw-region'); f.reader.setDraftBounds([100, 150, 60, 40]);
+  await f.reader.ready;
+  assert.equal(f.views[0].options.interactionMode, 'draw-region');
+  assert.deepEqual(f.views[0].draftBounds, [410, 100, 40, 60]);
+  f.views[0].options.onRegionDraw([350, 200, 80, 100]);
+  assert.deepEqual(drawn[0], [200, 170, 100, 80]);
+  f.reader.setInteractionMode('inspect'); f.reader.rotateBy(90); await tick(); await tick();
+  assert.equal(f.views[0].drawCancelled, true);
+  assert.equal(f.views.at(-1).options.interactionMode, 'inspect');
+  assert.deepEqual(f.views.at(-1).draftBounds, [500, 350, 100, 80]);
+  f.reader.dispose();
 });

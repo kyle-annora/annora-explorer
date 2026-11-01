@@ -1,5 +1,5 @@
 import { createDrawingView } from '../drawing-preview/drawing-view.js';
-import { normalizeRotation, pdfRasterSize, rotateSheet } from './coordinates.js';
+import { normalizeRotation, pdfRasterSize, rotateSheet, rotateBounds, unrotateBounds } from './coordinates.js';
 
 const lazyPDF = () => import('./pdf-runtime.js');
 const cancelled = error => error?.name === 'RenderingCancelledException' || error?.name === 'AbortException' || error?.name === 'AbortError';
@@ -9,7 +9,7 @@ const blobFromCanvas = canvas => new Promise((resolve, reject) => canvas.toBlob(
 /** Original-PDF reader with the same DOM pan/zoom and selectable region layer
  * as the prepared-SVG viewer. The host owns page selection and navigation.
  * ready settles after the first visible page, or null when disposed early. */
-export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = false, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
+export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = false, interactionMode = 'inspect', onRegionDraw = () => {}, onRegionDrawCancel = () => {}, onSelect = () => {}, onViewChange = () => {}, onError = () => {},
   document: doc = globalThis.document, window: win = globalThis.window, ResizeObserver = globalThis.ResizeObserver,
   maxPixels = 8_000_000, maxDimension = 4096, loadPDF = lazyPDF, createView = createDrawingView,
   URL: objectURLs = globalThis.URL, renderDelay = 100 } = {}) {
@@ -20,7 +20,7 @@ export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = fa
   let disposed = false, suspended = false, generation = 0, rotation = normalizeRotation(sheet.rotation || 0);
   let loadingTask = null, pdfDocument = null, page = null, view = null, activeRender = null, currentURL = null;
   let renderTimer = null, selectedId = null, pendingFocus = false, lastRaster = '', renderedRotation = null, lastError = null;
-  let resolveReady, rejectReady;
+  let resolveReady, rejectReady, tool = interactionMode, draftBounds = null;
   let lastView = { zoom: 1, canZoomIn: true, canZoomOut: false };
   const clearTimer = () => { if (renderTimer !== null) { clearTimeout(renderTimer); renderTimer = null; } };
   const notify = () => { if (!disposed) onViewChange({ ...lastView, rotation, loading: !!activeRender || !view, error: lastError }); };
@@ -50,7 +50,8 @@ export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = fa
   function makeView(displaySheet, url) {
     const keepSelection = selectedId;
     view?.dispose(); view = null;
-    view = createView({ mount, assetURL: url, sheet: displaySheet, showOverview, document: doc, window: win, ResizeObserver,
+    view = createView({ mount, assetURL: url, sheet: displaySheet, showOverview, interactionMode: tool, onRegionDrawCancel,
+      onRegionDraw(displayBounds) { const canonical = unrotateBounds(displayBounds, sheet.viewBox, renderedRotation); draftBounds = canonical; onRegionDraw(canonical); }, document: doc, window: win, ResizeObserver,
       onSelect(id) {
         selectedId = id;
         const canonicalRegion = sheet.regions.find(region => region.id === id);
@@ -59,6 +60,7 @@ export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = fa
       onViewChange(state) { lastView = state; notify(); scheduleRender(); }, onError: reportError,
     });
     if (keepSelection !== null) view.select(keepSelection, { focus: pendingFocus });
+    if (draftBounds) view.setDraftBounds?.(rotateBounds(draftBounds, sheet.viewBox, rotation));
     pendingFocus = false;
   }
 
@@ -128,6 +130,9 @@ export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = fa
   }
 
   const controller = {
+    setInteractionMode(value) { if (!['inspect', 'draw-region'].includes(value)) throw new TypeError('Choose inspect or draw-region mode.'); tool = value; view?.setInteractionMode?.(value); },
+    setDraftBounds(value) { draftBounds = value?.slice() || null; view?.setDraftBounds?.(value ? rotateBounds(value, sheet.viewBox, renderedRotation ?? rotation) : null); },
+    cancelRegionDraw() { view?.cancelRegionDraw?.(); },
     select(id, { focus = false } = {}) {
       if (disposed || (id !== null && !sheet.regions.some(region => region.id === id))) return false;
       selectedId = id; pendingFocus = focus;
@@ -139,7 +144,7 @@ export function createPdfDrawingView({ mount, assetURL, sheet, showOverview = fa
       if (disposed) return false;
       const next = normalizeRotation(value);
       if (next === rotation) return false;
-      rotation = next; pendingFocus = false; scheduleRender(); notify(); return true;
+      view?.cancelRegionDraw?.(); rotation = next; pendingFocus = false; scheduleRender(); notify(); return true;
     },
     rotateBy(value = 90) { return controller.setRotation(rotation + value); },
     pause() { if (disposed) return; suspended = true; generation += 1; clearTimer(); if (activeRender) { activeRender.cancelled = true; activeRender.task.cancel(); } },

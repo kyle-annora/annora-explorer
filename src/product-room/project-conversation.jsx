@@ -1,4 +1,6 @@
 import React from "react";
+import { recordContext } from "./drawing-revision.js";
+import { DrawingReference } from "./drawing-reference.jsx";
 import { Button, Evidence, Status } from "./ui/components.jsx";
 import { pendingClarification, changeIsResolved } from "./seller-domain.js";
 
@@ -8,10 +10,11 @@ const topicNames = {quantity:"Quantity",timing:"Requested timing",notes:"Request
 const resultNames = {accepted:"Accepted",alternative:"Alternative proposed","needs-info":"More information needed"};
 
 /** Shared project history. Seller drafts never enter the buyer projection. */
-export function ProjectConversation({ project, onQuote, onReply }) {
+export function ProjectConversation({ project, onQuote, onReply, onExplore }) {
   const question = pendingClarification(project);
   const events = [
     {kind:"inquiry",...project.inquiry,value:project.inquiry},
+    ...(project.drawingRevisions || []).map(value=>({kind:"drawing-revision",...value,value})),
     ...project.quotes.map(value=>({kind:"quote",...value,value})),
     ...project.changes.map(value=>({kind:"change",...value,value})),
     ...project.replies.map(value=>({kind:"legacy-reply",...value,value})),
@@ -32,7 +35,7 @@ export function ProjectConversation({ project, onQuote, onReply }) {
     <ol className="pw-timeline">
       {events.map(event=>{
         const value=event.value;
-        const isSeller = event.kind === "quote" || event.kind === "legacy-reply" || value.authorRole === "seller";
+        const isSeller = event.kind === "drawing-revision" || event.kind === "quote" || event.kind === "legacy-reply" || value.authorRole === "seller";
         const legacy = value.source === "sample" || event.kind === "legacy-reply";
         const referenceQuote = project.quotes.find(q=>q.id===value.quoteId);
         const referenceChange = project.changes.find(c=>c.id===value.changeId);
@@ -45,6 +48,10 @@ export function ProjectConversation({ project, onQuote, onReply }) {
             </Evidence>
             <time dateTime={value.createdAt}>{date(value.createdAt)}</time>
           </div>
+          {event.kind === "drawing-revision" && <>
+            <h3>Drawing {value.fromContext.drawing.revisionLabel || value.fromContext.drawing.revision} → {value.context.drawing.revisionLabel || value.context.drawing.revision} reviewed.</h3>
+            <p>{value.note}</p><Status tone="complete">Human reviewed for this project</Status>
+          </>}
           {event.kind === "inquiry" && <>
             <h3>Inquiry confirmed.</h3><p>{value.values.application}</p><small>{value.id}</small>
           </>}
@@ -88,6 +95,7 @@ export function ProjectConversation({ project, onQuote, onReply }) {
             </section>)}</div>}
             {question?.id === value.id && <Button variant="secondary" onClick={onReply}>Reply to question</Button>}
           </>}
+          <DrawingReference context={recordContext(project, value)} onOpen={onExplore} compact />
         </li>;
       })}
     </ol>

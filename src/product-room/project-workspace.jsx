@@ -1,3 +1,5 @@
+import { recordContext, projectDrawingContext } from "./drawing-revision.js";
+import { DrawingReference } from "./drawing-reference.jsx";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -148,7 +150,7 @@ function ContextSummary({
             <strong>{context.drawing.regionLabel}</strong>
             <dl className="pw-drawing-facts">
               <div><dt>Drawing</dt><dd>{context.drawing.title}</dd></div>
-              <div><dt>Revision</dt><dd>{context.drawing.revision}</dd></div>
+              <div><dt>Revision</dt><dd>{context.drawing.revisionLabel || context.drawing.revision}</dd></div>
               <div><dt>Sheet</dt><dd>{context.drawing.sheetTitle}</dd></div>
             </dl>
             <p className="pw-muted">Saved as viewing context. Dimensions and tolerances remain subject to confirmation.</p>
@@ -726,10 +728,10 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     };
   }, [route, repository, project, mode, quoteId, loading]);
   const goto = (next) => navigate(next);
-  const projectContext = project?.context;
   const quote =
     project?.quotes.find((item) => item.id === quoteId) ||
     project?.quotes.at(-1);
+  const projectContext = project ? recordContext(project, quote) : undefined;
   const previousQuote = quote?.previousQuoteId
     ? project?.quotes.find((item) => item.id === quote.previousQuoteId)
     : null;
@@ -1489,7 +1491,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
               <Field label="Your reply" required textarea rows={5} maxLength={4000} value={replyValues.body} disabled={!!pending || leaving}
                 onChange={event=>{setReplyValues({...replyValues,body:event.target.value});setErrors({});}} error={errors.body} hint="Answer the question or explain what still needs to be discussed." />}
           </form>
-        </div><aside className="pw-sidebar"><ContextSummary context={project.context} compact /></aside></div>
+        </div><aside className="pw-sidebar"><ContextSummary context={recordContext(project, mode === "message" ? question : quote)} compact /></aside></div>
         <div className="pw-bottom-actions"><ActionGroup>
           {isReview ? <><Button variant="secondary" disabled={!!pending} onClick={()=>setModeStage("details")}>Edit reply</Button>
             <Button disabled={!!pending || updateAvailable} pending={pending==="send-reply"} onClick={confirmRequest}>Confirm demo reply <span aria-hidden="true">→</span></Button></> :
@@ -1699,7 +1701,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
               </form>
             </div>
             <aside className="pw-sidebar">
-              <ContextSummary context={project.context} compact />
+              <ContextSummary context={recordContext(project, mode === "message" ? question : quote)} compact />
               <div className="pw-side-note">
                 <p className="pw-eyebrow">SOURCE QUOTATION</p>
                 <h2>Version {quote.version}</h2>
@@ -1845,6 +1847,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                     {project.inquiry.id} · {date(project.inquiry.createdAt)}
                   </span>
                 </div>
+                {project.activeDrawingContext && <DrawingReference context={projectDrawingContext(project)} label="Reviewed reference for the next quotation" onOpen={onExplore} />}
                 <InquiryDocument
                   draft={{ ...project.inquiry, context: project.context }}
                   onExplore={onExplore}
@@ -1978,7 +1981,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         >
                           {compare && (
                             <><Comparison
-                              rows={compareQuotes(previousQuote, quote).filter(row => allComparisonFields || row.changed)}
+                              rows={compareQuotes(previousQuote, quote, project).filter(row => allComparisonFields || row.changed)}
                               beforeLabel={`v${previousQuote.version} · previous`}
                               afterLabel={`v${quote.version} · current`}
                               caption="Quotation version comparison"
@@ -2101,6 +2104,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
               project={project}
               onQuote={(id) => { setQuoteId(id); setTab("quotation"); }}
               onReply={openReply}
+              onExplore={onExplore}
             />
           )}
         </div>

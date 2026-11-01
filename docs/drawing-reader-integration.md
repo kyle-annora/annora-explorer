@@ -122,3 +122,19 @@ The reader currently focuses on drawing display and authored regions. It does no
 Run `node --test tests/drawing-package.test.mjs tests/runtime/drawing-pdf.test.js`. Coverage includes real source-file hashes, source/model/mapping identity, invalid and unresolved associations, publication gates, rotations, bounded raster allocation, silent programmatic selection, stale rendering, pause/resume, errors and disposal during all loading stages. Full host evaluation must also traverse the buyer/seller context and saved versions.
 
 PDF.js is Apache-2.0. Its fonts, Adobe CMaps and decoders have additional bundled notices. The build's `LICENSES.txt` must include the PDF.js root license and the relevant `standard_fonts/LICENSE_*`, `cmaps/LICENSE` and `wasm/LICENSE_*` files alongside model/source attribution. Official reference: [PDF.js examples](https://mozilla.github.io/pdf.js/examples/) and [Mozilla PDF.js repository](https://github.com/mozilla/pdf.js).
+
+
+## Studio source versions and historical files
+
+Studio can import an actual PDF and inspect its unrotated page dimensions. Imported
+bytes live in a SHA-addressed IndexedDB asset repository; manifest/release/project
+records remain JSON. Temporary object URLs belong to reader leases and are revoked
+on disposal. `resolveDrawingEntry(entry, packageSnapshot)` resolves a historical
+package through exact bundled hashes or stored original bytes; it never substitutes
+a current file. The unchanged Explorer is reached only through its public controller.
+A newly drawn region without an authored feature camera frames its confirmed parent
+part; it does not invent a precise CAD feature location.
+
+Explicit URL source/mapping/sheet/detail/hash identities are checked before inquiry
+is enabled. Missing identities are view-only with an explicit recovery action. User
+navigation, reload and saved quotation links preserve the requested identity.
