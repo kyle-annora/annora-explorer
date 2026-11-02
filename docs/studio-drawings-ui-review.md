@@ -3,6 +3,48 @@
 Status: implemented and locally verified on November 1, 2026. GitHub Pages
 acceptance is recorded in the delivery note below.
 
+## Follow-up: remove duplicate navigation
+
+The first pass reduced spacing but still asked sellers to navigate the same views
+in a left list, a canvas and preview tabs. The next user review explicitly called
+out the left options and tab count. The current implementation supersedes the
+persistent three-column layout described in the initial record below.
+
+| Decision | Evidence | Result |
+| --- | --- | --- |
+| Use the drawing as the index | User review; Rive's contextual editor pattern | No persistent left view list; open the canvas view to edit it |
+| Open settings only for the actual view | Selected-object inspector pattern | The inspector follows the prepared view ID; overview and source PDF hide it |
+| Make arrangement a separate task | User request to reduce choices; existing reference lock's action separation | One Arrange views dialog contains order and addition controls |
+| Remove duplicate navigation | DrawingPreview already supports open-view and Back to overview | No Overview / Selected view tabs and no mobile Views / Preview / Settings tabs |
+| Keep source authoring available | Existing version and manual confirmation contracts | A compact workspace selector retains Source associations; mobile uses Choose detail / Edit link with a Back action |
+
+The appearance, source geometry and document/quotation identities stay unchanged.
+`DrawingPreview.onPresentationChange` is an optional presentation notification;
+only Studio consumes it. Other hosts do not gain new controls or change behavior.
+
+### Follow-up verification
+
+- Connecting rod: canvas selection and its view chooser both update the correct
+  inspector; rename, order change and mobile Edit view / Back were exercised.
+- SK08 production subpath: added a view while inspecting another view, closed
+  Arrange, and confirmed the original canvas and inspector remained aligned.
+- Mobile at 320 px: overview, arrangement, exact-view opening, focus transfer to
+  Edit view, source association editing and review remain reachable without
+  horizontal overflow. The connecting rod was also inspected at 390 px.
+- Native arrangement dialog closes with Done/Close/Escape and uses native modal
+  focus handling. Opening a row transfers focus to the visible editing control.
+- Completed explicit review and local publication of the SK08 sample; the buyer
+  preview received the same release, overview, source and mapping identities.
+- Existing repository suite: 565 tests, 564 passed, one existing skip; production
+  build passed. No backend, model assets or inquiry/quotation storage changes.
+
+Hosted follow-up acceptance is recorded after deployment.
+
+## Initial refinement record
+
+The following sections document the earlier iteration and its verification.
+The follow-up above replaces its persistent view index and tab controls.
+
 ## Problem
 
 The drawing page combines document selection, source versions, overview editing,

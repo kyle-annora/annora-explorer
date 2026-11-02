@@ -13,13 +13,13 @@ import './drawing-preview.css';
  * coordinates; recorded buyer previews keep their selected detail locked. */
 export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId, regionId, onSelect, onError,
   assetStore, assetsResolved = false, sourceOnly = false, unavailable = false, className = '', caption,
-  presentationSnapshot, allowUnconfirmed = false }, ref) {
+  presentationSnapshot, allowUnconfirmed = false, onPresentationChange }, ref) {
   const mount = useRef(null), viewer = useRef(null), callbacks = useRef({}), focusIntent = useRef(false);
   const focusDestination = useRef(null), lastOpened = useRef(null), viewSelect = useRef(null), backButton = useRef(null), sourceLink = useRef(null);
   const previousRegion = useRef(regionId);
   const [requested, setRequested] = useState('overview');
   const [state, setState] = useState({ loading: true, zoom: 1 }), [error, setError] = useState(null), [sourceURL, setSourceURL] = useState(null);
-  callbacks.current = { onSelect, onError, regionId };
+  callbacks.current = { onSelect, onError, onPresentationChange, regionId };
   const lockedRegion = onSelect ? null : regionId;
   const configuredEntries = useMemo(() => sourceOnly ? [] : overviewEntriesFor(pkg, { sheetId, unavailable, presentationSnapshot, requireConfirmed: !allowUnconfirmed }),
     [pkg, sheetId, unavailable, sourceOnly, presentationSnapshot, allowUnconfirmed]);
@@ -41,6 +41,11 @@ export const DrawingPreview = forwardRef(function DrawingPreview({ pkg, sheetId,
     fit() { viewer.current?.fit?.(); },
     resize() { viewer.current?.resize(); },
   }), []);
+
+  // Report the resolved display identity after commit, including the initial
+  // presentation and fallbacks. This is UI context, never a source reference.
+  // Callback identity changes do not rebuild the reader or replay notifications.
+  useEffect(() => { callbacks.current.onPresentationChange?.(presentation); }, [presentation]);
 
   useEffect(() => {
     let active = true, lease, instance;
