@@ -1,6 +1,6 @@
 # Compact walkthrough review
 
-Status: local acceptance passed on November 1, 2026. Hosted verification follows deployment.
+Status: local and hosted acceptance passed on November 1, 2026.
 
 ## Scope and reference lock
 
@@ -58,6 +58,17 @@ require separate deliberate activations.
 The walkthrough sample used isolated project `PRJ-DEMO-2149A991`. No production
 data, APIs, Explorer rendering, model packages, drawing snapshots or existing
 project records were changed. This pass adds no dependencies or animation loops.
+
+## Hosted release
+
+- Deployed source: `111605bfc799d2cfde50acd0c9da910b1192238d`.
+- [GitHub Pages build and deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/41380629644): successful.
+- Hosted smoke: fresh sample loaded the 3D model, Continue played the short cycle,
+  highlighted the connecting rod and opened its inquiry. Checked the 1440 px
+  desktop and 390 px mobile layout; mobile action target was 44 px high with no
+  horizontal page overflow. No console errors were observed on the hosted tab.
+- Review captures: `work/walkthrough-simplification/hosted-desktop.jpg` and
+  `work/walkthrough-simplification/hosted-mobile.jpg` (local, not shipped assets).
 
 ## Review entry
 
