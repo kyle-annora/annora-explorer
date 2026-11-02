@@ -1,6 +1,6 @@
 # Studio and Product Room workspace simplification
 
-Status: implementation complete; local acceptance passed. Hosted acceptance pending.
+Status: released; local and hosted acceptance passed on 2026-11-01.
 
 ## Scope and reference lock
 
@@ -81,4 +81,18 @@ remains passing.
 
 ### Hosted acceptance
 
-Record the deployment commit and Pages run after publication.
+- Deployment commit: `d307619232d239e413eb4359e2658db3864a1f8b`.
+- [GitHub Pages build and deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/41377927174): success.
+- Live Studio verified: Open product enters the full canvas; Edit settings opens the
+  inspector; embedded 3D loads and retains the previously saved accent preference.
+- Live Product Room verified: cross-workspace links load under `/annora-explorer/`,
+  Specs & docs exposes the new collapsed component/document rows, and My projects
+  loads the existing browser-local draft.
+- Production-build subpath verification also passed Studio → Drawings → Product
+  Room → Specs → Connecting rod → Locate in 3D, preserving `part=rod`.
+- Hosted screenshot: `work/workspace-simplification/studio-hosted.jpg`.
+
+Review links:
+[Studio](https://kyle-annora.github.io/annora-explorer/studio/),
+[Product Room](https://kyle-annora.github.io/annora-explorer/product-room/),
+[guided walkthrough](https://kyle-annora.github.io/annora-explorer/walkthrough/).
