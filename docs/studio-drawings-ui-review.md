@@ -38,7 +38,19 @@ only Studio consumes it. Other hosts do not gain new controls or change behavior
 - Existing repository suite: 565 tests, 564 passed, one existing skip; production
   build passed. No backend, model assets or inquiry/quotation storage changes.
 
-Hosted follow-up acceptance is recorded after deployment.
+### Hosted follow-up acceptance
+
+- Deployed implementation: `0fd2b5ce6061c820395b483e3068b11a2a4e90e1`.
+- [GitHub Pages deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/41374947903)
+  completed successfully.
+- Reloaded the [hosted drawing workspace](https://kyle-annora.github.io/annora-explorer/studio/#drawings):
+  confirmed the full-width overview, no persistent left view list, and no duplicate
+  preview tabs. Opening Top view displayed its matching inspector; Back to overview
+  removed it. Arrange views opened the compact modal and Done restored the canvas.
+- No browser console errors were reported during this hosted check.
+- Desktop evidence: `work/studio-drawings-simplified/desktop.jpg` (local review
+  artifact). Responsive and publication acceptance is documented above; physical
+  mobile devices and ordinary-PC performance were not remeasured in this change.
 
 ## Initial refinement record
 
