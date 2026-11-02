@@ -126,6 +126,9 @@ export function CustomerWorkspace({
   );
   const obsoleteDrawingDraft = Boolean(project?.context.drawing && draft && !same(recordContext(project, draft).drawing, projectDrawingContext(project).drawing));
   const status = project ? sellerProjectStatus(project) : null;
+  const waitingOnCustomer = status?.owner === "Customer" && project?.quotes.length > 0 && !project?.quoteDraft;
+  const primaryIsDraft = !acknowledgement && !clarification && !change && !waitingOnCustomer;
+  const nextDestination = status?.label === "Next step confirmed" ? "conversation" : "quotation";
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
   const walkthrough = readWalkthroughSession();
@@ -797,33 +800,18 @@ export function CustomerWorkspace({
             </Button>}
           </div>
           <div className="customer-list-toolbar">
-            <div
-              className="customer-filters"
-              aria-label="Filter customer projects"
-            >
-              {[
-                ["attention", "Needs your attention"],
-                ["waiting", "Waiting for customer"],
-                ["all", "All projects"],
-              ].map(([id, label]) => (
-                <button
-                  type="button"
-                  key={id}
-                  aria-pressed={filter === id}
-                  onClick={() => setFilter(id)}
-                >
-                  {label}
-                  <span>
-                    {
-                      projects.filter(
-                        (p) =>
-                          id === "all" || sellerProjectStatus(p).filter === id,
-                      ).length
-                    }
-                  </span>
-                </button>
-              ))}
-            </div>
+            <label className="customer-view-choice">
+              <span>Show</span>
+              <select aria-label="Filter customer projects" value={filter} onChange={event => setFilter(event.target.value)}>
+                {[
+                  ["attention", "Needs your attention"],
+                  ["waiting", "Waiting for customer"],
+                  ["all", "All projects"],
+                ].map(([id, label]) => <option key={id} value={id}>
+                  {label} ({projects.filter(p => id === "all" || sellerProjectStatus(p).filter === id).length})
+                </option>)}
+              </select>
+            </label>
             <span className="customer-fine">Confirmed inquiries only</span>
           </div>
           <div className="customer-project-list">
@@ -982,10 +970,11 @@ export function CustomerWorkspace({
                     >
                       Confirm next step
                     </Button>
-                  ) : clarification ? (
+                  ) : clarification ? (tab !== "conversation" &&
                     <Button
                       variant="secondary"
-                      onClick={() => setTab("conversation")}
+                      disabled={Boolean(busy) || drawingEditing}
+                      onClick={() => localGo(() => setTab("conversation"))}
                     >
                       View conversation
                     </Button>
@@ -996,19 +985,11 @@ export function CustomerWorkspace({
                     >
                       Respond to changes
                     </Button>
-                  ) : status.owner === "Customer" &&
-                    project.quotes.length > 0 &&
-                    !project.quoteDraft ? (
+                  ) : waitingOnCustomer ? (tab !== nextDestination &&
                     <Button
                       variant="secondary"
                       disabled={Boolean(busy) || drawingEditing}
-                      onClick={() =>
-                        setTab(
-                          status.label === "Next step confirmed"
-                            ? "conversation"
-                            : "quotation",
-                        )
-                      }
+                      onClick={() => localGo(() => setTab(nextDestination))}
                     >
                       {status.label === "Next step confirmed"
                         ? "View conversation"
@@ -1032,23 +1013,36 @@ export function CustomerWorkspace({
               </div>
               <div className="customer-project-layout">
                 <div className="customer-project-main">
-                  <nav
-                    className="customer-tabs"
-                    aria-label="Customer project sections"
-                  >
-                    {["inquiry", "quotation", "conversation"].map((id) => (
-                      <button
-                        key={id}
-                        aria-current={tab === id ? "page" : undefined}
-                        onClick={() => localGo(() => setTab(id))}
+                  <div className="customer-project-toolbar">
+                    <label className="customer-view-choice">
+                      <span>Project view</span>
+                      <select aria-label="Customer project section" value={tab} onChange={event => {
+                        const next = event.target.value;
+                        localGo(() => setTab(next));
+                      }}>
+                        <option value="inquiry">Customer inquiry</option>
+                        <option value="quotation">Quotation{project.quotes.length ? ` · ${project.quotes.length} ${project.quotes.length === 1 ? "version" : "versions"}` : ""}</option>
+                        <option value="conversation">Conversation</option>
+                      </select>
+                    </label>
+                    {tab === "quotation" && quote && <>
+                      <VersionSelector
+                        versions={project.quotes}
+                        value={quote.id}
+                        onChange={setQuoteId}
+                      />
+                      {!primaryIsDraft && <Button
+                        variant="secondary"
+                        onClick={openDraft}
+                        disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
                       >
-                        {id[0].toUpperCase() + id.slice(1)}
-                        {id === "quotation" && project.quotes.length > 0 && (
-                          <span>{project.quotes.length}</span>
-                        )}
-                      </button>
-                    ))}
-                  </nav>
+                        {project.quoteDraft ? "Continue draft" : "Prepare next version"}
+                      </Button>}
+                    </>}
+                  </div>
+                  <div className="customer-project-reference">
+                    <ProductReference project={tab === "quotation" && quote ? { ...project, context: recordContext(project, quote) } : project} buyerHref={buyerHref} />
+                  </div>
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
@@ -1068,22 +1062,6 @@ export function CustomerWorkspace({
                     {tab === "quotation" &&
                       (quote ? (
                         <>
-                          <div className="customer-quotation-tools">
-                            <VersionSelector
-                              versions={project.quotes}
-                              value={quote.id}
-                              onChange={setQuoteId}
-                            />
-                            <Button
-                              variant="secondary"
-                              onClick={openDraft}
-                              disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
-                            >
-                              {project.quoteDraft
-                                ? "Continue draft"
-                                : "Prepare next version"}
-                            </Button>
-                          </div>
                           {project.quoteDraft && (
                             <Notice title="Seller draft saved">
                               The buyer still sees the latest issued quotation.
@@ -1114,26 +1092,26 @@ export function CustomerWorkspace({
                               : "Prepare a draft, review the complete quotation, then make it visible to the customer."
                           }
                         >
-                          <Button
+                          {!primaryIsDraft && <Button
                             onClick={openDraft}
                             disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
                           >
                             {project.quoteDraft
                               ? "Continue quotation"
                               : "Prepare quotation"}
-                          </Button>
+                          </Button>}
                         </EmptyState>
                       ))}
                     {tab === "conversation" && (
                       <>
                         <ActionGroup align="start">
-                          <Button
+                          {!change && <Button
                             variant="secondary"
                             onClick={() => openReply()}
                             disabled={Boolean(busy) || drawingEditing}
                           >
                             Reply to customer
-                          </Button>
+                          </Button>}
                           {change && !clarification && (
                             <Button
                               variant="quiet"
@@ -1149,9 +1127,6 @@ export function CustomerWorkspace({
                     )}
                   </div>
                 </div>
-                <aside>
-                  <ProductReference project={tab === "quotation" && quote ? { ...project, context: recordContext(project, quote) } : project} buyerHref={buyerHref} />
-                </aside>
               </div>
             </>
           ) : mode === "edit" ? (
@@ -1470,7 +1445,7 @@ export function CustomerWorkspace({
                 </p>
               </div>
               <DrawingReference context={recordContext(project, draft)} label="Drawing included in this quotation" href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
-              <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
+              <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} comparisonExpanded productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
               {response && <ResponseSummary value={response} />}
               <div className="customer-confirmation">
                 <Notice title="Ready to make this version visible?">

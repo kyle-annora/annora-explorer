@@ -53,7 +53,6 @@ export function ProjectDrawingRevision({ project, repository, packages, releases
     {error && <Notice title="Review needed" tone="error">{error}</Notice>}
     {!editing ? <ActionGroup align="start">
       <Button variant="secondary" disabled={disabled} onClick={() => setEditing(true)}>Review a new drawing version</Button>
-      <a className="ar-button" data-variant="quiet" href={`#drawings?product=${encodeURIComponent(project.context.modelId)}`}>Manage drawing files →</a>
     </ActionGroup> : review ? <div>
       <h3>Confirm the project reference change.</h3>
       <DrawingReferenceComparison before={comparisonBefore} after={context} hrefFor={hrefFor} />
@@ -68,6 +67,7 @@ export function ProjectDrawingRevision({ project, repository, packages, releases
         })}>Confirm project drawing</Button>
       </ActionGroup>
     </div> : <div>
+      <a className="ar-button" data-variant="quiet" href={`#drawings?product=${encodeURIComponent(project.context.modelId)}`}>Manage drawing files →</a>
       {!records.length && <Notice title="Publish a drawing version first">Open Manage drawing files, import the new PDF, mark and confirm its associations, then review and publish the local release. Return to this project to review its use.</Notice>}
       <Field label="Published drawing version"><select value={recordId} disabled={Boolean(busy)} onChange={event => { setRecordId(event.target.value); setError(''); }}>
         <option value="">Choose a published version</option>{records.map(record => <option key={record.id} value={record.id}>{record.packageSnapshot.revisionLabel || record.sourceRevision} · release {record.version}</option>)}
@@ -85,9 +85,9 @@ export function ProjectDrawingRevision({ project, repository, packages, releases
         })}>Review project drawing</Button>
       </ActionGroup>
     </div>}
-    {!!project.drawingRevisions?.length && <ol className="drawing-revision-history">{[...project.drawingRevisions].reverse().map(change => <li key={change.id}>
+    {!!project.drawingRevisions?.length && <details className="customer-disclosure"><summary>Drawing review history<span>{project.drawingRevisions.length} reviews</span></summary><ol className="drawing-revision-history">{[...project.drawingRevisions].reverse().map(change => <li key={change.id}>
       <h4>{change.fromContext?.drawing?.revision === change.context?.drawing?.revision ? `Association update · ${change.context.drawing.revisionLabel || change.context.drawing.revision}` : `${change.fromContext?.drawing?.revisionLabel || change.fromContext?.drawing?.revision} → ${change.context?.drawing?.revisionLabel || change.context?.drawing?.revision}`}</h4>
       <p>{change.note}</p><small>Human reviewed · {new Date(change.createdAt).toLocaleDateString('en-US')}</small>
-    </li>)}</ol>}
+    </li>)}</ol></details>}
   </Section>;
 }

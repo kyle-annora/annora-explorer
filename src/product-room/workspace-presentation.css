@@ -18,7 +18,37 @@
 .room-workspace .pw-side-note h2 { font-size: 19px; }
 .room-workspace .pw-side-note > p:not(.pw-eyebrow) { font-size: 12px; }
 .room-workspace .pw-side-note > button { font-size: 12px; }
-.room-workspace .pw-reference-toggle { display: none; }
+/* Context is available on demand at every size, without a second navigation rail. */
+.room-workspace .pw-reference-toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 0; background: var(--aw-surface); color: var(--aw-ink); text-align: left; border-radius: var(--aw-radius); cursor: pointer; }
+.room-workspace .pw-reference-toggle > span:first-child { display: grid; gap: 4px; min-width: 0; }
+.room-workspace .pw-reference-toggle small { font-size: 11px; color: var(--aw-muted); font-weight: 400; }
+.room-workspace .pw-reference-toggle strong { font-size: 13px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+.room-workspace .pw-reference-toggle > span:last-child { font-size: 20px; }
+.room-workspace .pw-reference-toggle:hover { background: var(--aw-subtle); }
+.room-workspace .pw-reference-toggle:focus-visible { outline: 2px solid var(--aw-ink); outline-offset: 3px; }
+.room-workspace .pw-inquiry-reference:not(.is-open) > .pw-inquiry-reference-content { display: none; }
+.room-workspace .pw-inquiry-reference.is-open > .pw-inquiry-reference-content { margin-top: 8px; }
+.room-workspace .pw-project-navigation { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; margin: 20px 0; padding: 12px 0; border-block: 1px solid var(--aw-border); }
+.room-workspace .pw-view-choice { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.room-workspace .pw-view-choice > span { color: var(--aw-muted); font-size: 12px; }
+.room-workspace .pw-view-choice select { min-width: 0; max-width: 100%; min-height: 40px; padding: 8px 28px 8px 12px; border: 1px solid var(--aw-border); border-radius: var(--aw-radius); background: var(--aw-surface); color: var(--aw-ink); font-size: 13px; cursor: pointer; }
+.room-workspace .pw-view-choice select:hover { background: var(--aw-subtle); }
+.room-workspace .pw-view-choice select:focus-visible { outline: 2px solid var(--aw-ink); outline-offset: 3px; }
+.room-workspace .pw-project-navigation .ar-version-selector { flex-wrap: wrap; }
+.room-workspace .pw-optional-fields { margin-block: 24px; border-block: 1px solid var(--aw-border); }
+.room-workspace .pw-optional-fields > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; min-height: 48px; cursor: pointer; list-style: none; font-size: 14px; font-weight: 500; }
+.room-workspace .pw-optional-fields > summary::-webkit-details-marker { display: none; }
+.room-workspace .pw-optional-fields > summary::after { content: "+"; font-size: 18px; }
+.room-workspace .pw-optional-fields[open] > summary::after { content: "−"; }
+.room-workspace .pw-optional-fields > summary small { margin-left: auto; color: var(--aw-muted); font-size: 11px; font-weight: 400; }
+.room-workspace .pw-optional-fields > summary:hover { color: var(--aw-muted); }
+.room-workspace .pw-optional-fields > summary:focus-visible { outline: 2px solid var(--aw-ink); outline-offset: 3px; }
+.room-workspace .pw-optional-fields-body { padding-bottom: 20px; }
+.room-workspace .pw-optional-fields-body > .pw-help { margin: 0 0 18px; }
+.room-workspace .pw-event-reference { margin-top: 16px; }
+.room-workspace .pw-event-reference > summary { cursor: pointer; color: var(--aw-muted); font-size: 12px; line-height: 1.5; min-height: 44px; padding: 12px 0; }
+.room-workspace .pw-event-reference > summary:hover { color: var(--aw-ink); }
+.room-workspace .pw-event-reference > summary:focus-visible { outline: 2px solid var(--aw-ink); outline-offset: 3px; }
 .room-workspace .pw-progress { border: 0; gap: 8px; margin-bottom: 22px; }
 .room-workspace .pw-progress li { margin: 0; padding: 7px 14px 7px 0; border: 0; min-height: 40px; font-size: 11px; }
 .room-workspace .pw-progress li > span { width: 22px; height: 22px; font: 10px var(--aw-font); }
@@ -41,11 +71,6 @@
 .room-workspace .pw-project-row h2 { font-size: 20px; font-weight: 400; margin-top: 9px; }
 .room-workspace .pw-project-row p { font-size: 12px; }
 .room-workspace .pw-project-row > button { font-size: 12px; min-width: 160px; }
-.room-workspace .pw-project-tabs { border: 0; width: fit-content; max-width: 100%; background: #e9e9e6; padding: 4px; gap: 4px; border-radius: var(--aw-radius); margin: 24px 0; }
-.room-workspace .pw-project-tabs button { min-height: 40px; padding: 0 17px; border-radius: 3px; font-size: 12px; }
-.room-workspace .pw-project-tabs button[aria-selected="true"] { background: #fff; box-shadow: 0 1px 3px #00000008; font-weight: 500; }
-.room-workspace .pw-project-tabs button:hover:not([aria-selected="true"]) { background: #dededb; }
-.room-workspace .pw-project-tabs button > span { font: 9px var(--aw-font); border-color: var(--aw-border); }
 .room-workspace .pw-quote-title h2 { font-size: 24px; font-weight: 400; }
 .room-workspace .pw-quote-toolbar { gap: 14px; margin-bottom: 20px; }
 .room-workspace .pw-record-head { margin-bottom: 20px; }
@@ -83,13 +108,18 @@
   .room-workspace .pw-project-row { padding: 18px; }
   .room-workspace .pw-project-row h2 { font-size: 20px; }
   .room-workspace .pw-project-row > button { margin-top: 12px; }
-  .room-workspace .pw-project-tabs { gap: 2px; margin-block: 20px; width: 100%; }
-  .room-workspace .pw-project-tabs button { flex: 1; justify-content: center; padding-inline: 8px; font-size: 11px; }
-}
+    }
 @media(max-width: 360px) {
   .room-workspace { padding-inline: 12px; }
   .room-workspace .pw-main-column { padding: 15px; }
-  .room-workspace .pw-project-tabs button { padding-inline: 5px; gap: 5px; }
-  .room-workspace .pw-bottom-actions .ar-actions { gap: 8px; }
+    .room-workspace .pw-bottom-actions .ar-actions { gap: 8px; }
   .room-workspace .pw-bottom-actions .ar-button { padding-inline: 12px; }
+}
+
+@media (max-width: 760px) {
+  .room-workspace .pw-project-navigation { align-items: stretch; gap: 12px; }
+  .room-workspace .pw-view-choice { flex: 1 1 100%; justify-content: space-between; }
+  .room-workspace .pw-view-choice select { min-height: 44px; flex: 1; max-width: 240px; }
+  .room-workspace .pw-project-navigation .ar-version-selector { width: 100%; justify-content: space-between; }
+  .room-workspace .pw-project-navigation .ar-version-note { flex-basis: 100%; }
 }

@@ -79,7 +79,7 @@ export function IssueList({ issues, onEdit, draft }) {
           </span>
           <Button
             variant="quiet"
-            onClick={() => onEdit(issue.section)}
+            onClick={() => onEdit(issue.section, issue)}
             icon="arrow"
           >
             Open

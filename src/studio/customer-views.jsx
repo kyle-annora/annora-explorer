@@ -53,7 +53,7 @@ export function SmallLink({ href, children, ...props }) {
     </a>
   );
 }
-export function QuoteSummary({ quote, previous, productTitle = "Crank-slider assembly", drawing = null, showComparison = true, project }) {
+export function QuoteSummary({ quote, previous, productTitle = "Crank-slider assembly", drawing = null, showComparison = true, comparisonExpanded = false, project }) {
   const [expandedFor, setExpandedFor] = useState(null);
   const comparisonKey = `${previous?.id}:${quote?.id}:${quote?.version}`;
   const showUnchanged = expandedFor === comparisonKey;
@@ -83,10 +83,9 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
       </div>
       {drawing && <p className="customer-fine">Drawing reference: {drawing.title} · {drawing.revisionLabel || drawing.revision} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this project; dimensions remain to confirm.</p>}
       {showComparison && previous && (
-        <Section
-          className="customer-document-section"
-          title={`Changes from version ${previous.version}`}
-        >
+        <details className="customer-disclosure customer-comparison" key={comparisonKey} open={comparisonExpanded || undefined}>
+          <summary>Compare with version {previous.version}<span>{changedRows.length} changes</span></summary>
+          <div>
           <p className="customer-fine">
             {changedRows.length
               ? `${changedRows.length} changed fields. Unchanged terms are kept in the full quotation below.`
@@ -104,7 +103,8 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
           >
             {showUnchanged ? "Show changes only" : "Include unchanged fields"}
           </Button>
-        </Section>
+          </div>
+        </details>
       )}
       <section className="customer-document-section">
         <h3>Scope</h3>
@@ -274,9 +274,10 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
   );
   const visibleDocs = selectedDocs.length ? selectedDocs : docs;
   return (
-    <details className="customer-reference" open>
+    <details className="customer-reference">
       <summary>
-        Product reference <Glyph name="document" />
+        <span>Product reference<small>{context.part?.title || context.productTitle}{context.drawing ? ` · ${context.drawing.revisionLabel || context.drawing.revision}` : snapshot ? ` · Version ${snapshot.version}` : ""}</small></span>
+        <Glyph name="document" />
       </summary>
       <div className="customer-reference-body">
         {!context.drawing && context.modelId === "kinetic-01" && <img

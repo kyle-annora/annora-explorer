@@ -78,6 +78,19 @@ function ConfiguredInquiryField({ context, ...props }) {
 }
 const hasInquiryFields = (context, ids) => ids.some(id => inquiryField(context, id)?.enabled);
 
+/** Optional inputs stay available without competing with the initial request. */
+function TechnicalDetails({ context, values, errors, children }) {
+  const keys = ["stroke", "load", "notes"];
+  const [open, setOpen] = useState(() => keys.some(key => values[key]?.trim() || inquiryField(context, key)?.required));
+  const needsAttention = keys.some(key => errors[key]) || Boolean(errors.requirements);
+  useEffect(() => { if (needsAttention) setOpen(true); }, [needsAttention]);
+  const filled = keys.filter(key => values[key]?.trim()).length;
+  return <details className="pw-optional-fields" open={open} onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary><span>Technical details</span><small>{filled ? `${filled} added` : "Optional"}</small></summary>
+    <div className="pw-optional-fields-body">{children}</div>
+  </details>;
+}
+
 function savedStatus(project) {
   const state = projectStatus(project),
     latest = project.quotes.at(-1);
@@ -211,7 +224,7 @@ function ContextSummary({
   );
 }
 
-/** A mobile disclosure changes presentation only; the saved context is unchanged. */
+/** Reference disclosure changes presentation only; the saved context is unchanged. */
 function InquiryReference({ context, children }) {
   const [expanded, setExpanded] = useState(false);
   const contentId = useId();
@@ -412,6 +425,9 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
           document.querySelector('.room-workspace [aria-invalid="true"]') ||
           document.querySelector('.room-workspace [role="alert"]');
         if (target) {
+          for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+          }
           if (!target.matches("input,select,textarea")) target.tabIndex = -1;
           target.focus({ preventScroll: true });
           target.scrollIntoView({ block: "center", behavior: "instant" });
@@ -1246,10 +1262,8 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                       />
                     </div>
                   </Section>
-                  {hasInquiryFields(draft.context, ["stroke", "load", "notes"]) && <Section
-                    title="Technical details"
-                    description="Leave anything you do not know open for discussion."
-                  >
+                  {hasInquiryFields(draft.context, ["stroke", "load", "notes"]) && <TechnicalDetails context={draft.context} values={draft.values} errors={errors}>
+                    <p className="pw-help">Leave anything you do not know open for discussion.</p>
                     <div className="pw-field-grid">
                       <ConfiguredInquiryField
                       context={draft.context}
@@ -1340,7 +1354,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                     {errors.requirements && (
                       <p className="pw-field-error">{errors.requirements}</p>
                     )}
-                  </Section>}
+                  </TechnicalDetails>}
                   {hasInquiryFields(draft.context, ["name", "company", "email"]) && <Section
                     title="Contact details"
                     description="Use fictional contact details for this demonstration."
@@ -1806,56 +1820,23 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         {!inquiryOnly && <ProjectProgress project={project} />}
         <div className="pw-shared-status"><p><strong>{inquiryOnly ? "Inquiry saved" : projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{inquiryOnly ? "Your confirmed question and exact drawing reference stay together in this preview." : projectStatus(project).next}</span></p>{sellerLink}</div>
         {feedback}
-        {!inquiryOnly && <div
-          className="pw-project-tabs"
-          role="tablist"
-          aria-label="Project information"
-        >
-          {[
-            ["inquiry", "Inquiry"],
-            ["quotation", "Quotation"],
-            ["activity", "Conversation"],
-          ].map(([key, label]) => (
-            <button
-              key={key}
-              role="tab"
-              id={`pw-tab-${key}`}
-              aria-selected={tab === key}
-              aria-controls={`pw-panel-${key}`}
-              tabIndex={tab === key ? 0 : -1}
-              onKeyDown={(event) => {
-                const keys = ["inquiry", "quotation", "activity"];
-                let next;
-                if (event.key === "ArrowRight")
-                  next = keys[(keys.indexOf(tab) + 1) % 3];
-                if (event.key === "ArrowLeft")
-                  next = keys[(keys.indexOf(tab) + 2) % 3];
-                if (event.key === "Home") next = keys[0];
-                if (event.key === "End") next = keys[2];
-                if (next) {
-                  event.preventDefault();
-                  setTab(next);
-                  requestAnimationFrame(() =>
-                    document.getElementById(`pw-tab-${next}`)?.focus(),
-                  );
-                }
-              }}
-              onClick={() => setTab(key)}
-            >
-              {label}
-              {key === "quotation" && project.quotes.length > 0 && (
-                <span>v{project.quotes.at(-1).version}</span>
-              )}
-            </button>
-          ))}
+        {!inquiryOnly && <div className="pw-project-navigation">
+          <label className="pw-view-choice">
+            <span>Project view</span>
+            <select value={tab} onChange={event => setTab(event.target.value)} aria-controls="pw-project-content">
+              <option value="inquiry">Saved inquiry</option>
+              <option value="quotation">Quotation</option>
+              <option value="activity">Conversation</option>
+            </select>
+          </label>
+          {tab === "quotation" && quote && <VersionSelector
+            versions={project.quotes}
+            value={quote.id}
+            onChange={id => { setQuoteId(id); setAllComparisonFields(false); setError(null); }}
+          />}
         </div>}
-        <div
-          role={inquiryOnly ? "region" : "tabpanel"}
-          id={`pw-panel-${tab}`}
-          aria-labelledby={inquiryOnly ? undefined : `pw-tab-${tab}`}
-          aria-label={inquiryOnly ? "Saved inquiry" : undefined}
-          tabIndex={0}
-        >
+        <div role="region" id="pw-project-content"
+          aria-label={inquiryOnly || tab === "inquiry" ? "Saved inquiry" : tab === "quotation" ? "Quotation" : "Conversation"}>
           {tab === "inquiry" && (
             <div className="pw-layout">
               <div className="pw-main-column">
@@ -1894,15 +1875,6 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             ) : (
               <>
                 <div className="pw-quote-toolbar">
-                  <VersionSelector
-                    versions={project.quotes}
-                    value={quote.id}
-                    onChange={(id) => {
-                      setQuoteId(id);
-                      setAllComparisonFields(false);
-                      setError(null);
-                    }}
-                  />
                   <Evidence kind="sample">
                     {quote.source === "sample" ? "Legacy sample quotation · not an offer" : "Seller-issued demo quotation · not an offer"}
                   </Evidence>
@@ -2008,13 +1980,6 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                               {allComparisonFields ? "Show changed fields only" : "Include unchanged fields"}
                             </Button></>
                           )}
-                          <Button
-                            variant="quiet"
-                            onClick={() => setTab("activity")}
-                          >
-                            Read the conversation{" "}
-                            <span aria-hidden="true">→</span>
-                          </Button>
                         </Section>
                       )}
                       <p className="pw-application">{quote.scope}</p>
@@ -2096,21 +2061,13 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                     </article>
                   </div>
                   <aside className="pw-sidebar">
-                    <ContextSummary
-                      context={projectContext}
-                      onExplore={onExplore}
-                      compact
-                    />
+                    <InquiryReference context={projectContext}>
+                      <ContextSummary context={projectContext} onExplore={onExplore} compact />
+                    </InquiryReference>
                     {currentNextStep && (
                       <div className="pw-next-receipt">
                         <p className="pw-eyebrow">YOUR REQUEST</p>
                         <p>{currentNextStep.message}</p>
-                        <Button
-                          variant="quiet"
-                          onClick={() => setTab("activity")}
-                        >
-                          View request history
-                        </Button>
                       </div>
                     )}
                   </aside>

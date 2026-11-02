@@ -115,7 +115,8 @@ const drawingPreviewURL = (record) => {
 
 function Studio({ repository, projectRepository }) {
   const [selectedPartId, setSelectedPartId] = useState('rod');
-  const [mobileModel, setMobileModel] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(() => readRoute().page === 'edit');
+  const [issueToReveal, setIssueToReveal] = useState(null);
   const [smallScreen, setSmallScreen] = useState(() => window.innerWidth <= 900);
   useEffect(() => {
     const media = window.matchMedia('(max-width: 900px)');
@@ -176,6 +177,7 @@ function Studio({ repository, projectRepository }) {
       return;
     }
     ++navigationRef.current;
+    if (next.page === 'edit') setSettingsOpen(Boolean(next.section));
     history[replace ? "replaceState" : "pushState"]({}, "", routeHash(next));
     setRoute(next);
     window.dispatchEvent(new CustomEvent("annora:routechange"));
@@ -377,6 +379,7 @@ function Studio({ repository, projectRepository }) {
       setErrorIssues([]);
       setMessage("");
       setRoute(next);
+      if (next.page === 'edit') setSettingsOpen(true);
       window.dispatchEvent(new CustomEvent("annora:routechange"));
       setConfirmed(false);
       if (next.page === "preview") setPreview(null);
@@ -426,8 +429,29 @@ function Studio({ repository, projectRepository }) {
 
   const current = products.find((product) => product.id === STUDIO_PRODUCT_ID);
   const editSection = route.section || "product";
-  const openEdit = (section) =>
+  const openEdit = (section, issue) => {
+    if (issue?.path) {
+      setIssueToReveal({ path: issue.path });
+      const partIndex = issue.path.match(/^content\.partContent\.(\d+)/)?.[1];
+      const partId = partIndex !== undefined && draft?.content.partContent[Number(partIndex)]?.nodeId;
+      if (partId) setSelectedPartId(partId);
+    }
     navigate({ page: "edit", section: issueSection(section) });
+  };
+  useEffect(() => {
+    if (!issueToReveal || route.page !== 'edit' || !settingsOpen) return;
+    const frame = requestAnimationFrame(() => {
+      const panel = document.getElementById('studio-product-settings');
+      const group = [...(panel?.querySelectorAll('[data-issue-path]') || [])].find(element => issueToReveal.path === element.dataset.issuePath || issueToReveal.path.startsWith(`${element.dataset.issuePath}.`));
+      if (group) {
+        group.open = true;
+        group.scrollIntoView({ block: 'nearest' });
+        group.querySelector('input, textarea, select')?.focus({ preventScroll: true });
+      }
+      setIssueToReveal(null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [issueToReveal, route.page, route.section, settingsOpen]);
   const screen = route.page;
   const drawingCustomer = ["drawing-projects", "drawing-project"].includes(
     screen,
@@ -574,24 +598,20 @@ function Studio({ repository, projectRepository }) {
             onBack={() => navigate({ page: "products" })}
           />
         )}
-        {customerScreen && (
-          <nav
-            className="studio-project-source"
-            aria-label="Customer project source"
-          >
-            <Button
-              variant={drawingCustomer ? "quiet" : "secondary"}
-              onClick={() => navigate({ page: "projects" })}
-            >
-              Product Room projects
-            </Button>
-            <Button
-              variant={drawingCustomer ? "secondary" : "quiet"}
-              onClick={() => navigate({ page: "drawing-projects" })}
-            >
-              Drawing inquiries
-            </Button>
-          </nav>
+        {["projects", "drawing-projects"].includes(screen) && (
+          <div className="studio-project-source">
+            <label>
+              <span>Source</span>
+              <select
+                aria-label="Customer project source"
+                value={drawingCustomer ? "drawing-projects" : "projects"}
+                onChange={(event) => navigate({ page: event.target.value })}
+              >
+                <option value="projects">Product Room projects</option>
+                <option value="drawing-projects">Drawing inquiries</option>
+              </select>
+            </label>
+          </div>
         )}
         {drawingCustomer && (
           <CustomerWorkspace
@@ -625,7 +645,6 @@ function Studio({ repository, projectRepository }) {
           <div className="studio-products">
             <div className="studio-page-heading">
               <div>
-                <p className="ar-eyebrow">YOUR PRODUCT WORKSPACE</p>
                 <h1>Products</h1>
                 <p>Prepare what customers see, understand, and ask for.</p>
               </div>
@@ -665,8 +684,8 @@ function Studio({ repository, projectRepository }) {
                     <span className="studio-mobile-label">Last edited</span>
                     {date(product.updatedAt)}
                   </div>
-                  <Button onClick={() => openEdit("product")} icon="arrow">
-                    Edit product
+                  <Button onClick={() => navigate({ page: 'edit' })} icon="arrow">
+                    Open product
                   </Button>
                 </div>
               ))}
@@ -690,11 +709,8 @@ function Studio({ repository, projectRepository }) {
               </a>
             </div>
             {releases.length > 1 && (
-              <Section
-                className="studio-release-history"
-                title="Release history"
-                description="Versioned product content saved in this browser."
-              >
+              <details className="studio-release-history studio-history-disclosure">
+                <summary>Release history <span>{releases.length} versions</span></summary>
                 <div>
                   {releases.map((release) => (
                     <div className="studio-history-row" key={release.id}>
@@ -725,7 +741,7 @@ function Studio({ repository, projectRepository }) {
                     </div>
                   ))}
                 </div>
-              </Section>
+              </details>
             )}
           </div>
         )}
@@ -777,47 +793,19 @@ function Studio({ repository, projectRepository }) {
                 </Button>
               </div>
             </div>
-            <div className="studio-editor-layout" data-mobile-view={mobileModel ? 'model' : 'fields'}>
-              <aside className="studio-sidebar">
-                <nav aria-label="Product editing sections">
-                  {sections.map((section, index) => (
-                    <a
-                      key={section.id}
-                      href={`#edit/${section.id}`}
-                      aria-current={
-                        editSection === section.id ? "page" : undefined
-                      }
-                      onClick={(event) => {
-                        event.preventDefault();
-                        navigate({ page: "edit", section: section.id });
-                      }}
-                    >
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      {section.title}
-                      {issues.some(
-                        (issue) =>
-                          issue.severity === "error" &&
-                          issueSection(issue.section) === section.id,
-                      ) && <i aria-label="Has issues" />}
-                    </a>
-                  ))}
-                </nav>
-                <div className="studio-sidebar-context">
-                  <p className="ar-eyebrow">PREPARED MODEL</p>
-                  <strong>Crank-slider mechanism</strong>
-                  <span>107 components · 1 operating clip</span>
-                  <code title={draft.modelRevision}>
-                    {draft.modelRevision.slice(0, 20)}…
-                  </code>
-                  <p>Product details and documents stay linked to this model version.</p>
-                </div>
-              </aside>
-              <div className="studio-mobile-editor-tabs" aria-label="Editor view">
-                <button type="button" aria-pressed={!mobileModel} onClick={() => setMobileModel(false)}>Edit details</button>
-                <button type="button" aria-pressed={mobileModel} onClick={() => setMobileModel(true)}>Product model</button>
-              </div>
-              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} visible={!smallScreen || mobileModel} onEdit={() => { setMobileModel(false); navigate({page:'edit', section:'parts'}); }}/>
-              <div className="studio-editor-body">
+            {!settingsOpen && <p className="studio-product-intro">{draft.content.description}</p>}
+            <div className="studio-edit-toolbar">
+              <label className="studio-edit-section">
+                <span className="ar-sr-only">Product settings</span>
+                <select value={editSection} onChange={(event) => navigate({ page: 'edit', section: event.target.value })} disabled={Boolean(busy)}>
+                  {sections.map(section => <option key={section.id} value={section.id}>{section.title}{issues.some(issue => issue.severity === 'error' && issueSection(issue.section) === section.id) ? ' · Needs attention' : ''}</option>)}
+                </select>
+              </label>
+              <Button id="studio-toggle-settings" variant="quiet" icon={settingsOpen ? 'back' : undefined} onClick={() => setSettingsOpen(value => !value)} aria-expanded={settingsOpen} aria-controls="studio-product-settings">{settingsOpen ? 'Back to product' : 'Edit settings'}</Button>
+            </div>
+            <div className="studio-editor-layout" data-editing={settingsOpen}>
+              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} visible={!smallScreen || !settingsOpen} onEdit={() => navigate({page:'edit', section:'parts'})}/>
+              <div className="studio-editor-body" id="studio-product-settings" hidden={!settingsOpen}>
                 <fieldset
                   className="studio-editor-fields"
                   disabled={Boolean(busy)}
@@ -832,7 +820,7 @@ function Studio({ repository, projectRepository }) {
                       busy={Boolean(busy)}
                       selectedPartId={selectedPartId}
                       onSelectPart={setSelectedPartId}
-                      onOpenModel={() => { setMobileModel(true); document.getElementById('studio-model-stage')?.scrollIntoView({block:'nearest'}); }}
+                      onOpenModel={() => { setSettingsOpen(false); requestAnimationFrame(() => document.getElementById('studio-toggle-settings')?.focus()); }}
                     />
                   )}
                   {editSection === "presentation" && (
@@ -844,16 +832,6 @@ function Studio({ repository, projectRepository }) {
                 </fieldset>
                 <div className="studio-editor-bottom">
                   <span>Your changes apply to a new product version.</span>
-                  <Button
-                    variant="secondary"
-                    onClick={openPreview}
-                    disabled={Boolean(busy)}
-                    pending={busy === "preview"}
-                    pendingLabel="Preparing…"
-                    icon="arrow"
-                  >
-                    Preview buyer experience
-                  </Button>
                 </div>
               </div>
             </div>
@@ -904,7 +882,6 @@ function Studio({ repository, projectRepository }) {
           <div className="studio-release-page">
             <div className="studio-page-heading">
               <div>
-                <p className="ar-eyebrow">RELEASE REVIEW</p>
                 <h1>Review before you release.</h1>
                 <p>
                   Check the product changes and confirm the version customers
@@ -1031,11 +1008,6 @@ function Studio({ repository, projectRepository }) {
               <div className="studio-receipt-mark">
                 <Glyph name="check" />
               </div>
-              <p className="ar-eyebrow">
-                {receipt.source === "bundled"
-                  ? "BUNDLED REFERENCE"
-                  : "DEMO RELEASE SAVED"}
-              </p>
               <h1>Version {receipt.version} is ready to explore.</h1>
               <p>{receipt.content.title}</p>
               <Status tone="complete">

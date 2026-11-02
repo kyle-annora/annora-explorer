@@ -16,12 +16,9 @@ export function Preview({ preview, onReview, onEdit, busy }) {
     <div className="studio-preview-page">
       <div className="studio-preview-intro">
         <div>
-          <p className="ar-eyebrow">
-            BUYER PREVIEW / DRAFT {preview.draftRevision}
-          </p>
           <h1>See it as your customer will.</h1>
           <p>
-            Explore the product, follow a part link, and try the inquiry review.
+            Draft {preview.draftRevision} · Explore the product, follow a part link, and try the inquiry review.
           </p>
         </div>
         <ActionGroup>
@@ -39,23 +36,11 @@ export function Preview({ preview, onReview, onEdit, busy }) {
         </ActionGroup>
       </div>
       <div className="studio-preview-toolbar">
-        <div className="studio-segmented" aria-label="Preview size">
-          {[
-            ["desktop", "Desktop"],
-            ["mobile", "Phone · 390px"],
-          ].map(([id, label]) => (
-            <button
-              type="button"
-              key={id}
-              onClick={() => setSize(id)}
-              aria-pressed={size === id}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <details className="studio-preview-options">
+          <summary>Preview options <span>{size === 'mobile' ? 'Phone · 390px' : 'Desktop'}</span></summary>
+          <div className="studio-preview-option-fields">
+            <Field label="Screen size" value={size} options={[["desktop", "Desktop"], ["mobile", "Phone · 390px"]]} onChange={event => setSize(event.target.value)} />
         <Field
-          className="studio-preview-page-select"
           label="Start at"
           value={page}
           options={[
@@ -66,6 +51,8 @@ export function Preview({ preview, onReview, onEdit, busy }) {
           ]}
           onChange={(e) => setPage(e.target.value)}
         />
+          </div>
+        </details>
         <a
           className="studio-text-link"
           href={src}

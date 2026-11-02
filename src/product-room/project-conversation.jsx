@@ -23,7 +23,6 @@ export function ProjectConversation({ project, onQuote, onReply, onExplore }) {
   ].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   return <div className="pw-conversation">
     <div className="pw-conversation-intro">
-      <p className="pw-eyebrow">ONE SHARED PROJECT</p>
       <h2>Questions, replies and decisions.</h2>
       <p>Each message keeps its author and context. Issued quotations remain available as fixed versions.</p>
       {question && <div className="pw-question-callout">
@@ -93,9 +92,11 @@ export function ProjectConversation({ project, onQuote, onReply, onExplore }) {
               <p className="pw-preserve">{result.response}</p>
               <Status tone={result.status === "needs-info" ? "pending" : "complete"}>{resultNames[result.status] || result.status}</Status>
             </section>)}</div>}
-            {question?.id === value.id && <Button variant="secondary" onClick={onReply}>Reply to question</Button>}
           </>}
-          <DrawingReference context={recordContext(project, value)} onOpen={onExplore} compact />
+          {recordContext(project, value)?.drawing && <details className="pw-event-reference">
+            <summary>Drawing reference · {recordContext(project, value).drawing.revisionLabel || recordContext(project, value).drawing.revision}</summary>
+            <DrawingReference context={recordContext(project, value)} onOpen={onExplore} compact />
+          </details>}
         </li>;
       })}
     </ol>

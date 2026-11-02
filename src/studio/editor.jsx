@@ -126,7 +126,6 @@ export function ProductFields({ draft, change }) {
   return (
     <>
       <Section
-        eyebrow="01 / PRODUCT INFORMATION"
         title="Product information"
         description="These details become the overview your customers read before starting an inquiry."
       >
@@ -183,7 +182,7 @@ export function ProductFields({ draft, change }) {
           <details
             key={group.id}
             className="studio-fact-group"
-            open={groupIndex === 0}
+            data-issue-path={`content.specGroups.${groupIndex}`}
           >
             <summary>
               <span>{group.title}</span>
@@ -255,7 +254,8 @@ export function ProductFields({ draft, change }) {
 export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart, onOpenModel }) {
   const [localSelectedId, setLocalSelectedId] = useState("rod"),
     [picker, setPicker] = useState(false),
-    [assetId, setAssetId] = useState(STUDIO_ASSETS[0]?.id || "");
+    [assetId, setAssetId] = useState(STUDIO_ASSETS[0]?.id || ""),
+    [newDocumentId, setNewDocumentId] = useState('');
   const selectedId = selectedPartId || localSelectedId;
   const setSelectedId = onSelectPart || setLocalSelectedId;
   const content = draft.content;
@@ -287,9 +287,10 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
   function addDocument() {
     const asset = STUDIO_ASSETS.find((item) => item.id === assetId);
     if (!asset) return;
+    const id = `document-${Date.now().toString(36)}`;
     change((next) => {
       next.content.documents.push({
-        id: `document-${Date.now().toString(36)}`,
+        id,
         title: asset.title,
         description: "Reference material for this product conversation.",
         assetId: asset.id,
@@ -301,6 +302,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
         sample: true,
       });
     });
+    setNewDocumentId(id);
   }
   function removeDocument(id) {
     change((next) => {
@@ -315,7 +317,6 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
   return (
     <>
       <Section
-        eyebrow="02 / PARTS & DOCUMENTS"
         title="Parts & documents"
         description="Select an existing component, add a customer-facing explanation, and connect the documents that support it."
         actions={
@@ -408,7 +409,9 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
         title="Document library"
         description="Use the supplied sample documents. Document revisions and part links are saved with the product release."
       >
-        <div className="studio-document-add">
+        <details className="studio-inline-disclosure studio-add-document">
+          <summary>Add document</summary>
+          <div className="studio-document-add">
           <Field
             label="Prepared document"
             options={STUDIO_ASSETS.map((asset) => [asset.id, asset.title])}
@@ -418,13 +421,15 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
           <Button variant="secondary" onClick={addDocument} icon="plus">
             Add document
           </Button>
-        </div>
+          </div>
+        </details>
         <div className="studio-document-list">
           {content.documents.map((doc, index) => (
             <details
               className="studio-document-row"
               key={doc.id}
-              open={index === 0}
+              open={doc.id === newDocumentId}
+              data-issue-path={`content.documents.${index}`}
             >
               <summary>
                 <Glyph name="document" />
@@ -536,7 +541,6 @@ export function PresentationFields({ draft, change }) {
   return (
     <>
       <Section
-        eyebrow="03 / PRESENTATION"
         title="Presentation"
         description="Keep the existing Explorer controls and motion. These settings choose its starting view and the explanations linked from the Room."
       >
@@ -577,11 +581,9 @@ export function PresentationFields({ draft, change }) {
       >
         <div className="studio-question-list">
           {questions.map((question, index) => (
-            <div className="studio-question-editor" key={question.id}>
-              <div className="studio-question-number">
-                {String(index + 1).padStart(2, "0")}
-              </div>
-              <div className="studio-form-stack">
+            <details className="studio-question-disclosure" key={question.id} data-issue-path={`content.questions.${index}`}>
+              <summary><span><strong>{question.title || 'Untitled explanation'}</strong><small>{options.find(([value]) => value === targetValue(question.target))?.[1] || 'Choose a 3D destination'}</small></span><Glyph name="plus" /></summary>
+              <div className="studio-form-stack studio-question-fields">
                 <Field
                   label="Customer question"
                   value={question.title}
@@ -630,7 +632,7 @@ export function PresentationFields({ draft, change }) {
                   />
                 </div>
               </div>
-            </div>
+            </details>
           ))}
         </div>
       </Section>
@@ -647,7 +649,6 @@ export function InquiryFields({ draft, change }) {
   return (
     <>
       <Section
-        eyebrow="04 / INQUIRY SETUP"
         title="Inquiry setup"
         description="Configure the existing inquiry fields. Their wording follows the customer from filling in the form to reviewing the saved request."
       >
@@ -668,7 +669,7 @@ export function InquiryFields({ draft, change }) {
               <details
                 className="studio-inquiry-row"
                 key={field.id}
-                open={index < 2}
+                data-issue-path={`inquiryProfile.fields.${index}`}
               >
                 <summary>
                   <span>
