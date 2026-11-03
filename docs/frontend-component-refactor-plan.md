@@ -1,6 +1,6 @@
 # Frontend component refactor plan
 
-Status: Phases 0 and 1 implemented and verified locally on 2026-11-03.
+Status: Phases 0 and 1 implemented, published and verified on 2026-11-03.
 See [delivery review](frontend-settings-refactor-review.md) for publication and evidence.
 Baseline source: `2585778`, reviewed on 2026-11-03.
 

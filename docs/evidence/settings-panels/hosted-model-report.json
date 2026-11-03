@@ -1,0 +1,67 @@
+{
+  "base": "https://kyle-annora.github.io/annora-explorer/",
+  "label": "hosted",
+  "browser": "156.0.8078.80",
+  "models": [
+    {
+      "model": "kinetic-01",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    },
+    {
+      "model": "apollo",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": {
+        "expected": "steps",
+        "before": {
+          "status": "playing",
+          "time": "0.083"
+        },
+        "after": {
+          "status": "playing",
+          "time": "0.433",
+          "reason": ""
+        },
+        "paused": "0.467",
+        "exit": true
+      }
+    },
+    {
+      "model": "open-duck",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": {
+        "expected": "continuous",
+        "before": {
+          "status": "playing",
+          "time": "0.03"
+        },
+        "after": {
+          "status": "playing",
+          "time": "0.28",
+          "reason": ""
+        },
+        "paused": "0.33",
+        "exit": true
+      }
+    }
+  ],
+  "crossTab": [
+    {
+      "direction": "first → second",
+      "state": {
+        "appearance": "dark",
+        "theme": "ion-blue",
+        "grid": false,
+        "url": "?model=kinetic-01&appearance=dark&theme=ion-blue&quality=performance"
+      }
+    },
+    {
+      "direction": "second → first",
+      "accent": "#b66bff"
+    }
+  ],
+  "errors": []
+}

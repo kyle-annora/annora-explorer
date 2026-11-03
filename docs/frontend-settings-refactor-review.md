@@ -1,7 +1,7 @@
 # Settings component delivery review
 
 Date: 2026-11-03. Scope: frontend component plan Phases 0 and 1 only.
-Status: local verification complete; GitHub Pages publication is in progress.
+Status: published and verified on GitHub Pages.
 Runtime commit: `4f8f525bb8b1e88b05d49a1ea2c8d65687c19ad7`.
 Baseline source: `2585778296c441b5ba1f7c8a8c43628b9aceebcb`.
 
@@ -63,3 +63,18 @@ See the [baseline ownership map](frontend-settings-baseline.md),
 
 This is a source-only component extraction. Reverting the runtime commit restores
 the previous composition without any model, drawing or commercial data migration.
+
+## Publication record
+
+- Deployed source: `91cc8072bde6d13f91cc09cf5acf4c80f2d75b67`.
+- Runtime extraction: `4f8f525bb8b1e88b05d49a1ea2c8d65687c19ad7`.
+- [GitHub Pages deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/41741849858): successful; CI validation and build passed.
+- Live entry bundle `explorer-JNun_L9L.js` matches the locally reviewed production artifact.
+- Hosted standalone settings: all 111 checks across four viewports passed, with no page errors.
+- Hosted Product Room and Studio: all four desktop/mobile iframe cases passed, with one canvas and no overflow.
+- Hosted Kinetic, Apollo and Open Duck: loading, settings and tour behavior passed; two-way preference synchronization passed.
+- Hosted desktop commercial walkthrough: all 20 guided actions and six explicit review confirmations completed, including v2 and seller acknowledgment. History, unrelated fixtures, repeat-click guards and reload/resume remained intact.
+
+The hosted evidence is retained beside the local evidence. This publication
+record is a documentation-only follow-up; the deployed runtime revision above
+remains the reviewed build. Phases 2–5 await review of this bounded pilot.
