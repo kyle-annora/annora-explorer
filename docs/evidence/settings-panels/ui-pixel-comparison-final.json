@@ -1,0 +1,547 @@
+[
+  {
+    "name": "1280x720-appearance-dark.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-appearance-light.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-closed.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-display-engineering.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-display-flat.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-display-linework.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "1280x720-invalid-accent.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-appearance-dark.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-appearance-light.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-closed.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-display-engineering.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-display-flat.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-display-linework.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": false,
+        "diff": [
+          60,
+          40,
+          61,
+          41
+        ]
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "320x740-invalid-accent.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-appearance-dark.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-appearance-light.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-closed.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-display-engineering.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-display-flat.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-display-linework.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "390x844-invalid-accent.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-appearance-dark.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-appearance-light.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-closed.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-display-engineering.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-display-flat.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-display-linework.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-panel",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  },
+  {
+    "name": "844x390-invalid-accent.json",
+    "regions": [
+      {
+        "region": "theme-trigger",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "theme-panel",
+        "identical": true,
+        "diff": null
+      },
+      {
+        "region": "display-trigger",
+        "identical": true,
+        "diff": null
+      }
+    ]
+  }
+]

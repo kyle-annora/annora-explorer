@@ -1,0 +1,91 @@
+{
+  "base": "http://127.0.0.1:8187/annora-explorer/",
+  "label": "candidate",
+  "browser": "156.0.8078.80",
+  "models": [
+    {
+      "model": "kinetic-01",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    },
+    {
+      "model": "apollo",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": {
+        "expected": "steps",
+        "before": {
+          "status": "paused",
+          "time": "0.000"
+        },
+        "after": {
+          "status": "paused",
+          "time": "0.000",
+          "reason": "ready"
+        },
+        "paused": "0.000",
+        "exit": true
+      }
+    },
+    {
+      "model": "linkrods",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    },
+    {
+      "model": "sk08",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    },
+    {
+      "model": "open-duck",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": {
+        "expected": "continuous",
+        "before": {
+          "status": "playing",
+          "time": "0.03"
+        },
+        "after": {
+          "status": "playing",
+          "time": "0.27",
+          "reason": ""
+        },
+        "paused": "0.30",
+        "exit": true
+      }
+    },
+    {
+      "model": "hexapod",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    },
+    {
+      "model": "dropbear",
+      "ready": true,
+      "canvasCount": 1,
+      "tour": null
+    }
+  ],
+  "crossTab": [
+    {
+      "direction": "first → second",
+      "state": {
+        "appearance": "dark",
+        "theme": "ion-blue",
+        "grid": false,
+        "url": "?model=kinetic-01&appearance=dark&theme=ion-blue&quality=performance"
+      }
+    },
+    {
+      "direction": "second → first",
+      "accent": "#b66bff"
+    }
+  ],
+  "errors": []
+}

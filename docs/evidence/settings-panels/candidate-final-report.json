@@ -1,0 +1,485 @@
+{
+  "base": "http://127.0.0.1:8187/annora-explorer/",
+  "label": "candidate-final",
+  "browser": "156.0.8078.80",
+  "timestamp": "2026-11-03T23:33:24.205Z",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "checks": [
+        {
+          "name": "1280x720-closed no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-closed one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720 appearance initial focus",
+          "result": true
+        },
+        {
+          "name": "1280x720-appearance-light no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-appearance-light one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720-appearance-dark no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-appearance-dark one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720 invalid accent",
+          "result": true
+        },
+        {
+          "name": "1280x720-invalid-accent no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-invalid-accent one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720 valid custom accent",
+          "result": true
+        },
+        {
+          "name": "1280x720 appearance escape return",
+          "result": true
+        },
+        {
+          "name": "1280x720 display initial focus",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-engineering no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-engineering one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-linework no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-linework one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720 display detail inputs",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-flat no overflow",
+          "result": true
+        },
+        {
+          "name": "1280x720-display-flat one canvas",
+          "result": true
+        },
+        {
+          "name": "1280x720 display tab containment",
+          "result": true
+        },
+        {
+          "name": "1280x720 display escape return",
+          "result": true
+        },
+        {
+          "name": "1280x720 appearance to display exclusion",
+          "result": true
+        },
+        {
+          "name": "1280x720 display to appearance exclusion",
+          "result": true
+        },
+        {
+          "name": "1280x720 outside pointer close",
+          "result": true
+        },
+        {
+          "name": "1280x720 settings after tree",
+          "result": true
+        },
+        {
+          "name": "1280x720 reload preferences",
+          "result": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": [
+        {
+          "name": "390x844-closed no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-closed one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844 appearance initial focus",
+          "result": true
+        },
+        {
+          "name": "390x844-appearance-light no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-appearance-light one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844-appearance-dark no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-appearance-dark one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844 invalid accent",
+          "result": true
+        },
+        {
+          "name": "390x844-invalid-accent no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-invalid-accent one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844 valid custom accent",
+          "result": true
+        },
+        {
+          "name": "390x844 appearance escape return",
+          "result": true
+        },
+        {
+          "name": "390x844 display initial focus",
+          "result": true
+        },
+        {
+          "name": "390x844-display-engineering no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-display-engineering one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844-display-linework no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-display-linework one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844 display detail inputs",
+          "result": true
+        },
+        {
+          "name": "390x844-display-flat no overflow",
+          "result": true
+        },
+        {
+          "name": "390x844-display-flat one canvas",
+          "result": true
+        },
+        {
+          "name": "390x844 display tab containment",
+          "result": true
+        },
+        {
+          "name": "390x844 display escape return",
+          "result": true
+        },
+        {
+          "name": "390x844 appearance to display exclusion",
+          "result": true
+        },
+        {
+          "name": "390x844 display to appearance exclusion",
+          "result": true
+        },
+        {
+          "name": "390x844 outside pointer close",
+          "result": true
+        },
+        {
+          "name": "390x844 mobile tree dismisses before settings",
+          "result": true
+        },
+        {
+          "name": "390x844 settings after tree",
+          "result": true
+        },
+        {
+          "name": "390x844 reload preferences",
+          "result": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "checks": [
+        {
+          "name": "320x740-closed no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-closed one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740 appearance initial focus",
+          "result": true
+        },
+        {
+          "name": "320x740-appearance-light no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-appearance-light one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740-appearance-dark no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-appearance-dark one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740 invalid accent",
+          "result": true
+        },
+        {
+          "name": "320x740-invalid-accent no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-invalid-accent one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740 valid custom accent",
+          "result": true
+        },
+        {
+          "name": "320x740 appearance escape return",
+          "result": true
+        },
+        {
+          "name": "320x740 display initial focus",
+          "result": true
+        },
+        {
+          "name": "320x740-display-engineering no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-display-engineering one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740-display-linework no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-display-linework one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740 display detail inputs",
+          "result": true
+        },
+        {
+          "name": "320x740-display-flat no overflow",
+          "result": true
+        },
+        {
+          "name": "320x740-display-flat one canvas",
+          "result": true
+        },
+        {
+          "name": "320x740 display tab containment",
+          "result": true
+        },
+        {
+          "name": "320x740 display escape return",
+          "result": true
+        },
+        {
+          "name": "320x740 appearance to display exclusion",
+          "result": true
+        },
+        {
+          "name": "320x740 display to appearance exclusion",
+          "result": true
+        },
+        {
+          "name": "320x740 outside pointer close",
+          "result": true
+        },
+        {
+          "name": "320x740 mobile tree dismisses before settings",
+          "result": true
+        },
+        {
+          "name": "320x740 settings after tree",
+          "result": true
+        },
+        {
+          "name": "320x740 reload preferences",
+          "result": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "checks": [
+        {
+          "name": "844x390-closed no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-closed one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390 appearance initial focus",
+          "result": true
+        },
+        {
+          "name": "844x390-appearance-light no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-appearance-light one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390-appearance-dark no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-appearance-dark one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390 invalid accent",
+          "result": true
+        },
+        {
+          "name": "844x390-invalid-accent no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-invalid-accent one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390 valid custom accent",
+          "result": true
+        },
+        {
+          "name": "844x390 appearance escape return",
+          "result": true
+        },
+        {
+          "name": "844x390 display initial focus",
+          "result": true
+        },
+        {
+          "name": "844x390-display-engineering no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-display-engineering one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390-display-linework no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-display-linework one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390 display detail inputs",
+          "result": true
+        },
+        {
+          "name": "844x390-display-flat no overflow",
+          "result": true
+        },
+        {
+          "name": "844x390-display-flat one canvas",
+          "result": true
+        },
+        {
+          "name": "844x390 display tab containment",
+          "result": true
+        },
+        {
+          "name": "844x390 display escape return",
+          "result": true
+        },
+        {
+          "name": "844x390 appearance to display exclusion",
+          "result": true
+        },
+        {
+          "name": "844x390 display to appearance exclusion",
+          "result": true
+        },
+        {
+          "name": "844x390 outside pointer close",
+          "result": true
+        },
+        {
+          "name": "844x390 mobile tree dismisses before settings",
+          "result": true
+        },
+        {
+          "name": "844x390 settings after tree",
+          "result": true
+        },
+        {
+          "name": "844x390 reload preferences",
+          "result": true
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

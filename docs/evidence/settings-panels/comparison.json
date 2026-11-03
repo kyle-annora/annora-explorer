@@ -1,0 +1,511 @@
+{
+  "baseline": "baseline",
+  "candidate": "candidate-final",
+  "snapshots": [
+    {
+      "name": "1280x720-appearance-dark.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-appearance-light.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-closed.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-display-engineering.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-display-flat.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-display-linework.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "1280x720-invalid-accent.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-appearance-dark.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-appearance-light.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-closed.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-display-engineering.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-display-flat.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-display-linework.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "320x740-invalid-accent.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-appearance-dark.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-appearance-light.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-closed.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-display-engineering.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-display-flat.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-display-linework.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "390x844-invalid-accent.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-appearance-dark.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-appearance-light.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-closed.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-display-engineering.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-display-flat.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-display-linework.json",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "name": "844x390-invalid-accent.json",
+      "identical": true,
+      "differences": []
+    }
+  ],
+  "images": [
+    {
+      "name": "1280x720-appearance-dark.png",
+      "identical": false,
+      "changedPixelsOver2": 56047,
+      "changedPercent": 6.08149,
+      "bbox": [
+        332,
+        172,
+        943,
+        469
+      ]
+    },
+    {
+      "name": "1280x720-appearance-light.png",
+      "identical": false,
+      "changedPixelsOver2": 56067,
+      "changedPercent": 6.08366,
+      "bbox": [
+        332,
+        172,
+        942,
+        469
+      ]
+    },
+    {
+      "name": "1280x720-closed.png",
+      "identical": false,
+      "changedPixelsOver2": 56067,
+      "changedPercent": 6.08366,
+      "bbox": [
+        332,
+        172,
+        942,
+        469
+      ]
+    },
+    {
+      "name": "1280x720-display-engineering.png",
+      "identical": false,
+      "changedPixelsOver2": 56045,
+      "changedPercent": 6.08127,
+      "bbox": [
+        332,
+        172,
+        942,
+        469
+      ]
+    },
+    {
+      "name": "1280x720-display-flat.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "1280x720-display-linework.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "1280x720-invalid-accent.png",
+      "identical": false,
+      "changedPixelsOver2": 56047,
+      "changedPercent": 6.08149,
+      "bbox": [
+        332,
+        172,
+        943,
+        469
+      ]
+    },
+    {
+      "name": "320x740-appearance-dark.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "320x740-appearance-light.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "320x740-closed.png",
+      "identical": false,
+      "changedPixelsOver2": 12292,
+      "changedPercent": 5.19088,
+      "bbox": [
+        21,
+        264,
+        295,
+        396
+      ]
+    },
+    {
+      "name": "320x740-display-engineering.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "320x740-display-flat.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "320x740-display-linework.png",
+      "identical": false,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": [
+        305,
+        88,
+        308,
+        113
+      ]
+    },
+    {
+      "name": "320x740-invalid-accent.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "390x844-appearance-dark.png",
+      "identical": false,
+      "changedPixelsOver2": 329,
+      "changedPercent": 0.09995,
+      "bbox": [
+        46,
+        324,
+        72,
+        407
+      ]
+    },
+    {
+      "name": "390x844-appearance-light.png",
+      "identical": false,
+      "changedPixelsOver2": 333,
+      "changedPercent": 0.10117,
+      "bbox": [
+        47,
+        322,
+        72,
+        407
+      ]
+    },
+    {
+      "name": "390x844-closed.png",
+      "identical": false,
+      "changedPixelsOver2": 15492,
+      "changedPercent": 4.70653,
+      "bbox": [
+        47,
+        300,
+        361,
+        459
+      ]
+    },
+    {
+      "name": "390x844-display-engineering.png",
+      "identical": false,
+      "changedPixelsOver2": 547,
+      "changedPercent": 0.16618,
+      "bbox": [
+        322,
+        359,
+        361,
+        437
+      ]
+    },
+    {
+      "name": "390x844-display-flat.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "390x844-display-linework.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "390x844-invalid-accent.png",
+      "identical": false,
+      "changedPixelsOver2": 329,
+      "changedPercent": 0.09995,
+      "bbox": [
+        46,
+        324,
+        72,
+        407
+      ]
+    },
+    {
+      "name": "844x390-appearance-dark.png",
+      "identical": false,
+      "changedPixelsOver2": 7583,
+      "changedPercent": 2.30374,
+      "bbox": [
+        185,
+        134,
+        431,
+        256
+      ]
+    },
+    {
+      "name": "844x390-appearance-light.png",
+      "identical": false,
+      "changedPixelsOver2": 7588,
+      "changedPercent": 2.30526,
+      "bbox": [
+        184,
+        134,
+        427,
+        256
+      ]
+    },
+    {
+      "name": "844x390-closed.png",
+      "identical": false,
+      "changedPixelsOver2": 7588,
+      "changedPercent": 2.30526,
+      "bbox": [
+        184,
+        134,
+        427,
+        256
+      ]
+    },
+    {
+      "name": "844x390-display-engineering.png",
+      "identical": false,
+      "changedPixelsOver2": 7583,
+      "changedPercent": 2.30374,
+      "bbox": [
+        185,
+        134,
+        431,
+        256
+      ]
+    },
+    {
+      "name": "844x390-display-flat.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "844x390-display-linework.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "844x390-invalid-accent.png",
+      "identical": false,
+      "changedPixelsOver2": 7583,
+      "changedPercent": 2.30374,
+      "bbox": [
+        185,
+        134,
+        431,
+        256
+      ]
+    },
+    {
+      "name": "product-room-1280-appearance.png",
+      "identical": false,
+      "changedPixelsOver2": 55063,
+      "changedPercent": 5.97472,
+      "bbox": [
+        373,
+        177,
+        925,
+        477
+      ]
+    },
+    {
+      "name": "product-room-1280-display.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "product-room-390-appearance.png",
+      "identical": false,
+      "changedPixelsOver2": 21263,
+      "changedPercent": 6.45978,
+      "bbox": [
+        0,
+        104,
+        390,
+        844
+      ]
+    },
+    {
+      "name": "product-room-390-display.png",
+      "identical": false,
+      "changedPixelsOver2": 607,
+      "changedPercent": 0.18441,
+      "bbox": [
+        322,
+        384,
+        364,
+        480
+      ]
+    },
+    {
+      "name": "studio-1280-appearance.png",
+      "identical": false,
+      "changedPixelsOver2": 10483,
+      "changedPercent": 1.13748,
+      "bbox": [
+        505,
+        360,
+        769,
+        485
+      ]
+    },
+    {
+      "name": "studio-1280-display.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    },
+    {
+      "name": "studio-390-appearance.png",
+      "identical": false,
+      "changedPixelsOver2": 17,
+      "changedPercent": 0.00516,
+      "bbox": [
+        51,
+        512,
+        58,
+        536
+      ]
+    },
+    {
+      "name": "studio-390-display.png",
+      "identical": true,
+      "changedPixelsOver2": 0,
+      "changedPercent": 0.0,
+      "bbox": null
+    }
+  ],
+  "missing": []
+}

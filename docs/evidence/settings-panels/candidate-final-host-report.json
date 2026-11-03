@@ -1,0 +1,91 @@
+{
+  "base": "http://127.0.0.1:8187/annora-explorer/",
+  "label": "candidate-final",
+  "cases": [
+    {
+      "host": "product-room/",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "state": {
+        "appearance": "dark",
+        "render": "linework",
+        "theme": "ember",
+        "canvas": 1,
+        "overflow": false,
+        "displayHidden": false,
+        "themeHidden": true,
+        "iframeSize": [
+          1280,
+          656
+        ]
+      },
+      "hostOverflow": false
+    },
+    {
+      "host": "product-room/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": {
+        "appearance": "dark",
+        "render": "linework",
+        "theme": "ember",
+        "canvas": 1,
+        "overflow": false,
+        "displayHidden": false,
+        "themeHidden": true,
+        "iframeSize": [
+          390,
+          740
+        ]
+      },
+      "hostOverflow": false
+    },
+    {
+      "host": "studio/",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "state": {
+        "appearance": "dark",
+        "render": "linework",
+        "theme": "ember",
+        "canvas": 1,
+        "overflow": false,
+        "displayHidden": false,
+        "themeHidden": true,
+        "iframeSize": [
+          1228,
+          432
+        ]
+      },
+      "hostOverflow": false
+    },
+    {
+      "host": "studio/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": {
+        "appearance": "dark",
+        "render": "linework",
+        "theme": "ember",
+        "canvas": 1,
+        "overflow": false,
+        "displayHidden": false,
+        "themeHidden": true,
+        "iframeSize": [
+          362,
+          444
+        ]
+      },
+      "hostOverflow": false
+    }
+  ],
+  "errors": []
+}
