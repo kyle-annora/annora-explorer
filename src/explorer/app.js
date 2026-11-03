@@ -1,4 +1,6 @@
 import { createDisplayUI } from './display-ui.js';
+import { createAppearancePanel } from './ui/appearance-panel.js';
+import { createOverlayCoordinator } from './ui/overlay-coordinator.js';
 import { readDisplayPreferences, writeDisplayPreferences, normalizeDisplayPreferences } from './display-preferences.js';
 import { PROJECT_CONFIG } from '../generated/project.js';
 import { applyProjectBrand, openingTheme, preferenceNamespace } from './project-brand.js';
@@ -14,7 +16,7 @@ import { createPageLifecycle } from './controller/page-lifecycle.js';
 import { createEmbedBridge, configuredParentOrigin } from './embed-bridge.js';
 import { serializeBenchmark } from './performance.js';
 import { createAssemblySearch, inspectionState, inspectionFacts } from './inspection-ui.js';
-import { CLIENT_THEMES, resolveTheme, normalizeHex, applyThemeTokens, themeRoles } from './themes.js';
+import { resolveTheme, applyThemeTokens, themeRoles } from './themes.js';
 
 const $ = id => document.getElementById(id);
 const shellAbort = new AbortController();
@@ -38,8 +40,10 @@ const openingStyle=allowedStyles.includes(params.get('render'))?params.get('rend
 let preferredRenderStyle=openingStyle;
 applyProjectBrand(PROJECT_CONFIG,document);
 let explorer, hierarchy, navigation=createNavigation(model.rootId), renderStyle='engineering', mode='explore';
-let displayUI, appearanceFrame;
-const closeDisplay=(restore=false)=>displayUI?.close(restore);
+let displayUI, appearanceUI, appearanceFrame;
+const settingsOverlays=createOverlayCoordinator({document,signal:shellAbort.signal});
+const closeDisplay=(restore=false)=>settingsOverlays.close('display',restore);
+const closeTheme=(restore=false)=>settingsOverlays.close('appearance',restore);
 let performanceReport,lastProgress=-1,lastFocus,operationState,guidedTour;
 let searchAssembly, treeQuery='', treeSearchResult=null, lastDetailId;
 let requestSequence = 0;
@@ -83,9 +87,6 @@ sourceDialog.querySelector('.source-note').textContent=model.sourceNote;
 const sourceLink=sourceDialog.querySelector('a');sourceLink.hidden=!model.sourceUrl;if(model.sourceUrl)sourceLink.href=model.sourceUrl;sourceLink.replaceChildren(document.createTextNode(model.sourceLabel),icon('external'));
 if(model.licenseUrl){const license=textNode('a','Read model license');license.href=model.licenseUrl;license.target='_blank';license.rel='noopener noreferrer';sourceDialog.append(license);}
 $('open-sources').querySelector('span').textContent=model.attribution;
-$('theme-options').hidden=!PROJECT_CONFIG.features.themes;
-document.querySelector('.custom-accent-row').hidden=!PROJECT_CONFIG.features.themes;
-document.querySelector('.accent-section-label').hidden=!PROJECT_CONFIG.features.themes;
 $('mode-explode').hidden=!PROJECT_CONFIG.features.explode;
 $('mode-operate').hidden=!PROJECT_CONFIG.features.operation;
 $('tour-start').hidden=!policy.tours.length;
@@ -127,11 +128,10 @@ function closeTree({restoreFocus=false}={}){
   if(restoreFocus||hadFocus)$('toggle-tree').focus({preventScroll:true});
   if(wasOpen)explorer?.refitLayout();
 }
-function closeTheme(restore=false){$('theme-panel').hidden=true;$('theme-trigger').setAttribute('aria-expanded','false');if(restore)$('theme-trigger').focus();}
 function closePerformance(){ $('perf-panel').hidden=true;document.body.classList.remove('performance-open');$('perf-toggle').setAttribute('aria-expanded','false');explorer?.refitLayout(); }
 function chooseTheme(theme,persist=true){
-  clientTheme=theme;explorer?.setTheme(applyThemeTokens(theme,document.documentElement,appearance));$('theme-label').textContent='Appearance';$('theme-trigger').setAttribute('aria-label',`Appearance: ${appearance==='dark'?'Dark':'Light'} · ${theme.name}`);$('custom-accent').value=theme.accent;$('custom-accent-hex').value=theme.accent;$('custom-accent-hex').removeAttribute('aria-invalid');$('accent-validation').hidden=true;$('render-flat').textContent=`Flat ${theme.name==='Custom'?'accent':theme.name}`;
-  document.querySelectorAll('.theme-option').forEach(button=>{const active=button.dataset.theme===theme.id;button.classList.toggle('is-selected',active);button.setAttribute('aria-pressed',String(active));});
+  clientTheme=theme;explorer?.setTheme(applyThemeTokens(theme,document.documentElement,appearance));
+  appearanceUI?.syncTheme();$('render-flat').textContent=`Flat ${theme.name==='Custom'?'accent':theme.name}`;
   displayUI?.sync();
   if(persist&&PROJECT_CONFIG.features.themes){try{localStorage.setItem(themeStorageKey,JSON.stringify({id:theme.id,accent:theme.accent}));}catch{}
     const url=new URL(location.href);url.searchParams.set('theme',theme.id);if(theme.id==='custom')url.searchParams.set('accent',theme.accent);else url.searchParams.delete('accent');history.replaceState(null,'',url);}
@@ -145,16 +145,17 @@ function syncAppearanceUI(){
     appearanceFrame=requestAnimationFrame(()=>{appearanceFrame=requestAnimationFrame(()=>document.documentElement.classList.remove('appearance-changing'));});
   }
   document.documentElement.dataset.appearance=appearance;document.body.dataset.appearance=appearance;
-  for(const mode of ['light','dark']){$('appearance-'+mode).setAttribute('aria-pressed',String(mode===appearance));$('appearance-'+mode).disabled=!explorer?.ready;}
-  for(const input of [...$('theme-options').querySelectorAll('button'),$('custom-accent'),$('custom-accent-hex')])input.disabled=!explorer?.ready;
   if(changed)chooseTheme(clientTheme,false);
-  $('theme-trigger').setAttribute('aria-label',`Appearance: ${appearance==='dark'?'Dark':'Light'} · ${clientTheme.name}`);
+  appearanceUI?.sync();
 }
 async function displayCommand(method,options={}){
   const preferenceStyle=explorer?.renderStyle;
   const event=await command(method,options);
-  if(event.payload.status!=='completed')return event;
-  if(method==='setRenderStyle'){preferredRenderStyle=options.style;await command('setDisplayOptions',{options:{grid:displayPreferences.grids[options.style]}});}
+  if(shellAbort.signal.aborted||event.payload.status!=='completed')return event;
+  if(method==='setRenderStyle'){
+    preferredRenderStyle=options.style;await command('setDisplayOptions',{options:{grid:displayPreferences.grids[options.style]}});
+    if(!shellAbort.signal.aborted){const url=new URL(location.href);url.searchParams.set('render',options.style);history.replaceState(null,'',url);}
+  }
   else if(method==='setDisplayOptions'&&typeof options.options?.grid==='boolean'){
     displayPreferences.grids[preferenceStyle]=options.options.grid;saveDisplayPreferences();
   }
@@ -174,30 +175,24 @@ listen(window,'storage',async event=>{
     const url=new URL(location.href);url.searchParams.set('theme',clientTheme.id);if(clientTheme.id==='custom')url.searchParams.set('accent',clientTheme.accent);else url.searchParams.delete('accent');history.replaceState(null,'',url);
   }
 });
-for(const theme of CLIENT_THEMES){
-  const button=document.createElement('button');button.type='button';button.className='theme-option';button.dataset.theme=theme.id;
-  const swatch=textNode('span','');swatch.className='theme-swatch';swatch.style.background=theme.accent;
-  const copy=textNode('span','');copy.className='theme-option-copy';copy.append(textNode('strong',theme.name),textNode('small',theme.description));
-  const check=textNode('span','✓');check.className='theme-check';check.setAttribute('aria-hidden','true');button.append(swatch,copy,check);listen(button,'click',()=>command('setTheme',{themeId:theme.id}));$('theme-options').append(button);
-}
-chooseTheme(clientTheme,false);syncAppearanceUI();
-listen($('theme-trigger'),'click',()=>{const open=$('theme-panel').hidden;closeDisplay();closePerformance();closeTree();$('theme-panel').hidden=!open;$('theme-trigger').setAttribute('aria-expanded',String(open));if(open)$('appearance-'+appearance).focus();});
-listen($('theme-close'),'click',()=>closeTheme(true));
-listen($('custom-accent'),'input',e=>{if(PROJECT_CONFIG.features.themes)void command('setTheme',{themeId:'custom',accent:e.target.value});});
-listen($('custom-accent-hex'),'change',event=>{
-  const accent=normalizeHex(event.target.value);
-  $('custom-accent-hex').setAttribute('aria-invalid',String(!accent));$('accent-validation').hidden=Boolean(accent);
-  if(accent&&PROJECT_CONFIG.features.themes)void command('setTheme',{themeId:'custom',accent});
-});
-listen($('custom-accent-hex'),'keydown',event=>{if(event.key==='Enter'){event.preventDefault();event.target.dispatchEvent(new Event('change'));}});
-for(const value of ['light','dark'])listen($('appearance-'+value),'click',async()=>{
+// These snapshots expose no scene objects or mutable preference state to panels.
+const appearanceState=()=>({ready:Boolean(explorer?.ready),appearance,theme:clientTheme});
+const displayState=()=>({ready:Boolean(explorer?.ready),renderStyle:explorer?.renderStyle,displayOptions:{...explorer?.displayOptions}});
+const reportPanelError=error=>{if(!shellAbort.signal.aborted)$('status-message').textContent=error.message;};
+async function changeAppearance(value){
   const previous=displayPreferences.appearance;
   displayPreferences.appearance=value;saveDisplayPreferences();
   const url=new URL(location.href);url.searchParams.set('appearance',value);history.replaceState(null,'',url);
   const event=await command('setDisplayOptions',{options:{appearance:value}});
+  if(shellAbort.signal.aborted)return;
   if(event.payload.status==='failed'){displayPreferences.appearance=previous;saveDisplayPreferences();url.searchParams.set('appearance',previous);history.replaceState(null,'',url);}
+}
+appearanceUI=createAppearancePanel({document,getState:appearanceState,command,changeAppearance,themesEnabled:PROJECT_CONFIG.features.themes,signal:shellAbort.signal,onError:reportPanelError});
+settingsOverlays.register('appearance',{
+  panel:$('theme-panel'),trigger:$('theme-trigger'),closeButton:$('theme-close'),initialFocus:appearanceUI.initialFocus,
+  beforeToggle:()=>{closePerformance();closeTree();},restoreOnToggleClose:false,
 });
-listen(document,'pointerdown',e=>{if(!$('theme-panel').hidden&&!$('theme-panel').contains(e.target)&&!$('theme-trigger').contains(e.target))closeTheme();});
+chooseTheme(clientTheme,false);syncAppearanceUI();
 listen($('toggle-details'),'click',()=>setDetailsCollapsed(!document.body.classList.contains('details-collapsed')));
 
 function renderTree(){
@@ -351,7 +346,11 @@ listen($('explode-replay'),'click',()=>command('replayExplosion'));
 listen($('explode-range'),'pointerdown',()=>{controller.takeover();explorer?.pauseCamera();});
 listen($('explode-range'),'input',event=>command('setExplosion',{progress:Number(event.target.value)/100,transition:'immediate'}));
 listen($('explode-range'),'change',()=>command('frame',{nodeId:navigation.scopeId}));
-displayUI=createDisplayUI({document,command:displayCommand,scene:()=>explorer,styles:allowedStyles,signal:shellAbort.signal,accentName:()=>clientTheme.name==='Custom'?'accent':clientTheme.name,beforeOpen:()=>{closeTheme();closePerformance();closeTree();}});
+displayUI=createDisplayUI({document,command:displayCommand,getState:displayState,styles:allowedStyles,signal:shellAbort.signal,accentName:()=>clientTheme.name==='Custom'?'accent':clientTheme.name,onError:reportPanelError});
+settingsOverlays.register('display',{
+  panel:$('display-panel'),trigger:$('display-trigger'),closeButton:$('display-close'),initialFocus:displayUI.initialFocus,onOpen:()=>displayUI.sync(),
+  beforeToggle:opening=>{if(opening){closePerformance();closeTree();}},
+});
 
 listen($('perf-toggle'),'click',()=>{const open=$('perf-panel').hidden;if(!open){closePerformance();return;}if(guidedTour?.active)command('pauseTour');closeDisplay();closeTheme();closeTree();$('perf-panel').hidden=false;document.body.classList.add('performance-open');$('perf-toggle').setAttribute('aria-expanded','true');$('perf-close').focus();explorer?.refitLayout();});
 listen($('perf-close'),'click',()=>{closePerformance();$('perf-toggle').focus();});listen($('perf-quality'),'change',event=>command('setQuality',{profile:event.target.value}));
