@@ -1,0 +1,329 @@
+{
+  "id": "dropbear-showcase",
+  "title": "Inside Dropbear",
+  "duration": 20,
+  "playback": "continuous",
+  "chapters": [
+    {
+      "id": "whole",
+      "label": "Meet",
+      "title": "A humanoid, assembly by assembly.",
+      "caption": "Open Dropbear through its source-linked mechanical structure.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0,
+        0
+      ],
+      "camera": {
+        "focusId": "dropbear",
+        "direction": [
+          2.5,
+          0.5,
+          1.4
+        ],
+        "explosion": 0,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [],
+      "start": 0,
+      "end": 2.5
+    },
+    {
+      "id": "approach",
+      "label": "Arm",
+      "title": "Follow the shoulder into the arm.",
+      "caption": "Locate the mechanism before opening its layers.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0,
+        0
+      ],
+      "camera": {
+        "focusId": "dropbear-left-arm",
+        "direction": [
+          1.5,
+          0.4,
+          -1.6
+        ],
+        "explosion": 0,
+        "scale": 1.4
+      },
+      "annotations": [],
+      "cues": [
+        {
+          "id": "locate-arm",
+          "at": 0.65,
+          "highlightIds": [
+            "dropbear-left-arm"
+          ]
+        }
+      ],
+      "start": 2.5,
+      "end": 5
+    },
+    {
+      "id": "open",
+      "label": "Open",
+      "title": "Separate the source assemblies.",
+      "caption": "Panels, frame and connections move in authored layers.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0,
+        0.4
+      ],
+      "camera": {
+        "focusId": "dropbear",
+        "direction": [
+          2.5,
+          0.5,
+          1.4
+        ],
+        "explosion": 0.4,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [
+        {
+          "id": "layers",
+          "at": 0.65,
+          "highlightIds": [
+            "dropbear-torso"
+          ]
+        }
+      ],
+      "start": 5,
+      "end": 7.5
+    },
+    {
+      "id": "layers",
+      "label": "Layers",
+      "title": "Read the connected layers.",
+      "caption": "Structural members and drive modules retain their identity.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0.4,
+        1
+      ],
+      "camera": {
+        "focusId": "dropbear",
+        "direction": [
+          1.7,
+          0.65,
+          2
+        ],
+        "explosion": 1,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [
+        {
+          "id": "arm",
+          "at": 0.7,
+          "highlightIds": [
+            "dropbear-left-arm"
+          ]
+        }
+      ],
+      "start": 7.5,
+      "end": 10
+    },
+    {
+      "id": "detail",
+      "label": "Detail",
+      "title": "Keep the linkage in view.",
+      "caption": "Tendons and bearings stay related in the assembled mechanism.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "linework",
+      "highlightIds": [],
+      "explosion": [
+        1,
+        1
+      ],
+      "camera": {
+        "focusId": "dropbear-left-arm",
+        "direction": [
+          1.2,
+          0.5,
+          -1.8
+        ],
+        "explosion": 1,
+        "scale": 1.25
+      },
+      "annotations": [],
+      "cues": [
+        {
+          "id": "emphasis",
+          "at": 0.7,
+          "renderStyle": "flat",
+          "highlightIds": [
+            "dropbear-left-arm"
+          ]
+        }
+      ],
+      "start": 10,
+      "end": 12.5
+    },
+    {
+      "id": "restore",
+      "label": "Restore",
+      "title": "Return every component.",
+      "caption": "The same paths recover the original rigid transforms.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        1,
+        0
+      ],
+      "camera": {
+        "focusId": "dropbear",
+        "direction": [
+          2.5,
+          0.5,
+          1.4
+        ],
+        "explosion": 1,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [],
+      "start": 12.5,
+      "end": 15
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "title": "One shoulder swivel.",
+      "caption": "The whole arm turns; internal elbow and tendon joints stay fixed.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [
+        "dropbear-left-arm"
+      ],
+      "explosion": [
+        0,
+        0
+      ],
+      "camera": {
+        "focusId": "dropbear-left-arm",
+        "direction": [
+          1.3,
+          0.45,
+          -1.7
+        ],
+        "explosion": 0,
+        "scale": 1.3
+      },
+      "annotations": [],
+      "cues": [],
+      "operation": {
+        "clipName": "DropbearArmSwivel",
+        "sourceDuration": 2.5,
+        "settledProgress": 1,
+        "passes": [
+          {
+            "id": "whole-arm-swivel",
+            "start": 0,
+            "duration": 2.5,
+            "keyframes": [
+              {
+                "at": 0,
+                "progress": 0
+              },
+              {
+                "at": 2.5,
+                "progress": 1
+              }
+            ]
+          }
+        ]
+      },
+      "start": 15,
+      "end": 17.5
+    },
+    {
+      "id": "explore",
+      "label": "Explore",
+      "title": "Now inspect the assembly.",
+      "caption": "Rotate, select a source component, or replay the presentation.",
+      "duration": 2.5,
+      "previewAt": 0,
+      "settledAt": 2.5,
+      "transition": 2.1,
+      "transitionStart": 0.1,
+      "scopeId": "dropbear",
+      "selectedId": "dropbear",
+      "renderStyle": "engineering",
+      "highlightIds": [],
+      "explosion": [
+        0,
+        0
+      ],
+      "camera": {
+        "focusId": "dropbear",
+        "direction": [
+          2.5,
+          0.5,
+          1.4
+        ],
+        "explosion": 0,
+        "scale": 1
+      },
+      "annotations": [],
+      "cues": [],
+      "start": 17.5,
+      "end": 20
+    }
+  ]
+}

@@ -291,7 +291,7 @@ export class ExplorerController {
     if (method === 'getTour' || TOUR_COMMANDS.has(method)) {
       check(caps.tours.enabled && tour, 'This model has no enabled guided tour.', 'UNSUPPORTED_ACTION');
       if (['getTour', 'startTour'].includes(method)) check(params.tourId === tour.tour.id, 'This tour is not available for this model.', 'UNKNOWN_TOUR');
-      if (method === 'getTour') return () => ({ id: tour.tour.id, title: tour.tour.title, duration: tour.tour.duration, playback: tour.tour.playback || 'continuous', chapters: tour.tour.chapters.map(({ id, label, title, start, duration, previewAt = 0, settledAt }) => ({ id, label: label || title, start, duration, previewAt, ...(settledAt === undefined ? {} : { settledAt }) })) });
+      if (method === 'getTour') return () => ({ id: tour.tour.id, title: tour.tour.title, duration: tour.tour.duration, playback: tour.tour.playback || 'continuous', chapters: tour.tour.chapters.map(({ id, label, title, caption, start, duration, previewAt = 0, settledAt }) => ({ id, label: label || title, title: title || label || '', caption: caption || '', start, duration, previewAt, ...(settledAt === undefined ? {} : { settledAt }) })) });
       if (method !== 'startTour') check(tour.active || method === 'exitTour' && tour.pending, 'Start a tour before using its transport.', 'UNSUPPORTED_ACTION');
       if (method === 'seekTour') {
         check(finite(params.seconds) && params.seconds >= 0 && params.seconds <= tour.tour.duration, 'Tour time is outside the authored duration.');

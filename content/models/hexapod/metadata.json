@@ -1,0 +1,4910 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "id": "hexapod",
+    "title": "Hexapod",
+    "description": "A six-legged source assembly with eighteen revolute joints."
+  },
+  "source": {
+    "author": "ggldnl / Hexapod contributors; display adaptation by Annora",
+    "url": "https://github.com/ggldnl/Hexapod-Hardware",
+    "license": "CERN-OHL-W-2.0",
+    "attribution": "Hexapod · ggldnl and contributors · CERN-OHL-W-2.0. Display adaptation and illustrative motion: Annora, 2026.",
+    "description": "A six-legged source assembly with eighteen revolute joints.",
+    "note": "Source hardware and joint frames are retained. Derived geometry, finishes and separation are illustrative. The single-leg clip is an authored pose study, not firmware output, gait or balance simulation.",
+    "file": "model.glb",
+    "preserved": [
+      "geometry",
+      "source hierarchy",
+      "materials",
+      "pivots",
+      "authored animation channels"
+    ],
+    "sha256": "1f2eefe0a0bdffcd09b70f4850a955a225f7974801dfc15122e3a52b818081e0"
+  },
+  "bounds": [
+    [
+      -0.25167189031595655,
+      -1.3877787807814457e-17,
+      -0.2172966860711345
+    ],
+    [
+      0.2516718970687608,
+      0.1428603793440946,
+      0.217296687540313
+    ]
+  ],
+  "orientation": {
+    "up": "+Y",
+    "sourceUnits": "unverified",
+    "defaultDirection": [
+      1.5,
+      1.25,
+      1.6
+    ]
+  },
+  "groups": [
+    {
+      "id": "hex-body",
+      "title": "Body & electronics",
+      "description": "The source frame, battery, electronics and supporting body layers.",
+      "meshNames": [
+        "Hex_base_1",
+        "Hex_battery_1",
+        "Hex_electronics_1",
+        "Hex_electronics_1_surface2",
+        "Hex_electronics_1_surface3",
+        "Hex_battery_mount_1",
+        "Hex_top_stiffeners_1",
+        "Hex_bottom_stiffeners_1"
+      ],
+      "children": [
+        {
+          "id": "hex-body-structure",
+          "title": "Body frame",
+          "description": "Source body frame components.",
+          "meshNames": [
+            "Hex_base_1",
+            "Hex_battery_mount_1",
+            "Hex_top_stiffeners_1",
+            "Hex_bottom_stiffeners_1"
+          ]
+        },
+        {
+          "id": "hex-body-electronics",
+          "title": "Power & control",
+          "description": "Source power & control components.",
+          "meshNames": [
+            "Hex_battery_1",
+            "Hex_electronics_1",
+            "Hex_electronics_1_surface2",
+            "Hex_electronics_1_surface3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-1",
+      "title": "Front right leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_1_coxa_motor_1",
+        "Hex_leg_1_coxa_motor_1_surface2",
+        "Hex_leg_1_coxa_bracket_B_1",
+        "Hex_leg_1_coxa_bracket_A_1",
+        "Hex_leg_1_femur_bracket_A_1",
+        "Hex_leg_1_femur_bracket_B_1",
+        "Hex_leg_1_femur_motor_1",
+        "Hex_leg_1_femur_motor_1_surface2",
+        "Hex_leg_1_femur_1",
+        "Hex_leg_1_tibia_motor_1",
+        "Hex_leg_1_tibia_motor_1_surface2",
+        "Hex_leg_1_tibia_bracket_A_1",
+        "Hex_leg_1_tibia_bracket_B_1",
+        "Hex_leg_1_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-1-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_1_coxa_motor_1",
+            "Hex_leg_1_coxa_motor_1_surface2",
+            "Hex_leg_1_coxa_bracket_B_1",
+            "Hex_leg_1_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-1-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_1_femur_bracket_A_1",
+            "Hex_leg_1_femur_bracket_B_1",
+            "Hex_leg_1_femur_motor_1",
+            "Hex_leg_1_femur_motor_1_surface2",
+            "Hex_leg_1_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-1-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_1_tibia_motor_1",
+            "Hex_leg_1_tibia_motor_1_surface2",
+            "Hex_leg_1_tibia_bracket_A_1",
+            "Hex_leg_1_tibia_bracket_B_1",
+            "Hex_leg_1_tibia_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-2",
+      "title": "Middle right leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_2_coxa_motor_1",
+        "Hex_leg_2_coxa_motor_1_surface2",
+        "Hex_leg_2_coxa_bracket_B_1",
+        "Hex_leg_2_coxa_bracket_A_1",
+        "Hex_leg_2_femur_bracket_A_1",
+        "Hex_leg_2_femur_bracket_B_1",
+        "Hex_leg_2_femur_motor_1",
+        "Hex_leg_2_femur_motor_1_surface2",
+        "Hex_leg_2_femur_1",
+        "Hex_leg_2_tibia_motor_1",
+        "Hex_leg_2_tibia_motor_1_surface2",
+        "Hex_leg_2_tibia_bracket_A_1",
+        "Hex_leg_2_tibia_bracket_B_1",
+        "Hex_leg_2_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-2-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_2_coxa_motor_1",
+            "Hex_leg_2_coxa_motor_1_surface2",
+            "Hex_leg_2_coxa_bracket_B_1",
+            "Hex_leg_2_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-2-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_2_femur_bracket_A_1",
+            "Hex_leg_2_femur_bracket_B_1",
+            "Hex_leg_2_femur_motor_1",
+            "Hex_leg_2_femur_motor_1_surface2",
+            "Hex_leg_2_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-2-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_2_tibia_motor_1",
+            "Hex_leg_2_tibia_motor_1_surface2",
+            "Hex_leg_2_tibia_bracket_A_1",
+            "Hex_leg_2_tibia_bracket_B_1",
+            "Hex_leg_2_tibia_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-3",
+      "title": "Rear right leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_3_coxa_motor_1",
+        "Hex_leg_3_coxa_motor_1_surface2",
+        "Hex_leg_3_coxa_bracket_B_1",
+        "Hex_leg_3_coxa_bracket_A_1",
+        "Hex_leg_3_femur_bracket_A_1",
+        "Hex_leg_3_femur_bracket_B_1",
+        "Hex_leg_3_femur_motor_1",
+        "Hex_leg_3_femur_motor_1_surface2",
+        "Hex_leg_3_femur_1",
+        "Hex_leg_3_tibia_motor_1",
+        "Hex_leg_3_tibia_motor_1_surface2",
+        "Hex_leg_3_tibia_bracket_A_1",
+        "Hex_leg_3_tibia_bracket_B_1",
+        "Hex_leg_3_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-3-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_3_coxa_motor_1",
+            "Hex_leg_3_coxa_motor_1_surface2",
+            "Hex_leg_3_coxa_bracket_B_1",
+            "Hex_leg_3_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-3-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_3_femur_bracket_A_1",
+            "Hex_leg_3_femur_bracket_B_1",
+            "Hex_leg_3_femur_motor_1",
+            "Hex_leg_3_femur_motor_1_surface2",
+            "Hex_leg_3_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-3-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_3_tibia_motor_1",
+            "Hex_leg_3_tibia_motor_1_surface2",
+            "Hex_leg_3_tibia_bracket_A_1",
+            "Hex_leg_3_tibia_bracket_B_1",
+            "Hex_leg_3_tibia_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-4",
+      "title": "Rear left leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_4_coxa_motor_1",
+        "Hex_leg_4_coxa_motor_1_surface2",
+        "Hex_leg_4_coxa_bracket_B_1",
+        "Hex_leg_4_coxa_bracket_A_1",
+        "Hex_leg_4_femur_bracket_A_1",
+        "Hex_leg_4_femur_bracket_B_1",
+        "Hex_leg_4_femur_motor_1",
+        "Hex_leg_4_femur_motor_1_surface2",
+        "Hex_leg_4_femur_1",
+        "Hex_leg_4_tibia_motor_1",
+        "Hex_leg_4_tibia_motor_1_surface2",
+        "Hex_leg_4_tibia_bracket_A_1",
+        "Hex_leg_4_tibia_bracket_B_1",
+        "Hex_leg_4_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-4-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_4_coxa_motor_1",
+            "Hex_leg_4_coxa_motor_1_surface2",
+            "Hex_leg_4_coxa_bracket_B_1",
+            "Hex_leg_4_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-4-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_4_femur_bracket_A_1",
+            "Hex_leg_4_femur_bracket_B_1",
+            "Hex_leg_4_femur_motor_1",
+            "Hex_leg_4_femur_motor_1_surface2",
+            "Hex_leg_4_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-4-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_4_tibia_motor_1",
+            "Hex_leg_4_tibia_motor_1_surface2",
+            "Hex_leg_4_tibia_bracket_A_1",
+            "Hex_leg_4_tibia_bracket_B_1",
+            "Hex_leg_4_tibia_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-5",
+      "title": "Middle left leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_5_coxa_motor_1",
+        "Hex_leg_5_coxa_motor_1_surface2",
+        "Hex_leg_5_coxa_bracket_B_1",
+        "Hex_leg_5_coxa_bracket_A_1",
+        "Hex_leg_5_femur_bracket_A_1",
+        "Hex_leg_5_femur_bracket_B_1",
+        "Hex_leg_5_femur_motor_1",
+        "Hex_leg_5_femur_motor_1_surface2",
+        "Hex_leg_5_femur_1",
+        "Hex_leg_5_tibia_motor_1",
+        "Hex_leg_5_tibia_motor_1_surface2",
+        "Hex_leg_5_tibia_bracket_A_1",
+        "Hex_leg_5_tibia_bracket_B_1",
+        "Hex_leg_5_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-5-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_5_coxa_motor_1",
+            "Hex_leg_5_coxa_motor_1_surface2",
+            "Hex_leg_5_coxa_bracket_B_1",
+            "Hex_leg_5_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-5-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_5_femur_bracket_A_1",
+            "Hex_leg_5_femur_bracket_B_1",
+            "Hex_leg_5_femur_motor_1",
+            "Hex_leg_5_femur_motor_1_surface2",
+            "Hex_leg_5_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-5-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_5_tibia_motor_1",
+            "Hex_leg_5_tibia_motor_1_surface2",
+            "Hex_leg_5_tibia_bracket_A_1",
+            "Hex_leg_5_tibia_bracket_B_1",
+            "Hex_leg_5_tibia_1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hex-leg-6",
+      "title": "Front left leg",
+      "description": "One source leg with coxa, femur and tibia joints.",
+      "meshNames": [
+        "Hex_leg_6_coxa_motor_1",
+        "Hex_leg_6_coxa_motor_1_surface2",
+        "Hex_leg_6_coxa_bracket_B_1",
+        "Hex_leg_6_coxa_bracket_A_1",
+        "Hex_leg_6_femur_bracket_A_1",
+        "Hex_leg_6_femur_bracket_B_1",
+        "Hex_leg_6_femur_motor_1",
+        "Hex_leg_6_femur_motor_1_surface2",
+        "Hex_leg_6_femur_1",
+        "Hex_leg_6_tibia_motor_1",
+        "Hex_leg_6_tibia_motor_1_surface2",
+        "Hex_leg_6_tibia_bracket_A_1",
+        "Hex_leg_6_tibia_bracket_B_1",
+        "Hex_leg_6_tibia_1"
+      ],
+      "children": [
+        {
+          "id": "hex-leg-6-coxa",
+          "title": "Coxa joint",
+          "description": "The source coxa joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_6_coxa_motor_1",
+            "Hex_leg_6_coxa_motor_1_surface2",
+            "Hex_leg_6_coxa_bracket_B_1",
+            "Hex_leg_6_coxa_bracket_A_1"
+          ]
+        },
+        {
+          "id": "hex-leg-6-femur",
+          "title": "Femur joint",
+          "description": "The source femur joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_6_femur_bracket_A_1",
+            "Hex_leg_6_femur_bracket_B_1",
+            "Hex_leg_6_femur_motor_1",
+            "Hex_leg_6_femur_motor_1_surface2",
+            "Hex_leg_6_femur_1"
+          ]
+        },
+        {
+          "id": "hex-leg-6-tibia",
+          "title": "Tibia joint",
+          "description": "The source tibia joint and its rigid components.",
+          "meshNames": [
+            "Hex_leg_6_tibia_motor_1",
+            "Hex_leg_6_tibia_motor_1_surface2",
+            "Hex_leg_6_tibia_bracket_A_1",
+            "Hex_leg_6_tibia_bracket_B_1",
+            "Hex_leg_6_tibia_1"
+          ]
+        }
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "hex-top-stiffeners-1",
+      "meshName": "Hex_top_stiffeners_1",
+      "sourceName": "Hex_top_stiffeners_1",
+      "sourceNodeIndex": 9,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_electronics/HexJoint_base_electronics/HexLink_electronics/HexOrigin_electronics_top_stiffeners/HexJoint_electronics_top_stiffeners/HexLink_top_stiffeners/Hex_top_stiffeners_1",
+      "title": "Top Stiffeners",
+      "description": "Top Stiffeners from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        1.3877787807814457e-17,
+        0.08871435378063333,
+        1.3877787807814457e-17
+      ],
+      "bounds": [
+        [
+          -0.05522688293457032,
+          0.08391435382831702,
+          -0.066
+        ],
+        [
+          0.05522688293457035,
+          0.09351435373294963,
+          0.06600000000000003
+        ]
+      ],
+      "triangles": 4458,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0,
+        0.18,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.05522688293457032,
+          0.08391435382831702,
+          -0.066
+        ],
+        [
+          0.05522688293457035,
+          0.09351435373294963,
+          0.06600000000000003
+        ]
+      ]
+    },
+    {
+      "id": "hex-electronics-1",
+      "meshName": "Hex_electronics_1",
+      "sourceName": "Hex_electronics_1",
+      "sourceNodeIndex": 10,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_electronics/HexJoint_base_electronics/HexLink_electronics/Hex_electronics_1",
+      "title": "Electronics",
+      "description": "Electronics from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -1.9039356549677144e-10,
+        0.09226435818374834,
+        0.0009489495242294352
+      ],
+      "bounds": [
+        [
+          -0.040634999465601084,
+          0.0823143537253209,
+          -0.06600000028961334
+        ],
+        [
+          0.04063499908481395,
+          0.10221436264217579,
+          0.0678978993380722
+        ]
+      ],
+      "triangles": 42414,
+      "sourceMaterial": "Dark electronics",
+      "finishFamily": "machined",
+      "explode": [
+        0,
+        0.14,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.040634999465601084,
+          0.0823143537253209,
+          -0.06600000028961334
+        ],
+        [
+          0.04063499908481395,
+          0.10221436264217579,
+          0.0678978993380722
+        ]
+      ]
+    },
+    {
+      "id": "hex-electronics-1-surface2",
+      "meshName": "Hex_electronics_1_surface2",
+      "sourceName": "Hex_electronics_1_surface2",
+      "sourceNodeIndex": 11,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_electronics/HexJoint_base_electronics/HexLink_electronics/Hex_electronics_1_surface2",
+      "title": "Electronics · surface 2",
+      "description": "Electronics from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.000004999924047351112,
+        0.0916647526234456,
+        0.0014335019076522904
+      ],
+      "bounds": [
+        [
+          -0.03936500091518605,
+          0.0830643537253209,
+          -0.06405000334137115
+        ],
+        [
+          0.03937500076328075,
+          0.10026515152157031,
+          0.06691700715667573
+        ]
+      ],
+      "triangles": 1174,
+      "sourceMaterial": "Dark electronics",
+      "finishFamily": "machined",
+      "explode": [
+        0,
+        0.14,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.03936500091518605,
+          0.0830643537253209,
+          -0.06405000334137115
+        ],
+        [
+          0.03937500076328075,
+          0.10026515152157031,
+          0.06691700715667573
+        ]
+      ]
+    },
+    {
+      "id": "hex-electronics-1-surface3",
+      "meshName": "Hex_electronics_1_surface3",
+      "sourceName": "Hex_electronics_1_surface3",
+      "sourceNodeIndex": 12,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_electronics/HexJoint_base_electronics/HexLink_electronics/Hex_electronics_1_surface3",
+      "title": "Electronics · surface 3",
+      "description": "Electronics from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.022046892929418447,
+        0.096999835988886,
+        -0.047622894576722724
+      ],
+      "bounds": [
+        [
+          0.021848217773778798,
+          0.09648418190181934,
+          -0.04768000059478913
+        ],
+        [
+          0.022245568085058096,
+          0.09751549007595264,
+          -0.04756578855865632
+        ]
+      ],
+      "triangles": 2,
+      "sourceMaterial": "Dark electronics",
+      "finishFamily": "machined",
+      "explode": [
+        0,
+        0.14,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.021848217773778798,
+          0.09648418190181934,
+          -0.04768000059478913
+        ],
+        [
+          0.022245568085058096,
+          0.09751549007595264,
+          -0.04756578855865632
+        ]
+      ]
+    },
+    {
+      "id": "hex-battery-1",
+      "meshName": "Hex_battery_1",
+      "sourceName": "Hex_battery_1",
+      "sourceNodeIndex": 19,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_battery_mount/HexJoint_base_battery_mount/HexLink_battery_mount/HexOrigin_battery_mount_battery/HexJoint_battery_mount_battery/HexLink_battery/Hex_battery_1",
+      "title": "Battery",
+      "description": "Battery from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        6.418476861114186e-17,
+        0.05701435392368441,
+        0.0019999999999999463
+      ],
+      "bounds": [
+        [
+          -0.023749999999999945,
+          0.04371435373294954,
+          -0.06750000000000006
+        ],
+        [
+          0.023750000000000073,
+          0.07031435411441929,
+          0.07149999999999995
+        ]
+      ],
+      "triangles": 1612,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0,
+        0.085,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.023749999999999945,
+          0.04371435373294954,
+          -0.06750000000000006
+        ],
+        [
+          0.023750000000000073,
+          0.07031435411441929,
+          0.07149999999999995
+        ]
+      ]
+    },
+    {
+      "id": "hex-bottom-stiffeners-1",
+      "meshName": "Hex_bottom_stiffeners_1",
+      "sourceName": "Hex_bottom_stiffeners_1",
+      "sourceNodeIndex": 23,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_battery_mount/HexJoint_base_battery_mount/HexLink_battery_mount/HexOrigin_battery_mount_bottom_stiffeners/HexJoint_battery_mount_bottom_stiffeners/HexLink_bottom_stiffeners/Hex_bottom_stiffeners_1",
+      "title": "Bottom Stiffeners",
+      "description": "Bottom Stiffeners from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -6.938893903907228e-18,
+        0.06631435373294961,
+        0
+      ],
+      "bounds": [
+        [
+          -0.05522688293457033,
+          0.06031435373294959,
+          -0.08059188079833984
+        ],
+        [
+          0.055226882934570315,
+          0.07231435373294962,
+          0.08059188079833984
+        ]
+      ],
+      "triangles": 6596,
+      "sourceMaterial": "Structural satin",
+      "finishFamily": "structure",
+      "explode": [
+        0,
+        -0.1,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.05522688293457033,
+          0.06031435373294959,
+          -0.08059188079833984
+        ],
+        [
+          0.055226882934570315,
+          0.07231435373294962,
+          0.08059188079833984
+        ]
+      ]
+    },
+    {
+      "id": "hex-battery-mount-1",
+      "meshName": "Hex_battery_mount_1",
+      "sourceName": "Hex_battery_mount_1",
+      "sourceNodeIndex": 24,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_battery_mount/HexJoint_base_battery_mount/HexLink_battery_mount/Hex_battery_mount_1",
+      "title": "Battery Mount",
+      "description": "Battery Mount from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0,
+        0.07631435373294959,
+        0
+      ],
+      "bounds": [
+        [
+          -0.040634998321533215,
+          0.07031435373294959,
+          -0.066
+        ],
+        [
+          0.040634998321533215,
+          0.08231435373294961,
+          0.066
+        ]
+      ],
+      "triangles": 1356,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0,
+        0.045,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.040634998321533215,
+          0.07031435373294959,
+          -0.066
+        ],
+        [
+          0.040634998321533215,
+          0.08231435373294961,
+          0.066
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-coxa-bracket-b-1",
+      "meshName": "Hex_leg_1_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_1_coxa_bracket_B_1",
+      "sourceNodeIndex": 34,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_coxa_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_coxa_bracket/HexLink_leg_1_coxa_bracket_B/Hex_leg_1_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 1 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06607594693008163,
+        0.0550805673178546,
+        -0.09144094693008059
+      ],
+      "bounds": [
+        [
+          0.04415563671329861,
+          0.05208056731785455,
+          -0.11336125714686353
+        ],
+        [
+          0.08799625714686465,
+          0.05808056731785465,
+          -0.06952063671329765
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.04415563671329861,
+          0.05208056731785455,
+          -0.11336125714686353
+        ],
+        [
+          0.08799625714686465,
+          0.05808056731785465,
+          -0.06952063671329765
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-femur-bracket-b-1",
+      "meshName": "Hex_leg_1_femur_bracket_B_1",
+      "sourceName": "Hex_leg_1_femur_bracket_B_1",
+      "sourceNodeIndex": 41,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur_bracket_A_leg_1_coxa_bracket_femur_bracket/HexJoint_leg_1_femur_bracket_A_leg_1_coxa_bracket_femur_bracket/HexLink_leg_1_femur_bracket_B/Hex_leg_1_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 1 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.07746036637692509,
+        0.08098056693638478,
+        -0.13945349710290733
+      ],
+      "bounds": [
+        [
+          0.060489803628447886,
+          0.07098056693638477,
+          -0.1564240598513844
+        ],
+        [
+          0.0944309291254023,
+          0.0909805669363848,
+          -0.12248293435443022
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.060489803628447886,
+          0.07098056693638477,
+          -0.1564240598513844
+        ],
+        [
+          0.0944309291254023,
+          0.0909805669363848,
+          -0.12248293435443022
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-tibia-bracket-b-1",
+      "meshName": "Hex_leg_1_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_1_tibia_bracket_B_1",
+      "sourceNodeIndex": 57,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/HexOrigin_leg_1_femur_leg_1_femur_tibia_motor/HexJoint_leg_1_femur_leg_1_femur_tibia_motor/HexLink_leg_1_tibia_motor/HexOrigin_leg_1_tibia/HexJoint_leg_1_tibia/HexLink_leg_1_tibia_bracket_A/HexOrigin_leg_1_tibia_bracket_A_leg_1_tibia_bracket/HexJoint_leg_1_tibia_bracket_A_leg_1_tibia_bracket/HexLink_leg_1_tibia_bracket_B/Hex_leg_1_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 1 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.1407847143898676,
+        0.11258921790877079,
+        -0.2027778451158492
+      ],
+      "bounds": [
+        [
+          0.12918913776162635,
+          0.09020345157818824,
+          -0.21437342174409027
+        ],
+        [
+          0.15238029101810882,
+          0.13497498423935334,
+          -0.19118226848760814
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.1170328909089482,
+          0.090203452516286,
+          -0.2143734211899992
+        ],
+        [
+          0.15238029046401777,
+          0.15613113483516192,
+          -0.17902602163492967
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-tibia-1",
+      "meshName": "Hex_leg_1_tibia_1",
+      "sourceName": "Hex_leg_1_tibia_1",
+      "sourceNodeIndex": 61,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/HexOrigin_leg_1_femur_leg_1_femur_tibia_motor/HexJoint_leg_1_femur_leg_1_femur_tibia_motor/HexLink_leg_1_tibia_motor/HexOrigin_leg_1_tibia/HexJoint_leg_1_tibia/HexLink_leg_1_tibia_bracket_A/HexOrigin_leg_1_tibia_bracket_A_leg_1_tibia_bracket_tibia/HexJoint_leg_1_tibia_bracket_A_leg_1_tibia_bracket_tibia/HexLink_leg_1_tibia/Hex_leg_1_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 1 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.16200998006985023,
+        0.0714301915346223,
+        -0.18737498006984843
+      ],
+      "bounds": [
+        [
+          0.1320882748488575,
+          5.8657941837125804e-9,
+          -0.21729668529084076
+        ],
+        [
+          0.19193168529084295,
+          0.1428603772034504,
+          -0.15745327484885613
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.1287159431137635,
+          7.870762527839581e-9,
+          -0.2255288593298796
+        ],
+        [
+          0.2001638593298811,
+          0.17030822452084296,
+          -0.15408094311376147
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-tibia-bracket-a-1",
+      "meshName": "Hex_leg_1_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_1_tibia_bracket_A_1",
+      "sourceNodeIndex": 62,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/HexOrigin_leg_1_femur_leg_1_femur_tibia_motor/HexJoint_leg_1_femur_leg_1_femur_tibia_motor/HexLink_leg_1_tibia_motor/HexOrigin_leg_1_tibia/HexJoint_leg_1_tibia/HexLink_leg_1_tibia_bracket_A/Hex_leg_1_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 1 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.16122009925037686,
+        0.11258921641827095,
+        -0.18234245989465528
+      ],
+      "bounds": [
+        [
+          0.13343177793987843,
+          0.09020345008768835,
+          -0.2101307812051537
+        ],
+        [
+          0.1890084205608753,
+          0.13497498274885356,
+          -0.15455413858415687
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.12127553158533606,
+          0.09020345102578614,
+          -0.21013078065106267
+        ],
+        [
+          0.18900842000678425,
+          0.15613113339133006,
+          -0.14239789222961438
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-tibia-motor-1",
+      "meshName": "Hex_leg_1_tibia_motor_1",
+      "sourceName": "Hex_leg_1_tibia_motor_1",
+      "sourceNodeIndex": 63,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/HexOrigin_leg_1_femur_leg_1_femur_tibia_motor/HexJoint_leg_1_femur_leg_1_femur_tibia_motor/HexLink_leg_1_tibia_motor/Hex_leg_1_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 1 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.15041729286867933,
+        0.09726850900222084,
+        -0.17598903452476994
+      ],
+      "bounds": [
+        [
+          0.11425518567389635,
+          0.08118600736417625,
+          -0.2121511417195529
+        ],
+        [
+          0.18657940006346233,
+          0.11335101064026544,
+          -0.139826927329987
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.1091908503296692,
+          0.08118600772638515,
+          -0.21215114172748167
+        ],
+        [
+          0.18657940007139107,
+          0.13772582884362594,
+          -0.13476259198575988
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_1_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_1_tibia_motor_1_surface2",
+      "sourceNodeIndex": 64,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/HexOrigin_leg_1_femur_leg_1_femur_tibia_motor/HexJoint_leg_1_femur_leg_1_femur_tibia_motor/HexLink_leg_1_tibia_motor/Hex_leg_1_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 1 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.17854176986172132,
+        0.10329785513548724,
+        -0.18290590855544545
+      ],
+      "bounds": [
+        [
+          0.17685439838860337,
+          0.10200387481193347,
+          -0.1845932800285634
+        ],
+        [
+          0.1802291413348393,
+          0.10459183545904101,
+          -0.1812185370823275
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.1694211422654287,
+          0.10200387562506277,
+          -0.18459327998200126
+        ],
+        [
+          0.1802291412882771,
+          0.1299966642881705,
+          -0.17378528095915285
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-femur-1",
+      "meshName": "Hex_leg_1_femur_1",
+      "sourceName": "Hex_leg_1_femur_1",
+      "sourceNodeIndex": 65,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/HexOrigin_leg_1_femur_motor_leg_1_femur_motor_femur/HexJoint_leg_1_femur_motor_leg_1_femur_motor_femur/HexLink_leg_1_femur/Hex_leg_1_femur_1",
+      "title": "Femur",
+      "description": "Leg 1 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.13007941232961617,
+        0.09037801159792566,
+        -0.15780079363971794
+      ],
+      "bounds": [
+        [
+          0.08381517326246996,
+          0.062450588698610164,
+          -0.20406503270686382
+        ],
+        [
+          0.1763436513967624,
+          0.11830543449724115,
+          -0.11153655457257203
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.082489873948013,
+          0.059125993177527564,
+          -0.20406503274402643
+        ],
+        [
+          0.17634365143392502,
+          0.14255000003383356,
+          -0.11021125525811509
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-femur-motor-1",
+      "meshName": "Hex_leg_1_femur_motor_1",
+      "sourceName": "Hex_leg_1_femur_motor_1",
+      "sourceNodeIndex": 66,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/Hex_leg_1_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 1 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.11189117013698421,
+        0.08348751372624609,
+        -0.13746291179307535
+      ],
+      "bounds": [
+        [
+          0.07572906294220119,
+          0.06740501208820127,
+          -0.17362501898785826
+        ],
+        [
+          0.14805327733176724,
+          0.09957001536429091,
+          -0.10130080459829241
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.07519527609934645,
+          0.06395016338012026,
+          -0.17362609956749303
+        ],
+        [
+          0.14805435791140198,
+          0.10861736975072468,
+          -0.10076701775543757
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-femur-motor-1-surface2",
+      "meshName": "Hex_leg_1_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_1_femur_motor_1_surface2",
+      "sourceNodeIndex": 67,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/HexOrigin_leg_1_femur/HexJoint_leg_1_femur/HexLink_leg_1_femur_motor/Hex_leg_1_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 1 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.10497429610630842,
+        0.07745816759297985,
+        -0.10933843480003338
+      ],
+      "bounds": [
+        [
+          0.10328692463319045,
+          0.07616418726942607,
+          -0.11102580627315134
+        ],
+        [
+          0.10666166757942638,
+          0.07875214791653364,
+          -0.10765106332691543
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.1032869246354036,
+          0.07167932793557596,
+          -0.11227587916794841
+        ],
+        [
+          0.10791174047422347,
+          0.07875214779210758,
+          -0.10765106332912856
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-femur-bracket-a-1",
+      "meshName": "Hex_leg_1_femur_bracket_A_1",
+      "sourceName": "Hex_leg_1_femur_bracket_A_1",
+      "sourceNodeIndex": 68,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/HexOrigin_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexJoint_leg_1_coxa_bracket_A_leg_1_femur_bracket/HexLink_leg_1_femur_bracket_A/Hex_leg_1_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 1 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.09789575248703697,
+        0.08098056693638486,
+        -0.11901811313131597
+      ],
+      "bounds": [
+        [
+          0.06473244505630252,
+          0.0709805669363848,
+          -0.15218142056205047
+        ],
+        [
+          0.13105905991777142,
+          0.09098056693638494,
+          -0.08585480570058147
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.06473244505630252,
+          0.0709805669363848,
+          -0.15218142056205047
+        ],
+        [
+          0.13105905991777142,
+          0.09098056693638494,
+          -0.08585480570058147
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-coxa-bracket-a-1",
+      "meshName": "Hex_leg_1_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_1_coxa_bracket_A_1",
+      "sourceNodeIndex": 69,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/HexOrigin_leg_1_coxa/HexJoint_leg_1_coxa/HexLink_leg_1_coxa_bracket_A/Hex_leg_1_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 1 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06607594586082093,
+        0.08398056599494327,
+        -0.09144094586081995
+      ],
+      "bounds": [
+        [
+          0.04415563564403785,
+          0.0580805668532501,
+          -0.11336125607760289
+        ],
+        [
+          0.087996256077604,
+          0.10988056513663644,
+          -0.06952063564403702
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.04415563564403785,
+          0.0580805668532501,
+          -0.11336125607760289
+        ],
+        [
+          0.087996256077604,
+          0.10988056513663644,
+          -0.06952063564403702
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-coxa-motor-1",
+      "meshName": "Hex_leg_1_coxa_motor_1",
+      "sourceName": "Hex_leg_1_coxa_motor_1",
+      "sourceNodeIndex": 70,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/Hex_leg_1_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 1 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.04963224526839467,
+        0.08083437850940832,
+        -0.07500418326659301
+      ],
+      "bounds": [
+        [
+          0.023636175509228412,
+          0.05826286771762972,
+          -0.10100025302575918
+        ],
+        [
+          0.07562831502756093,
+          0.10340588930118692,
+          -0.04900811350742685
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.023636175509228412,
+          0.05826286771762972,
+          -0.10100025302575918
+        ],
+        [
+          0.07562831502756093,
+          0.10340588930118692,
+          -0.04900811350742685
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-1-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_1_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_1_coxa_motor_1_surface2",
+      "sourceNodeIndex": 71,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_1_base_coxa_motor/HexJoint_base_leg_1_base_coxa_motor/HexLink_leg_1_coxa_motor/Hex_leg_1_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 1 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06782339876489096,
+        0.09583041837680947,
+        -0.09287547561061063
+      ],
+      "bounds": [
+        [
+          0.06608706493154401,
+          0.09513253381717812,
+          -0.09461180944395758
+        ],
+        [
+          0.0695597325982379,
+          0.09652830293644082,
+          -0.09113914177726369
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550120133888266,
+        0.01,
+        -0.09327147793610596
+      ],
+      "group": "hex-leg-1",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.06608706493154401,
+          0.09513253381717812,
+          -0.09461180944395758
+        ],
+        [
+          0.0695597325982379,
+          0.09652830293644082,
+          -0.09113914177726369
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-coxa-bracket-b-1",
+      "meshName": "Hex_leg_2_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_2_coxa_bracket_B_1",
+      "sourceNodeIndex": 81,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_coxa_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_coxa_bracket/HexLink_leg_2_coxa_bracket_B/Hex_leg_2_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 2 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.08368500000000026,
+        0.05508056731785469,
+        -2.168404344971009e-17
+      ],
+      "bounds": [
+        [
+          0.06268500000000024,
+          0.052080567317854654,
+          -0.010000000000000042
+        ],
+        [
+          0.10468500000000026,
+          0.05808056731785473,
+          0.009999999999999998
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.06268500000000024,
+          0.052080567317854654,
+          -0.010000000000000042
+        ],
+        [
+          0.10468500000000026,
+          0.05808056731785473,
+          0.009999999999999998
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-femur-bracket-b-1",
+      "meshName": "Hex_leg_2_femur_bracket_B_1",
+      "sourceName": "Hex_leg_2_femur_bracket_B_1",
+      "sourceNodeIndex": 88,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur_bracket_A_leg_2_coxa_bracket_femur_bracket/HexJoint_leg_2_femur_bracket_A_leg_2_coxa_bracket_femur_bracket/HexLink_leg_2_femur_bracket_B/Hex_leg_2_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 2 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.12568500000000027,
+        0.08098056693638495,
+        -0.025899999618530324
+      ],
+      "bounds": [
+        [
+          0.10468500000000024,
+          0.07098056693638492,
+          -0.02889999961853035
+        ],
+        [
+          0.1466850000000003,
+          0.09098056693638498,
+          -0.022899999618530294
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.10468500000000024,
+          0.07098056693638492,
+          -0.02889999961853035
+        ],
+        [
+          0.1466850000000003,
+          0.09098056693638498,
+          -0.022899999618530294
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-tibia-bracket-b-1",
+      "meshName": "Hex_leg_2_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_2_tibia_bracket_B_1",
+      "sourceNodeIndex": 104,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/HexOrigin_leg_2_femur_leg_2_femur_tibia_motor/HexJoint_leg_2_femur_leg_2_femur_tibia_motor/HexLink_leg_2_tibia_motor/HexOrigin_leg_2_tibia/HexJoint_leg_2_tibia/HexLink_leg_2_tibia_bracket_A/HexOrigin_leg_2_tibia_bracket_A_leg_2_tibia_bracket/HexJoint_leg_2_tibia_bracket_A_leg_2_tibia_bracket/HexLink_leg_2_tibia_bracket_B/Hex_leg_2_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 2 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.21523915676482977,
+        0.1125892120429762,
+        -0.025899999618530407
+      ],
+      "bounds": [
+        [
+          0.20184053503363472,
+          0.09020344571239368,
+          -0.028899999618530483
+        ],
+        [
+          0.22863777849602482,
+          0.1349749783735587,
+          -0.022899999618530332
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.20184053517356698,
+          0.0902034462016249,
+          -0.028899999618530483
+        ],
+        [
+          0.22863777848365435,
+          0.13497497825652635,
+          -0.022899999618530332
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-tibia-1",
+      "meshName": "Hex_leg_2_tibia_1",
+      "sourceName": "Hex_leg_2_tibia_1",
+      "sourceNodeIndex": 108,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/HexOrigin_leg_2_femur_leg_2_femur_tibia_motor/HexJoint_leg_2_femur_leg_2_femur_tibia_motor/HexLink_leg_2_tibia_motor/HexOrigin_leg_2_tibia/HexJoint_leg_2_tibia/HexLink_leg_2_tibia_bracket_A/HexOrigin_leg_2_tibia_bracket_A_leg_2_tibia_bracket_tibia/HexJoint_leg_2_tibia_bracket_A_leg_2_tibia_bracket_tibia/HexLink_leg_2_tibia/Hex_leg_2_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 2 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.21935621573590341,
+        0.07143018566882806,
+        -2.5153490401663703e-17
+      ],
+      "bounds": [
+        [
+          0.18704053440304602,
+          -1.3877787807814457e-17,
+          -0.01000000000000019
+        ],
+        [
+          0.2516718970687608,
+          0.1428603713376561,
+          0.010000000000000139
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.18704053417444388,
+          1.838985491664502e-9,
+          -0.01000000000000019
+        ],
+        [
+          0.2516718967284242,
+          0.14286037108914568,
+          0.010000000000000139
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-tibia-bracket-a-1",
+      "meshName": "Hex_leg_2_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_2_tibia_bracket_A_1",
+      "sourceNodeIndex": 109,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/HexOrigin_leg_2_femur_leg_2_femur_tibia_motor/HexJoint_leg_2_femur_leg_2_femur_tibia_motor/HexLink_leg_2_tibia_motor/HexOrigin_leg_2_tibia/HexJoint_leg_2_tibia/HexLink_leg_2_tibia_bracket_A/Hex_leg_2_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 2 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.21523915650978717,
+        0.11258921055247667,
+        0.00299999905855821
+      ],
+      "bounds": [
+        [
+          0.2018405347785921,
+          0.09020344422189411,
+          -0.022900000083134968
+        ],
+        [
+          0.22863777824098225,
+          0.13497497688305923,
+          0.028899998200251388
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.20184053491852436,
+          0.09020344471112535,
+          -0.022900000083134968
+        ],
+        [
+          0.2286377782286118,
+          0.1349749767660269,
+          0.028899998200251388
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-tibia-motor-1",
+      "meshName": "Hex_leg_2_tibia_motor_1",
+      "sourceName": "Hex_leg_2_tibia_motor_1",
+      "sourceNodeIndex": 110,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/HexOrigin_leg_2_femur_leg_2_femur_tibia_motor/HexJoint_leg_2_femur_leg_2_femur_tibia_motor/HexLink_leg_2_tibia_motor/Hex_leg_2_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 2 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.20310786389978713,
+        0.09726850757441935,
+        -0.00014618842697682044
+      ],
+      "bounds": [
+        [
+          0.17453843225271393,
+          0.08118600593637468,
+          -0.022717699218755404
+        ],
+        [
+          0.23167729554686037,
+          0.11335100921246402,
+          0.022425322364801763
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.17453843220652282,
+          0.08118600614081492,
+          -0.022717699218755404
+        ],
+        [
+          0.23167729560891218,
+          0.1133510097006839,
+          0.022425322364801763
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_2_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_2_tibia_motor_1_surface2",
+      "sourceNodeIndex": 111,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/HexOrigin_leg_2_femur_leg_2_femur_tibia_motor/HexJoint_leg_2_femur_leg_2_femur_tibia_motor/HexLink_leg_2_tibia_motor/Hex_leg_2_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 2 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.22788584083059601,
+        0.10329785370768582,
+        0.014849851440424305
+      ],
+      "bounds": [
+        [
+          0.22619742176818247,
+          0.10200387338413204,
+          0.014151966880792956
+        ],
+        [
+          0.22957425989300956,
+          0.1045918340312396,
+          0.015547736000055655
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.22619742177518493,
+          0.10200387385540576,
+          0.014151966880792956
+        ],
+        [
+          0.2295742599103316,
+          0.10459183451837777,
+          0.015547736000055655
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-femur-1",
+      "meshName": "Hex_leg_2_femur_1",
+      "sourceName": "Hex_leg_2_femur_1",
+      "sourceNodeIndex": 112,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/HexOrigin_leg_2_femur_motor_leg_2_femur_motor_femur/HexJoint_leg_2_femur_motor_leg_2_femur_motor_femur/HexLink_leg_2_femur/Hex_leg_2_femur_1",
+      "title": "Femur",
+      "description": "Leg 2 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.17586578218797916,
+        0.09037801017012417,
+        -0.00166621320343549
+      ],
+      "bounds": [
+        [
+          0.11743826784635,
+          0.06245058727080858,
+          -0.00866621320343555
+        ],
+        [
+          0.2342932965296083,
+          0.11830543306943977,
+          0.0053337867965645705
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.11743826776859267,
+          0.06245058717395568,
+          -0.00866621320343555
+        ],
+        [
+          0.23429329661654885,
+          0.11830543356604395,
+          0.0053337867965645705
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-femur-motor-1",
+      "meshName": "Hex_leg_2_femur_motor_1",
+      "sourceName": "Hex_leg_2_femur_motor_1",
+      "sourceNodeIndex": 113,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/Hex_leg_2_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 2 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.14862369862697394,
+        0.0834875122984445,
+        -0.00014618842697678748
+      ],
+      "bounds": [
+        [
+          0.12005426697990071,
+          0.06740501066039987,
+          -0.02271769921875539
+        ],
+        [
+          0.17719313027404715,
+          0.09957001393648912,
+          0.022425322364801815
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.12005426692703203,
+          0.06740501057193124,
+          -0.02271769921875539
+        ],
+        [
+          0.17719313032942138,
+          0.09957001413180011,
+          0.022425322364801815
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-femur-motor-1-surface2",
+      "meshName": "Hex_leg_2_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_2_femur_motor_1_surface2",
+      "sourceNodeIndex": 114,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/HexOrigin_leg_2_femur/HexJoint_leg_2_femur/HexLink_leg_2_femur_motor/Hex_leg_2_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 2 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.123845721696165,
+        0.07745816616517814,
+        0.014849851440424323
+      ],
+      "bounds": [
+        [
+          0.12215730263375146,
+          0.07616418584162438,
+          0.014151966880792972
+        ],
+        [
+          0.12553414075857855,
+          0.07875214648873193,
+          0.015547736000055674
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.12215730262561257,
+          0.07616418575423743,
+          0.014151966880792972
+        ],
+        [
+          0.12553414076075922,
+          0.07875214641720943,
+          0.015547736000055674
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-femur-bracket-a-1",
+      "meshName": "Hex_leg_2_femur_bracket_A_1",
+      "sourceName": "Hex_leg_2_femur_bracket_A_1",
+      "sourceNodeIndex": 115,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/HexOrigin_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexJoint_leg_2_coxa_bracket_A_leg_2_femur_bracket/HexLink_leg_2_femur_bracket_A/Hex_leg_2_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 2 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.12568500151216278,
+        0.08098056693638506,
+        0.00299999905855829
+      ],
+      "bounds": [
+        [
+          0.10468500151216273,
+          0.07098056693638502,
+          -0.02290000008313486
+        ],
+        [
+          0.1466850015121628,
+          0.0909805669363851,
+          0.02889999820025144
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.10468500151216273,
+          0.07098056693638502,
+          -0.02290000008313486
+        ],
+        [
+          0.1466850015121628,
+          0.0909805669363851,
+          0.02889999820025144
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-coxa-bracket-a-1",
+      "meshName": "Hex_leg_2_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_2_coxa_bracket_A_1",
+      "sourceNodeIndex": 116,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/HexOrigin_leg_2_coxa/HexJoint_leg_2_coxa/HexLink_leg_2_coxa_bracket_A/Hex_leg_2_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 2 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.08368499848783739,
+        0.08398056599494351,
+        -4.0766001685454967e-17
+      ],
+      "bounds": [
+        [
+          0.06268499848783735,
+          0.05808056685325035,
+          -0.010000000000000049
+        ],
+        [
+          0.10468499848783745,
+          0.10988056513663667,
+          0.009999999999999967
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.06268499848783735,
+          0.05808056685325035,
+          -0.010000000000000049
+        ],
+        [
+          0.10468499848783745,
+          0.10988056513663667,
+          0.009999999999999967
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-coxa-motor-1",
+      "meshName": "Hex_leg_2_coxa_motor_1",
+      "sourceName": "Hex_leg_2_coxa_motor_1",
+      "sourceNodeIndex": 117,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/Hex_leg_2_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 2 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.060435000000000155,
+        0.08083437850940829,
+        -0.000004905905574521113
+      ],
+      "bounds": [
+        [
+          0.03343500000000012,
+          0.058262867717629674,
+          -0.00976890032738444
+        ],
+        [
+          0.0874350000000002,
+          0.10340588930118691,
+          0.009759088516235397
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.03343500000000012,
+          0.058262867717629674,
+          -0.00976890032738444
+        ],
+        [
+          0.0874350000000002,
+          0.10340588930118691,
+          0.009759088516235397
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-2-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_2_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_2_coxa_motor_1_surface2",
+      "sourceNodeIndex": 118,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_2_base_coxa_motor/HexJoint_base_leg_2_base_coxa_motor/HexLink_leg_2_coxa_motor/Hex_leg_2_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 2 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.08593500000000012,
+        0.09583041837680946,
+        0.00022127008438114874
+      ],
+      "bounds": [
+        [
+          0.08443500000000012,
+          0.09513253381717811,
+          -0.0007342767715453648
+        ],
+        [
+          0.08743500000000012,
+          0.09652830293644081,
+          0.0011768169403076623
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.12,
+        0.01,
+        -1.2153157886989282e-9
+      ],
+      "group": "hex-leg-2",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.08443500000000012,
+          0.09513253381717811,
+          -0.0007342767715453648
+        ],
+        [
+          0.08743500000000012,
+          0.09652830293644081,
+          0.0011768169403076623
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-coxa-bracket-b-1",
+      "meshName": "Hex_leg_3_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_3_coxa_bracket_B_1",
+      "sourceNodeIndex": 128,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_coxa_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_coxa_bracket/HexLink_leg_3_coxa_bracket_B/Hex_leg_3_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 3 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06607594693008156,
+        0.055080567317854524,
+        0.09144094693008085
+      ],
+      "bounds": [
+        [
+          0.0441556367132986,
+          0.05208056731785447,
+          0.06952063671329786
+        ],
+        [
+          0.08799625714686453,
+          0.058080567317854576,
+          0.11336125714686385
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.0441556367132986,
+          0.05208056731785447,
+          0.06952063671329786
+        ],
+        [
+          0.08799625714686453,
+          0.058080567317854576,
+          0.11336125714686385
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-femur-bracket-b-1",
+      "meshName": "Hex_leg_3_femur_bracket_B_1",
+      "sourceName": "Hex_leg_3_femur_bracket_B_1",
+      "sourceNodeIndex": 135,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur_bracket_A_leg_3_coxa_bracket_femur_bracket/HexJoint_leg_3_femur_bracket_A_leg_3_coxa_bracket_femur_bracket/HexLink_leg_3_femur_bracket_B/Hex_leg_3_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 3 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.11408849710290835,
+        0.08098056693638464,
+        0.10282536637692417
+      ],
+      "bounds": [
+        [
+          0.0971179343544312,
+          0.07098056693638459,
+          0.085854803628447
+        ],
+        [
+          0.1310590598513855,
+          0.0909805669363847,
+          0.11979592912540135
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.0971179343544312,
+          0.07098056693638459,
+          0.085854803628447
+        ],
+        [
+          0.1310590598513855,
+          0.0909805669363847,
+          0.11979592912540135
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-tibia-bracket-b-1",
+      "meshName": "Hex_leg_3_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_3_tibia_bracket_B_1",
+      "sourceNodeIndex": 151,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/HexOrigin_leg_3_femur_leg_3_femur_tibia_motor/HexJoint_leg_3_femur_leg_3_femur_tibia_motor/HexLink_leg_3_tibia_motor/HexOrigin_leg_3_tibia/HexJoint_leg_3_tibia/HexLink_leg_3_tibia_bracket_A/HexOrigin_leg_3_tibia_bracket_A_leg_3_tibia_bracket/HexJoint_leg_3_tibia_bracket_A_leg_3_tibia_bracket/HexLink_leg_3_tibia_bracket_B/Hex_leg_3_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 3 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.17741284658502973,
+        0.11258921544531388,
+        0.16614971585904587
+      ],
+      "bounds": [
+        [
+          0.1658172699567887,
+          0.09020344911473138,
+          0.15455413923080474
+        ],
+        [
+          0.18900842321327077,
+          0.13497498177589637,
+          0.177745292487287
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.16581727007232308,
+          0.09020345005282918,
+          0.15455413934633913
+        ],
+        [
+          0.18900842265917978,
+          0.13497498202314134,
+          0.17774529193319596
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-tibia-1",
+      "meshName": "Hex_leg_3_tibia_1",
+      "sourceName": "Hex_leg_3_tibia_1",
+      "sourceNodeIndex": 155,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/HexOrigin_leg_3_femur_leg_3_femur_tibia_motor/HexJoint_leg_3_femur_leg_3_femur_tibia_motor/HexLink_leg_3_tibia_motor/HexOrigin_leg_3_tibia/HexJoint_leg_3_tibia/HexLink_leg_3_tibia_bracket_A/HexOrigin_leg_3_tibia_bracket_A_leg_3_tibia_bracket_tibia/HexJoint_leg_3_tibia_bracket_A_leg_3_tibia_bracket_tibia/HexLink_leg_3_tibia/Hex_leg_3_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 3 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.1620099815390288,
+        0.07143018907116551,
+        0.18737498153902854
+      ],
+      "bounds": [
+        [
+          0.13208827631803632,
+          3.4023374395619754e-9,
+          0.15745327631803593
+        ],
+        [
+          0.19193168676002126,
+          0.14286037473999358,
+          0.21729668676002115
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.13208827761434422,
+          5.407305769811188e-9,
+          0.15745327761434383
+        ],
+        [
+          0.19193168598336569,
+          0.14286037492814202,
+          0.21729668598336552
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-tibia-bracket-a-1",
+      "meshName": "Hex_leg_3_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_3_tibia_bracket_A_1",
+      "sourceNodeIndex": 156,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/HexOrigin_leg_3_femur_leg_3_femur_tibia_motor/HexJoint_leg_3_femur_leg_3_femur_tibia_motor/HexLink_leg_3_tibia_motor/HexOrigin_leg_3_tibia/HexJoint_leg_3_tibia/HexLink_leg_3_tibia_bracket_A/Hex_leg_3_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 3 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.15697746136383575,
+        0.1125892139548143,
+        0.18658510071955509
+      ],
+      "bounds": [
+        [
+          0.1291891400533373,
+          0.09020344762423176,
+          0.15879677940905665
+        ],
+        [
+          0.18476578267433422,
+          0.13497498028539684,
+          0.2143734220300535
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.12918914016887167,
+          0.09020344856232956,
+          0.15879677952459106
+        ],
+        [
+          0.18476578212024325,
+          0.1349749805326418,
+          0.2143734214759625
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-tibia-motor-1",
+      "meshName": "Hex_leg_3_tibia_motor_1",
+      "sourceName": "Hex_leg_3_tibia_motor_1",
+      "sourceNodeIndex": 157,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/HexOrigin_leg_3_femur_leg_3_femur_tibia_motor/HexJoint_leg_3_femur_leg_3_femur_tibia_motor/HexLink_leg_3_tibia_motor/Hex_leg_3_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 3 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.15062403457865103,
+        0.09726850838979142,
+        0.17578229292255831
+      ],
+      "bounds": [
+        [
+          0.11446192738386807,
+          0.08118600675174682,
+          0.13962018572777532
+        ],
+        [
+          0.18678614177343397,
+          0.11335101002783604,
+          0.21194440011734128
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.11446192729903246,
+          0.08118600711395571,
+          0.1396201856429397
+        ],
+        [
+          0.18678614178136277,
+          0.11335101085895238,
+          0.21194440012527005
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_3_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_3_tibia_motor_1_surface2",
+      "sourceNodeIndex": 158,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/HexOrigin_leg_3_femur_leg_3_femur_tibia_motor/HexJoint_leg_3_femur_leg_3_femur_tibia_motor/HexLink_leg_3_tibia_motor/Hex_leg_3_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 3 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.1575409086093266,
+        0.10329785452305783,
+        0.20390676991560028
+      ],
+      "bounds": [
+        [
+          0.15585353713620864,
+          0.10200387419950406,
+          0.20221939844248232
+        ],
+        [
+          0.15922828008244455,
+          0.1045918348466116,
+          0.20559414138871823
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.15585353707924718,
+          0.10200387501263335,
+          0.20221939838552083
+        ],
+        [
+          0.15922828003588244,
+          0.10459183568511571,
+          0.2055941413421561
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-femur-1",
+      "meshName": "Hex_leg_3_femur_1",
+      "sourceName": "Hex_leg_3_femur_1",
+      "sourceNodeIndex": 159,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/HexOrigin_leg_3_femur_motor_leg_3_femur_motor_femur/HexJoint_leg_3_femur_motor_leg_3_femur_motor_femur/HexLink_leg_3_femur/Hex_leg_3_femur_1",
+      "title": "Femur",
+      "description": "Leg 3 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.13243579369359904,
+        0.09037801098549626,
+        0.15544441238349518
+      ],
+      "bounds": [
+        [
+          0.08617155462645308,
+          0.06245058808618078,
+          0.10918017331634904
+        ],
+        [
+          0.178700032760745,
+          0.11830543388481174,
+          0.20170865145064135
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.08617155454494148,
+          0.0624505879341676,
+          0.1091801732348374
+        ],
+        [
+          0.17870003279790767,
+          0.11830543472552815,
+          0.20170865148780395
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-femur-motor-1",
+      "meshName": "Hex_leg_3_femur_motor_1",
+      "sourceName": "Hex_leg_3_femur_motor_1",
+      "sourceNodeIndex": 160,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/Hex_leg_3_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 3 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.11209791184695636,
+        0.08348751311381655,
+        0.13725617019086347
+      ],
+      "bounds": [
+        [
+          0.07593580465217335,
+          0.06740501147577184,
+          0.10109406299608051
+        ],
+        [
+          0.14826001904173935,
+          0.09957001475186128,
+          0.17341827738564644
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.07593580459989561,
+          0.06740501133335873,
+          0.10109406294380277
+        ],
+        [
+          0.148260019082226,
+          0.09957001507835563,
+          0.17341827742613308
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-femur-motor-1-surface2",
+      "meshName": "Hex_leg_3_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_3_femur_motor_1_surface2",
+      "sourceNodeIndex": 161,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/HexOrigin_leg_3_femur/HexJoint_leg_3_femur/HexLink_leg_3_femur_motor/Hex_leg_3_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 3 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.0839734348539144,
+        0.07745816698055008,
+        0.1303392961601878
+      ],
+      "bounds": [
+        [
+          0.08228606338079644,
+          0.07616418665699631,
+          0.12865192468706985
+        ],
+        [
+          0.08566080632703237,
+          0.07875214730410386,
+          0.13202666763330576
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.08228606338300962,
+          0.07616418650719543,
+          0.128651924689283
+        ],
+        [
+          0.08566080633964489,
+          0.0787521471796778,
+          0.13202666764591828
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-femur-bracket-a-1",
+      "meshName": "Hex_leg_3_femur_bracket_A_1",
+      "sourceName": "Hex_leg_3_femur_bracket_A_1",
+      "sourceNodeIndex": 162,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/HexOrigin_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexJoint_leg_3_coxa_bracket_A_leg_3_femur_bracket/HexLink_leg_3_femur_bracket_A/Hex_leg_3_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 3 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.09365311313131706,
+        0.0809805669363848,
+        0.12326075248703611
+      ],
+      "bounds": [
+        [
+          0.06048980570058258,
+          0.07098056693638474,
+          0.09009744505630166
+        ],
+        [
+          0.12681642056205156,
+          0.09098056693638487,
+          0.15642405991777056
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.06048980570058258,
+          0.07098056693638474,
+          0.09009744505630166
+        ],
+        [
+          0.12681642056205156,
+          0.09098056693638487,
+          0.15642405991777056
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-coxa-bracket-a-1",
+      "meshName": "Hex_leg_3_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_3_coxa_bracket_A_1",
+      "sourceNodeIndex": 163,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/HexOrigin_leg_3_coxa/HexJoint_leg_3_coxa/HexLink_leg_3_coxa_bracket_A/Hex_leg_3_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 3 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06607594586082102,
+        0.08398056599494319,
+        0.09144094586082008
+      ],
+      "bounds": [
+        [
+          0.044155635644038016,
+          0.058080566853250026,
+          0.06952063564403707
+        ],
+        [
+          0.08799625607760404,
+          0.10988056513663635,
+          0.11336125607760307
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.044155635644038016,
+          0.058080566853250026,
+          0.06952063564403707
+        ],
+        [
+          0.08799625607760404,
+          0.10988056513663635,
+          0.11336125607760307
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-coxa-motor-1",
+      "meshName": "Hex_leg_3_coxa_motor_1",
+      "sourceName": "Hex_leg_3_coxa_motor_1",
+      "sourceNodeIndex": 164,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/Hex_leg_3_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 3 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.04963918326659399,
+        0.08083437850940829,
+        0.07499724526839387
+      ],
+      "bounds": [
+        [
+          0.0236431135074278,
+          0.058262867717629695,
+          0.04900117550922763
+        ],
+        [
+          0.07563525302576019,
+          0.10340588930118688,
+          0.10099331502756011
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.0236431135074278,
+          0.058262867717629695,
+          0.04900117550922763
+        ],
+        [
+          0.07563525302576019,
+          0.10340588930118688,
+          0.10099331502756011
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-3-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_3_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_3_coxa_motor_1_surface2",
+      "sourceNodeIndex": 165,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_3_base_coxa_motor/HexJoint_base_leg_3_base_coxa_motor/HexLink_leg_3_coxa_motor/Hex_leg_3_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 3 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0.06751047561061166,
+        0.09583041837680942,
+        0.09318839876489012
+      ],
+      "bounds": [
+        [
+          0.0657741417772647,
+          0.09513253381717808,
+          0.09145206493154318
+        ],
+        [
+          0.0692468094439586,
+          0.09652830293644077,
+          0.09492473259823705
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        0.07550385827314,
+        0.01,
+        0.09326932714386646
+      ],
+      "group": "hex-leg-3",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          0.0657741417772647,
+          0.09513253381717808,
+          0.09145206493154318
+        ],
+        [
+          0.0692468094439586,
+          0.09652830293644077,
+          0.09492473259823705
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-coxa-bracket-b-1",
+      "meshName": "Hex_leg_4_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_4_coxa_bracket_B_1",
+      "sourceNodeIndex": 175,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_coxa_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_coxa_bracket/HexLink_leg_4_coxa_bracket_B/Hex_leg_4_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 4 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.06607594693008173,
+        0.05508056731785453,
+        0.09144094693008067
+      ],
+      "bounds": [
+        [
+          -0.08799625714686475,
+          0.052080567317854466,
+          0.06952063671329774
+        ],
+        [
+          -0.04415563671329872,
+          0.05808056731785459,
+          0.11336125714686363
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08799625714686475,
+          0.052080567317854466,
+          0.06952063671329774
+        ],
+        [
+          -0.04415563671329872,
+          0.05808056731785459,
+          0.11336125714686363
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-femur-bracket-b-1",
+      "meshName": "Hex_leg_4_femur_bracket_B_1",
+      "sourceName": "Hex_leg_4_femur_bracket_B_1",
+      "sourceNodeIndex": 182,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur_bracket_A_leg_4_coxa_bracket_femur_bracket/HexJoint_leg_4_femur_bracket_A_leg_4_coxa_bracket_femur_bracket/HexLink_leg_4_femur_bracket_B/Hex_leg_4_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 4 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.07746036637692513,
+        0.08098056693638471,
+        0.13945349710290741
+      ],
+      "bounds": [
+        [
+          -0.09443092912540232,
+          0.0709805669363847,
+          0.12248293435443032
+        ],
+        [
+          -0.060489803628447934,
+          0.09098056693638472,
+          0.15642405985138452
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.09443092912540232,
+          0.0709805669363847,
+          0.12248293435443032
+        ],
+        [
+          -0.060489803628447934,
+          0.09098056693638472,
+          0.15642405985138452
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-tibia-bracket-b-1",
+      "meshName": "Hex_leg_4_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_4_tibia_bracket_B_1",
+      "sourceNodeIndex": 198,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/HexOrigin_leg_4_femur_leg_4_femur_tibia_motor/HexJoint_leg_4_femur_leg_4_femur_tibia_motor/HexLink_leg_4_tibia_motor/HexOrigin_leg_4_tibia/HexJoint_leg_4_tibia/HexLink_leg_4_tibia_bracket_A/HexOrigin_leg_4_tibia_bracket_A_leg_4_tibia_bracket/HexJoint_leg_4_tibia_bracket_A_leg_4_tibia_bracket/HexLink_leg_4_tibia_bracket_B/Hex_leg_4_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 4 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.14078471663933967,
+        0.11258921413695239,
+        0.2027778473653214
+      ],
+      "bounds": [
+        [
+          -0.15238029326758087,
+          0.09020344780636985,
+          0.19118227073708033
+        ],
+        [
+          -0.12918914001109846,
+          0.13497498046753492,
+          0.2143734239935625
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.1523802927134899,
+          0.09020344874446762,
+          0.1911822708526147
+        ],
+        [
+          -0.12918914012663288,
+          0.13497498071477987,
+          0.2143734234394715
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-tibia-1",
+      "meshName": "Hex_leg_4_tibia_1",
+      "sourceName": "Hex_leg_4_tibia_1",
+      "sourceNodeIndex": 202,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/HexOrigin_leg_4_femur_leg_4_femur_tibia_motor/HexJoint_leg_4_femur_leg_4_femur_tibia_motor/HexLink_leg_4_tibia_motor/HexOrigin_leg_4_tibia/HexJoint_leg_4_tibia/HexLink_leg_4_tibia_bracket_A/HexOrigin_leg_4_tibia_bracket_A_leg_4_tibia_bracket_tibia/HexJoint_leg_4_tibia_bracket_A_leg_4_tibia_bracket_tibia/HexLink_leg_4_tibia/Hex_leg_4_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 4 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.16200998231932234,
+        0.07143018776280394,
+        0.18737498231932068
+      ],
+      "bounds": [
+        [
+          -0.191931687540315,
+          2.093975881578558e-9,
+          0.15745327709832835
+        ],
+        [
+          -0.1320882770983297,
+          0.142860373431632,
+          0.217296687540313
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.19193168676365946,
+          4.098944170194407e-9,
+          0.1574532783946362
+        ],
+        [
+          -0.13208827839463766,
+          0.14286037361978046,
+          0.21729668676365738
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-tibia-bracket-a-1",
+      "meshName": "Hex_leg_4_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_4_tibia_bracket_A_1",
+      "sourceNodeIndex": 203,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/HexOrigin_leg_4_femur_leg_4_femur_tibia_motor/HexJoint_leg_4_femur_leg_4_femur_tibia_motor/HexLink_leg_4_tibia_motor/HexOrigin_leg_4_tibia/HexJoint_leg_4_tibia/HexLink_leg_4_tibia_bracket_A/Hex_leg_4_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 4 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.16122010149984892,
+        0.11258921264645269,
+        0.18234246214412753
+      ],
+      "bounds": [
+        [
+          -0.18900842281034733,
+          0.09020344631587013,
+          0.15455414083362912
+        ],
+        [
+          -0.1334317801893505,
+          0.13497497897703525,
+          0.21013078345462596
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.1890084222562564,
+          0.09020344725396796,
+          0.15455414094916353
+        ],
+        [
+          -0.13343178030488495,
+          0.13497497922428026,
+          0.210130782900535
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-tibia-motor-1",
+      "meshName": "Hex_leg_4_tibia_motor_1",
+      "sourceName": "Hex_leg_4_tibia_motor_1",
+      "sourceNodeIndex": 204,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/HexOrigin_leg_4_femur_leg_4_femur_tibia_motor/HexJoint_leg_4_femur_leg_4_femur_tibia_motor/HexLink_leg_4_tibia_motor/Hex_leg_4_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 4 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.15041729295117542,
+        0.09726850806452539,
+        0.17598903460726606
+      ],
+      "bounds": [
+        [
+          -0.18657940014595842,
+          0.08118600642648077,
+          0.1398269274124831
+        ],
+        [
+          -0.11425518575639242,
+          0.11335100970257002,
+          0.212151141802049
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.18657940015388724,
+          0.08118600678868965,
+          0.13982692732764748
+        ],
+        [
+          -0.11425518567155685,
+          0.11335101053368636,
+          0.21215114180997777
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_4_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_4_tibia_motor_1_surface2",
+      "sourceNodeIndex": 205,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/HexOrigin_leg_4_femur_leg_4_femur_tibia_motor/HexJoint_leg_4_femur_leg_4_femur_tibia_motor/HexLink_leg_4_tibia_motor/Hex_leg_4_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 4 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1785417699442174,
+        0.10329785419779182,
+        0.18290590863794157
+      ],
+      "bounds": [
+        [
+          -0.18022914141733537,
+          0.10200387387423805,
+          0.1812185371648236
+        ],
+        [
+          -0.17685439847109943,
+          0.10459183452134559,
+          0.18459328011105952
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.18022914137077328,
+          0.10200387468736732,
+          0.18121853710786212
+        ],
+        [
+          -0.17685439841413803,
+          0.10459183535984969,
+          0.18459328006449738
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-femur-1",
+      "meshName": "Hex_leg_4_femur_1",
+      "sourceName": "Hex_leg_4_femur_1",
+      "sourceNodeIndex": 206,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/HexOrigin_leg_4_femur_motor_leg_4_femur_motor_femur/HexJoint_leg_4_femur_motor_leg_4_femur_motor_femur/HexLink_leg_4_femur/Hex_leg_4_femur_1",
+      "title": "Femur",
+      "description": "Leg 4 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1300794124121123,
+        0.09037801066023021,
+        0.15780079372221412
+      ],
+      "bounds": [
+        [
+          -0.1763436514792585,
+          0.0624505877609147,
+          0.11153655465506822
+        ],
+        [
+          -0.08381517334496609,
+          0.11830543355954573,
+          0.20406503278936
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.17634365151642117,
+          0.06245058760890151,
+          0.1115365545735566
+        ],
+        [
+          -0.08381517326345449,
+          0.11830543440026212,
+          0.20406503282652264
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-femur-motor-1",
+      "meshName": "Hex_leg_4_femur_motor_1",
+      "sourceName": "Hex_leg_4_femur_motor_1",
+      "sourceNodeIndex": 207,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/Hex_leg_4_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 4 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.11189117021948036,
+        0.0834875127885506,
+        0.13746291187557153
+      ],
+      "bounds": [
+        [
+          -0.14805327741426338,
+          0.0674050111505058,
+          0.1013008046807886
+        ],
+        [
+          -0.07572906302469734,
+          0.09957001442659541,
+          0.17362501907035444
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.14805327745475003,
+          0.06740501100809267,
+          0.10130080462851085
+        ],
+        [
+          -0.07572906297241959,
+          0.09957001475308974,
+          0.1736250191108411
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-femur-motor-1-surface2",
+      "meshName": "Hex_leg_4_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_4_femur_motor_1_surface2",
+      "sourceNodeIndex": 208,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/HexOrigin_leg_4_femur/HexJoint_leg_4_femur/HexLink_leg_4_femur_motor/Hex_leg_4_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 4 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.10497429618880456,
+        0.07745816665528438,
+        0.10933843488252956
+      ],
+      "bounds": [
+        [
+          -0.10666166766192253,
+          0.07616418633173061,
+          0.10765106340941161
+        ],
+        [
+          -0.1032869247156866,
+          0.07875214697883816,
+          0.1110258063556475
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.10666166767453505,
+          0.07616418618192972,
+          0.10765106341162477
+        ],
+        [
+          -0.10328692471789976,
+          0.07875214685441208,
+          0.11102580636826002
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-femur-bracket-a-1",
+      "meshName": "Hex_leg_4_femur_bracket_A_1",
+      "sourceName": "Hex_leg_4_femur_bracket_A_1",
+      "sourceNodeIndex": 209,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/HexOrigin_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexJoint_leg_4_coxa_bracket_A_leg_4_femur_bracket/HexLink_leg_4_femur_bracket_A/Hex_leg_4_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 4 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.097895752487037,
+        0.0809805669363848,
+        0.11901811313131608
+      ],
+      "bounds": [
+        [
+          -0.13105905991777145,
+          0.07098056693638473,
+          0.08585480570058157
+        ],
+        [
+          -0.06473244505630255,
+          0.0909805669363849,
+          0.15218142056205058
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.13105905991777145,
+          0.07098056693638473,
+          0.08585480570058157
+        ],
+        [
+          -0.06473244505630255,
+          0.0909805669363849,
+          0.15218142056205058
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-coxa-bracket-a-1",
+      "meshName": "Hex_leg_4_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_4_coxa_bracket_A_1",
+      "sourceNodeIndex": 210,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/HexOrigin_leg_4_coxa/HexJoint_leg_4_coxa/HexLink_leg_4_coxa_bracket_A/Hex_leg_4_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 4 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.06607594586082091,
+        0.08398056599494298,
+        0.0914409458608201
+      ],
+      "bounds": [
+        [
+          -0.08799625607760397,
+          0.05808056685324982,
+          0.06952063564403718
+        ],
+        [
+          -0.044155635644037836,
+          0.10988056513663615,
+          0.11336125607760304
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08799625607760397,
+          0.05808056685324982,
+          0.06952063564403718
+        ],
+        [
+          -0.044155635644037836,
+          0.10988056513663615,
+          0.11336125607760304
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-coxa-motor-1",
+      "meshName": "Hex_leg_4_coxa_motor_1",
+      "sourceName": "Hex_leg_4_coxa_motor_1",
+      "sourceNodeIndex": 211,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/Hex_leg_4_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 4 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.04963224526839471,
+        0.08083437850940828,
+        0.07500418326659311
+      ],
+      "bounds": [
+        [
+          -0.07562831502756097,
+          0.05826286771762969,
+          0.049008113507426954
+        ],
+        [
+          -0.023636175509228446,
+          0.10340588930118687,
+          0.10100025302575927
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.07562831502756097,
+          0.05826286771762969,
+          0.049008113507426954
+        ],
+        [
+          -0.023636175509228446,
+          0.10340588930118687,
+          0.10100025302575927
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-4-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_4_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_4_coxa_motor_1_surface2",
+      "sourceNodeIndex": 212,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_4_base_coxa_motor/HexJoint_base_leg_4_base_coxa_motor/HexLink_leg_4_coxa_motor/Hex_leg_4_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 4 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.06782339876489099,
+        0.09583041837680942,
+        0.09287547561061074
+      ],
+      "bounds": [
+        [
+          -0.06955973259823794,
+          0.09513253381717807,
+          0.0911391417772638
+        ],
+        [
+          -0.06608706493154405,
+          0.09652830293644077,
+          0.09461180944395768
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.07550120479056949,
+        0.01,
+        0.0932714751420416
+      ],
+      "group": "hex-leg-4",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.06955973259823794,
+          0.09513253381717807,
+          0.0911391417772638
+        ],
+        [
+          -0.06608706493154405,
+          0.09652830293644077,
+          0.09461180944395768
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-coxa-bracket-b-1",
+      "meshName": "Hex_leg_5_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_5_coxa_bracket_B_1",
+      "sourceNodeIndex": 222,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_coxa_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_coxa_bracket/HexLink_leg_5_coxa_bracket_B/Hex_leg_5_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 5 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.08368500000000018,
+        0.05508056731785457,
+        -1.196959198423997e-16
+      ],
+      "bounds": [
+        [
+          -0.10468500000000018,
+          0.05208056731785451,
+          -0.010000000000000137
+        ],
+        [
+          -0.06268500000000016,
+          0.05808056731785463,
+          0.009999999999999898
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.10468500000000018,
+          0.05208056731785451,
+          -0.010000000000000137
+        ],
+        [
+          -0.06268500000000016,
+          0.05808056731785463,
+          0.009999999999999898
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-femur-bracket-b-1",
+      "meshName": "Hex_leg_5_femur_bracket_B_1",
+      "sourceName": "Hex_leg_5_femur_bracket_B_1",
+      "sourceNodeIndex": 229,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur_bracket_A_leg_5_coxa_bracket_femur_bracket/HexJoint_leg_5_femur_bracket_A_leg_5_coxa_bracket_femur_bracket/HexLink_leg_5_femur_bracket_B/Hex_leg_5_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 5 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1256850000000002,
+        0.0809805669363847,
+        0.02589999961853027
+      ],
+      "bounds": [
+        [
+          -0.14668500000000023,
+          0.07098056693638466,
+          0.022899999618530228
+        ],
+        [
+          -0.10468500000000021,
+          0.09098056693638472,
+          0.028899999618530306
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.14668500000000023,
+          0.07098056693638466,
+          0.022899999618530228
+        ],
+        [
+          -0.10468500000000021,
+          0.09098056693638472,
+          0.028899999618530306
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-tibia-bracket-b-1",
+      "meshName": "Hex_leg_5_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_5_tibia_bracket_B_1",
+      "sourceNodeIndex": 245,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/HexOrigin_leg_5_femur_leg_5_femur_tibia_motor/HexJoint_leg_5_femur_leg_5_femur_tibia_motor/HexLink_leg_5_tibia_motor/HexOrigin_leg_5_tibia/HexJoint_leg_5_tibia/HexLink_leg_5_tibia_bracket_A/HexOrigin_leg_5_tibia_bracket_A_leg_5_tibia_bracket/HexJoint_leg_5_tibia_bracket_A_leg_5_tibia_bracket/HexLink_leg_5_tibia_bracket_B/Hex_leg_5_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 5 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.2152391500120257,
+        0.1125892200494149,
+        0.025899999618530366
+      ],
+      "bounds": [
+        [
+          -0.22863777174322075,
+          0.09020345371883239,
+          0.022899999618530283
+        ],
+        [
+          -0.20184052828083063,
+          0.1349749863799974,
+          0.02889999961853045
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.22863777173085034,
+          0.09020345420806349,
+          0.022899999618530283
+        ],
+        [
+          -0.20184052842076292,
+          0.13497498626296497,
+          0.02889999961853045
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-tibia-1",
+      "meshName": "Hex_leg_5_tibia_1",
+      "sourceName": "Hex_leg_5_tibia_1",
+      "sourceNodeIndex": 249,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/HexOrigin_leg_5_femur_leg_5_femur_tibia_motor/HexJoint_leg_5_femur_leg_5_femur_tibia_motor/HexLink_leg_5_tibia_motor/HexOrigin_leg_5_tibia/HexJoint_leg_5_tibia/HexLink_leg_5_tibia_bracket_A/HexOrigin_leg_5_tibia_bracket_A_leg_5_tibia_bracket_tibia/HexJoint_leg_5_tibia_bracket_A_leg_5_tibia_bracket_tibia/HexLink_leg_5_tibia/Hex_leg_5_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 5 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.2193562089830991,
+        0.07143019367526651,
+        -3.469446951953614e-17
+      ],
+      "bounds": [
+        [
+          -0.25167189031595655,
+          8.006438442786923e-9,
+          -0.010000000000000212
+        ],
+        [
+          -0.18704052765024168,
+          0.1428603793440946,
+          0.010000000000000142
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.25167188997561996,
+          9.84542383730691e-9,
+          -0.010000000000000212
+        ],
+        [
+          -0.1870405274216396,
+          0.14286037909558408,
+          0.010000000000000142
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-tibia-bracket-a-1",
+      "meshName": "Hex_leg_5_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_5_tibia_bracket_A_1",
+      "sourceNodeIndex": 250,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/HexOrigin_leg_5_femur_leg_5_femur_tibia_motor/HexJoint_leg_5_femur_leg_5_femur_tibia_motor/HexLink_leg_5_tibia_motor/HexOrigin_leg_5_tibia/HexJoint_leg_5_tibia/HexLink_leg_5_tibia_bracket_A/Hex_leg_5_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 5 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.21523914975698316,
+        0.11258921855891552,
+        -0.0029999990585581667
+      ],
+      "bounds": [
+        [
+          -0.22863777148817827,
+          0.09020345222833295,
+          -0.028899998200251357
+        ],
+        [
+          -0.20184052802578806,
+          0.13497498488949808,
+          0.022900000083135023
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.22863777147580783,
+          0.09020345271756405,
+          -0.028899998200251357
+        ],
+        [
+          -0.20184052816572032,
+          0.1349749847724656,
+          0.022900000083135023
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-tibia-motor-1",
+      "meshName": "Hex_leg_5_tibia_motor_1",
+      "sourceName": "Hex_leg_5_tibia_motor_1",
+      "sourceNodeIndex": 251,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/HexOrigin_leg_5_femur_leg_5_femur_tibia_motor/HexJoint_leg_5_femur_leg_5_femur_tibia_motor/HexLink_leg_5_tibia_motor/Hex_leg_5_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 5 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.20310786365213881,
+        0.09726850956486514,
+        0.00014618842697665217
+      ],
+      "bounds": [
+        [
+          -0.23167729529921205,
+          0.08118600792682049,
+          -0.02242532236480194
+        ],
+        [
+          -0.17453843200506558,
+          0.1133510112029098,
+          0.022717699218755244
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.23167729536126386,
+          0.08118600813126077,
+          -0.02242532236480194
+        ],
+        [
+          -0.17453843195887453,
+          0.11335101169112972,
+          0.022717699218755244
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_5_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_5_tibia_motor_1_surface2",
+      "sourceNodeIndex": 252,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/HexOrigin_leg_5_femur_leg_5_femur_tibia_motor/HexJoint_leg_5_femur_leg_5_femur_tibia_motor/HexLink_leg_5_tibia_motor/Hex_leg_5_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 5 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.2278858405829477,
+        0.10329785569813159,
+        -0.014849851440424475
+      ],
+      "bounds": [
+        [
+          -0.22957425964536124,
+          0.10200387537457782,
+          -0.015547736000055826
+        ],
+        [
+          -0.22619742152053415,
+          0.10459183602168536,
+          -0.014151966880793124
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.2295742596626833,
+          0.10200387584585158,
+          -0.015547736000055826
+        ],
+        [
+          -0.22619742152753664,
+          0.10459183650882357,
+          -0.014151966880793124
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-femur-1",
+      "meshName": "Hex_leg_5_femur_1",
+      "sourceName": "Hex_leg_5_femur_1",
+      "sourceNodeIndex": 253,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/HexOrigin_leg_5_femur_motor_leg_5_femur_motor_femur/HexJoint_leg_5_femur_motor_leg_5_femur_motor_femur/HexLink_leg_5_femur/Hex_leg_5_femur_1",
+      "title": "Femur",
+      "description": "Leg 5 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.17586578194033067,
+        0.09037801216056993,
+        0.0016662132034353599
+      ],
+      "bounds": [
+        [
+          -0.23429329628195983,
+          0.062450589261254394,
+          -0.005333786796564728
+        ],
+        [
+          -0.11743826759870153,
+          0.11830543505988547,
+          0.008666213203435448
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.23429329636890034,
+          0.062450589164401514,
+          -0.005333786796564728
+        ],
+        [
+          -0.11743826752094418,
+          0.11830543555648966,
+          0.008666213203435448
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-femur-motor-1",
+      "meshName": "Hex_leg_5_femur_motor_1",
+      "sourceName": "Hex_leg_5_femur_motor_1",
+      "sourceNodeIndex": 254,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/Hex_leg_5_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 5 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.14862369837932562,
+        0.08348751428889029,
+        0.00014618842697674238
+      ],
+      "bounds": [
+        [
+          -0.17719313002639886,
+          0.06740501265084566,
+          -0.022425322364801867
+        ],
+        [
+          -0.12005426673225239,
+          0.0995700159269349,
+          0.02271769921875535
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.1771931300817731,
+          0.06740501256237703,
+          -0.022425322364801867
+        ],
+        [
+          -0.12005426667938374,
+          0.09957001612224593,
+          0.02271769921875535
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-femur-motor-1-surface2",
+      "meshName": "Hex_leg_5_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_5_femur_motor_1_surface2",
+      "sourceNodeIndex": 255,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/HexOrigin_leg_5_femur/HexJoint_leg_5_femur/HexLink_leg_5_femur_motor/Hex_leg_5_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 5 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1238457214485167,
+        0.07745816815562397,
+        -0.014849851440424368
+      ],
+      "bounds": [
+        [
+          -0.12553414051093023,
+          0.0761641878320702,
+          -0.015547736000055719
+        ],
+        [
+          -0.12215730238610317,
+          0.07875214847917773,
+          -0.014151966880793017
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.12553414051311093,
+          0.07616418774468328,
+          -0.015547736000055719
+        ],
+        [
+          -0.12215730237796428,
+          0.07875214840765528,
+          -0.014151966880793017
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-femur-bracket-a-1",
+      "meshName": "Hex_leg_5_femur_bracket_A_1",
+      "sourceName": "Hex_leg_5_femur_bracket_A_1",
+      "sourceNodeIndex": 256,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/HexOrigin_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexJoint_leg_5_coxa_bracket_A_leg_5_femur_bracket/HexLink_leg_5_femur_bracket_A/Hex_leg_5_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 5 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1256850015121627,
+        0.08098056693638486,
+        -0.0029999990585583246
+      ],
+      "bounds": [
+        [
+          -0.14668500151216274,
+          0.07098056693638478,
+          -0.028899998200251475
+        ],
+        [
+          -0.10468500151216266,
+          0.09098056693638493,
+          0.022900000083134826
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.14668500151216274,
+          0.07098056693638478,
+          -0.028899998200251475
+        ],
+        [
+          -0.10468500151216266,
+          0.09098056693638493,
+          0.022900000083134826
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-coxa-bracket-a-1",
+      "meshName": "Hex_leg_5_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_5_coxa_bracket_A_1",
+      "sourceNodeIndex": 257,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/HexOrigin_leg_5_coxa/HexJoint_leg_5_coxa/HexLink_leg_5_coxa_bracket_A/Hex_leg_5_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 5 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.08368499848783727,
+        0.08398056599494295,
+        5.204170427930421e-17
+      ],
+      "bounds": [
+        [
+          -0.10468499848783733,
+          0.05808056685324978,
+          -0.009999999999999953
+        ],
+        [
+          -0.0626849984878372,
+          0.10988056513663612,
+          0.010000000000000057
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.10468499848783733,
+          0.05808056685324978,
+          -0.009999999999999953
+        ],
+        [
+          -0.0626849984878372,
+          0.10988056513663612,
+          0.010000000000000057
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-coxa-motor-1",
+      "meshName": "Hex_leg_5_coxa_motor_1",
+      "sourceName": "Hex_leg_5_coxa_motor_1",
+      "sourceNodeIndex": 258,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/Hex_leg_5_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 5 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.06043500000000016,
+        0.0808343785094083,
+        0.000004905905574531522
+      ],
+      "bounds": [
+        [
+          -0.08743500000000018,
+          0.058262867717629716,
+          -0.009759088516235399
+        ],
+        [
+          -0.033435000000000145,
+          0.1034058893011869,
+          0.009768900327384462
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08743500000000018,
+          0.058262867717629716,
+          -0.009759088516235399
+        ],
+        [
+          -0.033435000000000145,
+          0.1034058893011869,
+          0.009768900327384462
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-5-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_5_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_5_coxa_motor_1_surface2",
+      "sourceNodeIndex": 259,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_5_base_coxa_motor/HexJoint_base_leg_5_base_coxa_motor/HexLink_leg_5_coxa_motor/Hex_leg_5_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 5 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.08593500000000015,
+        0.09583041837680945,
+        -0.0002212700843811444
+      ],
+      "bounds": [
+        [
+          -0.08743500000000015,
+          0.0951325338171781,
+          -0.0011768169403076588
+        ],
+        [
+          -0.08443500000000015,
+          0.0965283029364408,
+          0.00073427677154537
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.12,
+        0.01,
+        -2.1423343189005574e-11
+      ],
+      "group": "hex-leg-5",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08743500000000015,
+          0.0951325338171781,
+          -0.0011768169403076588
+        ],
+        [
+          -0.08443500000000015,
+          0.0965283029364408,
+          0.00073427677154537
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-coxa-bracket-b-1",
+      "meshName": "Hex_leg_6_coxa_bracket_B_1",
+      "sourceName": "Hex_leg_6_coxa_bracket_B_1",
+      "sourceNodeIndex": 269,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_coxa_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_coxa_bracket/HexLink_leg_6_coxa_bracket_B/Hex_leg_6_coxa_bracket_B_1",
+      "title": "Coxa Bracket B",
+      "description": "Leg 6 Coxa Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.0660759469300815,
+        0.05508056731785458,
+        -0.09144094693008072
+      ],
+      "bounds": [
+        [
+          -0.08799625714686446,
+          0.052080567317854515,
+          -0.11336125714686371
+        ],
+        [
+          -0.04415563671329853,
+          0.058080567317854645,
+          -0.06952063671329772
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08799625714686446,
+          0.052080567317854515,
+          -0.11336125714686371
+        ],
+        [
+          -0.04415563671329853,
+          0.058080567317854645,
+          -0.06952063671329772
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-femur-bracket-b-1",
+      "meshName": "Hex_leg_6_femur_bracket_B_1",
+      "sourceName": "Hex_leg_6_femur_bracket_B_1",
+      "sourceNodeIndex": 276,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur_bracket_A_leg_6_coxa_bracket_femur_bracket/HexJoint_leg_6_femur_bracket_A_leg_6_coxa_bracket_femur_bracket/HexLink_leg_6_femur_bracket_B/Hex_leg_6_femur_bracket_B_1",
+      "title": "Femur Bracket B",
+      "description": "Leg 6 Femur Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.11408849710290829,
+        0.08098056693638467,
+        -0.10282536637692402
+      ],
+      "bounds": [
+        [
+          -0.13105905985138544,
+          0.07098056693638462,
+          -0.11979592912540118
+        ],
+        [
+          -0.09711793435443114,
+          0.09098056693638473,
+          -0.08585480362844686
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.13105905985138544,
+          0.07098056693638462,
+          -0.11979592912540118
+        ],
+        [
+          -0.09711793435443114,
+          0.09098056693638473,
+          -0.08585480362844686
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-tibia-bracket-b-1",
+      "meshName": "Hex_leg_6_tibia_bracket_B_1",
+      "sourceName": "Hex_leg_6_tibia_bracket_B_1",
+      "sourceNodeIndex": 292,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/HexOrigin_leg_6_femur_leg_6_femur_tibia_motor/HexJoint_leg_6_femur_leg_6_femur_tibia_motor/HexLink_leg_6_tibia_motor/HexOrigin_leg_6_tibia/HexJoint_leg_6_tibia/HexLink_leg_6_tibia_bracket_A/HexOrigin_leg_6_tibia_bracket_A_leg_6_tibia_bracket/HexJoint_leg_6_tibia_bracket_A_leg_6_tibia_bracket/HexLink_leg_6_tibia_bracket_B/Hex_leg_6_tibia_bracket_B_1",
+      "title": "Tibia Bracket B",
+      "description": "Leg 6 Tibia Bracket B from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.17741284589614337,
+        0.11258921660040927,
+        -0.1661497151701593
+      ],
+      "bounds": [
+        [
+          -0.18900842252438438,
+          0.09020345026982678,
+          -0.1777452917984004
+        ],
+        [
+          -0.16581726926790233,
+          0.13497498293099178,
+          -0.15455413854191818
+        ]
+      ],
+      "triangles": 1420,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.18900842197029333,
+          0.09020345120792453,
+          -0.17774529124430938
+        ],
+        [
+          -0.16581726938343663,
+          0.1349749831782367,
+          -0.15455413865745254
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-tibia-1",
+      "meshName": "Hex_leg_6_tibia_1",
+      "sourceName": "Hex_leg_6_tibia_1",
+      "sourceNodeIndex": 296,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/HexOrigin_leg_6_femur_leg_6_femur_tibia_motor/HexJoint_leg_6_femur_leg_6_femur_tibia_motor/HexLink_leg_6_tibia_motor/HexOrigin_leg_6_tibia/HexJoint_leg_6_tibia/HexLink_leg_6_tibia_bracket_A/HexOrigin_leg_6_tibia_bracket_A_leg_6_tibia_bracket_tibia/HexJoint_leg_6_tibia_bracket_A_leg_6_tibia_bracket_tibia/HexLink_leg_6_tibia/Hex_leg_6_tibia_1",
+      "title": "Tibia",
+      "description": "Leg 6 Tibia from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.1620099808501425,
+        0.07143019022626089,
+        -0.18737498085014193
+      ],
+      "bounds": [
+        [
+          -0.19193168607113487,
+          4.557432847773768e-9,
+          -0.2172966860711345
+        ],
+        [
+          -0.13208827562915013,
+          0.14286037589508893,
+          -0.15745327562914935
+        ]
+      ],
+      "triangles": 1538,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.19193168529447924,
+          6.5624011225118295e-9,
+          -0.21729668529447893
+        ],
+        [
+          -0.13208827692545796,
+          0.14286037608323737,
+          -0.15745327692545727
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-tibia-bracket-a-1",
+      "meshName": "Hex_leg_6_tibia_bracket_A_1",
+      "sourceName": "Hex_leg_6_tibia_bracket_A_1",
+      "sourceNodeIndex": 297,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/HexOrigin_leg_6_femur_leg_6_femur_tibia_motor/HexJoint_leg_6_femur_leg_6_femur_tibia_motor/HexLink_leg_6_tibia_motor/HexOrigin_leg_6_tibia/HexJoint_leg_6_tibia/HexLink_leg_6_tibia_bracket_A/Hex_leg_6_tibia_bracket_A_1",
+      "title": "Tibia Bracket A",
+      "description": "Leg 6 Tibia Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.15697746067494944,
+        0.11258921510990985,
+        -0.1865851000306685
+      ],
+      "bounds": [
+        [
+          -0.18476578198544785,
+          0.09020344877932732,
+          -0.2143734213411669
+        ],
+        [
+          -0.129189139364451,
+          0.1349749814404924,
+          -0.1587967787201701
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.18476578143135686,
+          0.09020344971742514,
+          -0.21437342078707589
+        ],
+        [
+          -0.12918913947998537,
+          0.13497498168773736,
+          -0.15879677883570448
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-tibia-motor-1",
+      "meshName": "Hex_leg_6_tibia_motor_1",
+      "sourceName": "Hex_leg_6_tibia_motor_1",
+      "sourceNodeIndex": 298,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/HexOrigin_leg_6_femur_leg_6_femur_tibia_motor/HexJoint_leg_6_femur_leg_6_femur_tibia_motor/HexLink_leg_6_tibia_motor/Hex_leg_6_tibia_motor_1",
+      "title": "Tibia Motor",
+      "description": "Leg 6 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.15062403455338721,
+        0.0972685086769548,
+        -0.1757822928972944
+      ],
+      "bounds": [
+        [
+          -0.18678614174817018,
+          0.08118600703891019,
+          -0.21194440009207743
+        ],
+        [
+          -0.11446192735860426,
+          0.11335101031499943,
+          -0.13962018570251142
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.18678614175609898,
+          0.08118600740111906,
+          -0.21194440010000618
+        ],
+        [
+          -0.11446192727376864,
+          0.11335101114611579,
+          -0.13962018561767575
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-tibia-motor-1-surface2",
+      "meshName": "Hex_leg_6_tibia_motor_1_surface2",
+      "sourceName": "Hex_leg_6_tibia_motor_1_surface2",
+      "sourceNodeIndex": 299,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/HexOrigin_leg_6_femur_leg_6_femur_tibia_motor/HexJoint_leg_6_femur_leg_6_femur_tibia_motor/HexLink_leg_6_tibia_motor/Hex_leg_6_tibia_motor_1_surface2",
+      "title": "Tibia Motor · surface 2",
+      "description": "Leg 6 Tibia Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.15754090858406278,
+        0.10329785481022122,
+        -0.2039067698903364
+      ],
+      "bounds": [
+        [
+          -0.15922828005718073,
+          0.10200387448666745,
+          -0.20559414136345436
+        ],
+        [
+          -0.15585353711094482,
+          0.104591835133775,
+          -0.20221939841721842
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.15922828001061862,
+          0.10200387529979676,
+          -0.2055941413168922
+        ],
+        [
+          -0.15585353705398336,
+          0.10459183597227911,
+          -0.20221939836025693
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-femur-1",
+      "meshName": "Hex_leg_6_femur_1",
+      "sourceName": "Hex_leg_6_femur_1",
+      "sourceNodeIndex": 300,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/HexOrigin_leg_6_femur_motor_leg_6_femur_motor_femur/HexJoint_leg_6_femur_motor_leg_6_femur_motor_femur/HexLink_leg_6_femur/Hex_leg_6_femur_1",
+      "title": "Femur",
+      "description": "Leg 6 Femur from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.13243579366833522,
+        0.0903780112726596,
+        -0.15544441235823123
+      ],
+      "bounds": [
+        [
+          -0.17870003273548116,
+          0.06245058837334407,
+          -0.2017086514253774
+        ],
+        [
+          -0.08617155460118929,
+          0.11830543417197512,
+          -0.10918017329108508
+        ]
+      ],
+      "triangles": 1428,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.1787000327726438,
+          0.062450588221330906,
+          -0.20170865146254002
+        ],
+        [
+          -0.08617155451967767,
+          0.11830543501269154,
+          -0.10918017320957343
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-femur-motor-1",
+      "meshName": "Hex_leg_6_femur_motor_1",
+      "sourceName": "Hex_leg_6_femur_motor_1",
+      "sourceNodeIndex": 301,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/Hex_leg_6_femur_motor_1",
+      "title": "Femur Motor",
+      "description": "Leg 6 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.11209791182169257,
+        0.08348751340097987,
+        -0.13725617016559957
+      ],
+      "bounds": [
+        [
+          -0.14826001901647554,
+          0.06740501176293516,
+          -0.17341827736038254
+        ],
+        [
+          -0.07593580462690959,
+          0.09957001503902457,
+          -0.1010940629708166
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.14826001905696218,
+          0.06740501162052207,
+          -0.17341827740086915
+        ],
+        [
+          -0.07593580457463185,
+          0.09957001536551892,
+          -0.10109406291853883
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-femur-motor-1-surface2",
+      "meshName": "Hex_leg_6_femur_motor_1_surface2",
+      "sourceName": "Hex_leg_6_femur_motor_1_surface2",
+      "sourceNodeIndex": 302,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/HexOrigin_leg_6_femur/HexJoint_leg_6_femur/HexLink_leg_6_femur_motor/Hex_leg_6_femur_motor_1_surface2",
+      "title": "Femur Motor · surface 2",
+      "description": "Leg 6 Femur Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.08397343482865063,
+        0.0774581672677134,
+        -0.1303392961349239
+      ],
+      "bounds": [
+        [
+          -0.08566080630176859,
+          0.07616418694415962,
+          -0.13202666760804185
+        ],
+        [
+          -0.08228606335553268,
+          0.07875214759126717,
+          -0.12865192466180594
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08566080631438111,
+          0.07616418679435875,
+          -0.13202666762065432
+        ],
+        [
+          -0.08228606335774584,
+          0.07875214746684112,
+          -0.12865192466401906
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-femur-bracket-a-1",
+      "meshName": "Hex_leg_6_femur_bracket_A_1",
+      "sourceName": "Hex_leg_6_femur_bracket_A_1",
+      "sourceNodeIndex": 303,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/HexOrigin_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexJoint_leg_6_coxa_bracket_A_leg_6_femur_bracket/HexLink_leg_6_femur_bracket_A/Hex_leg_6_femur_bracket_A_1",
+      "title": "Femur Bracket A",
+      "description": "Leg 6 Femur Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.09365311313131705,
+        0.08098056693638485,
+        -0.12326075248703597
+      ],
+      "bounds": [
+        [
+          -0.12681642056205153,
+          0.07098056693638477,
+          -0.15642405991777042
+        ],
+        [
+          -0.06048980570058256,
+          0.09098056693638493,
+          -0.09009744505630152
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.12681642056205153,
+          0.07098056693638477,
+          -0.15642405991777042
+        ],
+        [
+          -0.06048980570058256,
+          0.09098056693638493,
+          -0.09009744505630152
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-coxa-bracket-a-1",
+      "meshName": "Hex_leg_6_coxa_bracket_A_1",
+      "sourceName": "Hex_leg_6_coxa_bracket_A_1",
+      "sourceNodeIndex": 304,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/HexOrigin_leg_6_coxa/HexJoint_leg_6_coxa/HexLink_leg_6_coxa_bracket_A/Hex_leg_6_coxa_bracket_A_1",
+      "title": "Coxa Bracket A",
+      "description": "Leg 6 Coxa Bracket A from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.06607594586082094,
+        0.083980565994943,
+        -0.09144094586081997
+      ],
+      "bounds": [
+        [
+          -0.08799625607760396,
+          0.05808056685324983,
+          -0.11336125607760297
+        ],
+        [
+          -0.04415563564403793,
+          0.10988056513663617,
+          -0.06952063564403697
+        ]
+      ],
+      "triangles": 1764,
+      "sourceMaterial": "Printed white",
+      "finishFamily": "coatedWhite",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08799625607760396,
+          0.05808056685324983,
+          -0.11336125607760297
+        ],
+        [
+          -0.04415563564403793,
+          0.10988056513663617,
+          -0.06952063564403697
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-coxa-motor-1",
+      "meshName": "Hex_leg_6_coxa_motor_1",
+      "sourceName": "Hex_leg_6_coxa_motor_1",
+      "sourceNodeIndex": 305,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/Hex_leg_6_coxa_motor_1",
+      "title": "Coxa Motor",
+      "description": "Leg 6 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.04963918326659404,
+        0.0808343785094083,
+        -0.07499724526839376
+      ],
+      "bounds": [
+        [
+          -0.07563525302576024,
+          0.058262867717629716,
+          -0.10099331502755998
+        ],
+        [
+          -0.023643113507427847,
+          0.10340588930118691,
+          -0.04900117550922753
+        ]
+      ],
+      "triangles": 6194,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.07563525302576024,
+          0.058262867717629716,
+          -0.10099331502755998
+        ],
+        [
+          -0.023643113507427847,
+          0.10340588930118691,
+          -0.04900117550922753
+        ]
+      ]
+    },
+    {
+      "id": "hex-leg-6-coxa-motor-1-surface2",
+      "meshName": "Hex_leg_6_coxa_motor_1_surface2",
+      "sourceName": "Hex_leg_6_coxa_motor_1_surface2",
+      "sourceNodeIndex": 306,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/HexOrigin_base_leg_6_base_coxa_motor/HexJoint_base_leg_6_base_coxa_motor/HexLink_leg_6_coxa_motor/Hex_leg_6_coxa_motor_1_surface2",
+      "title": "Coxa Motor · surface 2",
+      "description": "Leg 6 Coxa Motor from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        -0.0675104756106117,
+        0.09583041837680946,
+        -0.09318839876489
+      ],
+      "bounds": [
+        [
+          -0.06924680944395864,
+          0.09513253381717811,
+          -0.09492473259823694
+        ],
+        [
+          -0.06577414177726476,
+          0.09652830293644081,
+          -0.09145206493154306
+        ]
+      ],
+      "triangles": 4,
+      "sourceMaterial": "Graphite mechanism",
+      "finishFamily": "polymer",
+      "explode": [
+        -0.0755038605996772,
+        0.01,
+        -0.09326932526047625
+      ],
+      "group": "hex-leg-6",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.06924680944395864,
+          0.09513253381717811,
+          -0.09492473259823694
+        ],
+        [
+          -0.06577414177726476,
+          0.09652830293644081,
+          -0.09145206493154306
+        ]
+      ]
+    },
+    {
+      "id": "hex-base-1",
+      "meshName": "Hex_base_1",
+      "sourceName": "Hex_base_1",
+      "sourceNodeIndex": 307,
+      "sourcePath": "/Hexapod/HexURDF_Z_Up/HexLink_base/Hex_base_1",
+      "title": "Base",
+      "description": "Base from the pinned Hexapod source visual. Display finishes and separation are illustrative.",
+      "center": [
+        0,
+        0.0793143537329496,
+        0
+      ],
+      "bounds": [
+        [
+          -0.08863500213623048,
+          0.07231435373294956,
+          -0.10353732299804688
+        ],
+        [
+          0.08863500213623048,
+          0.08631435373294961,
+          0.10353732299804688
+        ]
+      ],
+      "triangles": 4372,
+      "sourceMaterial": "Structural satin",
+      "finishFamily": "structure",
+      "explode": [
+        0,
+        -0.055,
+        0
+      ],
+      "group": "hex-body",
+      "finishBasis": "Curated illustrative engineering finish; not a verified material specification.",
+      "cycleBounds": [
+        [
+          -0.08863500213623048,
+          0.07231435373294956,
+          -0.10353732299804688
+        ],
+        [
+          0.08863500213623048,
+          0.08631435373294961,
+          0.10353732299804688
+        ]
+      ]
+    }
+  ],
+  "operation": {
+    "clipName": "HexapodLegReach",
+    "duration": 2.5,
+    "stages": [
+      {
+        "at": 0,
+        "title": "Start from the stance",
+        "description": "The source leg rests in its authored standing pose.",
+        "nodeId": "hex-leg-1"
+      },
+      {
+        "at": 0.25,
+        "title": "Lift through the femur",
+        "description": "One leg lifts while the other five remain in their source display stance.",
+        "nodeId": "hex-leg-1-femur"
+      },
+      {
+        "at": 0.5,
+        "title": "Reach through the tibia",
+        "description": "A small tibia rotation extends the selected leg.",
+        "nodeId": "hex-leg-1-tibia"
+      },
+      {
+        "at": 0.8,
+        "title": "Return to the same pose",
+        "description": "Every articulated transform returns exactly to the original display stance.",
+        "nodeId": "hex-leg-1"
+      }
+    ],
+    "kind": "authored-source-animation"
+  },
+  "cycleBounds": [
+    [
+      -0.25167188997561996,
+      1.838985491664502e-9,
+      -0.2255288593298796
+    ],
+    [
+      0.2516718967284242,
+      0.17030822452084296,
+      0.21729668676365738
+    ]
+  ],
+  "cycleBoundsSampling": {
+    "coordinates": "source-world",
+    "samples": 151,
+    "purpose": "Sampled framing envelope; not an exact collision or mechanical validation."
+  },
+  "stats": {
+    "meshCount": 92,
+    "nodeCount": 308,
+    "triangles": 248656,
+    "vertices": 745968,
+    "animationClips": 1,
+    "bytes": 5471700,
+    "gzipBytes": 964423
+  }
+}

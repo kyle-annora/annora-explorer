@@ -65,3 +65,21 @@ The same applies to an absent tour.
 
 The configuration does not contain analytics credentials, customer information,
 private API keys or server behavior. All build-time project values are public.
+
+
+## Native presentations and optional media
+
+A configured model with an allowed tour uses the main Explorer's **Play
+presentation** entry. Link directly with `?model=<id>&presentation=1`; omit the
+presentation parameter for ordinary exploration. The same JSON tour commands
+remain available to external hosts. Playback is model-owned; no second viewer
+is required. The root default still follows `defaultModel`.
+
+Matching films and keyframes are optional metadata in
+`content/presentations/registry.json`. Register the exact model revision and tour,
+retain source attribution, and use the five supported media roles. A stale
+revision fails the build. Unconfigured models do not contribute media assets.
+The media page at `presentation-media/?model=<id>` uses configured brand labels.
+
+See [integrated presentation review](integrated-presentation-review.md) for the
+release scope, verified routes, source boundaries and remaining device testing.

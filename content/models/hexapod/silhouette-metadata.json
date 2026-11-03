@@ -1,0 +1,583 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "1f2eefe0a0bdffcd09b70f4850a955a225f7974801dfc15122e3a52b818081e0"
+  },
+  "contours": {
+    "file": "silhouettes.bin",
+    "compressedFile": "silhouettes.bin.gz",
+    "format": "uint32-oct16-le",
+    "coordinates": "original-mesh-local",
+    "bytesPerSegment": 16,
+    "sha256": "8e3eb95ae7a2ab94f3639e36ef2ef75177ceb1edfb87c162058523290b2c6de9"
+  },
+  "stats": {
+    "meshCount": 92,
+    "uniqueGeometryCount": 14,
+    "bytes": 1359312,
+    "uniqueSegments": 84957
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "segmentCount": 4440,
+      "geometryId": 0,
+      "sourceGeometrySha256": "7252df180d17c0dc62d9677223b657515f2646379512a98df5454c863fdc9977",
+      "sha256": "f41a7d19eae3c8f42d72bfc55deb66b85cc8ea44bf3cb6c7dd8d5e6c3a399c64"
+    },
+    {
+      "byteOffset": 71040,
+      "segmentCount": 51779,
+      "geometryId": 1,
+      "sourceGeometrySha256": "6a46c625b2f39c3ba302f4b7e935613f0116e9a58d0f96811bfdaf03ed11f245",
+      "sha256": "20a02629c6fd24f028263c659a8a016ec2d2a238b283e2cac231feb5a9a0867d"
+    },
+    {
+      "byteOffset": 899504,
+      "segmentCount": 2742,
+      "geometryId": 2,
+      "sourceGeometrySha256": "19dc6479abf7c8cfb2d38c305548ca7cbcc100536b085bd94d244cbcdf6cccb0",
+      "sha256": "47b1d643b4058cddde86c38258e5e7bd4b494737643ed25b7c8d1531fc5dc827"
+    },
+    {
+      "byteOffset": 943376,
+      "segmentCount": 5,
+      "geometryId": 3,
+      "sourceGeometrySha256": "a417000567d839c1adb573f848dcfb44a08f39e6616d656d7d371698eebb451e",
+      "sha256": "f1664275810411518d33f20cc70787949c1e9e7b15bec0094709b87c10adf69a"
+    },
+    {
+      "byteOffset": 943456,
+      "segmentCount": 1532,
+      "geometryId": 4,
+      "sourceGeometrySha256": "f77577543b78c2acc7c3650bea5671987719ddc003008b1c9c02e655fad94e15",
+      "sha256": "a47a4c380a5a3fc94ceeee7b64fe6d958f8e17bc0bf7ac62cd55306c64a5a254"
+    },
+    {
+      "byteOffset": 967968,
+      "segmentCount": 6750,
+      "geometryId": 5,
+      "sourceGeometrySha256": "c2a342f438e41a4551c257aa3c93dc89bce53b214cd2782c64c4d60902a52ddc",
+      "sha256": "9bfdf8b950116cc52bb0f217cbcd935bd33789e7c77edb72b3328303440b3c45"
+    },
+    {
+      "byteOffset": 1075968,
+      "segmentCount": 961,
+      "geometryId": 6,
+      "sourceGeometrySha256": "e43c8441221417e540a0467901812d8695d80a0bbb7533623176d1cb8baf903f",
+      "sha256": "230af50c83587d057a3e067191df1bafc8c5459b73eec0c2448bb68a374dc5ce"
+    },
+    {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7,
+      "sourceGeometrySha256": "7050de14f1a350a5b28bc0396b9d3682deffface1ca69eb229da7654579f7e50",
+      "sha256": "f4fa31619ae9e08e0f634dcd8213634a128cb54598ff0d604b4d816b6d41667f"
+    },
+    {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8,
+      "sourceGeometrySha256": "c87c003962a1de3615179f7bba77a6e0eb4d58c2ee6c31395fb72227152519fc",
+      "sha256": "bdd71b215b8f871207055fabaf2c0b40ffffe5bbb53d19031140e8ada308c004"
+    },
+    {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9,
+      "sourceGeometrySha256": "432a1a0cda73d02dcdaedd242b1e1335bf19fdbe9b2a1bc5c605e497119139ba",
+      "sha256": "f0dcc883f7f1ebc87082e857af75f93f6b2fdef7d8b5aaf98ecc0599c4f48ced"
+    },
+    {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10,
+      "sourceGeometrySha256": "56d10434782b850ad97743aeba4063f9b4a82b66dc0470d56f1780526530cf16",
+      "sha256": "cf0e0d34993d931544d629464e1c0f297ad396120e8b20d22c0f673ba9bd43b8"
+    },
+    {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11,
+      "sourceGeometrySha256": "2faad0ad65d44a63c85b516ccc1fa6254574fa8cc10924d8668256d1f386f95c",
+      "sha256": "f8e978fe352f3aaab9aac5d83849f39020b6804d6543c80c8ceb76fa5753693c"
+    },
+    {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12,
+      "sourceGeometrySha256": "11d72dd69c4f756a6d8856fb0ac98cb51ac7b3473b8e4e65596c744e637bc5f1",
+      "sha256": "d55e5e79ea068bb8090c50ae23e301271b2fd788fc9004ccc29f1d01469c5af6"
+    },
+    {
+      "byteOffset": 1307744,
+      "segmentCount": 3223,
+      "geometryId": 13,
+      "sourceGeometrySha256": "04b25c6be125fe528a679aaef62b29dd1d6e8fa423fc719d7791c0e761aced0b",
+      "sha256": "b0722f130fa94cf8255322ece99dce6a40302c662b0cc9df41b0f9bed3584e79"
+    }
+  ],
+  "meshes": {
+    "Hex_top_stiffeners_1": {
+      "byteOffset": 0,
+      "segmentCount": 4440,
+      "geometryId": 0
+    },
+    "Hex_electronics_1": {
+      "byteOffset": 71040,
+      "segmentCount": 51779,
+      "geometryId": 1
+    },
+    "Hex_electronics_1_surface2": {
+      "byteOffset": 899504,
+      "segmentCount": 2742,
+      "geometryId": 2
+    },
+    "Hex_electronics_1_surface3": {
+      "byteOffset": 943376,
+      "segmentCount": 5,
+      "geometryId": 3
+    },
+    "Hex_battery_1": {
+      "byteOffset": 943456,
+      "segmentCount": 1532,
+      "geometryId": 4
+    },
+    "Hex_bottom_stiffeners_1": {
+      "byteOffset": 967968,
+      "segmentCount": 6750,
+      "geometryId": 5
+    },
+    "Hex_battery_mount_1": {
+      "byteOffset": 1075968,
+      "segmentCount": 961,
+      "geometryId": 6
+    },
+    "Hex_leg_1_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_1_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_1_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_1_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_1_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_1_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_1_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_1_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_1_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_1_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_1_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_1_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_1_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_1_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_2_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_2_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_2_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_2_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_2_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_2_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_2_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_2_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_2_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_2_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_2_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_3_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_3_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_3_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_3_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_3_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_3_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_3_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_3_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_3_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_3_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_3_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_4_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_4_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_4_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_4_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_4_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_4_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_4_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_4_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_4_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_4_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_4_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_5_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_5_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_5_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_5_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_5_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_5_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_5_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_5_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_5_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_5_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_5_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_coxa_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_6_femur_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_6_tibia_bracket_B_1": {
+      "byteOffset": 1091344,
+      "segmentCount": 1346,
+      "geometryId": 7
+    },
+    "Hex_leg_6_tibia_1": {
+      "byteOffset": 1112880,
+      "segmentCount": 1343,
+      "geometryId": 8
+    },
+    "Hex_leg_6_tibia_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_6_tibia_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_6_tibia_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_femur_1": {
+      "byteOffset": 1288288,
+      "segmentCount": 1216,
+      "geometryId": 12
+    },
+    "Hex_leg_6_femur_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_6_femur_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_femur_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_6_coxa_bracket_A_1": {
+      "byteOffset": 1134368,
+      "segmentCount": 1540,
+      "geometryId": 9
+    },
+    "Hex_leg_6_coxa_motor_1": {
+      "byteOffset": 1159008,
+      "segmentCount": 8068,
+      "geometryId": 10
+    },
+    "Hex_leg_6_coxa_motor_1_surface2": {
+      "byteOffset": 1288096,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_base_1": {
+      "byteOffset": 1307744,
+      "segmentCount": 3223,
+      "geometryId": 13
+    }
+  }
+}

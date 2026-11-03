@@ -7,6 +7,8 @@ import { createNavigation, selectNode, enterScope, toggleBranch } from './naviga
 import { MODEL_CATALOG, resolveModel, validatePackage } from './model-catalog.js';
 import { AssemblyScene } from './scene.js';
 import { GuidedTour } from './tour-ui.js';
+import { presentationEntry } from './presentation-entry.js';
+import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
 import { createPageLifecycle } from './controller/page-lifecycle.js';
 import { createEmbedBridge, configuredParentOrigin } from './embed-bridge.js';
@@ -33,6 +35,7 @@ let preferenceStorage;try{preferenceStorage=localStorage;}catch{}
 let displayPreferences=readDisplayPreferences(preferenceStorage,displayStorageKey,params), appearance=displayPreferences.appearance;
 const allowedStyles=policy.renderStyles;
 const openingStyle=allowedStyles.includes(params.get('render'))?params.get('render'):allowedStyles.includes('engineering')?'engineering':allowedStyles[0];
+let preferredRenderStyle=openingStyle;
 applyProjectBrand(PROJECT_CONFIG,document);
 let explorer, hierarchy, navigation=createNavigation(model.rootId), renderStyle='engineering', mode='explore';
 let displayUI, appearanceFrame;
@@ -67,9 +70,12 @@ $('breadcrumbs').replaceChildren(textNode('span',model.title));
 $('selection-title').textContent=model.title;
 $('model-select').replaceChildren(...Object.values(MODEL_CATALOG).map(item=>{const option=textNode('option',item.shortTitle);option.value=item.id;return option;}));
 $('model-select').value=model.id;
-listen($('model-select'),'change',event=>{const url=new URL(location.href);url.searchParams.set('model',event.target.value);url.hash='';location.assign(url);});
+listen($('model-select'),'change',event=>{const url=new URL(location.href);url.searchParams.set('model',event.target.value);url.searchParams.set('render',preferredRenderStyle);if(explorer?.quality)url.searchParams.set('quality',explorer.quality);url.hash='';location.assign(url);});
 $('scene').setAttribute('aria-label',`Interactive ${model.title}. Drag to orbit, scroll to zoom, click to select. Use the assembly index to explore individual parts.`);
 $('view-front').textContent=model.viewLabels[0];$('view-rear').textContent=model.viewLabels[1];
+const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
+$('presentation-media-link').hidden=!presentationMedia;
+if(presentationMedia)$('presentation-media-link').href=presentationMediaPath(model.id);
 $('source-title').textContent=model.title;
 const sourceDialog=$('source-dialog');
 sourceDialog.querySelector('p:not(.source-note)').textContent=model.sourceDescription;
@@ -93,7 +99,13 @@ $('render-mode').hidden=true;
 function viewportInsets(){
   const width=$('scene').clientWidth,height=$('scene').clientHeight;
   const rect=selector=>{const node=document.querySelector(selector);return node&&!node.hidden&&node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'?node.getBoundingClientRect():null;};
-  const header=rect('.app-header'),heading=rect('.stage-heading'),dock=guidedTour?.active?rect('#tour-panel'):document.body.classList.contains('performance-open')&&mobileLayout.matches?null:rect('.stage-tools');
+  const header=rect('.app-header'),heading=rect('.stage-heading');
+  if(guidedTour?.active){
+    const transport=rect('.tour-transport'),copy=rect('#tour-copy');
+    const bottom=height-(mobileLayout.matches&&!shortLandscape.matches?Math.min(copy?.top||height,transport?.top||height):(transport?.top||height))+12;
+    return shortLandscape.matches?{left:240,right:12,top:(header?.bottom||0)+8,bottom}:{left:12,right:12,top:Math.max(header?.bottom||0,heading?.bottom||0)+12,bottom};
+  }
+  const dock=document.body.classList.contains('performance-open')&&mobileLayout.matches?null:rect('.stage-tools');
   const details=document.body.classList.contains('performance-open')?rect('#perf-panel'):guidedTour?.active?null:rect('.detail-panel'),tree=rect('.assembly-panel');
   const top=Math.max(header?.bottom||0,heading?.bottom||0)+12;
   if(shortLandscape.matches)return guidedTour?.active?{left:12,right:width-Math.min(details?.left||width,dock?.left||width)+12,top,bottom:52}:{left:12,right:width-(details?.left||width)+12,top,bottom:height-(dock?.top||height)+12};
@@ -142,7 +154,7 @@ async function displayCommand(method,options={}){
   const preferenceStyle=explorer?.renderStyle;
   const event=await command(method,options);
   if(event.payload.status!=='completed')return event;
-  if(method==='setRenderStyle')await command('setDisplayOptions',{options:{grid:displayPreferences.grids[options.style]}});
+  if(method==='setRenderStyle'){preferredRenderStyle=options.style;await command('setDisplayOptions',{options:{grid:displayPreferences.grids[options.style]}});}
   else if(method==='setDisplayOptions'&&typeof options.options?.grid==='boolean'){
     displayPreferences.grids[preferenceStyle]=options.options.grid;saveDisplayPreferences();
   }
@@ -382,13 +394,14 @@ async function start(){
       explosion(fraction){const percent=Math.round(fraction*100);$('explode-range').value=String(percent);$('explode-value').value=percent+'%';document.body.dataset.explosion=fraction.toFixed(4);},
     },config);
     await explorer.load(model.modelUrl,progress=>{$('loading-progress').style.width=Math.round(progress*100)+'%';$('loading-label').textContent=progress<1?`Loading ${model.shortTitle} · ${Math.round(progress*100)}%`:'Preparing materials and lighting…';});
+    if(policy.qualityProfiles.includes(params.get('quality')))explorer.setQuality(params.get('quality'));
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);
     explorer.setDisplayOptions({appearance,grid:displayPreferences.grids[openingStyle]});
     if(shellAbort.signal.aborted)return;syncPresentationUI();
     if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
     renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
     overlayObserver=new ResizeObserver(()=>{if(!explorer.ready||shellAbort.signal.aborted)return;cancelAnimationFrame(overlayFrame);overlayFrame=requestAnimationFrame(()=>{document.documentElement.style.setProperty('--dock-height',`${document.querySelector('.stage-tools').getBoundingClientRect().height}px`);explorer.refitLayout();$('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;});});
-    for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel'])overlayObserver.observe(document.querySelector(selector));
+    for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel','#tour-copy','.tour-transport'])overlayObserver.observe(document.querySelector(selector));
     listen($('scene'),'keydown',event=>{
       if(guidedTour?.active){
         if(event.code==='Space'){event.preventDefault();const state=guidedTour.player.state();if(state.status==='playing')command('pauseTour');else if(guidedTour.reducedMotion){const chapter=guidedTour.tour.chapters[state.index+1];command(chapter?'goToTourChapter':'seekTour',chapter?{chapterId:chapter.id}:{seconds:guidedTour.tour.duration});}else command('resumeTour');}
@@ -398,6 +411,8 @@ async function start(){
       if(event.key.toLowerCase()==='r')command('frame',{nodeId:navigation.scopeId});
       if(event.code==='Space'&&mode==='operate'){event.preventDefault();command(explorer.getOperationState().playing?'pauseOperation':'playOperation');}
     });
+    const entry=presentationEntry(params,model);
+    if(entry&&!shellAbort.signal.aborted)await command('startTour',entry);
   }catch(error){if(shellAbort.signal.aborted)return;controller.setLifecycle('error',error);explorer?.dispose();console.error(error);$('loading-label').textContent='The model could not be loaded. Reload this page to try again.';$('status-message').textContent='Model unavailable';document.body.dataset.error=error.message;}
 }
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "modelId": "hexapod",
+  "sourceSha256": "1f2eefe0a0bdffcd09b70f4850a955a225f7974801dfc15122e3a52b818081e0",
+  "preservedSource": true,
+  "limits": {
+    "sourceBytes": 67108864,
+    "jsonBytes": 2097152,
+    "meshes": 2000,
+    "nodes": 10000,
+    "triangles": 1000000,
+    "trianglesPerGeometry": 250000,
+    "vertices": 3000000,
+    "animationKeys": 100000,
+    "clipSeconds": 120,
+    "outputBytes": 201326592
+  },
+  "counts": {
+    "meshes": 92,
+    "nodes": 308,
+    "triangles": 248656,
+    "vertices": 745968,
+    "uniqueGeometries": 14,
+    "sourceAnimationClips": 1
+  },
+  "bytes": {
+    "source": 5471700,
+    "compressedModel": 964423,
+    "creases": 1110912,
+    "contours": 1359312,
+    "total": 9975759
+  },
+  "operation": "HexapodLegReach",
+  "tour": "tour.json",
+  "warnings": [
+    "Above 200,000 triangles: qualify ordinary computers and physical phones before release."
+  ],
+  "assets": {
+    "model.glb": {
+      "bytes": 5471700,
+      "sha256": "1f2eefe0a0bdffcd09b70f4850a955a225f7974801dfc15122e3a52b818081e0"
+    },
+    "model.glb.gz": {
+      "bytes": 964423,
+      "sha256": "b805a5705342c1476ccfec0d8953a81b39549262d74cd07a8c73f819b2808934"
+    },
+    "metadata.json": {
+      "bytes": 180289,
+      "sha256": "6b22d96fb2f577f472dd8af7820bb0c0b834908529d37e3daa959f3a4476858a"
+    },
+    "edges.bin": {
+      "bytes": 1110912,
+      "sha256": "4c70243bdfe97d29277b78d31d489507391ab36669db1d6e11e919ab1c5d9415"
+    },
+    "edges.bin.gz": {
+      "bytes": 293158,
+      "sha256": "6fa12dfa70ecaca543136dff3b44446dff0708c36e2fa391d3406b93900ea246"
+    },
+    "edge-metadata.json": {
+      "bytes": 21216,
+      "sha256": "e468e656020a9fe1b25cfad4319eb1ced7c5887088e5cc05af80c2eb99f69ad4"
+    },
+    "silhouettes.bin": {
+      "bytes": 1359312,
+      "sha256": "8e3eb95ae7a2ab94f3639e36ef2ef75177ceb1edfb87c162058523290b2c6de9"
+    },
+    "silhouettes.bin.gz": {
+      "bytes": 533976,
+      "sha256": "a8261b9fce79339e77b158c028c83e53e0d7ab1c3c50adaa30de6104a74538ed"
+    },
+    "silhouette-metadata.json": {
+      "bytes": 15532,
+      "sha256": "826c0443d9dca878dc84280c98d5d71c7ff79b68bc580f24d6c62dac2f45c15a"
+    },
+    "LICENSE.txt": {
+      "bytes": 15162,
+      "sha256": "6e4328d840ae2416b43f5877f9da84b7a4f1b47258983817e8c52c8192f3d0c3"
+    },
+    "tour.json": {
+      "bytes": 8029,
+      "sha256": "9240ac35a04d1a2debdb8d67a99e5818537cc312164e9b7d52e4508fd7d55b70"
+    },
+    "manifest.json": {
+      "bytes": 2050,
+      "sha256": "8984996c2b18c4c8578511401fc8d2fd46b75851fb7ca8d4c3e231c345aea6ca"
+    }
+  }
+}

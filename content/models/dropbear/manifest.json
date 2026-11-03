@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "id": "dropbear",
+  "rootId": "dropbear",
+  "title": "Dropbear humanoid",
+  "shortTitle": "Dropbear",
+  "assets": {
+    "model": "model.glb",
+    "compressedModel": "model.glb.gz",
+    "metadata": "metadata.json",
+    "edges": "edges.bin",
+    "compressedEdges": "edges.bin.gz",
+    "edgeMetadata": "edge-metadata.json",
+    "silhouettes": "silhouettes.bin",
+    "compressedSilhouettes": "silhouettes.bin.gz",
+    "silhouetteMetadata": "silhouette-metadata.json",
+    "license": "LICENSE.txt"
+  },
+  "view": {
+    "direction": [
+      2.5,
+      0.5,
+      1.4
+    ],
+    "normalizedWidth": 1.45,
+    "labels": [
+      "Hero",
+      "Reverse"
+    ],
+    "facts": [
+      {
+        "label": "Source visuals",
+        "value": "668"
+      },
+      {
+        "label": "Closure relationships",
+        "value": "27"
+      }
+    ]
+  },
+  "provenance": {
+    "author": "Pointblank LLC / Hyperspawn; display adaptation by Annora",
+    "url": "https://github.com/Hyperspawn/dropbear_urdf",
+    "license": "MIT",
+    "attribution": "Dropbear · Pointblank LLC / Hyperspawn · MIT. Display adaptation and illustrative motion: Annora, 2026.",
+    "description": "An open-source humanoid presented through source-linked structural assemblies.",
+    "note": "Source joint frames and component identity retained. Simplified display geometry, curated finishes and illustrative separation. Only a rigid whole-arm swivel is animated; internal closed-linkage joints remain fixed. Not a solved linkage, walking simulation or manufacturing release."
+  },
+  "presentationPolicy": {
+    "actionDuration": 2.5,
+    "explosion": {
+      "separationProfiles": {
+        "dropbear-torso": [
+          0.12,
+          0.72
+        ],
+        "dropbear-left-arm": [
+          0.16499999999999998,
+          0.755
+        ],
+        "dropbear-right-arm": [
+          0.21,
+          0.79
+        ],
+        "dropbear-head": [
+          0.255,
+          0.825
+        ],
+        "dropbear-pelvis": [
+          0.3,
+          0.86
+        ],
+        "dropbear-right-leg": [
+          0.345,
+          0.895
+        ],
+        "dropbear-left-leg": [
+          0.39,
+          0.9299999999999999
+        ],
+        "dropbear-power": [
+          0.435,
+          0.965
+        ]
+      }
+    }
+  },
+  "tour": "tour.json"
+}

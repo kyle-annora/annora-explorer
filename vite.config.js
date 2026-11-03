@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { loadProject } from './scripts/lib/project-config.mjs';
+import { presentationAssetsPlugin } from './scripts/lib/presentation-assets.mjs';
 
 const root = fileURLToPath(new URL('./', import.meta.url));
 
@@ -9,7 +10,7 @@ export default defineConfig({
   base: './',
   publicDir: false,
   esbuild: { jsx: 'automatic' },
-  plugins: [{
+  plugins: [presentationAssetsPlugin(root), {
     name: 'redistribution-notices',
     async generateBundle() {
       const { models } = await loadProject(root);
@@ -40,6 +41,7 @@ export default defineConfig({
         drawingPreview: fileURLToPath(new URL('./drawing-preview/index.html', import.meta.url)),
         designPreview: fileURLToPath(new URL('./design-preview/index.html', import.meta.url)),
         walkthrough: fileURLToPath(new URL('./walkthrough/index.html', import.meta.url)),
+        presentationMedia: fileURLToPath(new URL('./presentation-media/index.html', import.meta.url)),
       },
       output: { manualChunks: id => id.includes('/node_modules/three/') ? 'three' : undefined },
     },

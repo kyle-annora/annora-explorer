@@ -1,0 +1,1274 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "fe3605302fc269a4d61aea9f8fc5dd2165be8f53a68c3d4ae55510efd1ed3858"
+  },
+  "contours": {
+    "file": "silhouettes.bin",
+    "compressedFile": "silhouettes.bin.gz",
+    "format": "uint32-oct16-le",
+    "coordinates": "original-mesh-local",
+    "bytesPerSegment": 16,
+    "sha256": "2dcd627dbecd4a15681ef21ec9c3e759db7631990c6431087bcdb13a1bf0da0d"
+  },
+  "stats": {
+    "meshCount": 170,
+    "uniqueGeometryCount": 57,
+    "bytes": 2437856,
+    "uniqueSegments": 152366
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "segmentCount": 2383,
+      "geometryId": 0,
+      "sourceGeometrySha256": "96b6fba78bb6ba3b74bdf0d224430e376927416a40db1acf38588691044c6627",
+      "sha256": "ee1a5903e3b49613ef4eb8a1d9699c36c602c4109fc52cb36a52318390f1cb60"
+    },
+    {
+      "byteOffset": 38128,
+      "segmentCount": 2110,
+      "geometryId": 1,
+      "sourceGeometrySha256": "fdac8e10f04f9742e049061d299847d9d22f36c1b2977447fe783436814bb207",
+      "sha256": "130509524acca278d8fd9b956f0832d4a1a173607699873b20a9755060091496"
+    },
+    {
+      "byteOffset": 71888,
+      "segmentCount": 1032,
+      "geometryId": 2,
+      "sourceGeometrySha256": "983c3e7b2831544e80ff08c1ea2cd0f5da8302cc3e73bdac5cd1f9c3064f9bc9",
+      "sha256": "1f3d1057e406a538f5e4fc0eab8fbdef2a917a59b41b963239737fcdeb68f8d0"
+    },
+    {
+      "byteOffset": 88400,
+      "segmentCount": 2484,
+      "geometryId": 3,
+      "sourceGeometrySha256": "c2fbb34e6dbacf29a5a5d5ac3709a10e28b11902ae9fc6aea9d8cf248272e976",
+      "sha256": "9a055c0459426c8d635ecf40dfc60cc1331709c4d5f5259f9a226fadb20cb3af"
+    },
+    {
+      "byteOffset": 128144,
+      "segmentCount": 2155,
+      "geometryId": 4,
+      "sourceGeometrySha256": "bdf523b3869370d2acbe2c3e96c263c64bb284b51468e8c6ca64e32227e5853b",
+      "sha256": "59ef47fcf750966132c34d1a22b6d4abdd646b0115923b1f079fa1d6f677d227"
+    },
+    {
+      "byteOffset": 162624,
+      "segmentCount": 2378,
+      "geometryId": 5,
+      "sourceGeometrySha256": "8341093814103229e4f931421cae563b54f84cbd5afbd188ffae496dec4b37f1",
+      "sha256": "ebc8fbb425db5a938eb70eb182216f224bdf47eea3ddcd62d31ece0ea9314f90"
+    },
+    {
+      "byteOffset": 200672,
+      "segmentCount": 2302,
+      "geometryId": 6,
+      "sourceGeometrySha256": "ff153f88311aba69b388986ed2643fa86c37f92f49a4c383a02c5dd5a49a8b63",
+      "sha256": "0ecf5d9213877fb9c5b3dc1f87e0be85a7335cc36578d96695fe5a81f9196a92"
+    },
+    {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7,
+      "sourceGeometrySha256": "06525cca8957b894dd4a11efa20850efa75cfa9aca15a0ecc8c18dc99e5740a7",
+      "sha256": "bb3db4ddb263d0df5f1a59e1e4cedf49c9f967ebcca80f027dc898c7fc09399f"
+    },
+    {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8,
+      "sourceGeometrySha256": "1ffa2d4d9a050c44a0e634fb013d322114818487766e6f61135bf754f42fa01a",
+      "sha256": "976133407f519c96aab27136575e28eab9e8bf139277813317982f9f65867b27"
+    },
+    {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9,
+      "sourceGeometrySha256": "cd0cb08f27adf7e0f260932c02d8a29c8f3d4212ea677530059b9382cf439726",
+      "sha256": "d360fc7f731dde02225e102d5878d2a48033b3c507367f832909c4eb93b6404b"
+    },
+    {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10,
+      "sourceGeometrySha256": "b766b69dd7447f261d92edd50a7230af90378ecd73baf07fff2276b9b3af6f41",
+      "sha256": "c280e89da40c9fe0ee23ea6b17fe787575f3d1baeca8b6edb377fcfc0c83105b"
+    },
+    {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11,
+      "sourceGeometrySha256": "69c3c01a5f24e25a1c2cf72ea757d9fc4f37afa807cd630a4e788ca0499d0e7e",
+      "sha256": "3f21977be5b85cbcc9e49e9453e476642160e59ec57d67738316d95aadb67e4a"
+    },
+    {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12,
+      "sourceGeometrySha256": "42b79dbaee40343dca70838a635e3a89fb7e2a3bdce253f876861f30d6cc10ab",
+      "sha256": "415c221a6c54897bc1d7218f20188b6d7c8131b15383a05f07c291d8bf981b6d"
+    },
+    {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13,
+      "sourceGeometrySha256": "5ad23d1afd762d8c90c8a73cc980301da370e9723b47373671f2e414f9589fbc",
+      "sha256": "8d4e5e95b943b3754470517b76dfe7513f78f3080371e6321b6f1b4ac03b805f"
+    },
+    {
+      "byteOffset": 381744,
+      "segmentCount": 1677,
+      "geometryId": 14,
+      "sourceGeometrySha256": "539db6d9d858db61ad160d20cc723523491b58103fdba4df12d114c4f5449c6e",
+      "sha256": "111ab92b113938ed9e2052974ce74b7c4300301e6c3ca6dcddaaa4fc1b216e91"
+    },
+    {
+      "byteOffset": 408576,
+      "segmentCount": 2731,
+      "geometryId": 15,
+      "sourceGeometrySha256": "9a7a3d35094df0d989e2b83ca3d7b496c5b40cdd135e7ecfde098a15d50a5863",
+      "sha256": "aa1c5b95e61ddd4237e9fbd7d213c6b5666970fe40ed67c136b5b691a757883d"
+    },
+    {
+      "byteOffset": 452272,
+      "segmentCount": 5,
+      "geometryId": 16,
+      "sourceGeometrySha256": "8da12a616b513cc7cbbbe4281873c0e75462498007fb2f4ce9c3773726009c43",
+      "sha256": "5229b92b8a89cc897c8bcbbceac6d6576ad1e60f44d7eafeda2171c52d4f443e"
+    },
+    {
+      "byteOffset": 452352,
+      "segmentCount": 1338,
+      "geometryId": 17,
+      "sourceGeometrySha256": "c892bde5120d3829ae4a338965cb84665d4406f3b7e97a89f8379f45e16baacf",
+      "sha256": "3ebda29d54e5a3789e2b4450e52dcd03f40d00cd7f348f263aad215125c7b444"
+    },
+    {
+      "byteOffset": 473760,
+      "segmentCount": 2557,
+      "geometryId": 18,
+      "sourceGeometrySha256": "c22be7264bacaa3b7a7b4a306ad3391b8ead0b7aa79a474f93d5e642e120c55b",
+      "sha256": "cee11e12fba78c913d518324d87d576b38e171cebd9823bb876c82a5aeccef04"
+    },
+    {
+      "byteOffset": 514672,
+      "segmentCount": 15,
+      "geometryId": 19,
+      "sourceGeometrySha256": "88782971f802cd2ec62e765d3c95b6d86498b1932a3b61a64d44577c4a026c28",
+      "sha256": "c8ee6163ad2fce3c693ce6dd7ba348345e28b504166e90b9fbbf1aff1f1a3146"
+    },
+    {
+      "byteOffset": 514912,
+      "segmentCount": 1677,
+      "geometryId": 20,
+      "sourceGeometrySha256": "c54f2005a8d7956eb1ca7a0aaf2a17917870dbf65c6eb74d7c8ac92c267f03c5",
+      "sha256": "2e1231e0e8169a2445e6690d28a13a7e1c16e95ef14e0526083f6f69434f125d"
+    },
+    {
+      "byteOffset": 541744,
+      "segmentCount": 2738,
+      "geometryId": 21,
+      "sourceGeometrySha256": "129efe453cf5f3006012d12ce1c686a5db62105a61bc82f6bd7e8b0c4c463bab",
+      "sha256": "6d5206bae55273e033d123b46d1eaa39c0da3c566191e601b70ec9b1287af9a7"
+    },
+    {
+      "byteOffset": 585552,
+      "segmentCount": 6,
+      "geometryId": 22,
+      "sourceGeometrySha256": "bd94083a2807190e6939277a542de1066769ac88b79b65f930ff19428d5bd4c6",
+      "sha256": "3271176229ff1e6a83fcbdc6525c6647f3cd8f249c64b4b9ec9721c489730efc"
+    },
+    {
+      "byteOffset": 585648,
+      "segmentCount": 433,
+      "geometryId": 23,
+      "sourceGeometrySha256": "52a9f5adf4f643f7ad084220b83fcf75a045b78aff8faab9df55e1110018ec70",
+      "sha256": "ce18764ca8d0355ef696b67602cc65514ef9f110e9e05b8fe1f21a2090eaf4b2"
+    },
+    {
+      "byteOffset": 592576,
+      "segmentCount": 2130,
+      "geometryId": 24,
+      "sourceGeometrySha256": "17e10a9de31837383cf8aa7a8f8119fb6cf82457954f881f34469ca9eac2e697",
+      "sha256": "a911c586dc54cefbf6ab16e09e448f5523bbc48e8e7b2de977cb3de881954b9a"
+    },
+    {
+      "byteOffset": 626656,
+      "segmentCount": 2133,
+      "geometryId": 25,
+      "sourceGeometrySha256": "1ea48c2f35ea6cb9eb787b367709e90abb28e99d197645589027dd89921f6ee8",
+      "sha256": "e06f0203d87bc303a0c06743e1e3408adbc77d3ebada39f52a67c14814ef7b09"
+    },
+    {
+      "byteOffset": 660784,
+      "segmentCount": 2263,
+      "geometryId": 26,
+      "sourceGeometrySha256": "0983807397ba4835e64ca125f25031f6a792aca8bff2335bcd5b2ef536b18bab",
+      "sha256": "f5d5ce87db530d0b396968cfb39208c6bd77564c7abf7146abe84b77adcb99ff"
+    },
+    {
+      "byteOffset": 696992,
+      "segmentCount": 45628,
+      "geometryId": 27,
+      "sourceGeometrySha256": "b0e3dbc2b0db03ec43a76901e6cd39300bd96521aefd0cf2cf84db837764365f",
+      "sha256": "9101901f56632851486ab37170b1133a82114efc863ce445153fab183a390dda"
+    },
+    {
+      "byteOffset": 1427040,
+      "segmentCount": 3022,
+      "geometryId": 28,
+      "sourceGeometrySha256": "15184ea1bab3612903c0b97c5b13767ddd3650ea6a15515812e430c58cf11e26",
+      "sha256": "9ecca27f9ba8739611cf4f24d338c9f4bf590e5ff269b70294ca97760cb1efa4"
+    },
+    {
+      "byteOffset": 1475392,
+      "segmentCount": 2446,
+      "geometryId": 29,
+      "sourceGeometrySha256": "ce3e71e05165c675773d4a49af0319ee1e38993fa5d7d05962168f04be154c63",
+      "sha256": "3f62fd901d1cf2ba23ec3125ba22b479daede0022bceb358b8f9e75b1cabe4e0"
+    },
+    {
+      "byteOffset": 1514528,
+      "segmentCount": 11974,
+      "geometryId": 30,
+      "sourceGeometrySha256": "9672670bd3408a8b15848727883827ce0b3618b71c02ead0aadcf5a106217e78",
+      "sha256": "d6d1f0b01a40c4534cf143d9a473840cb5efee6f91f98ec8bd9a15440a200804"
+    },
+    {
+      "byteOffset": 1706112,
+      "segmentCount": 25,
+      "geometryId": 31,
+      "sourceGeometrySha256": "921da0e13bb32458e7f4ee84f5d27bfe935eae528c54e591e63d329bcf501649",
+      "sha256": "ad24773e9b6730b240e571ac0bf5eda80d0aa79439b7c01ba4ea9d6c03f5ed96"
+    },
+    {
+      "byteOffset": 1706512,
+      "segmentCount": 432,
+      "geometryId": 32,
+      "sourceGeometrySha256": "3465e4aa8a7d047fe016fc1cf93217b7b4ab7e71cb22ab0eb824c42fd5362afb",
+      "sha256": "b8613923a1ff8cb14109b1b7195bed39ef441312f6b8bbc190b3f55858e81f1b"
+    },
+    {
+      "byteOffset": 1713424,
+      "segmentCount": 1006,
+      "geometryId": 33,
+      "sourceGeometrySha256": "c7a0a8afe9dcb69f56ec8ba9731514727b1d0ce45ea87abc12e4499c08a953c2",
+      "sha256": "ab5f7dcf245d0f1851f86d89870a9829f544b0267833cdf2708432ecb5f34240"
+    },
+    {
+      "byteOffset": 1729520,
+      "segmentCount": 5236,
+      "geometryId": 34,
+      "sourceGeometrySha256": "5b3cc8fcc5c0edaea0c7a51688fc2eaa423bef942a96869c740139a9255af0f6",
+      "sha256": "e5a4fbcaab4efcdf4fd4f1a167ec144a9f8655f2817705ef2c1a826ab8dc799d"
+    },
+    {
+      "byteOffset": 1813296,
+      "segmentCount": 2379,
+      "geometryId": 35,
+      "sourceGeometrySha256": "dffb1037afb5dd4e72d900323e57c1918a4885c9957756df126ddec10c52b0b2",
+      "sha256": "1b66fa96d26ef9d6298ec2307c5810aea33199c74cfaee39c1495fcc7457fbda"
+    },
+    {
+      "byteOffset": 1851360,
+      "segmentCount": 2761,
+      "geometryId": 36,
+      "sourceGeometrySha256": "6a28068807a2472cdb0ab9ea3eaad542bbcc07683c2c7cbb6fbabb06fc359c2b",
+      "sha256": "48fd5bf3882dd17be60c219d832319d916125731444e6eb68da374f3b047b6ab"
+    },
+    {
+      "byteOffset": 1895536,
+      "segmentCount": 2335,
+      "geometryId": 37,
+      "sourceGeometrySha256": "3cd08be231552e1164b5d0578721f26b3ca6988927b7b82e54e5d4fca71ea3a3",
+      "sha256": "15f538fd5a27a262a7fa62b47658db5436e93ea85c552613d44f4d5934d68273"
+    },
+    {
+      "byteOffset": 1932896,
+      "segmentCount": 2418,
+      "geometryId": 38,
+      "sourceGeometrySha256": "051f8ebec0648a095896be2b6422d2d82e71f813c2567142a18763bb70ed0837",
+      "sha256": "31e8a2426737760ca27bf7149d85046bb775d1cc2ff252a43702c902a2d21b5d"
+    },
+    {
+      "byteOffset": 1971584,
+      "segmentCount": 1902,
+      "geometryId": 39,
+      "sourceGeometrySha256": "3449a1e9e3eed4ee9ee099c1229c050ef540185fe79c1888e6db972d289ad06b",
+      "sha256": "c9b34d3f089ef9cf27edffe314a9f68e125531035e2d13859ef4bb0eb14cc43e"
+    },
+    {
+      "byteOffset": 2002016,
+      "segmentCount": 27,
+      "geometryId": 40,
+      "sourceGeometrySha256": "3e91b4384e00c1ea1ac1ce99aa36be2b660c5e19fcca488b8568acc61a5b58a8",
+      "sha256": "02527eaf1d9eaf72bf973c2f1375cd382cd2cfde845bfeaf8c3c1777eb34dc97"
+    },
+    {
+      "byteOffset": 2002448,
+      "segmentCount": 904,
+      "geometryId": 41,
+      "sourceGeometrySha256": "66199c2d96f0ac7b83a9baf4a3bc4fee04cb178da22c122c159e850896f53a31",
+      "sha256": "274659272676a73b8dd83486b247eb2262b58df983f415aa3edfdd6a00613114"
+    },
+    {
+      "byteOffset": 2016912,
+      "segmentCount": 2474,
+      "geometryId": 42,
+      "sourceGeometrySha256": "f5cd9a68a5ce42566da4ec4830420363a94d72e9573ef2ad5326c7995e71f577",
+      "sha256": "4e6b22fdade46ea0faec5881496c91501ac7759c15659e8754ef0ee9bd18e9e1"
+    },
+    {
+      "byteOffset": 2056496,
+      "segmentCount": 20,
+      "geometryId": 43,
+      "sourceGeometrySha256": "abadeab081b3e9cc6636f65e464dec20999c58502e13a7d02bcd4cd94b6d335d",
+      "sha256": "a243bc1fa250fcbdb99aaeb2c55caad900f9413b56ee56cfe3788b2f98eb41f4"
+    },
+    {
+      "byteOffset": 2056816,
+      "segmentCount": 4258,
+      "geometryId": 44,
+      "sourceGeometrySha256": "14ec234f17b2d64a15d155edeb20e5422d4d2499ec62cf0469245f141110c7ec",
+      "sha256": "df6ce4a23723513f7faca00fbb87e326b9f048b7c4ce0727bec45f93639738a3"
+    },
+    {
+      "byteOffset": 2124944,
+      "segmentCount": 11,
+      "geometryId": 45,
+      "sourceGeometrySha256": "45ee41109c9a3176d861be9fc02e1a73ad828d42db4ed98ce27b4f20270a1d86",
+      "sha256": "5b8d334a7b93132a7243a0fa5b5bf65d9803f30f03c724fbcd1b02be0f5664e9"
+    },
+    {
+      "byteOffset": 2125120,
+      "segmentCount": 1422,
+      "geometryId": 46,
+      "sourceGeometrySha256": "3324796ebdd72c08407adf168d70b37ebbead5440f858a2133883c35b075a2d4",
+      "sha256": "900b731a9ffff2eb9176dc0b2a3a6d36f28b284af5bc66e91abef4c72a1312ee"
+    },
+    {
+      "byteOffset": 2147872,
+      "segmentCount": 12,
+      "geometryId": 47,
+      "sourceGeometrySha256": "1a8f30f394914f03793402d0d72d235a0f629bb7250113c27329675f7a132a62",
+      "sha256": "d45635294848979aef0c9d3e2f3d49d8b603516ea5b02ac463981cd0e396e3d2"
+    },
+    {
+      "byteOffset": 2148064,
+      "segmentCount": 1780,
+      "geometryId": 48,
+      "sourceGeometrySha256": "84c7aa3d394e1563f6212e8bc378211b548502ae7ef9c9564d23fe8dcbb186e7",
+      "sha256": "ba77d25750ede2122e5225fbd8ec46c575fbceb6d6d5adba3f61e9962e8757b5"
+    },
+    {
+      "byteOffset": 2176544,
+      "segmentCount": 2523,
+      "geometryId": 49,
+      "sourceGeometrySha256": "40c82e90e2dd2135f3929c163948548950820d9cdc8d4f5ba1f43e8578a5c145",
+      "sha256": "8572006ad3f8175d4b26b49b1657ae107e99146e6065160fcb0a20fcc2dc0018"
+    },
+    {
+      "byteOffset": 2216912,
+      "segmentCount": 1092,
+      "geometryId": 50,
+      "sourceGeometrySha256": "f2e5f24c270cdf6512ac346d382010c601a19645e4a0f2f34adb858b133ff581",
+      "sha256": "bdab8b30514d882579a91bcaa9742b7222df5a134019bb6d952aae8e75c65be5"
+    },
+    {
+      "byteOffset": 2234384,
+      "segmentCount": 2811,
+      "geometryId": 51,
+      "sourceGeometrySha256": "f7843b6ecad641fc8cd694062e7e247e19e6a7ea6e35e70f18af1967f71eb704",
+      "sha256": "3b99bf7f74d7e0fe6f2aa0068f8f80ec9b72db9f2641e74e6bb4eb416c95dbf9"
+    },
+    {
+      "byteOffset": 2279360,
+      "segmentCount": 8,
+      "geometryId": 52,
+      "sourceGeometrySha256": "1d36024911fb28f205ab1ac721c9b2c28277c2a91a6bed767a5495498c480116",
+      "sha256": "12c87b2cc1a659c6af5f05cbec5cde2f74eee67a526f85c3e705c1731f82d548"
+    },
+    {
+      "byteOffset": 2279488,
+      "segmentCount": 6194,
+      "geometryId": 53,
+      "sourceGeometrySha256": "11c773b4acbda570148dcb185af0fb259caf406a64f1b28efdd6f4235be93c29",
+      "sha256": "f4f63f1ef7497c28c1239e33ea2a58e40a1d2d5d986ffbe3c4eb8c3591c5ad90"
+    },
+    {
+      "byteOffset": 2378592,
+      "segmentCount": 49,
+      "geometryId": 54,
+      "sourceGeometrySha256": "36aab0792f13c342039b9bb11cea05542d6a046ed47a79235a0b99ebe4ccb93e",
+      "sha256": "2774e4646d30df11c526c190965acdfb0647809375b330b8809e01950295cfb1"
+    },
+    {
+      "byteOffset": 2379376,
+      "segmentCount": 3631,
+      "geometryId": 55,
+      "sourceGeometrySha256": "cb08f9bce551e3beef50decdfade0f4bba4dd12247fc7dddc5ae040316654d37",
+      "sha256": "ed48122152f52c569f300e48aa7a7cc47aad1bb8d91be7cf25a0c6ddfdcb32b7"
+    },
+    {
+      "byteOffset": 2437472,
+      "segmentCount": 24,
+      "geometryId": 56,
+      "sourceGeometrySha256": "a5390cb482c4ff1e83eae52762b4b0f293dee99770193694134dbebdb1d6bcb3",
+      "sha256": "73092147a64d0a6f494d0c5f755c118c0de7f09b9c897352311f90d3a57c1402"
+    }
+  ],
+  "meshes": {
+    "Duck_foot_assembly_01_foot_side": {
+      "byteOffset": 0,
+      "segmentCount": 2383,
+      "geometryId": 0
+    },
+    "Duck_foot_assembly_02_foot_bottom_tpu": {
+      "byteOffset": 38128,
+      "segmentCount": 2110,
+      "geometryId": 1
+    },
+    "Duck_foot_assembly_03_foot_bottom_pla": {
+      "byteOffset": 71888,
+      "segmentCount": 1032,
+      "geometryId": 2
+    },
+    "Duck_foot_assembly_04_foot_top": {
+      "byteOffset": 88400,
+      "segmentCount": 2484,
+      "geometryId": 3
+    },
+    "Duck_knee_and_ankle_assembly_2_01_leg_spacer": {
+      "byteOffset": 128144,
+      "segmentCount": 2155,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_2_02_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 162624,
+      "segmentCount": 2378,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_2_03_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 200672,
+      "segmentCount": 2302,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_2_04_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_2_05_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_2_06_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_2_06_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_2_07_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_2_07_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_2_08_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_knee_and_ankle_assembly_01_left_cache": {
+      "byteOffset": 381744,
+      "segmentCount": 1677,
+      "geometryId": 14
+    },
+    "Duck_knee_and_ankle_assembly_02_leg_spacer": {
+      "byteOffset": 128144,
+      "segmentCount": 2155,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_03_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 162624,
+      "segmentCount": 2378,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_04_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 200672,
+      "segmentCount": 2302,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_05_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_06_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_07_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_07_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_08_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_08_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_09_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_left_roll_to_pitch_assembly_01_left_roll_to_pitch": {
+      "byteOffset": 408576,
+      "segmentCount": 2731,
+      "geometryId": 15
+    },
+    "Duck_left_roll_to_pitch_assembly_01_left_roll_to_pitch_surface2": {
+      "byteOffset": 452272,
+      "segmentCount": 5,
+      "geometryId": 16
+    },
+    "Duck_left_roll_to_pitch_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_left_roll_to_pitch_assembly_03_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_left_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_left_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_left_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_left_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_left_roll_to_pitch_assembly_06_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_hip_roll_assembly_01_roll_motor_bottom": {
+      "byteOffset": 452352,
+      "segmentCount": 1338,
+      "geometryId": 17
+    },
+    "Duck_hip_roll_assembly_02_roll_motor_top": {
+      "byteOffset": 473760,
+      "segmentCount": 2557,
+      "geometryId": 18
+    },
+    "Duck_hip_roll_assembly_02_roll_motor_top_surface2": {
+      "byteOffset": 514672,
+      "segmentCount": 15,
+      "geometryId": 19
+    },
+    "Duck_hip_roll_assembly_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_hip_roll_assembly_04_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_hip_roll_assembly_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_hip_roll_assembly_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_hip_roll_assembly_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_hip_roll_assembly_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_hip_roll_assembly_07_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_foot_assembly_2_01_foot_side": {
+      "byteOffset": 0,
+      "segmentCount": 2383,
+      "geometryId": 0
+    },
+    "Duck_foot_assembly_2_02_foot_bottom_tpu": {
+      "byteOffset": 38128,
+      "segmentCount": 2110,
+      "geometryId": 1
+    },
+    "Duck_foot_assembly_2_03_foot_bottom_pla": {
+      "byteOffset": 71888,
+      "segmentCount": 1032,
+      "geometryId": 2
+    },
+    "Duck_foot_assembly_2_04_foot_top": {
+      "byteOffset": 88400,
+      "segmentCount": 2484,
+      "geometryId": 3
+    },
+    "Duck_knee_and_ankle_assembly_4_01_leg_spacer": {
+      "byteOffset": 128144,
+      "segmentCount": 2155,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_4_02_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 162624,
+      "segmentCount": 2378,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_4_03_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 200672,
+      "segmentCount": 2302,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_4_04_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_4_05_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_4_06_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_4_06_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_4_07_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_4_07_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_4_08_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_knee_and_ankle_assembly_3_01_right_cache": {
+      "byteOffset": 514912,
+      "segmentCount": 1677,
+      "geometryId": 20
+    },
+    "Duck_knee_and_ankle_assembly_3_02_leg_spacer": {
+      "byteOffset": 128144,
+      "segmentCount": 2155,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_3_03_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 162624,
+      "segmentCount": 2378,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_3_04_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 200672,
+      "segmentCount": 2302,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_3_05_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_3_06_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_3_07_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_3_07_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_3_08_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_3_08_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_3_09_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_right_roll_to_pitch_assembly_01_right_roll_to_pitch": {
+      "byteOffset": 541744,
+      "segmentCount": 2738,
+      "geometryId": 21
+    },
+    "Duck_right_roll_to_pitch_assembly_01_right_roll_to_pitch_surface2": {
+      "byteOffset": 585552,
+      "segmentCount": 6,
+      "geometryId": 22
+    },
+    "Duck_right_roll_to_pitch_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_right_roll_to_pitch_assembly_03_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_right_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_right_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_right_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_right_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_right_roll_to_pitch_assembly_06_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_hip_roll_assembly_2_01_roll_motor_bottom": {
+      "byteOffset": 452352,
+      "segmentCount": 1338,
+      "geometryId": 17
+    },
+    "Duck_hip_roll_assembly_2_02_roll_motor_top": {
+      "byteOffset": 473760,
+      "segmentCount": 2557,
+      "geometryId": 18
+    },
+    "Duck_hip_roll_assembly_2_02_roll_motor_top_surface2": {
+      "byteOffset": 514672,
+      "segmentCount": 15,
+      "geometryId": 19
+    },
+    "Duck_hip_roll_assembly_2_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_hip_roll_assembly_2_04_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_hip_roll_assembly_2_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_hip_roll_assembly_2_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_hip_roll_assembly_2_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_hip_roll_assembly_2_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_hip_roll_assembly_2_07_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_left_antenna_holder_01_antenna": {
+      "byteOffset": 585648,
+      "segmentCount": 433,
+      "geometryId": 23
+    },
+    "Duck_left_antenna_holder_02_left_antenna_holder": {
+      "byteOffset": 592576,
+      "segmentCount": 2130,
+      "geometryId": 24
+    },
+    "Duck_right_antenna_holder_01_right_antenna_holder": {
+      "byteOffset": 626656,
+      "segmentCount": 2133,
+      "geometryId": 25
+    },
+    "Duck_right_antenna_holder_02_antenna": {
+      "byteOffset": 585648,
+      "segmentCount": 433,
+      "geometryId": 23
+    },
+    "Duck_head_assembly_01_head_bot_sheet": {
+      "byteOffset": 660784,
+      "segmentCount": 2263,
+      "geometryId": 26
+    },
+    "Duck_head_assembly_02_head": {
+      "byteOffset": 696992,
+      "segmentCount": 45628,
+      "geometryId": 27
+    },
+    "Duck_head_assembly_02_head_surface2": {
+      "byteOffset": 1427040,
+      "segmentCount": 3022,
+      "geometryId": 28
+    },
+    "Duck_head_assembly_03_head_roll_mount": {
+      "byteOffset": 1475392,
+      "segmentCount": 2446,
+      "geometryId": 29
+    },
+    "Duck_head_assembly_04_raspberrypizerow": {
+      "byteOffset": 1514528,
+      "segmentCount": 11974,
+      "geometryId": 30
+    },
+    "Duck_head_assembly_04_raspberrypizerow_surface2": {
+      "byteOffset": 1706112,
+      "segmentCount": 25,
+      "geometryId": 31
+    },
+    "Duck_head_assembly_05_roll_bearing": {
+      "byteOffset": 1706512,
+      "segmentCount": 432,
+      "geometryId": 32
+    },
+    "Duck_head_assembly_06_sg90": {
+      "byteOffset": 1713424,
+      "segmentCount": 1006,
+      "geometryId": 33
+    },
+    "Duck_head_assembly_07_sg90": {
+      "byteOffset": 1713424,
+      "segmentCount": 1006,
+      "geometryId": 33
+    },
+    "Duck_head_assembly_08_board": {
+      "byteOffset": 1729520,
+      "segmentCount": 5236,
+      "geometryId": 34
+    },
+    "Duck_head_assembly_09_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_head_assembly_10_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_head_assembly_11_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_head_assembly_11_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_head_assembly_12_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_head_assembly_12_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_head_assembly_13_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_neck_yaw_assembly_01_head_yaw_to_roll": {
+      "byteOffset": 1813296,
+      "segmentCount": 2379,
+      "geometryId": 35
+    },
+    "Duck_neck_yaw_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_neck_yaw_assembly_03_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_neck_yaw_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_neck_yaw_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_neck_yaw_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_neck_yaw_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_neck_yaw_assembly_06_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_head_pitch_to_yaw_01_head_pitch_to_yaw": {
+      "byteOffset": 1851360,
+      "segmentCount": 2761,
+      "geometryId": 36
+    },
+    "Duck_neck_pitch_assembly_01_neck_left_sheet": {
+      "byteOffset": 1895536,
+      "segmentCount": 2335,
+      "geometryId": 37
+    },
+    "Duck_neck_pitch_assembly_02_neck_right_sheet": {
+      "byteOffset": 1932896,
+      "segmentCount": 2418,
+      "geometryId": 38
+    },
+    "Duck_neck_pitch_assembly_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_neck_pitch_assembly_04_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_neck_pitch_assembly_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_neck_pitch_assembly_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_neck_pitch_assembly_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_neck_pitch_assembly_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_neck_pitch_assembly_07_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_01_body_front": {
+      "byteOffset": 1971584,
+      "segmentCount": 1902,
+      "geometryId": 39
+    },
+    "Duck_trunk_assembly_01_body_front_surface2": {
+      "byteOffset": 2002016,
+      "segmentCount": 27,
+      "geometryId": 40
+    },
+    "Duck_trunk_assembly_02_usb_c_charger": {
+      "byteOffset": 2002448,
+      "segmentCount": 904,
+      "geometryId": 41
+    },
+    "Duck_trunk_assembly_03_body_back": {
+      "byteOffset": 2016912,
+      "segmentCount": 2474,
+      "geometryId": 42
+    },
+    "Duck_trunk_assembly_03_body_back_surface2": {
+      "byteOffset": 2056496,
+      "segmentCount": 20,
+      "geometryId": 43
+    },
+    "Duck_trunk_assembly_04_body_middle_bottom": {
+      "byteOffset": 2056816,
+      "segmentCount": 4258,
+      "geometryId": 44
+    },
+    "Duck_trunk_assembly_04_body_middle_bottom_surface2": {
+      "byteOffset": 2124944,
+      "segmentCount": 11,
+      "geometryId": 45
+    },
+    "Duck_trunk_assembly_05_power_switch": {
+      "byteOffset": 2125120,
+      "segmentCount": 1422,
+      "geometryId": 46
+    },
+    "Duck_trunk_assembly_06_bms": {
+      "byteOffset": 2147872,
+      "segmentCount": 12,
+      "geometryId": 47
+    },
+    "Duck_trunk_assembly_07_battery_pack_lid": {
+      "byteOffset": 2148064,
+      "segmentCount": 1780,
+      "geometryId": 48
+    },
+    "Duck_trunk_assembly_08_body_middle_top": {
+      "byteOffset": 2176544,
+      "segmentCount": 2523,
+      "geometryId": 49
+    },
+    "Duck_trunk_assembly_09_bno055": {
+      "byteOffset": 2216912,
+      "segmentCount": 1092,
+      "geometryId": 50
+    },
+    "Duck_trunk_assembly_10_roll_bearing": {
+      "byteOffset": 1706512,
+      "segmentCount": 432,
+      "geometryId": 32
+    },
+    "Duck_trunk_assembly_11_trunk_bottom": {
+      "byteOffset": 2234384,
+      "segmentCount": 2811,
+      "geometryId": 51
+    },
+    "Duck_trunk_assembly_11_trunk_bottom_surface2": {
+      "byteOffset": 2279360,
+      "segmentCount": 8,
+      "geometryId": 52
+    },
+    "Duck_trunk_assembly_12_trunk_top": {
+      "byteOffset": 2279488,
+      "segmentCount": 6194,
+      "geometryId": 53
+    },
+    "Duck_trunk_assembly_12_trunk_top_surface2": {
+      "byteOffset": 2378592,
+      "segmentCount": 49,
+      "geometryId": 54
+    },
+    "Duck_trunk_assembly_13_board": {
+      "byteOffset": 1729520,
+      "segmentCount": 5236,
+      "geometryId": 34
+    },
+    "Duck_trunk_assembly_14_roll_bearing": {
+      "byteOffset": 1706512,
+      "segmentCount": 432,
+      "geometryId": 32
+    },
+    "Duck_trunk_assembly_15_cell": {
+      "byteOffset": 2379376,
+      "segmentCount": 3631,
+      "geometryId": 55
+    },
+    "Duck_trunk_assembly_16_holder": {
+      "byteOffset": 2437472,
+      "segmentCount": 24,
+      "geometryId": 56
+    },
+    "Duck_trunk_assembly_17_cell": {
+      "byteOffset": 2379376,
+      "segmentCount": 3631,
+      "geometryId": 55
+    },
+    "Duck_trunk_assembly_18_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_19_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_20_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_20_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_21_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_21_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_22_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_23_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_24_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_25_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_25_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_26_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_26_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_27_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_28_wj-wk00-0123middlecase_56": {
+      "byteOffset": 237504,
+      "segmentCount": 752,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_29_drive_palonier": {
+      "byteOffset": 249536,
+      "segmentCount": 1536,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_30_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 274112,
+      "segmentCount": 2236,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_30_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 309888,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_31_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 309984,
+      "segmentCount": 2938,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_31_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 356992,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_32_passive_palonier": {
+      "byteOffset": 357168,
+      "segmentCount": 1536,
+      "geometryId": 13
+    }
+  }
+}

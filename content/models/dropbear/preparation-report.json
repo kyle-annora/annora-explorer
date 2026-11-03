@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "modelId": "dropbear",
+  "sourceSha256": "538d79c7346979d9eae894b076034c942c15ea654c9e34a94f7a4bd283749c92",
+  "preservedSource": true,
+  "limits": {
+    "sourceBytes": 67108864,
+    "jsonBytes": 2097152,
+    "meshes": 2000,
+    "nodes": 10000,
+    "triangles": 1000000,
+    "trianglesPerGeometry": 250000,
+    "vertices": 3000000,
+    "animationKeys": 100000,
+    "clipSeconds": 120,
+    "outputBytes": 201326592
+  },
+  "counts": {
+    "meshes": 728,
+    "nodes": 730,
+    "triangles": 348558,
+    "vertices": 1045674,
+    "uniqueGeometries": 728,
+    "sourceAnimationClips": 1
+  },
+  "bytes": {
+    "source": 25731912,
+    "compressedModel": 6568668,
+    "creases": 5007552,
+    "contours": 6606512,
+    "total": 50531139
+  },
+  "operation": "DropbearArmSwivel",
+  "tour": "tour.json",
+  "warnings": [
+    "Above 200,000 triangles: qualify ordinary computers and physical phones before release.",
+    "Compressed model exceeds 5 MiB: review cold-network loading."
+  ],
+  "assets": {
+    "model.glb": {
+      "bytes": 25731912,
+      "sha256": "538d79c7346979d9eae894b076034c942c15ea654c9e34a94f7a4bd283749c92"
+    },
+    "model.glb.gz": {
+      "bytes": 6568668,
+      "sha256": "6bfeee483fdd2453b9fde17b8b624968a3f35fdd86bdc6c765a5b7d2937e9968"
+    },
+    "metadata.json": {
+      "bytes": 1093022,
+      "sha256": "a7832ba63e54e4bdec145f9303973c84707177d5a6285440c07d54dc29d1a41e"
+    },
+    "edges.bin": {
+      "bytes": 5007552,
+      "sha256": "b361c778c6666ddbbfe8dd53273b8fbab047c3014526430d514451859b7c023a"
+    },
+    "edges.bin.gz": {
+      "bytes": 1777425,
+      "sha256": "b849022cc27dce245614849de4f9dc23bf40dcf66f7fa07596ed33b3f66cf74b"
+    },
+    "edge-metadata.json": {
+      "bytes": 506733,
+      "sha256": "f6518e8b48c62182f2cb5928ccc3e7f8e50e004156b9083db61a7ec3f341fc28"
+    },
+    "silhouettes.bin": {
+      "bytes": 6606512,
+      "sha256": "f70ec25800c33e64671cbc72c529b7dc9ca304741214bb7900accc956d392cf5"
+    },
+    "silhouettes.bin.gz": {
+      "bytes": 2936061,
+      "sha256": "d5ff5a0b26db973b28fcd02c43e850d8249a7c26501ed783c60cb909357a0171"
+    },
+    "silhouette-metadata.json": {
+      "bytes": 292358,
+      "sha256": "11bc3fd36be094a539e5b6514146904c1fdf7f2a811215f8ff6c2d9e6afacecd"
+    },
+    "LICENSE.txt": {
+      "bytes": 1342,
+      "sha256": "643e007b287a9366775d876fd38f5bcaf7e992faf9b7d9a069e1735002aef93e"
+    },
+    "tour.json": {
+      "bytes": 7240,
+      "sha256": "8ae1d1b3e53fdc88816dd11f6a1014b2c4bed736fe93ff62821430bebd881a41"
+    },
+    "manifest.json": {
+      "bytes": 2314,
+      "sha256": "912f81574865d90978f5e97b7d4d40d54c87318402c8797b1b2a5414de21591f"
+    }
+  }
+}

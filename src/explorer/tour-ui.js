@@ -25,6 +25,7 @@ export class GuidedTour {
     });
     this.active = false; this.pending = false; this.generation = 0; this.captionKey = ''; this.annotationKey = '';
     $('tour-duration').textContent = this.stepwise ? `${this.tour.chapters.length} short steps` : `${this.tour.duration} sec`;
+    write($('tour-start').querySelector('span'), 'Play presentation');
     $('tour-start').disabled = false;
     this.listen($('tour-start'), 'click', () => this.dispatch('startTour', { tourId: this.tour.id }, () => this.start()));
     this.listen($('tour-exit'), 'click', () => this.dispatch('exitTour', {}, () => this.exit()));
@@ -117,7 +118,7 @@ export class GuidedTour {
     ++this.generation; this.pendingAbort?.abort(); this.pendingAbort = null;
     if (this.disposed) return;
     this.pending = false; $('tour-start').disabled = false;
-    write($('tour-start').querySelector('span'), 'Start guided tour');
+    write($('tour-start').querySelector('span'), 'Play presentation');
   }
 
   dispose() {
@@ -150,7 +151,7 @@ export class GuidedTour {
     const generation = ++this.generation;
     this.pendingAbort = new AbortController();
     this.pending = true; $('tour-start').disabled = true;
-    write($('tour-start').querySelector('span'), 'Preparing tour…');
+    write($('tour-start').querySelector('span'), 'Preparing presentation…');
     try {
       // Load the optional linework before starting the clock, never during a chapter.
       await abortable(this.scene.prepareEdges(), this.abort.signal, this.pendingAbort.signal, signal);
@@ -159,14 +160,14 @@ export class GuidedTour {
       this.closeOverlays(); this.scene.cancelBenchmark(); this.scene.pausePresentation();
       this.active = true; document.body.dataset.tourPlayback = this.stepwise ? 'steps' : 'continuous'; document.body.classList.add('tour-active'); $('tour-panel').hidden = false;
       document.querySelector('.stage-tools').inert = true; document.querySelector('.detail-panel').inert = true;
-      this.syncLayout?.(); this.player.start(); if (this.stepwise) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
+      this.syncLayout?.(); this.player.setVisibility(document.hidden); this.player.start(); if (this.stepwise) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
       return true;
     } catch (error) {
       if (this.disposed || generation !== this.generation || signal?.aborted || error?.name === 'AbortError') return false;
-      console.error(error); $('status-message').textContent = 'The tour could not load. Please try again.';
+      console.error(error); $('status-message').textContent = 'The presentation could not load. Please try again.';
       return false;
     } finally {
-      if (!this.disposed && generation === this.generation) { this.pending = false; this.pendingAbort = null; $('tour-start').disabled = false; write($('tour-start').querySelector('span'), 'Start guided tour'); this.stateChange?.(); }
+      if (!this.disposed && generation === this.generation) { this.pending = false; this.pendingAbort = null; $('tour-start').disabled = false; write($('tour-start').querySelector('span'), 'Play presentation'); this.stateChange?.(); }
     }
   }
 
@@ -238,6 +239,9 @@ export class GuidedTour {
   updateUI() {
     if (this.disposed || !this.active) return;
     const state = this.player.state(), frame = this.frame;
+    const playing = state.status === 'playing';
+    document.querySelector('.stage-tools').inert = playing;
+    document.querySelector('.detail-panel').inert = playing;
     if (this.stepwise) { this.updateStepUI(state, frame); return; }
     this.stateChange?.();
     const completed = state.status === 'completed';
@@ -251,13 +255,13 @@ export class GuidedTour {
     write($('tour-title'), completed ? 'Now explore it yourself.' : frame.title);
     // Only content changes announce. The time slider never becomes a live region.
     write($('tour-caption'), completed ? this.tour.completion || 'Select a component. Follow its place in the assembly.' : frame.caption);
-    const status = this.reducedMotion ? 'Reduced motion · Choose your next chapter.' : state.status === 'playing' ? 'Drag to pause and explore.' : state.reason === 'takeover' ? 'You have control · Continue to rejoin the tour.' : state.reason === 'visibility' ? 'Paused while away · Continue when ready.' : 'Paused · Look around, or continue.';
+    const status = this.reducedMotion ? 'Reduced motion · Choose your next chapter.' : state.status === 'playing' ? 'Drag to pause and explore.' : state.reason === 'takeover' ? 'You have control · Resume when ready.' : state.reason === 'visibility' ? 'Paused while away · Resume when ready.' : 'Paused · Look around, or resume.';
     write($('tour-status'), status);
     $('tour-status').hidden = completed || (state.status === 'playing' && state.time > 3);
     $('tour-annotations').hidden = state.reason === 'takeover';
-    const label = state.status === 'playing' ? 'Pause' : this.reducedMotion ? 'Next chapter' : 'Continue tour';
+    const label = state.status === 'playing' ? 'Pause' : this.reducedMotion ? 'Next chapter' : 'Resume';
     write($('tour-play').querySelector('span'), label);
-    $('tour-play').setAttribute('aria-label', `${label}${label === 'Pause' ? ' guided tour' : ''}`);
+    $('tour-play').setAttribute('aria-label', `${label}${label === 'Pause' ? ' presentation' : ''}`);
     $('tour-play').querySelector('use').setAttribute('href', state.status === 'playing' ? '#i-pause' : '#i-play');
     $('tour-play').hidden = completed; $('tour-prev').disabled = state.index === 0;
     $('tour-next').disabled = completed;
@@ -265,7 +269,8 @@ export class GuidedTour {
     $('tour-progress').style.setProperty('--tour-progress', `${state.progress * 100}%`);
     $('tour-progress').setAttribute('aria-valuetext', `${clock(state.time)} of ${clock(state.duration)}, ${frame.title}`);
     $('tour-time').value = `${clock(state.time)} / ${clock(state.duration)}`;
-    $('tour-explore').hidden = !completed; $('tour-replay').hidden = !completed;
+    $('tour-explore').hidden = false; $('tour-replay').hidden = false;
+    $('tour-replay').setAttribute('aria-label', 'Replay presentation');
     if (moveCompletionFocus) $('tour-explore').focus({ preventScroll: true });
     [...$('tour-chapters').children].forEach((button, index) => {
       if (index === state.index) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
@@ -292,7 +297,7 @@ export class GuidedTour {
     $('tour-progress').setAttribute('aria-label', 'Current step progress');
     $('tour-progress').setAttribute('aria-valuetext', `${Math.round(progress)} percent, ${chapter.label}`);
     $('tour-time').value = `${local.toFixed(1)} / ${chapter.duration.toFixed(1)} s`;
-    $('tour-explore').hidden = true; $('tour-replay').hidden = false;
+    $('tour-explore').hidden = held && last; $('tour-replay').hidden = false;
     $('tour-replay').setAttribute('aria-label', `Replay step: ${chapter.label}`);
     $('tour-annotations').hidden = state.reason === 'takeover';
     write($('tour-status'), this.reducedMotion ? 'Reduced motion · Inspect each stable view.' : state.reason === 'takeover' ? 'You have control · Resume to rejoin.' : held ? 'Step complete · Replay or move on.' : 'Each action takes 2–3 seconds. Drag to inspect.');
@@ -320,19 +325,23 @@ export class GuidedTour {
       }));
       this.annotationSizes = [...$('tour-annotations').children].map(label => ({ width: label.offsetWidth, height: label.offsetHeight }));
     }
-    const panel = $('tour-panel').getBoundingClientRect();
+    const panels = [$('tour-copy'), document.querySelector('.tour-transport'), $('tour-chapters')]
+      .filter(panel => panel && !panel.hidden)
+      .map(panel => panel.getBoundingClientRect())
+      .filter(panel => panel.width > 0 && panel.height > 0);
     const top = document.querySelector('.stage-heading').getBoundingClientRect().bottom + 8;
     const labels = [...$('tour-annotations').children];
     const points = labels.map(label => this.scene.projectTourAnchor(label.dataset.node));
     const placed = [];
     for (const [index, label] of labels.entries()) {
       const point = points[index], { width, height } = this.annotationSizes[index];
+      if (!point?.visible) { label.hidden = true; continue; }
       const x = Math.max(width / 2 + 14, Math.min(innerWidth - width / 2 - 14, point.x));
       let leader = 15;
       for (const other of placed) if (Math.abs(x - other.x) < (width + other.width) / 2 + 8 && point.y - leader > other.top - 8 && point.y - leader - height < other.bottom + 8) leader = point.y - other.top + 8;
       const box = { x, width, top: point.y - leader - height, bottom: point.y - leader };
-      const underPanel = x + width / 2 > panel.left && x - width / 2 < panel.right && box.bottom > panel.top - 8 && box.top < panel.bottom;
-      label.hidden = !point?.visible || box.top < top || underPanel;
+      const underPanel = panels.some(panel => x + width / 2 > panel.left && x - width / 2 < panel.right && box.bottom > panel.top - 8 && box.top < panel.bottom);
+      label.hidden = box.top < top || underPanel;
       if (!label.hidden) { placed.push(box); label.style.left = `${x}px`; label.style.top = `${point.y}px`; label.style.setProperty('--leader-length', `${leader}px`); }
     }
   }

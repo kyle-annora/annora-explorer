@@ -1,0 +1,2187 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "fe3605302fc269a4d61aea9f8fc5dd2165be8f53a68c3d4ae55510efd1ed3858"
+  },
+  "edges": {
+    "file": "edges.bin",
+    "compressedFile": "edges.bin.gz",
+    "compression": "gzip",
+    "format": "float32-le",
+    "coordinates": "mesh-local",
+    "topology": "line-segments",
+    "creaseAngle": 32,
+    "sha256": "8da8cf0953d18c042145dd1019a6d6f4d21a0e10a50a3727d9a2bd462b1b8ae3"
+  },
+  "stats": {
+    "meshCount": 170,
+    "uniqueGeometryCount": 57,
+    "bytes": 1899792,
+    "uniqueSegments": 79158
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "vertexCount": 2350,
+      "segmentCount": 1175,
+      "geometryId": 0,
+      "sourceGeometrySha256": "96b6fba78bb6ba3b74bdf0d224430e376927416a40db1acf38588691044c6627",
+      "edgeSha256": "d78845bdaf72d394cbc9e67ef70b61a06496137c844a70ce796e76f691017582",
+      "bounds": [
+        [
+          -0.05566000938415527,
+          0.06714984774589539,
+          -0.2536257207393646
+        ],
+        [
+          0.04781433194875717,
+          0.0791500136256218,
+          -0.20762987434864044
+        ]
+      ]
+    },
+    {
+      "byteOffset": 28200,
+      "vertexCount": 1516,
+      "segmentCount": 758,
+      "geometryId": 1,
+      "sourceGeometrySha256": "fdac8e10f04f9742e049061d299847d9d22f36c1b2977447fe783436814bb207",
+      "edgeSha256": "b8174a1b74bcd9321fa7ddde2db4a85c5d4808aa55286ec8f47a27bc528defcb",
+      "bounds": [
+        [
+          -0.05415403097867966,
+          0.07008842378854752,
+          -0.2616249918937683
+        ],
+        [
+          0.04777850955724716,
+          0.11082229763269424,
+          -0.2536250054836273
+        ]
+      ]
+    },
+    {
+      "byteOffset": 46392,
+      "vertexCount": 1200,
+      "segmentCount": 600,
+      "geometryId": 2,
+      "sourceGeometrySha256": "983c3e7b2831544e80ff08c1ea2cd0f5da8302cc3e73bdac5cd1f9c3064f9bc9",
+      "edgeSha256": "5f6f68c95d7cf3f2db7bded8e23224dad6a949a247682cb6cf601dcda85b251e",
+      "bounds": [
+        [
+          -0.05324999988079071,
+          0.07615000009536743,
+          -0.2536250054836273
+        ],
+        [
+          0.03972499817609787,
+          0.10384999960660934,
+          -0.24562500417232513
+        ]
+      ]
+    },
+    {
+      "byteOffset": 60792,
+      "vertexCount": 2344,
+      "segmentCount": 1172,
+      "geometryId": 3,
+      "sourceGeometrySha256": "c2fbb34e6dbacf29a5a5d5ac3709a10e28b11902ae9fc6aea9d8cf248272e976",
+      "edgeSha256": "63ad24ccde8d5aa6176c2613033aa39365b7603e2bb1578a92d5272e3d6db386",
+      "bounds": [
+        [
+          -0.05565299093723297,
+          0.0791499987244606,
+          -0.25362733006477356
+        ],
+        [
+          0.047814298421144485,
+          0.11405274271965027,
+          -0.2075616866350174
+        ]
+      ]
+    },
+    {
+      "byteOffset": 88920,
+      "vertexCount": 2546,
+      "segmentCount": 1273,
+      "geometryId": 4,
+      "sourceGeometrySha256": "bdf523b3869370d2acbe2c3e96c263c64bb284b51468e8c6ca64e32227e5853b",
+      "edgeSha256": "3a120be859196c158542f929ec9bf3ef04952779073ea803f7a9e09e2e671684",
+      "bounds": [
+        [
+          -0.030094288289546967,
+          0.07214999943971634,
+          -0.16897499561309814
+        ],
+        [
+          -0.0020257122814655304,
+          0.10904999822378159,
+          -0.1589779257774353
+        ]
+      ]
+    },
+    {
+      "byteOffset": 119472,
+      "vertexCount": 2480,
+      "segmentCount": 1240,
+      "geometryId": 5,
+      "sourceGeometrySha256": "8341093814103229e4f931421cae563b54f84cbd5afbd188ffae496dec4b37f1",
+      "edgeSha256": "a8fe52f412771faedec2758e20287d8db77ce49ada13060e65b6cc5b7b316b02",
+      "bounds": [
+        [
+          -0.03141000121831894,
+          0.06819703429937363,
+          -0.20329999923706055
+        ],
+        [
+          -0.0007099999929778278,
+          0.07540000230073929,
+          -0.1326475888490677
+        ]
+      ]
+    },
+    {
+      "byteOffset": 149232,
+      "vertexCount": 2472,
+      "segmentCount": 1236,
+      "geometryId": 6,
+      "sourceGeometrySha256": "ff153f88311aba69b388986ed2643fa86c37f92f49a4c383a02c5dd5a49a8b63",
+      "edgeSha256": "5e1549c016ed5bd0123401c6cb47f8d3686c58658e6f10a739cabb7a10e2083e",
+      "bounds": [
+        [
+          -0.03141000121831894,
+          0.10459999740123749,
+          -0.20329999923706055
+        ],
+        [
+          -0.0007099999929778278,
+          0.11306215077638626,
+          -0.1326252669095993
+        ]
+      ]
+    },
+    {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7,
+      "sourceGeometrySha256": "06525cca8957b894dd4a11efa20850efa75cfa9aca15a0ecc8c18dc99e5740a7",
+      "edgeSha256": "0b054c7e6bea2d5cdb99ee8bc5c38f780d4c087513b9193260b0140c874e6890",
+      "bounds": [
+        [
+          -0.03560999780893326,
+          -0.01510000042617321,
+          -0.012359999120235443
+        ],
+        [
+          0.009609999135136604,
+          -0.0012000000569969416,
+          0.012359999120235443
+        ]
+      ]
+    },
+    {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8,
+      "sourceGeometrySha256": "1ffa2d4d9a050c44a0e634fb013d322114818487766e6f61135bf754f42fa01a",
+      "edgeSha256": "9ef2232f73b818fa498903a86cba4ad16256ce8f9a68b4031c30dc82594177f1",
+      "bounds": [
+        [
+          -0.035475000739097595,
+          0.004399999976158142,
+          -0.009975000284612179
+        ],
+        [
+          -0.015525000169873238,
+          0.009449999779462814,
+          0.009975000284612179
+        ]
+      ]
+    },
+    {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9,
+      "sourceGeometrySha256": "cd0cb08f27adf7e0f260932c02d8a29c8f3d4212ea677530059b9382cf439726",
+      "edgeSha256": "cea3610da29a959538bf18305015a2a9c1f9355af4dae09246871a0f445df346",
+      "bounds": [
+        [
+          -0.03560997545719147,
+          -0.02754667028784752,
+          -0.012360002845525742
+        ],
+        [
+          0.009614798240363598,
+          -0.014100000262260437,
+          0.01235999446362257
+        ]
+      ]
+    },
+    {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10,
+      "sourceGeometrySha256": "b766b69dd7447f261d92edd50a7230af90378ecd73baf07fff2276b9b3af6f41",
+      "edgeSha256": "ccebf4bf81372014ab2651e083b0e7c98d1c4618512bba6749ecb24fb26bffe7",
+      "bounds": [
+        [
+          -0.03291883319616318,
+          -0.01883978210389614,
+          -0.010195429436862469
+        ],
+        [
+          0.0076640211045742035,
+          -0.016272233799099922,
+          0.01071599405258894
+        ]
+      ]
+    },
+    {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11,
+      "sourceGeometrySha256": "69c3c01a5f24e25a1c2cf72ea757d9fc4f37afa807cd630a4e788ca0499d0e7e",
+      "edgeSha256": "3376924d4a274c8829d037fbe0cd9aa4c23ddacb0eb6a70161b3a8e59ec6c49b",
+      "bounds": [
+        [
+          -0.035935208201408386,
+          -0.002199999988079071,
+          -0.012359661981463432
+        ],
+        [
+          0.010515955276787281,
+          0.007414461579173803,
+          0.012356220744550228
+        ]
+      ]
+    },
+    {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12,
+      "sourceGeometrySha256": "42b79dbaee40343dca70838a635e3a89fb7e2a3bdce253f876861f30d6cc10ab",
+      "edgeSha256": "d3dbef86454c3f36fa96c968687120993a265ea66b5e7438f6f6f32715ba656f",
+      "bounds": [
+        [
+          -0.03499206528067589,
+          0.0034000000450760126,
+          -0.012356311082839966
+        ],
+        [
+          0.004540107678622007,
+          0.006100005470216274,
+          0.010748815722763538
+        ]
+      ]
+    },
+    {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13,
+      "sourceGeometrySha256": "5ad23d1afd762d8c90c8a73cc980301da370e9723b47373671f2e414f9589fbc",
+      "edgeSha256": "75c5e9b8e3da3818671f42ce6bbaad9aa969123e937cff14023d879fea3d7b59",
+      "bounds": [
+        [
+          -0.035475000739097595,
+          -0.030300000682473183,
+          -0.009975000284612179
+        ],
+        [
+          -0.015525000169873238,
+          -0.0272000003606081,
+          0.009975000284612179
+        ]
+      ]
+    },
+    {
+      "byteOffset": 302808,
+      "vertexCount": 2116,
+      "segmentCount": 1058,
+      "geometryId": 14,
+      "sourceGeometrySha256": "539db6d9d858db61ad160d20cc723523491b58103fdba4df12d114c4f5449c6e",
+      "edgeSha256": "ef7246d4f2de65f11fa1c15543776ae546787440a89f6992020e34e5b5da65d9",
+      "bounds": [
+        [
+          -0.04744923114776611,
+          0.08304999768733978,
+          -0.17005378007888794
+        ],
+        [
+          0.04251914843916893,
+          0.12304999679327011,
+          -0.017439087852835655
+        ]
+      ]
+    },
+    {
+      "byteOffset": 328200,
+      "vertexCount": 2824,
+      "segmentCount": 1412,
+      "geometryId": 15,
+      "sourceGeometrySha256": "9a7a3d35094df0d989e2b83ca3d7b496c5b40cdd135e7ecfde098a15d50a5863",
+      "edgeSha256": "a449b95ac56ef2ecfbb7be488e48561609f77555a4ce9166a0c8a010289eb2b6",
+      "bounds": [
+        [
+          -0.022961536422371864,
+          0.023703493177890778,
+          -0.08059327304363251
+        ],
+        [
+          0.0240947138518095,
+          0.11010000109672546,
+          -0.04950918257236481
+        ]
+      ]
+    },
+    {
+      "byteOffset": 362088,
+      "vertexCount": 10,
+      "segmentCount": 5,
+      "geometryId": 16,
+      "sourceGeometrySha256": "8da12a616b513cc7cbbbe4281873c0e75462498007fb2f4ce9c3773726009c43",
+      "edgeSha256": "4982ffa9e02f81293cba271596b8801bd95580b796fb1ef05b3f92d547181005",
+      "bounds": [
+        [
+          -0.00938333198428154,
+          0.10610006004571915,
+          -0.056095048785209656
+        ],
+        [
+          -0.007008879445493221,
+          0.10810001194477081,
+          -0.05382392928004265
+        ]
+      ]
+    },
+    {
+      "byteOffset": 362208,
+      "vertexCount": 1760,
+      "segmentCount": 880,
+      "geometryId": 17,
+      "sourceGeometrySha256": "c892bde5120d3829ae4a338965cb84665d4406f3b7e97a89f8379f45e16baacf",
+      "edgeSha256": "1bce576b85c0e07d2337b85cd00d4bde8da1bfb0044d773da6795b46359bb3d4",
+      "bounds": [
+        [
+          -0.017500000074505806,
+          0.019630245864391327,
+          -0.08517500013113022
+        ],
+        [
+          0.014499999582767487,
+          0.0503697544336319,
+          -0.05376499891281128
+        ]
+      ]
+    },
+    {
+      "byteOffset": 383328,
+      "vertexCount": 2994,
+      "segmentCount": 1497,
+      "geometryId": 18,
+      "sourceGeometrySha256": "c22be7264bacaa3b7a7b4a306ad3391b8ead0b7aa79a474f93d5e642e120c55b",
+      "edgeSha256": "3cfe707f898c2f216f023f56c7165c6289593dd6e6f35a2dfc5e9b44e3a3702a",
+      "bounds": [
+        [
+          -0.01899999938905239,
+          0.02059379778802395,
+          -0.03906499966979027
+        ],
+        [
+          0.01899999938905239,
+          0.0493599995970726,
+          -0.019050000235438347
+        ]
+      ]
+    },
+    {
+      "byteOffset": 419256,
+      "vertexCount": 28,
+      "segmentCount": 14,
+      "geometryId": 19,
+      "sourceGeometrySha256": "88782971f802cd2ec62e765d3c95b6d86498b1932a3b61a64d44577c4a026c28",
+      "edgeSha256": "3e7cb866e57a8b603ab3f2b9e1c5cb9e22938001e8d098bb44cfee9a37afa765",
+      "bounds": [
+        [
+          -0.010054000653326511,
+          0.03307720273733139,
+          -0.021789999678730965
+        ],
+        [
+          0.010250000283122063,
+          0.04505399987101555,
+          -0.019050000235438347
+        ]
+      ]
+    },
+    {
+      "byteOffset": 419592,
+      "vertexCount": 2116,
+      "segmentCount": 1058,
+      "geometryId": 20,
+      "sourceGeometrySha256": "c54f2005a8d7956eb1ca7a0aaf2a17917870dbf65c6eb74d7c8ac92c267f03c5",
+      "edgeSha256": "9894434d158244e3bdd3ad61a4000827425b5d8635599d2430cb0d859af00d68",
+      "bounds": [
+        [
+          -0.04744923114776611,
+          -0.12304999679327011,
+          -0.17005378007888794
+        ],
+        [
+          0.04251914843916893,
+          -0.08304999768733978,
+          -0.017439087852835655
+        ]
+      ]
+    },
+    {
+      "byteOffset": 444984,
+      "vertexCount": 2788,
+      "segmentCount": 1394,
+      "geometryId": 21,
+      "sourceGeometrySha256": "129efe453cf5f3006012d12ce1c686a5db62105a61bc82f6bd7e8b0c4c463bab",
+      "edgeSha256": "f39773c817cf482d8b75a99a88863954135898268b73c5da294bef5c3232ac2d",
+      "bounds": [
+        [
+          -0.022901717573404312,
+          -0.11010000109672546,
+          -0.08050177991390228
+        ],
+        [
+          0.024179015308618546,
+          -0.023734942078590393,
+          -0.0496206171810627
+        ]
+      ]
+    },
+    {
+      "byteOffset": 478440,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 22,
+      "sourceGeometrySha256": "bd94083a2807190e6939277a542de1066769ac88b79b65f930ff19428d5bd4c6",
+      "edgeSha256": "3819d7ef390accbefb792b9c73e550b9d1681fcd0839816309d0b35512e2efea",
+      "bounds": [
+        [
+          -0.009527544490993023,
+          -0.10812564939260483,
+          -0.056441739201545715
+        ],
+        [
+          -0.005996197462081909,
+          -0.10610000044107437,
+          -0.05495984107255936
+        ]
+      ]
+    },
+    {
+      "byteOffset": 478584,
+      "vertexCount": 524,
+      "segmentCount": 262,
+      "geometryId": 23,
+      "sourceGeometrySha256": "52a9f5adf4f643f7ad084220b83fcf75a045b78aff8faab9df55e1110018ec70",
+      "edgeSha256": "30e63d51b4953ac765af7813937e95434baf69ca605753e02fc148a8e6797629",
+      "bounds": [
+        [
+          -0.05830564722418785,
+          -0.06985686719417572,
+          0.11038240045309067
+        ],
+        [
+          -0.05450564622879028,
+          -0.03041619248688221,
+          0.25650250911712646
+        ]
+      ]
+    },
+    {
+      "byteOffset": 484872,
+      "vertexCount": 1744,
+      "segmentCount": 872,
+      "geometryId": 24,
+      "sourceGeometrySha256": "17e10a9de31837383cf8aa7a8f8119fb6cf82457954f881f34469ca9eac2e697",
+      "edgeSha256": "9fb3ca9e9e478395706e4b813b122bc1341475f51d7da5bb7fc727c0f64c00fc",
+      "bounds": [
+        [
+          -0.07721574604511261,
+          0.05337448790669441,
+          0.10974389314651489
+        ],
+        [
+          -0.05031254515051842,
+          0.07338286936283112,
+          0.15144936740398407
+        ]
+      ]
+    },
+    {
+      "byteOffset": 505800,
+      "vertexCount": 1744,
+      "segmentCount": 872,
+      "geometryId": 25,
+      "sourceGeometrySha256": "1ea48c2f35ea6cb9eb787b367709e90abb28e99d197645589027dd89921f6ee8",
+      "edgeSha256": "679efb1f385f4de9f66d9790fc95b4bbe8c70c61e0607f7cc2b37ec2284cf044",
+      "bounds": [
+        [
+          -0.07721574604511261,
+          -0.07338286936283112,
+          0.10974389314651489
+        ],
+        [
+          -0.05031254515051842,
+          -0.05337448790669441,
+          0.15144936740398407
+        ]
+      ]
+    },
+    {
+      "byteOffset": 526728,
+      "vertexCount": 2288,
+      "segmentCount": 1144,
+      "geometryId": 26,
+      "sourceGeometrySha256": "0983807397ba4835e64ca125f25031f6a792aca8bff2335bcd5b2ef536b18bab",
+      "edgeSha256": "1a582c8cc2217ceb50cdcb921d21eb50027b870102a60c25a5b5e1564bbe19ce",
+      "bounds": [
+        [
+          -0.07689999788999557,
+          -0.09580747038125992,
+          0.10965760052204132
+        ],
+        [
+          0.1168999969959259,
+          0.09580747038125992,
+          0.11288592219352722
+        ]
+      ]
+    },
+    {
+      "byteOffset": 554184,
+      "vertexCount": 52156,
+      "segmentCount": 26078,
+      "geometryId": 27,
+      "sourceGeometrySha256": "b0e3dbc2b0db03ec43a76901e6cd39300bd96521aefd0cf2cf84db837764365f",
+      "edgeSha256": "f5aa93d62890e25a75afbfaa9133cdd9b03f654923aa382c046732c06cd8ae33",
+      "bounds": [
+        [
+          -0.07884570956230164,
+          -0.09858417510986328,
+          0.10936099290847778
+        ],
+        [
+          0.12939999997615814,
+          0.11220883578062057,
+          0.1690099835395813
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1180056,
+      "vertexCount": 5936,
+      "segmentCount": 2968,
+      "geometryId": 28,
+      "sourceGeometrySha256": "15184ea1bab3612903c0b97c5b13767ddd3650ea6a15515812e430c58cf11e26",
+      "edgeSha256": "f09db8751183d6e7d31f49162f8f700be32a7226db8500f70635b51840c1c5a6",
+      "bounds": [
+        [
+          0.11599999666213989,
+          -0.05728799104690552,
+          0.1218552440404892
+        ],
+        [
+          0.12919999659061432,
+          0.05761472135782242,
+          0.16795803606510162
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1251288,
+      "vertexCount": 2520,
+      "segmentCount": 1260,
+      "geometryId": 29,
+      "sourceGeometrySha256": "ce3e71e05165c675773d4a49af0319ee1e38993fa5d7d05962168f04be154c63",
+      "edgeSha256": "03c9a43fbe1593ab6d673f8619448de3f06c1514b49828e02091aa78d1265040",
+      "bounds": [
+        [
+          0.05999999865889549,
+          -0.03236975148320198,
+          0.1520099639892578
+        ],
+        [
+          0.10000000149011612,
+          0.03236975148320198,
+          0.16710999608039856
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1281528,
+      "vertexCount": 7454,
+      "segmentCount": 3727,
+      "geometryId": 30,
+      "sourceGeometrySha256": "9672670bd3408a8b15848727883827ce0b3618b71c02ead0aadcf5a106217e78",
+      "edgeSha256": "d5018c07dcd4b56bbf4c12dde29a9d35dd43ecefbdb9500b65c130d8f36d2489",
+      "bounds": [
+        [
+          -0.03184065967798233,
+          0,
+          -0.014999999664723873
+        ],
+        [
+          0.032499998807907104,
+          0.004100000020116568,
+          0.016249999403953552
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1370976,
+      "vertexCount": 44,
+      "segmentCount": 22,
+      "geometryId": 31,
+      "sourceGeometrySha256": "921da0e13bb32458e7f4ee84f5d27bfe935eae528c54e591e63d329bcf501649",
+      "edgeSha256": "0f9c35718dea7e23083794a92f0727c2326e1b9cb3bd71bf09e5c0ac421d09fc",
+      "bounds": [
+        [
+          -0.031050000339746475,
+          0,
+          -0.01471762452274561
+        ],
+        [
+          0.03205984830856323,
+          0.002950000111013651,
+          0.014999999664723873
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1371504,
+      "vertexCount": 576,
+      "segmentCount": 288,
+      "geometryId": 32,
+      "sourceGeometrySha256": "3465e4aa8a7d047fe016fc1cf93217b7b4ab7e71cb22ab0eb824c42fd5362afb",
+      "edgeSha256": "8a93e6f94a2440a374e7a2b9a1eb4ba59f8c3e957599c44af430cf3489b2bb35",
+      "bounds": [
+        [
+          -0.01600000075995922,
+          0.01899999938905239,
+          -0.08527500182390213
+        ],
+        [
+          0.01600000075995922,
+          0.050999999046325684,
+          -0.07827500253915787
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1378416,
+      "vertexCount": 1320,
+      "segmentCount": 660,
+      "geometryId": 33,
+      "sourceGeometrySha256": "c7a0a8afe9dcb69f56ec8ba9731514727b1d0ce45ea87abc12e4499c08a953c2",
+      "edgeSha256": "d54768e21988eee00022c2365ed27ddbb0c18f751e390baa33e2be4799e89201",
+      "bounds": [
+        [
+          -0.016300000250339508,
+          -0.006500000134110451,
+          0
+        ],
+        [
+          0.016300000250339508,
+          0.006500000134110451,
+          0.030969999730587006
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1394256,
+      "vertexCount": 3190,
+      "segmentCount": 1595,
+      "geometryId": 34,
+      "sourceGeometrySha256": "5b3cc8fcc5c0edaea0c7a51688fc2eaa423bef942a96869c740139a9255af0f6",
+      "edgeSha256": "38465360a3417c74b3712f3b1477c5ceb5585655f52ed01f72f1b3ecbc23802a",
+      "bounds": [
+        [
+          -0.000007097226898622466,
+          -0.00001128140684159007,
+          -0.0015999993775039911
+        ],
+        [
+          0.04200226441025734,
+          0.0330103263258934,
+          0
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1432536,
+      "vertexCount": 2498,
+      "segmentCount": 1249,
+      "geometryId": 35,
+      "sourceGeometrySha256": "dffb1037afb5dd4e72d900323e57c1918a4885c9957756df126ddec10c52b0b2",
+      "edgeSha256": "538124994bbf7459169a91b392691e57a9eb990f7d860d72b62b951f3523829a",
+      "bounds": [
+        [
+          -0.02700086683034897,
+          -0.04008841514587402,
+          0.10695749521255493
+        ],
+        [
+          0.060951896011829376,
+          0.04008841514587402,
+          0.1491599977016449
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1462512,
+      "vertexCount": 2500,
+      "segmentCount": 1250,
+      "geometryId": 36,
+      "sourceGeometrySha256": "6a28068807a2472cdb0ab9ea3eaad542bbcc07683c2c7cbb6fbabb06fc359c2b",
+      "edgeSha256": "aab586ff64f20c5f64ce20eb60c74ba2440bd7b782851462853d368fa07037f6",
+      "bounds": [
+        [
+          -0.0010055762249976397,
+          -0.021869808435440063,
+          0.07995457947254181
+        ],
+        [
+          0.030985312536358833,
+          0.02308453619480133,
+          0.15215490758419037
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1492512,
+      "vertexCount": 2490,
+      "segmentCount": 1245,
+      "geometryId": 37,
+      "sourceGeometrySha256": "3cd08be231552e1164b5d0578721f26b3ca6988927b7b82e54e5d4fca71ea3a3",
+      "edgeSha256": "255265454fbe6934b23a6016bd3e67d3f01c3d044af952b88f28fa73e4508913",
+      "bounds": [
+        [
+          0.004639999940991402,
+          0.01600000075995922,
+          0.014094063080847263
+        ],
+        [
+          0.035360001027584076,
+          0.023053470999002457,
+          0.07210999727249146
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1522392,
+      "vertexCount": 2516,
+      "segmentCount": 1258,
+      "geometryId": 38,
+      "sourceGeometrySha256": "051f8ebec0648a095896be2b6422d2d82e71f813c2567142a18763bb70ed0837",
+      "edgeSha256": "1232b23e6d31a5fa647822ae0fa29024bde9368753c0991ee82b2509e85f9c61",
+      "bounds": [
+        [
+          0.004639999940991402,
+          -0.021850060671567917,
+          0.014094063080847263
+        ],
+        [
+          0.035360001027584076,
+          -0.01600000075995922,
+          0.07210999727249146
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1552584,
+      "vertexCount": 2542,
+      "segmentCount": 1271,
+      "geometryId": 39,
+      "sourceGeometrySha256": "3449a1e9e3eed4ee9ee099c1229c050ef540185fe79c1888e6db972d289ad06b",
+      "edgeSha256": "d8168fb34b7f64abea36ef09aaf08aa81d052c98f878e20b5fba8c6e8f110bf3",
+      "bounds": [
+        [
+          0.054999999701976776,
+          -0.056246962398290634,
+          -0.10000000149011612
+        ],
+        [
+          0.06499999761581421,
+          0.05634399875998497,
+          0.044655006378889084
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1583088,
+      "vertexCount": 54,
+      "segmentCount": 27,
+      "geometryId": 40,
+      "sourceGeometrySha256": "3e91b4384e00c1ea1ac1ce99aa36be2b660c5e19fcca488b8568acc61a5b58a8",
+      "edgeSha256": "587670998ab333c5588ddbb687ecc55cf9705940a1da316b83386c0f3adcc36f",
+      "bounds": [
+        [
+          0.054999999701976776,
+          0.027893133461475372,
+          -0.06433115154504776
+        ],
+        [
+          0.057999998331069946,
+          0.0482376329600811,
+          0.03471445292234421
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1583736,
+      "vertexCount": 1104,
+      "segmentCount": 552,
+      "geometryId": 41,
+      "sourceGeometrySha256": "66199c2d96f0ac7b83a9baf4a3bc4fee04cb178da22c122c159e850896f53a31",
+      "edgeSha256": "96cbe3401b2b5c96ed39c8e3de47838d6cdba53d4e13803b8015f57dcf055102",
+      "bounds": [
+        [
+          -0.018449999392032623,
+          -0.009050000458955765,
+          0
+        ],
+        [
+          0.019750000908970833,
+          0.009050000458955765,
+          0.005150000099092722
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1596984,
+      "vertexCount": 2212,
+      "segmentCount": 1106,
+      "geometryId": 42,
+      "sourceGeometrySha256": "f5cd9a68a5ce42566da4ec4830420363a94d72e9573ef2ad5326c7995e71f577",
+      "edgeSha256": "1c2179be6d06a21c8ff6be3c9123436ee85a8078f62dcbdd9bfa31c0a14f5693",
+      "bounds": [
+        [
+          -0.14866700768470764,
+          -0.04781116172671318,
+          -0.08605548739433289
+        ],
+        [
+          -0.0949999988079071,
+          0.046067528426647186,
+          0.0430000014603138
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1623528,
+      "vertexCount": 36,
+      "segmentCount": 18,
+      "geometryId": 43,
+      "sourceGeometrySha256": "abadeab081b3e9cc6636f65e464dec20999c58502e13a7d02bcd4cd94b6d335d",
+      "edgeSha256": "2930548846b766fba325fd544ae8dec8d4bc71866b9f54ae4a4ca56eac902dbc",
+      "bounds": [
+        [
+          -0.11037909984588623,
+          -0.04781116172671318,
+          -0.025267018005251884
+        ],
+        [
+          -0.0949999988079071,
+          0.03585846722126007,
+          0.041534360498189926
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1623960,
+      "vertexCount": 4946,
+      "segmentCount": 2473,
+      "geometryId": 44,
+      "sourceGeometrySha256": "14ec234f17b2d64a15d155edeb20e5422d4d2499ec62cf0469245f141110c7ec",
+      "edgeSha256": "a5021a61f4c269eff76470f7f0f181e83c9f27e9189da557afab9bc93e315555",
+      "bounds": [
+        [
+          -0.0949999988079071,
+          -0.05673280730843544,
+          -0.10000000149011612
+        ],
+        [
+          0.054999999701976776,
+          0.054999999701976776,
+          -0.013775000348687172
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1683312,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 45,
+      "sourceGeometrySha256": "45ee41109c9a3176d861be9fc02e1a73ad828d42db4ed98ce27b4f20270a1d86",
+      "edgeSha256": "a24f9a2bd80b166e6e8f58af1657816af16be13af350d2d6aa7aeae7cada0d77",
+      "bounds": [
+        [
+          -0.0949999988079071,
+          -0.04631345346570015,
+          -0.05921231210231781
+        ],
+        [
+          -0.08298934996128082,
+          0.05350567400455475,
+          -0.020016852766275406
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1683576,
+      "vertexCount": 1372,
+      "segmentCount": 686,
+      "geometryId": 46,
+      "sourceGeometrySha256": "3324796ebdd72c08407adf168d70b37ebbead5440f858a2133883c35b075a2d4",
+      "edgeSha256": "68b8d5359dfe8ecbbfb1228b044f5c9d5aaabad74d39ebb4b01ece3411d73254",
+      "bounds": [
+        [
+          -0.011704999953508377,
+          -0.0036800000816583633,
+          -0.004000000189989805
+        ],
+        [
+          0.011704999953508377,
+          0.0036800000816583633,
+          0.012839999981224537
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1700040,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 47,
+      "sourceGeometrySha256": "1a8f30f394914f03793402d0d72d235a0f629bb7250113c27329675f7a132a62",
+      "edgeSha256": "f056cb55a3e9325e293f744cea79a80753f68bfe579eb0ed8f47192402fde544",
+      "bounds": [
+        [
+          -0.009667939506471157,
+          -0.059022240340709686,
+          0
+        ],
+        [
+          0.03093206137418747,
+          -0.043172240257263184,
+          0.003599999938160181
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1700328,
+      "vertexCount": 2376,
+      "segmentCount": 1188,
+      "geometryId": 48,
+      "sourceGeometrySha256": "84c7aa3d394e1563f6212e8bc378211b548502ae7ef9c9564d23fe8dcbb186e7",
+      "edgeSha256": "7f2232e71b7920fcd56ac943dd255deb5e4e306c130ac6636cff48f1423a38a5",
+      "bounds": [
+        [
+          -0.10249999910593033,
+          -0.025699999183416367,
+          -0.07523304969072342
+        ],
+        [
+          -0.0949999988079071,
+          0.025699999183416367,
+          0.011166946962475777
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1728840,
+      "vertexCount": 2640,
+      "segmentCount": 1320,
+      "geometryId": 49,
+      "sourceGeometrySha256": "40c82e90e2dd2135f3929c163948548950820d9cdc8d4f5ba1f43e8578a5c145",
+      "edgeSha256": "5991d7ae3356910a910ffc649307ffbbaca4232eacc9ce7c9101db60472b2b38",
+      "bounds": [
+        [
+          -0.0949999988079071,
+          -0.054999999701976776,
+          -0.013775000348687172
+        ],
+        [
+          0.054999999701976776,
+          0.054999999701976776,
+          0.0430000014603138
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1760520,
+      "vertexCount": 1456,
+      "segmentCount": 728,
+      "geometryId": 50,
+      "sourceGeometrySha256": "f2e5f24c270cdf6512ac346d382010c601a19645e4a0f2f34adb858b133ff581",
+      "edgeSha256": "78cbed498a9f996fce1ef02a2e860ee90860b07dc7798318495708b84b04b701",
+      "bounds": [
+        [
+          -0.009999999776482582,
+          -0.013500000350177288,
+          0
+        ],
+        [
+          0.009999999776482582,
+          0.013500000350177288,
+          0.003000000026077032
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1777992,
+      "vertexCount": 3074,
+      "segmentCount": 1537,
+      "geometryId": 51,
+      "sourceGeometrySha256": "f7843b6ecad641fc8cd694062e7e247e19e6a7ea6e35e70f18af1967f71eb704",
+      "edgeSha256": "40a42827961783c2e1d5741c06f4766799436012376774c9baa02fa218dc3369",
+      "bounds": [
+        [
+          -0.01899999938905239,
+          -0.05262525752186775,
+          -0.08877500146627426
+        ],
+        [
+          0.035360001027584076,
+          0.03921845555305481,
+          -0.01510000042617321
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1814880,
+      "vertexCount": 14,
+      "segmentCount": 7,
+      "geometryId": 52,
+      "sourceGeometrySha256": "1d36024911fb28f205ab1ac721c9b2c28277c2a91a6bed767a5495498c480116",
+      "edgeSha256": "4f968a83735040793705899163ce6a58da2ba99c54dcdf808185dae0372a1e8f",
+      "bounds": [
+        [
+          -0.018658285960555077,
+          -0.05262525752186775,
+          -0.08856957405805588
+        ],
+        [
+          0.018032412976026535,
+          0.03921845555305481,
+          -0.08278314024209976
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1815048,
+      "vertexCount": 6546,
+      "segmentCount": 3273,
+      "geometryId": 53,
+      "sourceGeometrySha256": "11c773b4acbda570148dcb185af0fb259caf406a64f1b28efdd6f4235be93c29",
+      "edgeSha256": "e004dd9f389e85e32978a3cb1fec55b2598b5a48c5c6612d7d92924437901083",
+      "bounds": [
+        [
+          -0.09118516743183136,
+          -0.050360001623630524,
+          -0.020108623430132866
+        ],
+        [
+          0.035360001027584076,
+          0.050360001623630524,
+          0.020899999886751175
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1893600,
+      "vertexCount": 88,
+      "segmentCount": 44,
+      "geometryId": 54,
+      "sourceGeometrySha256": "36aab0792f13c342039b9bb11cea05542d6a046ed47a79235a0b99ebe4ccb93e",
+      "edgeSha256": "fcae9cdde0355d1f8f76ecb0321a015c399c46e214621d69e17b6990a8a725e4",
+      "bounds": [
+        [
+          -0.09118516743183136,
+          -0.050360001623630524,
+          -0.018222033977508545
+        ],
+        [
+          0.032591503113508224,
+          0.050360001623630524,
+          0.020792506635189056
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1894656,
+      "vertexCount": 380,
+      "segmentCount": 190,
+      "geometryId": 55,
+      "sourceGeometrySha256": "cb08f9bce551e3beef50decdfade0f4bba4dd12247fc7dddc5ae040316654d37",
+      "edgeSha256": "4a173c9de0cb3efcc5c987ea99d806d7d5aa03c632c332eb66f1265eb95405d8",
+      "bounds": [
+        [
+          -0.008999999612569809,
+          -0.008999999612569809,
+          -1.5648258244738145e-9
+        ],
+        [
+          0.008999999612569809,
+          0.009025299921631813,
+          0.06499999761581421
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1899216,
+      "vertexCount": 48,
+      "segmentCount": 24,
+      "geometryId": 56,
+      "sourceGeometrySha256": "a5390cb482c4ff1e83eae52762b4b0f293dee99770193694134dbebdb1d6bcb3",
+      "edgeSha256": "036f86b6ef1cd976bc82af5549e32f24538373694c32cc39feca68bdb2eb10c7",
+      "bounds": [
+        [
+          -0.03905847668647766,
+          0.0430244579911232,
+          0
+        ],
+        [
+          0.0369415208697319,
+          0.08402445912361145,
+          0.019999999552965164
+        ]
+      ]
+    }
+  ],
+  "meshes": {
+    "Duck_foot_assembly_01_foot_side": {
+      "byteOffset": 0,
+      "vertexCount": 2350,
+      "segmentCount": 1175,
+      "geometryId": 0
+    },
+    "Duck_foot_assembly_02_foot_bottom_tpu": {
+      "byteOffset": 28200,
+      "vertexCount": 1516,
+      "segmentCount": 758,
+      "geometryId": 1
+    },
+    "Duck_foot_assembly_03_foot_bottom_pla": {
+      "byteOffset": 46392,
+      "vertexCount": 1200,
+      "segmentCount": 600,
+      "geometryId": 2
+    },
+    "Duck_foot_assembly_04_foot_top": {
+      "byteOffset": 60792,
+      "vertexCount": 2344,
+      "segmentCount": 1172,
+      "geometryId": 3
+    },
+    "Duck_knee_and_ankle_assembly_2_01_leg_spacer": {
+      "byteOffset": 88920,
+      "vertexCount": 2546,
+      "segmentCount": 1273,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_2_02_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 119472,
+      "vertexCount": 2480,
+      "segmentCount": 1240,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_2_03_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 149232,
+      "vertexCount": 2472,
+      "segmentCount": 1236,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_2_04_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_2_05_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_2_06_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_2_06_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_2_07_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_2_07_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_2_08_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_knee_and_ankle_assembly_01_left_cache": {
+      "byteOffset": 302808,
+      "vertexCount": 2116,
+      "segmentCount": 1058,
+      "geometryId": 14
+    },
+    "Duck_knee_and_ankle_assembly_02_leg_spacer": {
+      "byteOffset": 88920,
+      "vertexCount": 2546,
+      "segmentCount": 1273,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_03_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 119472,
+      "vertexCount": 2480,
+      "segmentCount": 1240,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_04_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 149232,
+      "vertexCount": 2472,
+      "segmentCount": 1236,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_05_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_06_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_07_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_07_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_08_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_08_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_09_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_left_roll_to_pitch_assembly_01_left_roll_to_pitch": {
+      "byteOffset": 328200,
+      "vertexCount": 2824,
+      "segmentCount": 1412,
+      "geometryId": 15
+    },
+    "Duck_left_roll_to_pitch_assembly_01_left_roll_to_pitch_surface2": {
+      "byteOffset": 362088,
+      "vertexCount": 10,
+      "segmentCount": 5,
+      "geometryId": 16
+    },
+    "Duck_left_roll_to_pitch_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_left_roll_to_pitch_assembly_03_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_left_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_left_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_left_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_left_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_left_roll_to_pitch_assembly_06_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_hip_roll_assembly_01_roll_motor_bottom": {
+      "byteOffset": 362208,
+      "vertexCount": 1760,
+      "segmentCount": 880,
+      "geometryId": 17
+    },
+    "Duck_hip_roll_assembly_02_roll_motor_top": {
+      "byteOffset": 383328,
+      "vertexCount": 2994,
+      "segmentCount": 1497,
+      "geometryId": 18
+    },
+    "Duck_hip_roll_assembly_02_roll_motor_top_surface2": {
+      "byteOffset": 419256,
+      "vertexCount": 28,
+      "segmentCount": 14,
+      "geometryId": 19
+    },
+    "Duck_hip_roll_assembly_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_hip_roll_assembly_04_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_hip_roll_assembly_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_hip_roll_assembly_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_hip_roll_assembly_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_hip_roll_assembly_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_hip_roll_assembly_07_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_foot_assembly_2_01_foot_side": {
+      "byteOffset": 0,
+      "vertexCount": 2350,
+      "segmentCount": 1175,
+      "geometryId": 0
+    },
+    "Duck_foot_assembly_2_02_foot_bottom_tpu": {
+      "byteOffset": 28200,
+      "vertexCount": 1516,
+      "segmentCount": 758,
+      "geometryId": 1
+    },
+    "Duck_foot_assembly_2_03_foot_bottom_pla": {
+      "byteOffset": 46392,
+      "vertexCount": 1200,
+      "segmentCount": 600,
+      "geometryId": 2
+    },
+    "Duck_foot_assembly_2_04_foot_top": {
+      "byteOffset": 60792,
+      "vertexCount": 2344,
+      "segmentCount": 1172,
+      "geometryId": 3
+    },
+    "Duck_knee_and_ankle_assembly_4_01_leg_spacer": {
+      "byteOffset": 88920,
+      "vertexCount": 2546,
+      "segmentCount": 1273,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_4_02_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 119472,
+      "vertexCount": 2480,
+      "segmentCount": 1240,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_4_03_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 149232,
+      "vertexCount": 2472,
+      "segmentCount": 1236,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_4_04_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_4_05_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_4_06_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_4_06_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_4_07_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_4_07_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_4_08_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_knee_and_ankle_assembly_3_01_right_cache": {
+      "byteOffset": 419592,
+      "vertexCount": 2116,
+      "segmentCount": 1058,
+      "geometryId": 20
+    },
+    "Duck_knee_and_ankle_assembly_3_02_leg_spacer": {
+      "byteOffset": 88920,
+      "vertexCount": 2546,
+      "segmentCount": 1273,
+      "geometryId": 4
+    },
+    "Duck_knee_and_ankle_assembly_3_03_left_knee_to_ankle_right_sheet": {
+      "byteOffset": 119472,
+      "vertexCount": 2480,
+      "segmentCount": 1240,
+      "geometryId": 5
+    },
+    "Duck_knee_and_ankle_assembly_3_04_left_knee_to_ankle_left_sheet": {
+      "byteOffset": 149232,
+      "vertexCount": 2472,
+      "segmentCount": 1236,
+      "geometryId": 6
+    },
+    "Duck_knee_and_ankle_assembly_3_05_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_knee_and_ankle_assembly_3_06_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_knee_and_ankle_assembly_3_07_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_knee_and_ankle_assembly_3_07_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_knee_and_ankle_assembly_3_08_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_knee_and_ankle_assembly_3_08_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_knee_and_ankle_assembly_3_09_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_right_roll_to_pitch_assembly_01_right_roll_to_pitch": {
+      "byteOffset": 444984,
+      "vertexCount": 2788,
+      "segmentCount": 1394,
+      "geometryId": 21
+    },
+    "Duck_right_roll_to_pitch_assembly_01_right_roll_to_pitch_surface2": {
+      "byteOffset": 478440,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 22
+    },
+    "Duck_right_roll_to_pitch_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_right_roll_to_pitch_assembly_03_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_right_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_right_roll_to_pitch_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_right_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_right_roll_to_pitch_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_right_roll_to_pitch_assembly_06_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_hip_roll_assembly_2_01_roll_motor_bottom": {
+      "byteOffset": 362208,
+      "vertexCount": 1760,
+      "segmentCount": 880,
+      "geometryId": 17
+    },
+    "Duck_hip_roll_assembly_2_02_roll_motor_top": {
+      "byteOffset": 383328,
+      "vertexCount": 2994,
+      "segmentCount": 1497,
+      "geometryId": 18
+    },
+    "Duck_hip_roll_assembly_2_02_roll_motor_top_surface2": {
+      "byteOffset": 419256,
+      "vertexCount": 28,
+      "segmentCount": 14,
+      "geometryId": 19
+    },
+    "Duck_hip_roll_assembly_2_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_hip_roll_assembly_2_04_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_hip_roll_assembly_2_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_hip_roll_assembly_2_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_hip_roll_assembly_2_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_hip_roll_assembly_2_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_hip_roll_assembly_2_07_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_left_antenna_holder_01_antenna": {
+      "byteOffset": 478584,
+      "vertexCount": 524,
+      "segmentCount": 262,
+      "geometryId": 23
+    },
+    "Duck_left_antenna_holder_02_left_antenna_holder": {
+      "byteOffset": 484872,
+      "vertexCount": 1744,
+      "segmentCount": 872,
+      "geometryId": 24
+    },
+    "Duck_right_antenna_holder_01_right_antenna_holder": {
+      "byteOffset": 505800,
+      "vertexCount": 1744,
+      "segmentCount": 872,
+      "geometryId": 25
+    },
+    "Duck_right_antenna_holder_02_antenna": {
+      "byteOffset": 478584,
+      "vertexCount": 524,
+      "segmentCount": 262,
+      "geometryId": 23
+    },
+    "Duck_head_assembly_01_head_bot_sheet": {
+      "byteOffset": 526728,
+      "vertexCount": 2288,
+      "segmentCount": 1144,
+      "geometryId": 26
+    },
+    "Duck_head_assembly_02_head": {
+      "byteOffset": 554184,
+      "vertexCount": 52156,
+      "segmentCount": 26078,
+      "geometryId": 27
+    },
+    "Duck_head_assembly_02_head_surface2": {
+      "byteOffset": 1180056,
+      "vertexCount": 5936,
+      "segmentCount": 2968,
+      "geometryId": 28
+    },
+    "Duck_head_assembly_03_head_roll_mount": {
+      "byteOffset": 1251288,
+      "vertexCount": 2520,
+      "segmentCount": 1260,
+      "geometryId": 29
+    },
+    "Duck_head_assembly_04_raspberrypizerow": {
+      "byteOffset": 1281528,
+      "vertexCount": 7454,
+      "segmentCount": 3727,
+      "geometryId": 30
+    },
+    "Duck_head_assembly_04_raspberrypizerow_surface2": {
+      "byteOffset": 1370976,
+      "vertexCount": 44,
+      "segmentCount": 22,
+      "geometryId": 31
+    },
+    "Duck_head_assembly_05_roll_bearing": {
+      "byteOffset": 1371504,
+      "vertexCount": 576,
+      "segmentCount": 288,
+      "geometryId": 32
+    },
+    "Duck_head_assembly_06_sg90": {
+      "byteOffset": 1378416,
+      "vertexCount": 1320,
+      "segmentCount": 660,
+      "geometryId": 33
+    },
+    "Duck_head_assembly_07_sg90": {
+      "byteOffset": 1378416,
+      "vertexCount": 1320,
+      "segmentCount": 660,
+      "geometryId": 33
+    },
+    "Duck_head_assembly_08_board": {
+      "byteOffset": 1394256,
+      "vertexCount": 3190,
+      "segmentCount": 1595,
+      "geometryId": 34
+    },
+    "Duck_head_assembly_09_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_head_assembly_10_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_head_assembly_11_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_head_assembly_11_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_head_assembly_12_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_head_assembly_12_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_head_assembly_13_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_neck_yaw_assembly_01_head_yaw_to_roll": {
+      "byteOffset": 1432536,
+      "vertexCount": 2498,
+      "segmentCount": 1249,
+      "geometryId": 35
+    },
+    "Duck_neck_yaw_assembly_02_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_neck_yaw_assembly_03_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_neck_yaw_assembly_04_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_neck_yaw_assembly_04_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_neck_yaw_assembly_05_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_neck_yaw_assembly_05_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_neck_yaw_assembly_06_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_head_pitch_to_yaw_01_head_pitch_to_yaw": {
+      "byteOffset": 1462512,
+      "vertexCount": 2500,
+      "segmentCount": 1250,
+      "geometryId": 36
+    },
+    "Duck_neck_pitch_assembly_01_neck_left_sheet": {
+      "byteOffset": 1492512,
+      "vertexCount": 2490,
+      "segmentCount": 1245,
+      "geometryId": 37
+    },
+    "Duck_neck_pitch_assembly_02_neck_right_sheet": {
+      "byteOffset": 1522392,
+      "vertexCount": 2516,
+      "segmentCount": 1258,
+      "geometryId": 38
+    },
+    "Duck_neck_pitch_assembly_03_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_neck_pitch_assembly_04_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_neck_pitch_assembly_05_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_neck_pitch_assembly_05_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_neck_pitch_assembly_06_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_neck_pitch_assembly_06_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_neck_pitch_assembly_07_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_01_body_front": {
+      "byteOffset": 1552584,
+      "vertexCount": 2542,
+      "segmentCount": 1271,
+      "geometryId": 39
+    },
+    "Duck_trunk_assembly_01_body_front_surface2": {
+      "byteOffset": 1583088,
+      "vertexCount": 54,
+      "segmentCount": 27,
+      "geometryId": 40
+    },
+    "Duck_trunk_assembly_02_usb_c_charger": {
+      "byteOffset": 1583736,
+      "vertexCount": 1104,
+      "segmentCount": 552,
+      "geometryId": 41
+    },
+    "Duck_trunk_assembly_03_body_back": {
+      "byteOffset": 1596984,
+      "vertexCount": 2212,
+      "segmentCount": 1106,
+      "geometryId": 42
+    },
+    "Duck_trunk_assembly_03_body_back_surface2": {
+      "byteOffset": 1623528,
+      "vertexCount": 36,
+      "segmentCount": 18,
+      "geometryId": 43
+    },
+    "Duck_trunk_assembly_04_body_middle_bottom": {
+      "byteOffset": 1623960,
+      "vertexCount": 4946,
+      "segmentCount": 2473,
+      "geometryId": 44
+    },
+    "Duck_trunk_assembly_04_body_middle_bottom_surface2": {
+      "byteOffset": 1683312,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 45
+    },
+    "Duck_trunk_assembly_05_power_switch": {
+      "byteOffset": 1683576,
+      "vertexCount": 1372,
+      "segmentCount": 686,
+      "geometryId": 46
+    },
+    "Duck_trunk_assembly_06_bms": {
+      "byteOffset": 1700040,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 47
+    },
+    "Duck_trunk_assembly_07_battery_pack_lid": {
+      "byteOffset": 1700328,
+      "vertexCount": 2376,
+      "segmentCount": 1188,
+      "geometryId": 48
+    },
+    "Duck_trunk_assembly_08_body_middle_top": {
+      "byteOffset": 1728840,
+      "vertexCount": 2640,
+      "segmentCount": 1320,
+      "geometryId": 49
+    },
+    "Duck_trunk_assembly_09_bno055": {
+      "byteOffset": 1760520,
+      "vertexCount": 1456,
+      "segmentCount": 728,
+      "geometryId": 50
+    },
+    "Duck_trunk_assembly_10_roll_bearing": {
+      "byteOffset": 1371504,
+      "vertexCount": 576,
+      "segmentCount": 288,
+      "geometryId": 32
+    },
+    "Duck_trunk_assembly_11_trunk_bottom": {
+      "byteOffset": 1777992,
+      "vertexCount": 3074,
+      "segmentCount": 1537,
+      "geometryId": 51
+    },
+    "Duck_trunk_assembly_11_trunk_bottom_surface2": {
+      "byteOffset": 1814880,
+      "vertexCount": 14,
+      "segmentCount": 7,
+      "geometryId": 52
+    },
+    "Duck_trunk_assembly_12_trunk_top": {
+      "byteOffset": 1815048,
+      "vertexCount": 6546,
+      "segmentCount": 3273,
+      "geometryId": 53
+    },
+    "Duck_trunk_assembly_12_trunk_top_surface2": {
+      "byteOffset": 1893600,
+      "vertexCount": 88,
+      "segmentCount": 44,
+      "geometryId": 54
+    },
+    "Duck_trunk_assembly_13_board": {
+      "byteOffset": 1394256,
+      "vertexCount": 3190,
+      "segmentCount": 1595,
+      "geometryId": 34
+    },
+    "Duck_trunk_assembly_14_roll_bearing": {
+      "byteOffset": 1371504,
+      "vertexCount": 576,
+      "segmentCount": 288,
+      "geometryId": 32
+    },
+    "Duck_trunk_assembly_15_cell": {
+      "byteOffset": 1894656,
+      "vertexCount": 380,
+      "segmentCount": 190,
+      "geometryId": 55
+    },
+    "Duck_trunk_assembly_16_holder": {
+      "byteOffset": 1899216,
+      "vertexCount": 48,
+      "segmentCount": 24,
+      "geometryId": 56
+    },
+    "Duck_trunk_assembly_17_cell": {
+      "byteOffset": 1894656,
+      "vertexCount": 380,
+      "segmentCount": 190,
+      "geometryId": 55
+    },
+    "Duck_trunk_assembly_18_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_19_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_20_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_20_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_21_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_21_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_22_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_23_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_24_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_25_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_25_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_26_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_26_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_27_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    },
+    "Duck_trunk_assembly_28_wj-wk00-0123middlecase_56": {
+      "byteOffset": 178896,
+      "vertexCount": 986,
+      "segmentCount": 493,
+      "geometryId": 7
+    },
+    "Duck_trunk_assembly_29_drive_palonier": {
+      "byteOffset": 190728,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 8
+    },
+    "Duck_trunk_assembly_30_wj-wk00-0124bottomcase_45": {
+      "byteOffset": 215064,
+      "vertexCount": 2040,
+      "segmentCount": 1020,
+      "geometryId": 9
+    },
+    "Duck_trunk_assembly_30_wj-wk00-0124bottomcase_45_surface2": {
+      "byteOffset": 239544,
+      "vertexCount": 12,
+      "segmentCount": 6,
+      "geometryId": 10
+    },
+    "Duck_trunk_assembly_31_wj-wk00-0122topcabinetcase_95": {
+      "byteOffset": 239688,
+      "vertexCount": 3210,
+      "segmentCount": 1605,
+      "geometryId": 11
+    },
+    "Duck_trunk_assembly_31_wj-wk00-0122topcabinetcase_95_surface2": {
+      "byteOffset": 278208,
+      "vertexCount": 22,
+      "segmentCount": 11,
+      "geometryId": 12
+    },
+    "Duck_trunk_assembly_32_passive_palonier": {
+      "byteOffset": 278472,
+      "vertexCount": 2028,
+      "segmentCount": 1014,
+      "geometryId": 13
+    }
+  }
+}

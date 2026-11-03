@@ -12,7 +12,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { CopyShader } from 'three/addons/shaders/CopyShader.js';
-import { childForMesh, createOffsets, positionAt, ancestors } from './model-state.js';
+import { childForMesh, createOffsets, createSeparationProfiles, positionAt, ancestors } from './model-state.js';
 import { viewingRegion } from './viewing-region.js';
 import { createPointerIntent } from './pointer-intent.js';
 import { loadBinary } from './asset-load.js';
@@ -182,6 +182,7 @@ export class AssemblyScene {
     this.modelBounds = this.boxFor([...this.meshes.values()]);
     this.addGrid(); this.active = [...this.meshes.values()];
     this.offsets = createOffsets(this.metadata.parts, this.nodes, this.rootId, this.scale, this.model.presentationPolicy);
+    this.separationProfiles = createSeparationProfiles(this.metadata.parts, this.nodes, this.rootId, this.model.presentationPolicy);
     this.outline.selectedObjects = [];
     this.ready = true; this.resize(); this.fit(false,this.defaultDirection);this.emitOperation(true); this.invalidate();
     await this.whenSettled({signal:this.abort.signal,settle:false});
@@ -363,7 +364,7 @@ export class AssemblyScene {
     this.scopeViews.set(this.scopeId,{fraction:this.explosionTarget,direction:this.currentDirection(true)});
     const returning=ancestors(this.nodes,this.scopeId).some(node=>node.id===id),remembered=returning?this.scopeViews.get(id):null;
     const view=remembered?.direction||this.currentDirection();this.scopeId=id;this.selectedId=id;this.updateContextVisibility();
-    const node=this.nodes.get(id);this.offsets=createOffsets(this.metadata.parts,this.nodes,id,this.scale,this.model.presentationPolicy);
+    const node=this.nodes.get(id);this.offsets=createOffsets(this.metadata.parts,this.nodes,id,this.scale,this.model.presentationPolicy);this.separationProfiles=createSeparationProfiles(this.metadata.parts,this.nodes,id,this.model.presentationPolicy);
     this.explosionTarget=node.type==='component'?0:remembered?.fraction||0;this.mode=this.explosionTarget>.001?'explode':'explore';
     this.separationMotion.to([this.explosionTarget],reducedMotion.matches);this.reportSeparation(this.separationMotion.values[0]);
     if(restoring)this.beginTransformTransition(this.restTargets(this.explosionTarget));else this.retargetPose(this.explosionTarget,reducedMotion.matches);
@@ -372,7 +373,7 @@ export class AssemblyScene {
 
   retargetPose(value, immediate = false) {
     this.meshes.forEach(mesh => {
-      const target = positionAt(mesh.userData.base,this.offsets.get(mesh.name),value);
+      const target = positionAt(mesh.userData.base,this.offsets.get(mesh.name),value,this.separationProfiles?.get(mesh.name));
       mesh.userData.pose.to(target,immediate);this.movingMeshes.add(mesh);
       if (immediate) mesh.position.fromArray(target);
     });
@@ -430,7 +431,7 @@ export class AssemblyScene {
 
   restTargets(fraction = 0) {
     return new Map([...this.meshes].map(([name,mesh])=>[name,{
-      position:new THREE.Vector3().fromArray(positionAt(mesh.userData.base,this.offsets.get(name),fraction)),
+      position:new THREE.Vector3().fromArray(positionAt(mesh.userData.base,this.offsets.get(name),fraction,this.separationProfiles?.get(name))),
       quaternion:mesh.userData.baseQuaternion.clone(),scale:mesh.userData.baseScale.clone()
     }]));
   }
@@ -599,7 +600,7 @@ export class AssemblyScene {
     this.scopeId=this.nodes.has(snapshot.scopeId)?snapshot.scopeId:this.rootId;
     this.selectedId=this.nodes.has(snapshot.selectedId)?snapshot.selectedId:this.scopeId;
     this.isolated=Boolean(snapshot.isolated);this.renderStyle=renderStyle;this.technical=renderStyle!=='engineering';this.mode=snapshot.mode;
-    this.scopeViews=new Map(snapshot.scopeViews);this.offsets=createOffsets(this.metadata.parts,this.nodes,this.scopeId,this.scale,this.model.presentationPolicy);
+    this.scopeViews=new Map(snapshot.scopeViews);this.offsets=createOffsets(this.metadata.parts,this.nodes,this.scopeId,this.scale,this.model.presentationPolicy);this.separationProfiles=createSeparationProfiles(this.metadata.parts,this.nodes,this.scopeId,this.model.presentationPolicy);
     this.separationAction?.clear(snapshot.explosion);this.operationPlayer.seek(snapshot.operation.progress);this.operationPlayer.setSpeed(snapshot.operation.speed);
     if(this.mode==='operate'&&this.operationSampler)this.operationSampler.sample(snapshot.operation.progress);
     else this.operationSampler?.restore();
@@ -637,7 +638,7 @@ export class AssemblyScene {
     this.tourFrame=frame;this.presentationPoseDetached=false;this.followCamera=false;this.hoveredId=null;
     this.scopeId=frame.scopeId;this.selectedId=this.nodes.has(frame.selectedId)?frame.selectedId:frame.scopeId;
     this.isolated=Boolean(frame.isolated);this.mode=mode;this.renderStyle=renderStyle;this.technical=renderStyle!=='engineering';
-    if(contextChanged){this.offsets=createOffsets(this.metadata.parts,this.nodes,this.scopeId,this.scale,this.model.presentationPolicy);this.updateContextVisibility();}
+    if(contextChanged){this.offsets=createOffsets(this.metadata.parts,this.nodes,this.scopeId,this.scale,this.model.presentationPolicy);this.separationProfiles=createSeparationProfiles(this.metadata.parts,this.nodes,this.scopeId,this.model.presentationPolicy);this.updateContextVisibility();}
     if(immediate)for(const mesh of this.meshes.values())mesh.userData.visibility.to(mesh.userData.visibility.target,true);
     if(contextChanged||appearanceChanged)this.syncEdges();
     if(appearanceChanged)this.resizeDrawingBuffer();
@@ -686,7 +687,7 @@ export class AssemblyScene {
         // Include both rest and separated positions. A close-up can begin while
         // a group is displaced, then collapse into scope without cropping or a second camera move.
         for(const amount of fraction>0?[0,fraction]:[0]){
-          const position=new THREE.Vector3().fromArray(positionAt(mesh.userData.base,this.offsets.get(name),amount));
+          const position=new THREE.Vector3().fromArray(positionAt(mesh.userData.base,this.offsets.get(name),amount,this.separationProfiles?.get(name)));
           mesh.userData.fitCorners.forEach(corner=>points.push(corner.clone().add(position)));
         }
       }
@@ -898,7 +899,7 @@ export class AssemblyScene {
     if(this.mode==='operate'||this.transformTransition)this.leaveOperation('explore',0,false);
     this.setScope(this.rootId);this.callbacks.benchmarkScope?.();this.applyFraction(0);this.explosionTarget=0;this.mode='explore';this.emitOperation(true);
     this.meshes.forEach(mesh=>{mesh.userData.visibility.to([1],true);mesh.visible=true;mesh.material.opacity=mesh.userData.baseOpacity;mesh.material.transparent=mesh.userData.baseTransparent;mesh.material.depthWrite=mesh.userData.baseDepthWrite;mesh.material.needsUpdate=true;});
-    this.fit(false,this.defaultDirection);this.outline.selectedObjects=[];
+    this.outline.selectedObjects=[];
     // Exercise selection rendering too: an unselected Engineering run skips the
     // outline pass and would under-report the cost of actually inspecting parts.
     if(['flat','engineering'].includes(presentationStyle(this))){
@@ -906,7 +907,9 @@ export class AssemblyScene {
       const focus=this.nodes.get(stageId)||[...this.nodes.values()].find(node=>node.id!==this.rootId&&node.type!=='component');
       if(focus){this.selectedId=focus.id;this.outlineKey=null;this.refreshOutline();this.callbacks.benchmarkSelection?.(focus.id);}
     }
-    this.syncLinePresentation();
+    // Selection can expand shell details and change the usable viewport. Fit
+    // after that callback so its queued layout check does not cancel this run.
+    this.fit(false,this.defaultDirection);this.syncLinePresentation();
     const layout=this.layoutRegion(),renderStyle=presentationStyle(this),stats=this.metadata.stats||{};
     this.benchmark.begin({modelId:this.model.id||'unknown',mode:renderStyle,renderStyle,quality:this.effectiveQuality,displayOptions:this.displayOptions,viewport:{width:layout.width,height:layout.height,pixelRatio:this.renderer.getPixelRatio(),renderWidth:this.renderer.domElement.width,renderHeight:this.renderer.domElement.height},modelStats:{...stats,glbBytes:stats.glbBytes||stats.bytes,edgeBytes:this.edgeBuffer?.byteLength||0,...this.lineRuntime?.stats,selectedPartCount:this.outline.selectedObjects.length,flatPartCount:renderStyle==='flat'?this.lineState?.filled.size||0:0},loadMetrics:this.loadMetrics});
     this.benchmarkStarted=performance.now();this.benchmarkBase=this.cameraMotion.values.slice();this.controls.enabled=false;this.invalidate();

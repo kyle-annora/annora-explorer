@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "id": "hexapod",
+  "rootId": "hexapod",
+  "title": "Hexapod",
+  "shortTitle": "Hexapod",
+  "assets": {
+    "model": "model.glb",
+    "compressedModel": "model.glb.gz",
+    "metadata": "metadata.json",
+    "edges": "edges.bin",
+    "compressedEdges": "edges.bin.gz",
+    "edgeMetadata": "edge-metadata.json",
+    "silhouettes": "silhouettes.bin",
+    "compressedSilhouettes": "silhouettes.bin.gz",
+    "silhouetteMetadata": "silhouette-metadata.json",
+    "license": "LICENSE.txt"
+  },
+  "view": {
+    "direction": [
+      1.5,
+      1.25,
+      1.6
+    ],
+    "normalizedWidth": 5.2,
+    "labels": [
+      "Hero",
+      "Reverse"
+    ],
+    "facts": [
+      {
+        "label": "Articulated joints",
+        "value": "18"
+      },
+      {
+        "label": "Source visuals",
+        "value": "72"
+      }
+    ]
+  },
+  "provenance": {
+    "author": "ggldnl / Hexapod contributors; display adaptation by Annora",
+    "url": "https://github.com/ggldnl/Hexapod-Hardware",
+    "license": "CERN-OHL-W-2.0",
+    "attribution": "Hexapod · ggldnl and contributors · CERN-OHL-W-2.0. Display adaptation and illustrative motion: Annora, 2026.",
+    "description": "A six-legged source assembly with eighteen revolute joints.",
+    "note": "Source hardware and joint frames are retained. Derived geometry, finishes and separation are illustrative. The single-leg clip is an authored pose study, not firmware output, gait or balance simulation."
+  },
+  "presentationPolicy": {
+    "actionDuration": 2.5,
+    "explosion": {
+      "separationProfiles": {
+        "hex-body": [
+          0,
+          0.55
+        ],
+        "hex-leg-1": [
+          0.18,
+          0.72
+        ],
+        "hex-leg-2": [
+          0.28,
+          0.85
+        ],
+        "hex-leg-3": [
+          0.4,
+          1
+        ],
+        "hex-leg-4": [
+          0.18,
+          0.72
+        ],
+        "hex-leg-5": [
+          0.28,
+          0.85
+        ],
+        "hex-leg-6": [
+          0.4,
+          1
+        ]
+      }
+    }
+  },
+  "tour": "tour.json"
+}

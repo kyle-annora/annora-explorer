@@ -32,7 +32,8 @@ test('every actual source mesh receives a finite finish without changing its sou
     for (const value of [finish.metalness, finish.roughness]) assert.ok(Number.isFinite(value) && value >= 0 && value <= 1);
     assert.deepEqual(materialSpec(record), finish);
   }
-  assert.deepEqual([...families].sort(), Object.keys(FINISHES).sort());
+  // Apollo's approved source roles stay fixed when another model adds a finish.
+  assert.deepEqual([...families].sort(), ['bronze', 'glass', 'indicator', 'machined', 'polished', 'polymer', 'satin', 'structure']);
 });
 
 test('all fifteen latch assemblies preserve the approved body, block and hardware roles', () => {

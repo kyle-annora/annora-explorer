@@ -5,6 +5,7 @@ export const FINISHES = Object.freeze({
   machined: Object.freeze({ family: 'machined', label: 'Dark machined', color: '#737981', metalness: .96, roughness: .36 }),
   polished: Object.freeze({ family: 'polished', label: 'Bright hardware', color: '#e1e4e8', metalness: 1, roughness: .21 }),
   polymer: Object.freeze({ family: 'polymer', label: 'Polymer and seals', color: '#303236', metalness: 0, roughness: .86 }),
+  coatedWhite: Object.freeze({ family: 'coatedWhite', label: 'Coated white', color: '#d9dcd8', metalness: .08, roughness: .60 }),
   glass: Object.freeze({ family: 'glass', label: 'Smoked glazing', color: '#1c3037', metalness: 0, roughness: .08 }),
   bronze: Object.freeze({ family: 'bronze', label: 'Warm bearing finish', color: '#bd9455', metalness: .96, roughness: .30 }),
   indicator: Object.freeze({ family: 'indicator', label: 'Coated surround', color: '#963d2d', metalness: 0, roughness: .44 })

@@ -37,9 +37,31 @@ export function childForMesh(nodes, scopeId, meshName) {
   return scope.children.map(id => nodes.get(id)).find(n => n.meshNames.includes(meshName)) || scope;
 }
 
-export function positionAt(base, offset, fraction) {
-  const t = Math.max(0, Math.min(1, fraction));
+/** A root presentation may reveal groups in order. Exact reverse seeks retrace
+ * the same function; no per-part clock or accumulated translation is involved. */
+export function separationProgress(fraction, interval) {
+  const value = Math.max(0, Math.min(1, fraction));
+  // A full-range/default profile retains the pre-profile interpolation exactly.
+  if (!interval || interval[0] === 0 && interval[1] === 1) return value;
+  const local = Math.max(0, Math.min(1, (value - interval[0]) / (interval[1] - interval[0])));
+  return local * local * (3 - 2 * local);
+}
+
+export function positionAt(base, offset, fraction, interval) {
+  const t = separationProgress(fraction, interval);
   return base.map((n, i) => n + offset[i] * t);
+}
+
+/** Resolve once per scope change. A leaf overrides its nearest authored parent.
+ * Inside an inspected branch, its own separation uses the full local range:
+ * timing from siblings outside that branch must not create an unresponsive gap. */
+export function createSeparationProfiles(parts, nodes, scopeId, policy = {}) {
+  const profiles = policy.explosion?.separationProfiles;
+  if (!profiles || nodes.get(scopeId)?.parent !== null) return new Map();
+  return new Map(parts.flatMap(part => {
+    const owner = ancestors(nodes, part.id).reverse().find(node => Object.hasOwn(profiles, node.id));
+    return owner ? [[part.meshName, Object.freeze([...profiles[owner.id]])]] : [];
+  }));
 }
 
 export function createOffsets(parts, nodes, scopeId, scale, policy = {}) {

@@ -229,6 +229,10 @@ test('chapter descriptors and chapter seeks preserve authoring semantics includi
   const f = fixture();
   const tour = (await f.command('getTour', { tourId: f.tour.tour.id })).payload.result;
   assert.equal(tour.chapters[1].previewAt, f.tour.tour.chapters[1].previewAt);
+  assert.equal(tour.chapters[1].title, f.tour.tour.chapters[1].title);
+  assert.equal(tour.chapters[1].caption, f.tour.tour.chapters[1].caption);
+  assert.equal('camera' in tour.chapters[1], false);
+  assert.equal('highlightIds' in tour.chapters[1], false);
   f.tour.player.reducedMotion = true;
   await f.command('startTour', { tourId: tour.id });
   const chapter = tour.chapters[1];

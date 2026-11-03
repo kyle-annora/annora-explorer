@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "open-duck",
+  "rootId": "open-duck",
+  "title": "Open Duck Mini v2",
+  "shortTitle": "Open Duck",
+  "assets": {
+    "model": "model.glb",
+    "compressedModel": "model.glb.gz",
+    "metadata": "metadata.json",
+    "edges": "edges.bin",
+    "compressedEdges": "edges.bin.gz",
+    "edgeMetadata": "edge-metadata.json",
+    "silhouettes": "silhouettes.bin",
+    "compressedSilhouettes": "silhouettes.bin.gz",
+    "silhouetteMetadata": "silhouette-metadata.json",
+    "license": "LICENSE.txt"
+  },
+  "view": {
+    "direction": [
+      1.5,
+      0.85,
+      1.5
+    ],
+    "normalizedWidth": 4.4,
+    "labels": [
+      "Hero",
+      "Reverse"
+    ],
+    "facts": [
+      {
+        "label": "Articulated joints",
+        "value": "16"
+      },
+      {
+        "label": "Source visuals",
+        "value": "131"
+      }
+    ]
+  },
+  "provenance": {
+    "author": "Antoine Pirrone / Open Duck Mini contributors; display adaptation by Annora",
+    "url": "https://github.com/apirrone/Open_Duck_Mini",
+    "license": "Apache-2.0",
+    "attribution": "Open Duck Mini v2 · Antoine Pirrone and contributors · Apache-2.0. Display adaptation and authored motion: Annora, 2026.",
+    "description": "An open-source sixteen-joint biped presented as source-linked mechanical assemblies.",
+    "note": "Derived display geometry is simplified from pinned source STL files. Finishes, exploded offsets and pose animation are illustrative; not manufacturing data, learned walking or a physically balanced simulation."
+  },
+  "presentationPolicy": {
+    "actionDuration": 2.5,
+    "explosion": {
+      "separationProfiles": {
+        "duck-body": [
+          0.2,
+          0.85
+        ],
+        "duck-head": [
+          0.2,
+          0.7
+        ],
+        "duck-antennas": [
+          0.25,
+          0.9
+        ],
+        "duck-left-leg": [
+          0.35,
+          1
+        ],
+        "duck-right-leg": [
+          0.35,
+          1
+        ],
+        "duck-trunk-assembly-1-body-front": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-1-body-front-surface2": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-3-body-back": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-3-body-back-surface2": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-4-body-middle-bottom": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-4-body-middle-bottom-surface2": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-7-battery-pack-lid": [
+          0,
+          0.45
+        ],
+        "duck-trunk-assembly-8-body-middle-top": [
+          0,
+          0.45
+        ],
+        "duck-knee-and-ankle-assembly-1-left-cache": [
+          0,
+          0.45
+        ],
+        "duck-foot-assembly-1-foot-side": [
+          0,
+          0.45
+        ],
+        "duck-foot-assembly-4-foot-top": [
+          0,
+          0.45
+        ],
+        "duck-knee-and-ankle-assembly-3-1-right-cache": [
+          0,
+          0.45
+        ],
+        "duck-foot-assembly-2-1-foot-side": [
+          0,
+          0.45
+        ],
+        "duck-foot-assembly-2-4-foot-top": [
+          0,
+          0.45
+        ],
+        "duck-head-assembly-2-head": [
+          0,
+          0.45
+        ],
+        "duck-head-assembly-2-head-surface2": [
+          0,
+          0.45
+        ],
+        "duck-left-antenna-holder-1-antenna": [
+          0,
+          0.45
+        ],
+        "duck-right-antenna-holder-2-antenna": [
+          0,
+          0.45
+        ]
+      }
+    }
+  },
+  "tour": "tour.json"
+}

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
 import { PropertyBinding } from 'three';
-import { validatePackage } from '../../src/explorer/model-validation.js';
+import { validatePackage, validateSeparationProfiles } from '../../src/explorer/model-validation.js';
 import { buildHierarchy } from '../../src/explorer/model-state.js';
 import { sampleTour } from '../../src/explorer/tour-content.js';
 import { featurePolicy } from '../../src/explorer/project-features.js';
@@ -44,7 +44,8 @@ function validatePolicy(policy = {}, metadata, rootId) {
     }
   }
   if (policy.explosion) {
-    const explosion = policy.explosion; keys(explosion, ['rootVectors', 'radial', 'scopeFactors'], 'presentationPolicy.explosion');
+    const explosion = policy.explosion; keys(explosion, ['rootVectors', 'radial', 'scopeFactors', 'separationProfiles'], 'presentationPolicy.explosion');
+    validateSeparationProfiles(explosion.separationProfiles, ids);
     for (const [key, value] of Object.entries(explosion.rootVectors || {})) { groupId(key, 'explosion.rootVectors'); vector(value, 'root explosion vector'); }
     for (const [key, value] of Object.entries(explosion.scopeFactors || {})) { requireValue(ids.has(key), `explosion.scopeFactors references an unknown component: ${key}`); vector(value, 'scope explosion factors'); }
     if (explosion.radial) { const radial = explosion.radial; keys(radial, ['group', 'origin', 'factors'], 'explosion.radial'); groupId(radial.group, 'explosion.radial'); vector(radial.origin, 'radial origin'); vector(radial.factors, 'radial factors'); }

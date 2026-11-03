@@ -121,19 +121,21 @@
         <nav id="component-tree" aria-label="Parts and assemblies"></nav>
         <div class="index-footer"><span id="model-count">Select an item. Inspect to enter.</span></div>
       </aside>
-      <button id="tour-start" class="tour-entry floating-panel" type="button" disabled><svg aria-hidden="true"><use href="#i-play"/></svg><span>Start guided tour</span><span id="tour-duration" class="tour-duration">60 sec</span></button>
+      <button id="tour-start" class="tour-entry floating-panel" type="button" disabled><svg aria-hidden="true"><use href="#i-play"/></svg><span>Play presentation</span><span id="tour-duration" class="tour-duration">—</span></button>
       </div>
 
-      <section id="tour-panel" class="tour-panel floating-panel" aria-label="Guided assembly tour" hidden>
+      <section id="tour-panel" class="tour-panel" aria-label="Assembly presentation" hidden>
+        <div id="tour-copy" class="tour-copy">
         <div class="tour-heading">
           <button id="tour-chapters-toggle" class="tour-chapters-toggle" type="button" aria-label="Choose tour chapter" aria-expanded="false" aria-controls="tour-chapters"><span id="tour-count">01 / 06</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></button>
-          <h2 id="tour-title">See how it works.</h2>
-          <button id="tour-exit" class="icon-button" type="button" title="Return to explorer" aria-label="Return to explorer"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+          <span class="tour-mode-label">PRESENTATION</span>
         </div>
+        <h2 id="tour-title">See how it works.</h2>
         <p id="tour-caption" class="tour-caption" aria-live="polite" aria-atomic="true">Follow the assembly from its complete form to its moving parts.</p>
-        <p id="tour-status" class="tour-status" role="status">Drag the model to pause and explore.</p>
+        </div>
         <nav id="tour-chapters" class="tour-chapters floating-panel" aria-label="Tour chapters" hidden></nav>
-        <div class="tour-transport">
+        <div class="tour-transport floating-panel">
+          <div class="tour-transport-heading"><span id="tour-status" class="tour-status" role="status">Drag the model to pause and explore.</span><button id="tour-exit" class="icon-button" type="button" title="Return to explorer" aria-label="Return to explorer"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>
           <div class="tour-playback">
             <button id="tour-prev" class="icon-button" type="button" title="Previous chapter" aria-label="Previous chapter"><svg aria-hidden="true"><use href="#i-back"/></svg></button>
             <button id="tour-play" class="play-button" type="button" aria-label="Pause guided tour"><svg aria-hidden="true"><use href="#i-pause"/></svg><span>Pause</span></button>
@@ -141,8 +143,8 @@
           </div>
           <div class="tour-timeline"><label class="sr-only" for="tour-progress">Guided tour progress</label><input id="tour-progress" type="range" min="0" max="100" step="0.1" value="0"><output id="tour-time" for="tour-progress">0:00 / 1:00</output></div>
           <div class="tour-completion">
-            <button id="tour-replay" class="tour-replay" type="button" hidden><svg aria-hidden="true"><use href="#i-reset"/></svg><span>Replay</span></button>
-            <button id="tour-explore" class="accent-button" type="button" hidden><span>Explore this assembly</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            <button id="tour-replay" class="tour-replay" type="button" aria-label="Replay presentation" hidden><svg aria-hidden="true"><use href="#i-reset"/></svg><span>Replay</span></button>
+            <button id="tour-explore" class="tour-free" type="button" hidden><span>Explore freely</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
           </div>
         </div>
       </section>
@@ -205,6 +207,7 @@
     <footer class="app-footer">
       <div class="footer-status"><span class="status-dot"></span><span id="status-message" role="status" aria-live="polite">Preparing model</span></div>
       <div class="footer-utilities">
+        <a id="presentation-media-link" class="presentation-media-link" hidden aria-label="Presentation film and keyframes"><svg><use href="#i-play"/></svg><span>Media</span></a>
         <button id="perf-toggle" class="performance-toggle" type="button" aria-expanded="false" aria-controls="perf-panel" aria-label="Performance check" title="Performance check"><svg><use href="#i-performance"/></svg><span>Performance</span></button>
         <button type="button" class="source-button" id="open-sources" aria-label="Model source and material information"><span>Smithsonian · Project Egress</span><svg><use href="#i-info"/></svg></button>
       </div>

@@ -1,0 +1,859 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "1f2eefe0a0bdffcd09b70f4850a955a225f7974801dfc15122e3a52b818081e0"
+  },
+  "edges": {
+    "file": "edges.bin",
+    "compressedFile": "edges.bin.gz",
+    "compression": "gzip",
+    "format": "float32-le",
+    "coordinates": "mesh-local",
+    "topology": "line-segments",
+    "creaseAngle": 32,
+    "sha256": "4c70243bdfe97d29277b78d31d489507391ab36669db1d6e11e919ab1c5d9415"
+  },
+  "stats": {
+    "meshCount": 92,
+    "uniqueGeometryCount": 14,
+    "bytes": 1110912,
+    "uniqueSegments": 46288
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "vertexCount": 2802,
+      "segmentCount": 1401,
+      "geometryId": 0,
+      "sourceGeometrySha256": "7252df180d17c0dc62d9677223b657515f2646379512a98df5454c863fdc9977",
+      "edgeSha256": "b6f653efeed0df98c1d51398cf254ef9921a5ce26306d06334a2851f6e31b810",
+      "bounds": [
+        [
+          -55.22688293457031,
+          -66,
+          -3.5999999046325684
+        ],
+        [
+          55.22688293457031,
+          66,
+          6
+        ]
+      ]
+    },
+    {
+      "byteOffset": 33624,
+      "vertexCount": 61430,
+      "segmentCount": 30715,
+      "geometryId": 1,
+      "sourceGeometrySha256": "6a46c625b2f39c3ba302f4b7e935613f0116e9a58d0f96811bfdaf03ed11f245",
+      "edgeSha256": "d4655e30fee181404c520e08b82ccb69e2f34de76a430251c80847c78a024438",
+      "bounds": [
+        [
+          -29.1823787689209,
+          -45.25558090209961,
+          -1.2250478267669678
+        ],
+        [
+          52.08761978149414,
+          88.64231872558594,
+          18.67496109008789
+        ]
+      ]
+    },
+    {
+      "byteOffset": 770784,
+      "vertexCount": 5002,
+      "segmentCount": 2501,
+      "geometryId": 2,
+      "sourceGeometrySha256": "19dc6479abf7c8cfb2d38c305548ca7cbcc100536b085bd94d244cbcdf6cccb0",
+      "edgeSha256": "33301497b4c407c357f355fff5078d13f02e1d9932f01927f8fda29c59c2a650",
+      "bounds": [
+        [
+          -27.91238021850586,
+          -44.274688720703125,
+          -0.4750478267669678
+        ],
+        [
+          50.82762145996094,
+          86.69232177734375,
+          16.725749969482422
+        ]
+      ]
+    },
+    {
+      "byteOffset": 830808,
+      "vertexCount": 10,
+      "segmentCount": 5,
+      "geometryId": 3,
+      "sourceGeometrySha256": "a417000567d839c1adb573f848dcfb44a08f39e6616d656d7d371698eebb451e",
+      "edgeSha256": "3c041fbf7b3695697e6b598966a29dd530e807f557deb457ae696e58101e6efc",
+      "bounds": [
+        [
+          33.300838470458984,
+          70.2081069946289,
+          12.944780349731445
+        ],
+        [
+          33.69818878173828,
+          70.32231903076172,
+          13.976088523864746
+        ]
+      ]
+    },
+    {
+      "byteOffset": 830928,
+      "vertexCount": 32,
+      "segmentCount": 16,
+      "geometryId": 4,
+      "sourceGeometrySha256": "f77577543b78c2acc7c3650bea5671987719ddc003008b1c9c02e655fad94e15",
+      "edgeSha256": "4b123c43c9b406d1bbbc40e77aabd5edf1163b160f4d06630b1b6bf7dfc9a47d",
+      "bounds": [
+        [
+          -3.111415997191513e-31,
+          -4.103244351548809e-32,
+          0
+        ],
+        [
+          47.5,
+          139,
+          26.600000381469727
+        ]
+      ]
+    },
+    {
+      "byteOffset": 831312,
+      "vertexCount": 5124,
+      "segmentCount": 2562,
+      "geometryId": 5,
+      "sourceGeometrySha256": "c2a342f438e41a4551c257aa3c93dc89bce53b214cd2782c64c4d60902a52ddc",
+      "edgeSha256": "24a6c4f0832ec9092d09580a95d787b81dd012d5b47305156412741864ab18d1",
+      "bounds": [
+        [
+          -55.22688293457031,
+          -80.59188079833984,
+          -2
+        ],
+        [
+          55.22688293457031,
+          80.59188079833984,
+          10
+        ]
+      ]
+    },
+    {
+      "byteOffset": 892800,
+      "vertexCount": 1222,
+      "segmentCount": 611,
+      "geometryId": 6,
+      "sourceGeometrySha256": "e43c8441221417e540a0467901812d8695d80a0bbb7533623176d1cb8baf903f",
+      "edgeSha256": "64024eb31c146800014d25abe669bf66ffeea77a6dca03d4fe7c943267bf0efc",
+      "bounds": [
+        [
+          -40.6349983215332,
+          -66,
+          0
+        ],
+        [
+          40.6349983215332,
+          66,
+          12
+        ]
+      ]
+    },
+    {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7,
+      "sourceGeometrySha256": "7050de14f1a350a5b28bc0396b9d3682deffface1ca69eb229da7654579f7e50",
+      "edgeSha256": "335c43e48b7821610b7b00fc19824e7253f8f1af42d73f6390429164528ba02e",
+      "bounds": [
+        [
+          22.899999618530273,
+          -10,
+          0
+        ],
+        [
+          28.899999618530273,
+          10,
+          42
+        ]
+      ]
+    },
+    {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8,
+      "sourceGeometrySha256": "c87c003962a1de3615179f7bba77a6e0eb4d58c2ee6c31395fb72227152519fc",
+      "edgeSha256": "1bba503d80403f01d7c86cfa7db6cefe490e2058ec4b0992593e7132d14b119b",
+      "bounds": [
+        [
+          -10,
+          -91.75,
+          -32
+        ],
+        [
+          10,
+          46,
+          10
+        ]
+      ]
+    },
+    {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9,
+      "sourceGeometrySha256": "432a1a0cda73d02dcdaedd242b1e1335bf19fdbe9b2a1bc5c605e497119139ba",
+      "edgeSha256": "b36a763ff706edef0155046cfb44fc899b9d86058c565e6167c496464094491e",
+      "bounds": [
+        [
+          -49.70261001586914,
+          -10,
+          44.55315399169922
+        ],
+        [
+          2.09738826751709,
+          10,
+          86.55315399169922
+        ]
+      ]
+    },
+    {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10,
+      "sourceGeometrySha256": "56d10434782b850ad97743aeba4063f9b4a82b66dc0470d56f1780526530cf16",
+      "edgeSha256": "702b6d307da9dd0b2e275fc864e2b19730dcd7964a425930ac5f5ada8667b70e",
+      "bounds": [
+        [
+          -7,
+          -0.018900327384471893,
+          -31.091535568237305
+        ],
+        [
+          47,
+          19.50908851623535,
+          14.051486015319824
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11,
+      "sourceGeometrySha256": "2faad0ad65d44a63c85b516ccc1fa6254574fa8cc10924d8668256d1f386f95c",
+      "edgeSha256": "57f155ff8838e845c0d2346e6435be78786dec0b86f089f7dad384870a65179f",
+      "bounds": [
+        [
+          44,
+          9.01572322845459,
+          -24.21394920349121
+        ],
+        [
+          47,
+          10.926816940307617,
+          -22.818180084228516
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12,
+      "sourceGeometrySha256": "11d72dd69c4f756a6d8856fb0ac98cb51ac7b3473b8e4e65596c744e637bc5f1",
+      "edgeSha256": "0e56e2035c737b5fcfe7ad9631dd33170e374a76b7b9b16d053ef755d607a214",
+      "bounds": [
+        [
+          -28.100000381469727,
+          -14.5,
+          0
+        ],
+        [
+          85.0999984741211,
+          14.5,
+          14
+        ]
+      ]
+    },
+    {
+      "byteOffset": 1060392,
+      "vertexCount": 4210,
+      "segmentCount": 2105,
+      "geometryId": 13,
+      "sourceGeometrySha256": "04b25c6be125fe528a679aaef62b29dd1d6e8fa423fc719d7791c0e761aced0b",
+      "edgeSha256": "861780e503bf463417f5ac1709720edcb88bc592c73eca46581ca15b43b5d3f3",
+      "bounds": [
+        [
+          -88.63500213623047,
+          -103.53732299804688,
+          0
+        ],
+        [
+          88.63500213623047,
+          103.53732299804688,
+          14
+        ]
+      ]
+    }
+  ],
+  "meshes": {
+    "Hex_top_stiffeners_1": {
+      "byteOffset": 0,
+      "vertexCount": 2802,
+      "segmentCount": 1401,
+      "geometryId": 0
+    },
+    "Hex_electronics_1": {
+      "byteOffset": 33624,
+      "vertexCount": 61430,
+      "segmentCount": 30715,
+      "geometryId": 1
+    },
+    "Hex_electronics_1_surface2": {
+      "byteOffset": 770784,
+      "vertexCount": 5002,
+      "segmentCount": 2501,
+      "geometryId": 2
+    },
+    "Hex_electronics_1_surface3": {
+      "byteOffset": 830808,
+      "vertexCount": 10,
+      "segmentCount": 5,
+      "geometryId": 3
+    },
+    "Hex_battery_1": {
+      "byteOffset": 830928,
+      "vertexCount": 32,
+      "segmentCount": 16,
+      "geometryId": 4
+    },
+    "Hex_bottom_stiffeners_1": {
+      "byteOffset": 831312,
+      "vertexCount": 5124,
+      "segmentCount": 2562,
+      "geometryId": 5
+    },
+    "Hex_battery_mount_1": {
+      "byteOffset": 892800,
+      "vertexCount": 1222,
+      "segmentCount": 611,
+      "geometryId": 6
+    },
+    "Hex_leg_1_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_1_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_1_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_1_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_1_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_1_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_1_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_1_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_1_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_1_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_1_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_1_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_1_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_1_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_2_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_2_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_2_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_2_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_2_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_2_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_2_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_2_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_2_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_2_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_2_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_2_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_3_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_3_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_3_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_3_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_3_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_3_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_3_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_3_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_3_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_3_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_3_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_3_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_4_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_4_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_4_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_4_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_4_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_4_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_4_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_4_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_4_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_4_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_4_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_4_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_5_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_5_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_5_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_5_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_5_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_5_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_5_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_5_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_5_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_5_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_5_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_5_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_coxa_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_6_femur_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_6_tibia_bracket_B_1": {
+      "byteOffset": 907464,
+      "vertexCount": 1390,
+      "segmentCount": 695,
+      "geometryId": 7
+    },
+    "Hex_leg_6_tibia_1": {
+      "byteOffset": 924144,
+      "vertexCount": 1366,
+      "segmentCount": 683,
+      "geometryId": 8
+    },
+    "Hex_leg_6_tibia_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_6_tibia_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_6_tibia_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_femur_1": {
+      "byteOffset": 1044456,
+      "vertexCount": 1328,
+      "segmentCount": 664,
+      "geometryId": 12
+    },
+    "Hex_leg_6_femur_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_6_femur_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_leg_6_femur_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_6_coxa_bracket_A_1": {
+      "byteOffset": 940536,
+      "vertexCount": 1716,
+      "segmentCount": 858,
+      "geometryId": 9
+    },
+    "Hex_leg_6_coxa_motor_1": {
+      "byteOffset": 961128,
+      "vertexCount": 6920,
+      "segmentCount": 3460,
+      "geometryId": 10
+    },
+    "Hex_leg_6_coxa_motor_1_surface2": {
+      "byteOffset": 1044168,
+      "vertexCount": 24,
+      "segmentCount": 12,
+      "geometryId": 11
+    },
+    "Hex_base_1": {
+      "byteOffset": 1060392,
+      "vertexCount": 4210,
+      "segmentCount": 2105,
+      "geometryId": 13
+    }
+  }
+}

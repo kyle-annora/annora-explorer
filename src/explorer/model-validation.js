@@ -1,3 +1,17 @@
+/** Profiles are declarative normalized intervals, addressed by existing content
+ * identities. Keep validation shared by offline configuration and browser load. */
+export function validateSeparationProfiles(profiles, ids) {
+  if (profiles === undefined) return true;
+  if (!profiles || typeof profiles !== 'object' || Array.isArray(profiles) ||
+      ![Object.prototype, null].includes(Object.getPrototypeOf(profiles))) throw new Error('separationProfiles must be an object keyed by component identity.');
+  for (const [id, interval] of Object.entries(profiles)) {
+    if (!ids.has(id)) throw new Error(`separationProfiles references an unknown component: ${id}`);
+    if (!Array.isArray(interval) || interval.length !== 2 || !interval.every(Number.isFinite) ||
+        interval[0] < 0 || interval[1] > 1 || interval[0] >= interval[1]) throw new Error(`separationProfiles.${id} needs increasing normalized [start, end] values.`);
+  }
+  return true;
+}
+
 /** Reject ambiguous geometry identity before the scene is created. */
 export function validatePackage(metadata, model) {
   if (!Array.isArray(metadata.parts) || !metadata.parts.length) throw new Error('A model package needs component records.');
@@ -33,6 +47,7 @@ export function validatePackage(metadata, model) {
   }
   const root = metadata.root || model.presentationPolicy?.root;
   if (!root?.id || root.id !== model.rootId) throw new Error('Root identity differs from the content package.');
+  validateSeparationProfiles(model.presentationPolicy?.explosion?.separationProfiles, ids);
   if (metadata.operation) {
     if (!metadata.operation.clipName || !Number.isFinite(metadata.operation.duration) || !(metadata.operation.duration > 0)) throw new Error('Operating content needs a named animation and positive duration.');
     let previous = -1;

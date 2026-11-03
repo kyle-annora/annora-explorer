@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "modelId": "open-duck",
+      "tourId": "open-duck-showcase",
+      "title": "Open Duck Mini",
+      "shortTitle": "Open Duck",
+      "description": "An open-hardware robot. A closer look at its mechanical layers.",
+      "sourceUrl": "https://github.com/apirrone/Open_Duck_Mini",
+      "attribution": "Antoine Pirrone and contributors · Apache-2.0 · Annora presentation",
+      "sourcePin": {
+        "repository": "https://github.com/mertcookimg/Open_Duck_Mini_Viewer",
+        "revision": "dfdb84ef3ae2405e5f115b32f48471331dc65d78"
+      },
+      "preparationUrl": "https://github.com/kyle-annora/annora-duck-showcase/tree/3005c25a040c488397c1f487a507aa3b7b6827fb/examples/open-duck",
+      "media": {
+        "film": "content/presentations/media/open-duck/film.mp4",
+        "gif": "content/presentations/media/open-duck/loop.gif",
+        "hero": "content/presentations/media/open-duck/hero.png",
+        "exploded": "content/presentations/media/open-duck/exploded.png",
+        "detail": "content/presentations/media/open-duck/detail.png"
+      },
+      "modelRevision": "sha256:ae7b564b2551e9ce73fe4bd4477efb480c92b30e11ad13fcaa24c8f73bf55993"
+    },
+    {
+      "modelId": "hexapod",
+      "tourId": "hexapod-showcase",
+      "title": "Hexapod",
+      "shortTitle": "Hexapod",
+      "description": "Six legs. One connected mechanical system.",
+      "sourceUrl": "https://github.com/ggldnl/Hexapod-Hardware",
+      "attribution": "ggldnl · CERN-OHL-W-2.0 · Annora presentation",
+      "sourcePin": {
+        "repository": "https://github.com/ggldnl/Hexapod-Hardware",
+        "revision": "f8ee8084d48470283d5ca23394d5a4b9590ad9e8"
+      },
+      "preparationUrl": "https://github.com/kyle-annora/annora-duck-showcase/tree/3005c25a040c488397c1f487a507aa3b7b6827fb/examples/hexapod",
+      "media": {
+        "film": "content/presentations/media/hexapod/film.mp4",
+        "gif": "content/presentations/media/hexapod/loop.gif",
+        "hero": "content/presentations/media/hexapod/hero.png",
+        "exploded": "content/presentations/media/hexapod/exploded.png",
+        "detail": "content/presentations/media/hexapod/detail.png"
+      },
+      "modelRevision": "sha256:7e90cdc60b1ea2f711ca3edd9800454654609496262ff3e03d1caf2ee8fa7f39"
+    },
+    {
+      "modelId": "dropbear",
+      "tourId": "dropbear-showcase",
+      "title": "Dropbear",
+      "shortTitle": "Dropbear",
+      "description": "A humanoid assembly, from the whole structure to one arm.",
+      "sourceUrl": "https://github.com/Hyperspawn/dropbear_urdf",
+      "attribution": "Hyperspawn and contributors · MIT · Annora presentation",
+      "sourcePin": {
+        "repository": "https://github.com/Hyperspawn/dropbear_urdf",
+        "revision": "9bac53d0dee196c62620eee9e8a0fa255a0ff5fa"
+      },
+      "preparationUrl": "https://github.com/kyle-annora/annora-duck-showcase/tree/3005c25a040c488397c1f487a507aa3b7b6827fb/examples/dropbear",
+      "media": {
+        "film": "content/presentations/media/dropbear/film.mp4",
+        "gif": "content/presentations/media/dropbear/loop.gif",
+        "hero": "content/presentations/media/dropbear/hero.png",
+        "exploded": "content/presentations/media/dropbear/exploded.png",
+        "detail": "content/presentations/media/dropbear/detail.png"
+      },
+      "modelRevision": "sha256:658960de16cd02cddf24b1d179750b2110fe062ceda5ab6bfb12c670b524843d"
+    }
+  ]
+}
