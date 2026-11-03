@@ -1,6 +1,6 @@
 # Integrated presentation review
 
-Status: release candidate validated on 2026-11-03. The publication record below
+Status: published and verified on 2026-11-03. The publication record below
 separates local verification from the deployed source revision.
 
 ## Scope
@@ -159,5 +159,12 @@ clock or runtime dependency was introduced.
 
 ### Publication
 
-The source commit, successful Pages run and final hosted route check are recorded
-in the release follow-up. Until then the checks above describe the local build.
+- Deployed source: [`d38017208b7f9586f221ded189abe86e402b58f8`](https://github.com/kyle-annora/annora-explorer/commit/d38017208b7f9586f221ded189abe86e402b58f8).
+- [GitHub Pages build and deploy](https://github.com/kyle-annora/annora-explorer/actions/runs/41723520063): both jobs succeeded.
+- The public Open Duck, Hexapod and Dropbear routes loaded their matching models,
+  reached completed presentation state, and each retained one canvas. No console
+  errors were observed on the public Open Duck and Dropbear route checks.
+- The ordinary homepage and prior business route structure are retained. This
+  documentation follow-up does not change the deployed artifact.
+- Pre-existing local README and pilot-document changes were preserved and were
+  not included in this release.
