@@ -416,3 +416,66 @@ body .tour-chapters { left:0; top:auto; bottom:calc(100% + 10px); width:min(360p
   body #tour-progress { min-width:0; }
   body #tour-time { min-width:50px; font-size:8px; }
 }
+
+/* Full assembly paths share the existing floating toolbar. */
+.scope-context { position:relative; }
+.breadcrumbs { flex-wrap:wrap; gap:0 5px; overflow:visible; }
+.breadcrumbs button,.breadcrumbs [aria-current] {
+  max-width:100%; white-space:normal; overflow-wrap:anywhere; text-align:left;
+}
+.breadcrumbs [aria-current] { padding:6px 3px; color:var(--ink); }
+.path-state { color:var(--muted); font:10px/1.4 var(--sans); white-space:nowrap; }
+.breadcrumbs .path-state { margin-inline-start:6px; }
+#path-toggle { flex:none; }
+#path-toggle svg { width:12px; height:12px; transform:rotate(90deg); }
+#path-toggle[aria-expanded=true] { background:var(--surface); color:var(--ink); }
+#path-toggle[aria-expanded=true] svg { transform:rotate(-90deg); }
+.stage-heading:has(#path-toggle[aria-expanded=true]) { z-index:18; }
+#path-panel {
+  position:absolute; top:calc(100% + 6px); left:0; width:min(320px,calc(100vw - 80px));
+  max-height:min(440px,calc(100dvh - 158px)); overflow:auto; overscroll-behavior:contain;
+  border:1px solid var(--edge-soft); background:var(--panel); box-shadow:0 8px 32px #0002;
+  color:var(--ink); font:12px/1.4 var(--sans);
+}
+.path-heading {
+  position:sticky; top:0; z-index:1; display:flex; align-items:center; justify-content:space-between;
+  min-height:40px; padding:3px 5px 3px 14px; background:var(--panel); border-bottom:1px solid var(--edge-soft);
+}
+.path-heading h2,.path-children h3 { margin:0; font:500 12px/1.4 var(--sans); }
+.path-levels,.path-options { list-style:none; margin:0; padding:6px; }
+.path-levels { counter-reset:path-level; }
+.path-levels li { counter-increment:path-level; display:flex; align-items:center; gap:6px; padding-inline:8px; }
+.path-levels li::before { content:counter(path-level,decimal-leading-zero); color:var(--faint); font:10px var(--mono); }
+.path-node,.path-options button,.path-viewing {
+  display:block; min-height:34px; padding:8px; border-radius:3px; text-align:left; overflow-wrap:anywhere;
+}
+.path-node { flex:1; min-width:0; }
+.path-node[aria-current] { font-weight:600; }
+.path-options button { width:100%; }
+.path-viewing { margin:6px 6px 0; color:var(--muted); }
+.path-children { border-top:1px solid var(--edge-soft); }
+.path-children h3 { padding:12px 14px 0; color:var(--muted); font-size:11px; }
+@media(hover:hover) {
+  #path-panel button:not(:disabled):hover { background:var(--surface-hover); color:var(--ink); }
+}
+@media(pointer:coarse), (max-width:600px) {
+  #path-panel button,#path-toggle,.scope-context #back-scope,.breadcrumbs button { min-height:44px; }
+  .scope-context #back-scope,#path-toggle,#path-close { min-width:44px; }
+}
+@media(max-width:600px) {
+  .breadcrumbs { flex-wrap:nowrap; overflow:hidden; }
+  .breadcrumbs button,.breadcrumbs .separator { display:none; }
+  .breadcrumbs [aria-current] { white-space:nowrap; }
+}
+/* Give the path its own row only when Back, the current name and Browse
+   cannot fit beside the mode controls. Embeds also reserve an Appearance button. */
+@media(max-width:360px) {
+  .stage-heading { flex-direction:column; align-items:flex-start; }
+  .scope-context { width:max-content; max-width:100%; flex:none; }
+  #path-panel { width:min(320px,calc(100vw - 28px)); max-height:min(440px,calc(100dvh - 195px)); }
+}
+@media(max-width:410px) {
+  body[data-embedded=true] .stage-heading { flex-direction:column; align-items:flex-start; }
+  body[data-embedded=true] .scope-context { width:max-content; max-width:100%; flex:none; }
+  body[data-embedded=true] #path-panel { width:min(320px,calc(100vw - 28px)); max-height:min(440px,calc(100dvh - 195px)); }
+}

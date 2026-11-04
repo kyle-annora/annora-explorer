@@ -72,7 +72,17 @@
         <button class="icon-button mobile-only" id="toggle-tree" type="button" aria-label="Open assembly index" aria-expanded="false" aria-controls="assembly-panel"><svg><use href="#i-layers"/></svg><span class="assembly-toggle-label">Parts</span></button>
         <button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset camera view" title="Reset view"><svg><use href="#i-reset"/></svg></button>
       </div>
-      <div class="scope-context"><span class="scope-label">Viewing</span><button class="icon-button" id="back-scope" type="button" aria-label="Back to parent assembly" title="Back to parent assembly" hidden><svg><use href="#i-back"/></svg></button><nav class="breadcrumbs" id="breadcrumbs" aria-label="Current viewing path"><span>Assembly</span></nav></div>
+      <div class="scope-context">
+        <button class="icon-button" id="back-scope" type="button" aria-label="Back to parent assembly" title="Back to parent assembly" hidden><svg><use href="#i-back"/></svg></button>
+        <nav class="breadcrumbs" id="breadcrumbs" aria-label="Assembly path"><span>Assembly</span></nav>
+        <button class="icon-button" id="path-toggle" type="button" aria-label="Browse assembly hierarchy" title="Browse assembly hierarchy" aria-expanded="false" aria-controls="path-panel" disabled><svg aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <section id="path-panel" class="floating-panel" role="dialog" aria-labelledby="path-title" hidden>
+          <div class="path-heading"><h2 id="path-title">Assembly hierarchy</h2><button class="icon-button" id="path-close" type="button" aria-label="Close assembly hierarchy"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>
+          <button id="path-viewing" class="path-viewing" type="button" hidden></button>
+          <ol class="path-levels" id="path-levels" aria-label="Full path"></ol>
+          <div class="path-children" id="path-children" hidden><h3 id="path-children-title">Inside this assembly</h3><ul class="path-options" id="path-options" aria-labelledby="path-children-title"></ul></div>
+        </section>
+      </div>
     </div>
 
     <div class="appearance-control">
