@@ -175,7 +175,7 @@ function disposeGeometry(root) {
   materials.forEach(material => { material.map?.dispose(); material.dispose(); });
 }
 
-export function createScene({ canvas, onTakeover, onReady, onError, onTick, onStation, onStations, onEmphasis, reducedMotion = false }) {
+export function createScene({ canvas, onTakeover, onReady, onError, onTick, onStation, onEmphasis, reducedMotion = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'default' });
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.NeutralToneMapping;
@@ -198,12 +198,12 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
   controls.maxDistance = 3;
   controls.autoRotateSpeed = .66;
   const abort = new AbortController();
-  const spatialOrbit = createSpatialOrbit({ camera, canvas, onStations, onEmphasis });
+  const spatialOrbit = createSpatialOrbit({ camera, canvas, onEmphasis });
   world.add(spatialOrbit.root);
 
   let action, surfaces, chapter = 'overview', progress = 0, shot = null, rotating = false, playing = false;
   let raf = 0, previous = null, disposed = false, ready = false, frames = 0, manualView = false;
-  let modelMeshes = [], press = null, hovering = false, focused = false, interacting = false;
+  let modelMeshes = [], press = null, hovering = false, focused = false;
 
   function wake() {
     if (!disposed && !document.hidden && !raf) raf = requestAnimationFrame(render);
@@ -216,14 +216,14 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     rotating = playing = false; manualView = true;
     controls.autoRotate = false;
     if (shot) { shot = null; surfaces.fade(1); }
+    setHover(null);
     onTakeover?.();
     wake();
   }
   controls.addEventListener('start', () => {
-    interacting = true;
     if (!press) takeover();
   });
-  controls.addEventListener('end', () => { interacting = false; wake(); });
+  controls.addEventListener('end', wake);
   function setHover(id) {
     hovering = Boolean(id);
     canvas.style.cursor = id ? 'pointer' : '';
@@ -233,49 +233,35 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     focused = Boolean(id);
     if (spatialOrbit.setFocus(id)) wake();
   }
-  // Both the adjacent HTML labels and the physical stations share a gesture
-  // owner. A stationary tap opens once; a drag or second finger claims the
-  // camera. Keyboard and assistive clicks retain native button behavior.
+  // A stationary hit opens a chapter. Dragging or a second finger takes
+  // control of the camera, including when the gesture starts on a bead.
   const pointerOptions = { capture: true, signal: abort.signal };
-  const stationLabel = target => target.closest?.('button[data-chapter-target]:not([hidden]):not(:disabled)');
   stage.addEventListener('pointerdown', event => {
     if (!event.isPrimary || event.button !== 0) {
       if (press) { press = null; takeover(); }
       return;
     }
-    const label = stationLabel(event.target);
-    const id = ready && (label?.dataset.chapterTarget || spatialOrbit.pick(event));
-    press = id ? { id, label, x: event.clientX, y: event.clientY, pointer: event.pointerId } : null;
+    const id = ready && spatialOrbit.pick(event);
+    press = id ? { id, x: event.clientX, y: event.clientY, pointer: event.pointerId } : null;
+    if (press) setHover(id);
   }, pointerOptions);
   stage.addEventListener('pointermove', event => {
     if (press && event.pointerId === press.pointer &&
         Math.hypot(event.clientX - press.x, event.clientY - press.y) > (event.pointerType === 'touch' ? 8 : 5)) {
-      if (press.label === document.activeElement) canvas.focus({ preventScroll: true });
-      press = null; setHover(null); takeover();
+      press = null; takeover();
     }
-    if (!event.buttons && event.pointerType !== 'touch') {
-      const label = stationLabel(event.target);
-      setHover(ready ? (label?.dataset.chapterTarget || spatialOrbit.pick(event)) : null);
-    }
+    if (!event.buttons && event.pointerType !== 'touch') setHover(ready ? spatialOrbit.pick(event) : null);
   }, pointerOptions);
   stage.addEventListener('pointerup', event => {
     if (!press || press.pointer !== event.pointerId) return;
-    const { id, label, x, y } = press;
+    const { id, x, y } = press;
     press = null;
+    if (event.pointerType === 'touch') setHover(null);
     if (Math.hypot(event.clientX - x, event.clientY - y) >= (event.pointerType === 'touch' ? 8 : 5)) return;
-    const hit = label
-      ? !label.hidden && !label.disabled && label.contains(document.elementFromPoint(event.clientX, event.clientY))
-      : spatialOrbit.pick(event) === id;
-    if (hit) queueMicrotask(() => { if (!disposed) onStation?.(id); });
+    if (spatialOrbit.pick(event) === id) queueMicrotask(() => { if (!disposed) onStation?.(id); });
   }, pointerOptions);
   stage.addEventListener('pointercancel', () => { press = null; setHover(null); }, pointerOptions);
   stage.addEventListener('pointerleave', () => setHover(null), pointerOptions);
-  stage.addEventListener('click', event => {
-    if (event.detail > 0 && event.target.closest?.('button[data-chapter-target]')) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  }, pointerOptions);
   controls.addEventListener('change', wake);
   canvas.addEventListener('keydown', event => {
     const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', '_'];
@@ -333,6 +319,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     if (fraction === 1) shot = null;
   }
 
+  let previousWidth = 0;
   function resize() {
     const width = canvas.clientWidth, height = canvas.clientHeight;
     if (!(width > 0 && height > 0)) return;
@@ -341,7 +328,10 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, width < 650 ? 1.75 : 1.5, Math.sqrt(2000000 / (width * height))));
     renderer.setSize(width, height, false);
-    if (!manualView) frameChapter(true);
+    // Opening Chapters changes only the stage height. Keep the current orbit
+    // angle when the index expands or collapses.
+    if (!manualView && width !== previousWidth) frameChapter(true);
+    previousWidth = width;
     wake();
   }
   const observer = new ResizeObserver(resize);
@@ -361,7 +351,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
       if (controls.autoRotate) controls.update(dt);
       if (playing) onTick?.(elapsed);
     }
-    spatialOrbit.update(dt, now, Boolean(shot || interacting || controls.autoRotate), Boolean(shot));
+    spatialOrbit.update(dt, Boolean(shot));
     renderer.render(world, camera); frames++;
     if (ready && !canvas.dataset.ready) {
       canvas.dataset.ready = 'true';

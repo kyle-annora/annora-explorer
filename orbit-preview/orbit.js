@@ -44,29 +44,18 @@ function makeArc(records, width) {
 function createOrbitGeometry() {
   const root = new THREE.Group();
   root.name = 'Orbital chapter navigation';
-  const ticks = [];
-  for (let i = 0; i < 36; i++) {
-    if (Object.values(stationAngles).some(angle => Math.abs(nearArc(i * 10, angle)) < 7)) continue;
-    const a = ringPoint(i * 10), b = a.clone();
-    const factor = i % 3 === 0 ? 1.027 : 1.013;
-    b.x *= factor; b.z *= factor;
-    ticks.push({ a, b });
-  }
-  const base = makeArc([...segments.filter(segment => segment.id === null), ...ticks], 1);
+  const base = makeArc(segments.filter(segment => segment.id === null), 1);
   root.add(base);
-  const sphere = new THREE.SphereGeometry(.005, 16, 10);
-  const torus = new THREE.TorusGeometry(.0102, .00085, 5, 36);
+  const sphere = new THREE.SphereGeometry(.0058, 16, 10);
   const stations = Object.entries(stationAngles).map(([id, angle]) => {
     const point = ringPoint(angle);
     const hitArc = segments.filter(segment => segment.id === id);
     const arc = makeArc(hitArc, 1.25);
     const beadMaterial = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false });
     const bead = new THREE.Mesh(sphere, beadMaterial);
-    const halo = new THREE.Mesh(torus, beadMaterial);
-    bead.position.copy(point); halo.position.copy(point);
-    halo.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(-.126, 1, .171).normalize());
-    bead.renderOrder = halo.renderOrder = 3;
-    root.add(arc, bead, halo);
+    bead.position.copy(point);
+    bead.renderOrder = 3;
+    root.add(arc, bead);
     let leader;
     if (detailAnchors[id]) {
       leader = makeArc([{ a: point, b: detailAnchors[id] }], 1);
@@ -74,15 +63,15 @@ function createOrbitGeometry() {
       leader.visible = false;
       root.add(leader);
     }
-    return { id, point, arc, hitArc, beadMaterial, leader, occluded: false };
+    return { id, point, arc, hitArc, beadMaterial, bead, leader };
   });
   return { root, stations, base };
 }
 
-export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
+export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
   const { root, stations, base } = createOrbitGeometry();
-  let blockers = [], enabled = false, alpha = 0, focusId = null, hoverId = null, lastOcclusion = -Infinity, lastPoints = [];
-  let published = '', lastEmphasis = null;
+  let blockers = [], enabled = false, pickable = false, alpha = 0, focusId = null, hoverId = null;
+  let lastEmphasis = null;
   const raycaster = new THREE.Raycaster();
   const screenRay = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
@@ -93,19 +82,19 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
   const closestRay = new THREE.Vector3(), closestSegment = new THREE.Vector3();
   const intersections = [];
   const cameraDirection = new THREE.Vector3();
-  const cameraAtOcclusion = new THREE.Matrix4();
   root.visible = false;
 
   function paint() {
     const emphasis = focusId || hoverId;
     if (emphasis !== lastEmphasis) { lastEmphasis = emphasis; onEmphasis?.(emphasis); }
-    base.material.opacity = alpha * .88;
+    base.material.opacity = alpha * .82;
     for (const station of stations) {
-      const highlighted = station.id === (focusId || hoverId || 'overview');
+      const highlighted = station.id === emphasis;
       station.arc.material.color.set(highlighted ? ember : graphite);
-      station.arc.material.linewidth = highlighted ? 1.65 : 1;
-      station.arc.material.opacity = alpha * (highlighted ? .98 : .88);
-      station.beadMaterial.color.set(highlighted ? ember : ink);
+      station.arc.material.linewidth = highlighted ? 1.35 : 1;
+      station.arc.material.opacity = alpha * (highlighted ? .95 : .82);
+      station.beadMaterial.color.set(highlighted || (!emphasis && station.id === 'overview') ? ember : ink);
+      station.bead.scale.setScalar(highlighted ? 1.16 : 1);
       station.beadMaterial.opacity = alpha;
       if (station.leader) {
         station.leader.visible = Boolean((focusId || hoverId) === station.id);
@@ -122,16 +111,9 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
     if (hoverId === id) return false;
     hoverId = id; paint(); return true;
   }
-  function publish(points) {
-    lastPoints = points;
-    const next = points.map(p => [p.id, p.x, p.y, p.visible, p.occluded].join(',')).join('|');
-    if (next !== published) { published = next; onStations?.(points); }
-  }
   function setEnabled(next, immediate = false) {
-    enabled = next; hoverId = null; focusId = null;
+    enabled = next; pickable = false; hoverId = null; focusId = null;
     if (immediate) alpha = Number(enabled);
-    if (!next) publish([]);
-    lastOcclusion = -Infinity;
     paint();
   }
   function blockersFrom(meshes) {
@@ -153,30 +135,19 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
     }
     return false;
   }
-  function update(dt, now, moving, settling) {
+  function update(dt, settling) {
     if (alpha !== Number(enabled)) {
       alpha = THREE.MathUtils.clamp(alpha + (enabled ? 1 : -1) * dt / .22, 0, 1);
       paint();
     }
-    if (!enabled || alpha < 1 || settling) { publish([]); return; }
-    camera.updateMatrixWorld();
-    const width = canvas.clientWidth, height = canvas.clientHeight;
-    const checkDepth = lastOcclusion === -Infinity || ((!moving || now - lastOcclusion >= 80) && !camera.matrixWorld.equals(cameraAtOcclusion));
-    if (checkDepth) {
-      lastOcclusion = now; cameraAtOcclusion.copy(camera.matrixWorld);
-    }
-    const points = stations.map(station => {
-      projected.copy(station.point).project(camera);
-      const x = Math.round((projected.x + 1) * width * 2) / 4;
-      const y = Math.round((1 - projected.y) * height * 2) / 4;
-      const inFrame = projected.z >= -1 && projected.z <= 1 && x >= 3 && x <= width - 3 && y >= 3 && y <= height - 3;
-      if (inFrame && checkDepth) station.occluded = occluded(station.point);
-      return { id: station.id, x, y, visible: inFrame && !station.occluded, occluded: inFrame && station.occluded };
-    });
-    publish(points);
+    pickable = enabled && alpha === 1 && !settling;
+  }
+  function inView(point) {
+    projected.copy(point).project(camera);
+    return Math.abs(projected.x) <= 1 && Math.abs(projected.y) <= 1 && Math.abs(projected.z) <= 1;
   }
   function pick(event) {
-    if (!enabled || alpha < 1 || !lastPoints.length) return null;
+    if (!pickable) return null;
     const rect = canvas.getBoundingClientRect();
     ndc.set(2 * (event.clientX - rect.left) / rect.width - 1, 1 - 2 * (event.clientY - rect.top) / rect.height);
     camera.updateMatrixWorld();
@@ -187,7 +158,7 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
     const hitRadius = event.pointerType === 'touch' ? 22 : 13;
     let best = null, closest = Infinity;
     for (const station of stations) {
-      if (!lastPoints.find(point => point.id === station.id)?.visible) continue;
+      if (!inView(station.point)) continue;
       const px = screenRay.ray.distanceToPoint(station.point) / worldPixel(station.point);
       if (px < hitRadius && px < closest && !occluded(station.point)) {
         best = station.id; closest = px;
@@ -196,11 +167,11 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
     if (best) return best;
     const band = event.pointerType === 'touch' ? 7 : 4;
     for (const station of stations) {
-      if (!lastPoints.find(point => point.id === station.id)?.visible) continue;
+      if (!inView(station.point)) continue;
       for (const { a, b } of station.hitArc) {
         const squared = screenRay.ray.distanceSqToSegment(a, b, closestRay, closestSegment);
         const px = Math.sqrt(squared) / worldPixel(closestSegment);
-        if (px < band && px < closest && !occluded(closestSegment)) {
+        if (px < band && px < closest && !occluded(closestSegment) && !occluded(station.point)) {
           best = station.id; closest = px;
         }
       }
@@ -210,6 +181,13 @@ export function createSpatialOrbit({ camera, canvas, onStations, onEmphasis }) {
   return {
     root, blockersFrom, setEnabled, setFocus, setHover, update, pick,
     get animating() { return alpha !== Number(enabled); },
-    stats: () => ({ alpha, stations: lastPoints, hoverId, focusId }),
+    stats: () => ({
+      alpha, hoverId, focusId,
+      stations: !pickable ? [] : stations.map(({ id, point }) => {
+        const inFrame = inView(point), blocked = inFrame && occluded(point);
+        return { id, x: (projected.x+1)*canvas.clientWidth/2, y: (1-projected.y)*canvas.clientHeight/2,
+          visible: inFrame && !blocked, occluded: blocked };
+      }),
+    }),
   };
 }

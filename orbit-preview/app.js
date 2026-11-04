@@ -1,15 +1,14 @@
 import { createScene } from './scene.js';
-import { createStationLabels } from './station-labels.js';
 
 const chapters = {
-  overview: { number: '01', title: 'Whole model', copy: 'Rotate the assembly or select a station on its orbit.' },
+  overview: { title: 'Whole model', copy: '' },
   leg: {
-    number: '02', title: 'Leg motion',
+    title: 'Leg motion',
     copy: 'Watch the three joints move together. The orange trace follows the tip of the foot.',
     phases: [[0, 'Lift the foot'], [.38, 'Reach outward'], [.69, 'Return to rest']],
   },
   electronics: {
-    number: '03', title: 'Electronics',
+    title: 'Electronics',
     copy: 'Two upper braces lift first. The board then rises from its mount above the battery.',
     phases: [[0, 'Lift the braces'], [.42, 'Raise the board'], [.90, 'Stack revealed']],
   },
@@ -17,12 +16,11 @@ const chapters = {
 const duration = 2.5;
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
-const orbit = byId('orbit-nav');
-const stations = [...orbit.querySelectorAll('button')];
+const caption = byId('orbit-caption');
+const hint = caption.textContent;
 const menu = byId('chapter-menu');
 const indexTrigger = byId('index-trigger');
 const indexButtons = [...menu.querySelectorAll('[data-index-target]')];
-const placeLabels = createStationLabels(canvas, stations, indexTrigger);
 const back = byId('back-overview');
 const rotation = byId('rotation');
 const playback = byId('playback');
@@ -30,7 +28,7 @@ const slider = byId('progress');
 const status = byId('status');
 const preference = matchMedia('(prefers-reduced-motion: reduce)');
 const fromUrl = () => Object.hasOwn(chapters, location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
-let chapter = fromUrl(), lastStation = 'overview';
+let chapter = fromUrl();
 let progress = 0, rotating = !preference.matches, playing = false, ready = false, scene;
 
 function updateTransport() {
@@ -61,29 +59,21 @@ function setPlaying(value) {
 }
 
 function present(next, focus) {
-  const previous = chapter;
   chapter = next;
   document.body.dataset.chapter = chapter;
   const detail = chapter !== 'overview';
   const item = chapters[chapter];
-  byId('chapter-index').textContent = item.number + ' / 03';
   byId('chapter-heading').textContent = item.title;
   byId('chapter-copy').textContent = item.copy;
-  orbit.inert = detail;
-  orbit.setAttribute('aria-hidden', String(detail));
-  for (const button of [...stations, ...indexButtons]) {
-    if ((button.dataset.chapterTarget || button.dataset.indexTarget) === chapter) button.setAttribute('aria-current', 'step');
+  for (const button of indexButtons) {
+    if (button.dataset.indexTarget === chapter) button.setAttribute('aria-current', 'step');
     else button.removeAttribute('aria-current');
   }
-  if (detail) lastStation = chapter;
   scene?.setChapter(chapter);
   updateProgress(0);
   scene?.setRotating(!detail && rotating);
   setPlaying(detail && !preference.matches);
-  if (focus) {
-    const target = detail ? byId('chapter-heading') : stations.find(button => button.dataset.chapterTarget === (previous === 'overview' ? lastStation : previous));
-    (target && !target.hidden ? target : indexTrigger).focus({ preventScroll: true });
-  }
+  if (focus) (detail ? byId('chapter-heading') : indexTrigger).focus({ preventScroll: true });
 }
 
 function takeover() {
@@ -102,13 +92,18 @@ function openStation(next) {
   }
   present(next, true);
 }
-for (const button of stations) {
-  const id = button.dataset.chapterTarget;
-  button.addEventListener('click', () => openStation(id));
-  button.addEventListener('focus', () => scene?.setStationFocus(button.matches(':focus-visible') ? id : null));
-  button.addEventListener('blur', () => scene?.setStationFocus(null));
+function highlightIndex() {
+  const option = menu.querySelector('button:focus-visible') || menu.querySelector('button:hover');
+  scene?.setStationFocus(menu.open && chapter === 'overview' ? option?.dataset.indexTarget || null : null);
 }
-for (const button of indexButtons) button.addEventListener('click', () => openStation(button.dataset.indexTarget));
+for (const button of indexButtons) {
+  button.addEventListener('click', () => openStation(button.dataset.indexTarget));
+  button.addEventListener('pointerenter', highlightIndex);
+  button.addEventListener('pointerleave', highlightIndex);
+  button.addEventListener('focus', highlightIndex);
+  button.addEventListener('blur', () => queueMicrotask(highlightIndex));
+}
+menu.addEventListener('toggle', highlightIndex);
 document.addEventListener('pointerdown', e => { if (!menu.contains(e.target)) menu.open = false; });
 function returnToModel() {
   if (chapter === 'overview') return;
@@ -149,7 +144,7 @@ preference.addEventListener('change', event => {
 });
 
 function enableControls(value) {
-  for (const el of [...stations, ...indexButtons, rotation, slider, playback]) el.disabled = !value;
+  for (const el of [...indexButtons, rotation, slider, playback]) el.disabled = !value;
 }
 function showError() {
   ready = false;
@@ -171,10 +166,10 @@ try {
       scene.setRotating(chapter === 'overview' && rotating);
       setPlaying(chapter !== 'overview' && !preference.matches);
     },
-    onError: showError, onTakeover: takeover, onStation: openStation, onStations: placeLabels,
+    onError: showError, onTakeover: takeover, onStation: openStation,
     onEmphasis(id) {
-      orbit.toggleAttribute('data-emphasis', Boolean(id));
-      for (const button of stations) button.toggleAttribute('data-emphasis', button.dataset.chapterTarget === id);
+      caption.textContent = id ? chapters[id].title : hint;
+      caption.toggleAttribute('data-active', Boolean(id));
     },
     onTick(dt) {
       if (!playing) return;

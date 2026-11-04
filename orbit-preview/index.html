@@ -16,50 +16,40 @@
     <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 10a8 8 0 1 1 1.8 7.3M4.5 4.5V10H10"/></symbol>
     <symbol id="i-credit" viewBox="0 0 24 24"><path d="M7 17 17 7m-9 0h9v9"/></symbol>
-    <symbol id="i-index" viewBox="0 0 24 24"><path d="M4 6.5h1m4 0h11M4 12h1m4 0h11M4 17.5h1m4 0h11"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   </svg>
   <header class="mast">
-    <div class="identity"><strong class="brand">Annora</strong><span class="mast-label">Object studies</span></div>
-    <details id="chapter-menu" class="chapter-menu">
-      <summary id="index-trigger"><svg class="icon" aria-hidden="true"><use href="#i-index"/></svg>Chapters</summary>
-      <nav id="chapter-list" aria-label="Chapter index">
-        <button type="button" data-index-target="overview" aria-current="step"><span>01</span>Whole model</button>
-        <button type="button" data-index-target="leg"><span>02</span>Leg motion</button>
-        <button type="button" data-index-target="electronics"><span>03</span>Electronics</button>
-      </nav>
-    </details>
+    <div class="identity"><span class="brand">Annora</span><h1>Hexapod</h1></div>
+    <div class="mast-nav">
+      <button id="back-overview" class="quiet-button" type="button"><svg class="icon" aria-hidden="true"><use href="#i-arrow-back"/></svg>Whole model</button>
+      <details id="chapter-menu" class="chapter-menu">
+        <summary id="index-trigger">Chapters<svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+        <nav id="chapter-list" aria-label="Chapter index">
+          <button type="button" data-index-target="overview" aria-current="step">Whole model</button>
+          <button type="button" data-index-target="leg">Leg motion</button>
+          <button type="button" data-index-target="electronics">Electronics</button>
+        </nav>
+      </details>
+    </div>
   </header>
   <main class="workspace">
-    <div class="plate">
-      <div class="plate-title"><span class="plate-subtitle">Fig. 01 <i>/</i> Robotics</span><h1>Hexapod</h1></div>
-      <button id="back-overview" class="quiet-button" type="button"><svg class="icon" aria-hidden="true"><use href="#i-arrow-back"/></svg>Whole model</button>
-    </div>
     <section class="visual-stage" aria-label="Interactive Hexapod assembly">
       <canvas id="scene" tabindex="0" aria-label="Hexapod 3D view. Drag or use arrow keys to rotate. Pinch, scroll or use plus and minus to zoom."></canvas>
-      <nav id="orbit-nav" aria-label="Explore the Hexapod chapters">
-        <button class="station" type="button" data-chapter-target="overview" aria-current="step" hidden>
-          <span class="station-tag"><span class="station-number" aria-hidden="true">01</span><span class="station-name">Whole model</span></span>
-        </button>
-        <button class="station" type="button" data-chapter-target="leg" hidden>
-          <span class="station-tag"><span class="station-number" aria-hidden="true">02</span><span class="station-name">Leg motion</span></span>
-        </button>
-        <button class="station" type="button" data-chapter-target="electronics" hidden>
-          <span class="station-tag"><span class="station-number" aria-hidden="true">03</span><span class="station-name">Electronics</span></span>
-        </button>
-      </nav>
       <div id="status" role="status">Loading model…</div>
       <noscript><div class="noscript">Enable JavaScript to explore this model.</div></noscript>
     </section>
-    <section class="chapter-dock" aria-labelledby="chapter-heading">
+    <section class="chapter-dock" aria-label="Study controls">
       <div class="chapter-story">
-        <div class="chapter-meta"><span>Chapter</span><span id="chapter-index">01 / 03</span></div>
-        <h2 id="chapter-heading" tabindex="-1">Whole model</h2>
-        <p id="chapter-copy">Choose a point on the orbit to explore the Hexapod.</p>
+        <h2 id="chapter-heading" tabindex="-1"></h2>
+        <p id="chapter-copy"></p>
       </div>
       <div class="deck">
-        <div class="overview-deck"><button id="rotation" class="control-button" type="button" aria-pressed="true">
-          <span class="transport-icon"><svg class="icon" aria-hidden="true"><use class="if-rotating" href="#i-pause"/><use class="if-still" href="#i-play"/></svg></span><span data-label>Pause rotation</span>
-        </button><span class="interaction-hint">Drag to take over</span></div>
+        <div class="overview-deck">
+          <p id="orbit-caption">Select a point on the orbit.</p>
+          <button id="rotation" class="control-button" type="button" aria-pressed="true">
+            <span class="transport-icon"><svg class="icon" aria-hidden="true"><use class="if-rotating" href="#i-pause"/><use class="if-still" href="#i-play"/></svg></span><span data-label>Pause rotation</span>
+          </button>
+        </div>
         <div class="action-deck">
           <div class="play-line"><button id="playback" class="control-button" type="button" data-mode="play">
             <span class="transport-icon"><svg class="icon" aria-hidden="true"><use class="if-play" href="#i-play"/><use class="if-pause" href="#i-pause"/><use class="if-replay" href="#i-replay"/></svg></span><span data-label>Play action</span>
@@ -67,12 +57,9 @@
           <div class="scrub-line"><input id="progress" type="range" aria-label="Action progress" min="0" max="1000" value="0" step="1"><output id="timecode" for="progress">0.0 s</output></div>
         </div>
       </div>
+      <a class="credits-link" href="./LICENSES.txt" target="_blank" rel="noopener" aria-label="Model credits and licenses">Credits<svg class="icon" aria-hidden="true"><use href="#i-credit"/></svg></a>
     </section>
   </main>
-  <footer class="credits">
-    <span>Hexapod hardware by ggldnl &amp; contributors</span>
-    <a href="./LICENSES.txt" target="_blank" rel="noopener">Model credits<svg class="icon" aria-hidden="true"><use href="#i-credit"/></svg></a>
-  </footer>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

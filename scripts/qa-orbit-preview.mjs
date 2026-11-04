@@ -9,11 +9,13 @@ const out = process.argv[3] || 'work/orbit-review';
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const report = { base, browser: browser.version(), cases: [], errors: [] };
-const station = (p, id) => p.locator('[data-chapter-target="' + id + '"]');
 const slider = p => p.locator('#progress');
 async function ready(page) {
   await page.waitForSelector('body[data-ready="true"]', { timeout: 60000 });
   assert.equal(await page.locator('canvas').count(), 1);
+  assert.equal(await page.locator('.visual-stage button, .visual-stage nav').count(), 0);
+  assert.equal(await page.locator('.visual-stage').innerText(), '');
+  assert.equal(await page.locator('#orbit-caption').evaluate(el => !el.closest('.visual-stage')), true);
 }
 async function chapter(page, id) { await page.waitForSelector('body[data-chapter="' + id + '"]'); }
 async function hit(page, selector) {
@@ -66,14 +68,10 @@ async function viaIndex(p, id) {
   await p.locator('#index-trigger').click();
   await p.locator('[data-index-target="'+id+'"]').click();
 }
-async function enter(p, id) {
-  if (await station(p,id).isVisible()) await station(p,id).click({ timeout: 1700 }).catch(() => viaIndex(p,id));
-  else await viaIndex(p,id);
-}
 async function localChapter(p, id) {
-  await enter(p,id);
+  await viaIndex(p, id);
   await chapter(p, id);
-  assert.equal(await p.locator('#orbit-nav').evaluate(el => el.inert), true);
+  assert.equal(await p.locator('#orbit-caption').isVisible(), false);
   await p.waitForFunction(() => Number(document.querySelector('#progress').value) > 80);
 }
 async function reviewDesktop() {
@@ -100,7 +98,7 @@ async function reviewDesktop() {
     await p.waitForFunction(()=>Number(document.querySelector('#progress').value)>100);
     assert.ok(Number(await slider(p).inputValue()) < 850);
     await p.keyboard.press('Escape'); await chapter(p,'overview');
-    assert.ok(await p.evaluate(id => document.activeElement.dataset.chapterTarget === id || document.activeElement.id === 'index-trigger', id));
+    assert.equal(await p.evaluate(() => document.activeElement.id), 'index-trigger');
     await p.goForward(); await chapter(p,id);
     await p.locator('#back-overview').click(); await chapter(p,'overview');
   }
@@ -114,13 +112,11 @@ async function reviewDesktop() {
 async function reviewMobile(width,height) {
   const [ctx,p]=await open(width,height,true,true);
   for (const id of ['overview','leg','electronics']) {
-    const tag = station(p,id);
-    if (await tag.isVisible()) {
-      const stationHit = await hit(p, '[data-chapter-target="'+id+'"]');
-      assert.ok(stationHit.height>=44 && stationHit.width>=44, 'station at '+width);
-      if (stationHit.hit) await tag.tap();
-      else await viaIndex(p,id);
-    } else await viaIndex(p,id);
+    await p.locator('#index-trigger').tap();
+    const link = '[data-index-target="'+id+'"]';
+    const item = await hit(p, link);
+    assert.ok(item.height>=44 && item.width>=44 && item.hit, 'Chapter target at ' + width);
+    await p.locator(link).tap();
     await chapter(p,id);
     if(id!=='overview'){
       assert.equal(await p.locator('#playback').getAttribute('data-mode'),'play');
@@ -144,33 +140,90 @@ async function reviewMobile(width,height) {
   report.cases.push(width+'×'+height+': actual touch events, all three chapter targets, reduced motion, scrub/takeover, portrait or landscape layout');
   await ctx.close();
 }
-// Read the physical anchor from its adjacent projected label, then bypass the
-// label entirely. The DOM element at the exact pick coordinate must be canvas.
-async function projectedNode(p,id) {
-  return station(p,id).evaluate(el=>{
-    const rect=document.querySelector('#scene').getBoundingClientRect();
-    return {x:rect.left+parseFloat(el.style.left)+(el.dataset.side.endsWith('left')?8:-8),y:rect.top+parseFloat(el.style.top)};
-  });
+// Find a tangible station from the rendered stage, the way a sighted visitor
+// can locate it. Focus through the index, capture its Ember emphasis, then
+// close the menu and use a real pointer or touch on the canvas.
+async function locateLeg(p) {
+  const caption = p.locator('#orbit-caption');
+  const canvas = p.locator('#scene');
+  await p.locator('#index-trigger').focus();
+  await p.keyboard.press('Enter');
+  await p.keyboard.press('Tab');
+  await p.keyboard.press('Tab');
+  assert.equal(await p.evaluate(() => document.activeElement.dataset.indexTarget), 'leg');
+  await p.waitForFunction(() => document.querySelector('#orbit-caption').textContent.trim() === 'Leg motion');
+  const rect = await canvas.boundingBox();
+  const menu = await p.locator('#chapter-list').boundingBox();
+  const bytes = await canvas.screenshot({ scale: 'css' });
+  const node = await p.evaluate(async ({data,rect,menu}) => {
+    const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,'+data)).blob());
+    const surface = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = surface.getContext('2d');
+    ctx.drawImage(bitmap,0,0);
+    const {data:pixels,width,height}=ctx.getImageData(0,0,bitmap.width,bitmap.height);
+    bitmap.close();
+    const mask = new Uint8Array(width*height);
+    for(let i=0;i<mask.length;i++){
+      const r=pixels[4*i],g=pixels[4*i+1],b=pixels[4*i+2];
+      mask[i]=Number(r>125 && r-g>55 && r-b>70);
+    }
+    // The station's filled bead produces a compact patch, while the fine
+    // adjacent track and leader draw only one or two pixels across.
+    let best=0, position=null;
+    for(let y=3;y<height-3;y++) for(let x=3;x<width-3;x++){
+      if(!mask[y*width+x]) continue;
+      const sx=rect.x+x,sy=rect.y+y;
+      if(sx>=menu.x && sx<=menu.x+menu.width && sy>=menu.y && sy<=menu.y+menu.height)continue;
+      let score=0;
+      for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++)score+=mask[(y+dy)*width+x+dx];
+      if(score>best){best=score;position={x:sx+.5,y:sy+.5};}
+    }
+    if(best<8) throw new Error('Could not find the emphasized station on the rendered track');
+    return position;
+  },{data:bytes.toString('base64'),rect,menu});
+  await p.keyboard.press('Escape');
+  assert.equal(await p.locator('#chapter-menu').getAttribute('open'),null);
+  await p.mouse.move(1,1);
+  await p.waitForFunction(() => document.querySelector('#orbit-caption').textContent.trim() !== 'Leg motion');
+  assert.match(await caption.innerText(), /orbit/i);
+  // Opening the index may reduce canvas height. At constant vertical FOV,
+  // points expand from the image center in proportion to the new height.
+  const closed = await canvas.boundingBox();
+  const scale = closed.height / rect.height;
+  const target={
+    x:closed.x+closed.width/2+(node.x-rect.x-rect.width/2)*scale,
+    y:closed.y+(node.y-rect.y)*scale,
+  };
+  assert.equal(await p.evaluate(({x,y})=>document.elementFromPoint(x,y)?.id,target),'scene');
+  return target;
 }
 async function spatialControls(width,height,touch=false) {
   const [ctx,p]=await open(width,height,touch,true);
-  const node=await projectedNode(p,'leg');
-  assert.ok(await p.evaluate(({x,y})=>document.elementFromPoint(x,y)?.id==='scene',node));
-  if (touch) await p.touchscreen.tap(node.x,node.y); else await p.mouse.click(node.x,node.y);
-  await chapter(p,'leg'); await p.locator('#back-overview').click(); await chapter(p,'overview');
-  const before=await projectedNode(p,'leg');
-  await p.locator('#scene').focus(); await p.keyboard.press('ArrowRight');
+  const node=await locateLeg(p);
+  if(touch) {
+    await p.touchscreen.tap(node.x,node.y);
+  } else {
+    await p.mouse.move(node.x,node.y);
+    await p.waitForFunction(() => document.querySelector('#orbit-caption').textContent.trim() === 'Leg motion');
+    await p.mouse.click(node.x,node.y);
+  }
+  await chapter(p,'leg');
+  await p.locator('#back-overview').click(); await chapter(p,'overview');
+  await p.locator('#scene').focus();
+  await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight');
   await p.waitForTimeout(100);
-  const after=await projectedNode(p,'leg');
-  assert.ok(Math.hypot(after.x-before.x,after.y-before.y)>2, 'station must travel with camera');
+  const moved=await locateLeg(p);
+  assert.ok(Math.hypot(moved.x-node.x,moved.y-node.y)>5, 'station should move with the camera');
   if(!touch){
-    await p.mouse.move(after.x,after.y); await p.mouse.down();
-    await p.mouse.move(after.x+85,after.y+16,{steps:8}); await p.mouse.up(); await chapter(p,'overview');
+    await p.mouse.move(moved.x,moved.y); await p.mouse.down();
+    await p.mouse.move(moved.x+80,moved.y+10,{steps:8}); await p.mouse.up();
+    await chapter(p,'overview');
     await viaIndex(p,'leg'); await chapter(p,'leg');
     await viaIndex(p,'electronics'); await chapter(p,'electronics');
     await p.locator('#back-overview').click(); await chapter(p,'overview');
   }
-  report.cases.push(width+'px: direct 3D bead pick, perspective tracking and index navigation');await ctx.close();
+  report.cases.push(width+'px: unobstructed canvas, exterior caption, rendered station tracking and direct '+(touch?'one-tap touch':'mouse pick'));
+  await ctx.close();
 }
 async function deepLink() {
   const [ctx,p] = await open(960,700,false,true,'#electronics');
