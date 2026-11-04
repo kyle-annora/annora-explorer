@@ -26,7 +26,6 @@
     {
       "modelId": "hexapod",
       "tourId": "hexapod-showcase",
-      "interactiveGuide": "hexapod-orbit-v1",
       "title": "Hexapod",
       "shortTitle": "Hexapod",
       "description": "Six legs. One connected mechanical system.",

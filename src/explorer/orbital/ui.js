@@ -1,24 +1,11 @@
 import { createOrbitalStage } from './stage.js';
 import './style.css';
 
-const actionDuration = 2.5;
-const chapters = {
-  overview: { label: 'Whole model', next: 'leg' },
-  leg: {
-    label: 'Leg motion', next: 'electronics',
-    copy: 'Three joints lift and extend the leg. The orange trace follows the tip of the foot.',
-    phases: [[0, 'Lift the foot'], [.38, 'Reach outward'], [.69, 'Return to rest']],
-  },
-  electronics: {
-    label: 'Electronics', next: 'overview',
-    copy: 'Two braces lift first. The board then rises from its mount above the battery.',
-    phases: [[0, 'Lift the braces'], [.42, 'Raise the board'], [.90, 'Stack revealed']],
-  },
-};
-const defaultHint = 'Select a point on the orbit.';
+const defaultHint = matchMedia('(hover: none)').matches
+  ? 'Tap a point to open. Hold to preview.' : 'Select a point on the orbit.';
 const icon = name => '<svg aria-hidden="true"><use href="#i-' + name + '"/></svg>';
 
-function makeControls(model) {
+function makeControls(model, chapters) {
   const header = document.createElement('header');
   header.className = 'orbital-head';
   header.innerHTML = `
@@ -26,13 +13,18 @@ function makeControls(model) {
     <nav class="orbital-nav" aria-label="Presentation navigation">
       <details id="orbit-menu"><summary>Chapters ${icon('chevron')}</summary>
         <div class="orbital-choices">
-          ${Object.entries(chapters).map(([id, chapter]) =>
-            '<button type="button" data-orbit-target="' + id + '">' + chapter.label + '</button>').join('')}
           <a class="orbital-credits" target="_blank" rel="noopener">Credits ${icon('external')}</a>
         </div>
       </details>
       <button type="button" id="orbit-exit">Explore freely ${icon('arrow')}</button>
     </nav>`;
+  const creditsLink = header.querySelector('.orbital-credits');
+  header.querySelector('.orbital-choices').classList.toggle('orbital-long-index', chapters.length > 3);
+  for (const chapter of chapters) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.dataset.orbitTarget = chapter.id;
+    button.textContent = chapter.label; creditsLink.before(button);
+  }
   header.querySelector('.orbital-identity span').textContent = document.getElementById('brand-name').textContent;
   header.querySelector('h1').textContent = model.title;
   const credits = header.querySelector('.orbital-credits');
@@ -65,12 +57,14 @@ function makeControls(model) {
   return { header, footer };
 }
 
-export function mountOrbitalUI({ explorer, chapter: initial = 'overview', navigate, exit }) {
+export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 'overview', navigate, exit }) {
+  const chapters = Object.fromEntries(guide.chapters.map((chapter, i, list) =>
+    [chapter.id, { ...chapter, next: list[(i + 1) % list.length].id }]));
   const shell = document.querySelector('.app-shell');
   const main = shell.querySelector('#main-content');
   const mount = main.querySelector('#scene');
   const oldLabel = mount.getAttribute('aria-label');
-  const { header, footer } = makeControls(explorer.model);
+  const { header, footer } = makeControls(explorer.model, guide.chapters);
   const abort = new AbortController();
   const listen = (node, type, handler, options = {}) =>
     node.addEventListener(type, handler, { ...options, signal: abort.signal });
@@ -100,11 +94,12 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
     rotation.setAttribute('aria-pressed', String(rotating));
     setTransport(rotation, rotating ? 'pause' : 'play', rotating ? 'Pause rotation' : 'Start rotation');
   }
-  function setProgress(value) {
+  function setProgress(value, sample = true) {
     progress = Math.max(0, Math.min(1, value));
-    stage?.setProgress(progress);
+    if (sample) stage?.setProgress(progress);
     slider.value = String(Math.round(progress * 1000));
     slider.style.setProperty('--position', (progress * 100) + '%');
+    const actionDuration = chapters[chapter].duration ?? 0;
     const seconds = (progress * actionDuration).toFixed(1);
     const output = seconds + ' s';
     if (time.value !== output || !slider.hasAttribute('aria-valuetext')) {
@@ -114,8 +109,13 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
     const currentPhase = chapters[chapter]?.phases?.findLast(([at]) => progress >= at)?.[1] || '';
     if (phase.textContent !== currentPhase) phase.textContent = currentPhase;
   }
+  const captionAnimations = [];
+  function stopWords() {
+    while (captionAnimations.length) captionAnimations.pop().cancel();
+  }
   function emphasize(id) {
-    caption.textContent = chapters[id]?.label || defaultHint;
+    const current = chapters[id];
+    caption.textContent = current ? [current.label, current.hint].filter(Boolean).join(' · ') : defaultHint;
     caption.toggleAttribute('data-active', Boolean(id));
   }
   function takeover() {
@@ -124,9 +124,10 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
   }
   function setChapter(id) {
     if (disposed || !Object.hasOwn(chapters, id)) return;
-    menu.open = false;
     if (id === chapter) return;
     const initialMount = chapter === undefined;
+    const frame = initialMount ? null : stage.captureChapterFrame();
+    menu.open = false;
     chapter = id;
     const record = chapters[chapter];
     document.body.dataset.orbitChapter = chapter;
@@ -139,17 +140,23 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
     next.querySelector('span').textContent = record.next === 'overview' ? 'Whole model' : 'Next: ' + chapters[record.next].label;
     emphasize(null);
     stage.setStationFocus(null);
-    stage.setChapter(id);
-    setProgress(0);
+    stage.setChapter(id, frame);
+    setProgress(0, false);
     setRotating(rotating);
     setPlaying(id !== 'overview' && !media.matches);
     const focusTarget = id === 'overview' ? initialMount ? header.querySelector('h1') : summary : find('title');
     focusTarget.focus({ preventScroll: true });
+    stopWords();
+    if (frame) {
+      const words = id === 'overview' ? [caption] : [find('title'), find('copy')];
+      for (const [index,node] of words.entries()) captionAnimations.push(node.animate(
+        [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: index ? 140 : 50, easing: 'ease-out', fill: 'backwards' }
+      ));
+    }
   }
   function requestChapter(id) {
     if (!Object.hasOwn(chapters, id)) return;
-    menu.open = false;
-    if (id === chapter) { summary.focus({ preventScroll: true }); return; }
+    if (id === chapter) { menu.open = false; summary.focus({ preventScroll: true }); return; }
     navigate(id);
   }
   function focusStation() {
@@ -161,6 +168,7 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
   function dispose() {
     if (disposed) return;
     disposed = true;
+    stopWords();
     abort.abort();
     header.remove();
     footer.remove();
@@ -177,11 +185,11 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
   mount.setAttribute('aria-label', explorer.model.title + ' presentation. Drag or use the arrow keys to orbit. Select a point or choose a chapter.');
   try {
     stage = createOrbitalStage({
-      explorer, reducedMotion: media.matches,
+      explorer, guide, getAccent, reducedMotion: media.matches,
       onTakeover: takeover, onEmphasis: emphasize, onStation: requestChapter,
       onTick(seconds) {
         if (!playing) return;
-        setProgress(progress + seconds / actionDuration);
+        setProgress(progress + seconds / chapters[chapter].duration);
         if (progress >= 1) setPlaying(false);
       },
     });
@@ -226,7 +234,7 @@ export function mountOrbitalUI({ explorer, chapter: initial = 'overview', naviga
   }, { capture: true });
   listen(media, 'change', event => {
     stage.setReducedMotion(event.matches);
-    if (event.matches) { setRotating(false); setPlaying(false); }
+    if (event.matches) { stopWords(); setRotating(false); setPlaying(false); }
   });
   listen(document, 'visibilitychange', () => { if (document.hidden && playing) setPlaying(false); });
   return { setChapter, dispose };

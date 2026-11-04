@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "modelId": "hexapod",
+  "modelRevision": "sha256:7e90cdc60b1ea2f711ca3edd9800454654609496262ff3e03d1caf2ee8fa7f39",
+  "tourId": "hexapod-showcase",
+  "entry": "default",
+  "chapters": [
+    {
+      "id": "overview",
+      "label": "Whole model",
+      "direction": [
+        0.46,
+        1.03,
+        1.6
+      ]
+    },
+    {
+      "id": "leg",
+      "label": "Leg motion",
+      "direction": [
+        1.25,
+        0.48,
+        1.68
+      ],
+      "groups": [
+        "hex-leg-1"
+      ],
+      "fill": [
+        0.91,
+        0.93
+      ],
+      "duration": 2.5,
+      "copy": "Three joints lift and extend the leg. The path follows the tip of the foot.",
+      "phases": [
+        [
+          0,
+          "Lift the foot"
+        ],
+        [
+          0.38,
+          "Reach outward"
+        ],
+        [
+          0.69,
+          "Return to rest"
+        ]
+      ],
+      "action": {
+        "type": "motion",
+        "clip": "HexapodLegReach",
+        "joints": [
+          "HexJoint_leg_1_coxa",
+          "HexJoint_leg_1_femur",
+          "HexJoint_leg_1_tibia"
+        ],
+        "trace": "Hex_leg_1_tibia_1"
+      },
+      "hint": "Follow the foot through one reach."
+    },
+    {
+      "id": "electronics",
+      "label": "Electronics",
+      "direction": [
+        1.3,
+        0.72,
+        1.77
+      ],
+      "groups": [
+        "hex-body"
+      ],
+      "fill": [
+        1.03,
+        1.12
+      ],
+      "fit": "action",
+      "duration": 2.5,
+      "copy": "Two braces lift first. The board then rises from its mount above the battery.",
+      "phases": [
+        [
+          0,
+          "Lift the braces"
+        ],
+        [
+          0.42,
+          "Raise the board"
+        ],
+        [
+          0.9,
+          "Stack revealed"
+        ]
+      ],
+      "action": {
+        "type": "separate",
+        "lifts": [
+          {
+            "meshes": [
+              "Hex_top_stiffeners_1"
+            ],
+            "vector": [
+              0,
+              0.085,
+              0
+            ],
+            "window": [
+              0.03,
+              0.53
+            ]
+          },
+          {
+            "meshes": [
+              "Hex_electronics_1",
+              "Hex_electronics_1_surface2",
+              "Hex_electronics_1_surface3"
+            ],
+            "vector": [
+              0,
+              0.044,
+              0
+            ],
+            "window": [
+              0.42,
+              0.9
+            ]
+          }
+        ],
+        "guideMesh": "Hex_top_stiffeners_1"
+      },
+      "hint": "See how the braces and board lift."
+    }
+  ],
+  "orbit": {
+    "center": [
+      0,
+      0.085,
+      0
+    ],
+    "axisU": [
+      0.333,
+      0.042,
+      0
+    ],
+    "axisV": [
+      0,
+      -0.052,
+      0.304
+    ],
+    "stations": [
+      {
+        "id": "overview",
+        "angle": 177
+      },
+      {
+        "id": "leg",
+        "angle": 301,
+        "anchor": {
+          "meshName": "Hex_leg_1_tibia_bracket_B_1"
+        }
+      },
+      {
+        "id": "electronics",
+        "angle": 83,
+        "anchor": {
+          "meshName": "Hex_electronics_1",
+          "fraction": [
+            0.5,
+            0.5,
+            1
+          ]
+        }
+      }
+    ]
+  },
+  "surface": {
+    "colors": {
+      "Printed white": "#aaafac",
+      "Graphite mechanism": "#3b3d41"
+    },
+    "footprint": {
+      "span": 0.68,
+      "feet": [
+        {
+          "tip": "Hex_leg_1_tibia_1",
+          "hip": "Hex_leg_1_coxa_motor_1"
+        },
+        {
+          "tip": "Hex_leg_2_tibia_1",
+          "hip": "Hex_leg_2_coxa_motor_1"
+        },
+        {
+          "tip": "Hex_leg_3_tibia_1",
+          "hip": "Hex_leg_3_coxa_motor_1"
+        },
+        {
+          "tip": "Hex_leg_4_tibia_1",
+          "hip": "Hex_leg_4_coxa_motor_1"
+        },
+        {
+          "tip": "Hex_leg_5_tibia_1",
+          "hip": "Hex_leg_5_coxa_motor_1"
+        },
+        {
+          "tip": "Hex_leg_6_tibia_1",
+          "hip": "Hex_leg_6_coxa_motor_1"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "modelId": "open-duck",
+  "modelRevision": "sha256:ae7b564b2551e9ce73fe4bd4477efb480c92b30e11ad13fcaa24c8f73bf55993",
+  "tourId": "open-duck-showcase",
+  "entry": "opt-in",
+  "chapters": [
+    {
+      "id": "overview",
+      "label": "Whole model",
+      "direction": [
+        1.5,
+        0.85,
+        1.5
+      ]
+    },
+    {
+      "id": "head",
+      "label": "Inside the head",
+      "direction": [
+        1.3,
+        0.64,
+        1.45
+      ],
+      "groups": [
+        "duck-head",
+        "duck-antennas"
+      ],
+      "fill": [
+        0.9,
+        0.87
+      ],
+      "fit": "action",
+      "duration": 2.5,
+      "copy": "The head shell lifts first. The controller board rises from the head assembly.",
+      "phases": [
+        [
+          0,
+          "Lift the shell"
+        ],
+        [
+          0.42,
+          "Reveal the controller"
+        ],
+        [
+          0.9,
+          "Head assembly exposed"
+        ]
+      ],
+      "action": {
+        "type": "separate",
+        "lifts": [
+          {
+            "meshes": [
+              "Duck_head_assembly_02_head",
+              "Duck_head_assembly_02_head_surface2"
+            ],
+            "vector": [
+              0,
+              0.075,
+              0
+            ],
+            "window": [
+              0.04,
+              0.56
+            ]
+          },
+          {
+            "meshes": [
+              "Duck_head_assembly_04_raspberrypizerow",
+              "Duck_head_assembly_04_raspberrypizerow_surface2"
+            ],
+            "vector": [
+              0,
+              0.032,
+              0
+            ],
+            "window": [
+              0.42,
+              0.92
+            ]
+          }
+        ]
+      },
+      "hint": "Lift the shell to see the controller."
+    },
+    {
+      "id": "leg",
+      "label": "Leg motion",
+      "direction": [
+        0.9,
+        0.46,
+        -1.48
+      ],
+      "groups": [
+        "duck-left-leg"
+      ],
+      "fill": [
+        0.87,
+        0.86
+      ],
+      "duration": 2.5,
+      "copy": "Follow the left foot as the hip, knee and ankle move through the display pose.",
+      "phases": [
+        [
+          0,
+          "Lift the foot"
+        ],
+        [
+          0.42,
+          "Read the reach"
+        ],
+        [
+          0.68,
+          "Return"
+        ]
+      ],
+      "action": {
+        "type": "motion",
+        "clip": "DuckPresentation",
+        "joints": [
+          "DuckJoint_left_hip_pitch",
+          "DuckJoint_left_knee",
+          "DuckJoint_left_ankle"
+        ],
+        "trace": "Duck_foot_assembly_03_foot_bottom_pla",
+        "window": [
+          0.49,
+          1
+        ]
+      },
+      "hint": "Follow one foot through the pose."
+    }
+  ],
+  "orbit": {
+    "center": [
+      -0.025,
+      0.2,
+      0
+    ],
+    "axisU": [
+      0.28,
+      0.035,
+      0
+    ],
+    "axisV": [
+      0,
+      -0.036,
+      0.24
+    ],
+    "stations": [
+      {
+        "id": "overview",
+        "angle": 210
+      },
+      {
+        "id": "head",
+        "angle": 112,
+        "anchor": {
+          "meshName": "Duck_head_assembly_02_head"
+        }
+      },
+      {
+        "id": "leg",
+        "angle": 325,
+        "anchor": {
+          "meshName": "Duck_foot_assembly_03_foot_bottom_pla"
+        }
+      }
+    ]
+  }
+}

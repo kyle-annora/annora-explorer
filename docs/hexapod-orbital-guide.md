@@ -2,9 +2,8 @@
 
 [Open the presentation](https://kyle-annora.github.io/annora-explorer/?model=hexapod&presentation=1) · [Open free exploration](https://kyle-annora.github.io/annora-explorer/?model=hexapod)
 
-Start with **Whole model**. The three solid points belong to a dashed track in
-the same space as the hardware. Hovering a detail point reveals the chapter
-name and a finer line to its part. Choose a point, use **Chapters**, or follow
+Start with **Whole model**. The three ring-shaped stations belong to a dashed track in
+the same space as the hardware. Hovering or holding a detail station reveals its caption, a leader and an accent outline on the referenced part. Choose a point, use **Chapters**, or follow
 the next button through the presentation:
 
 1. **Whole model** — rotate the assembly to see the track pass behind the legs.
@@ -21,7 +20,7 @@ free exploration.
 ## Integration and verification
 
 The top-level Explorer opens the guide from its usual **Play presentation**
-button or from the link above. The guide uses the current WebGL canvas, loaded
+button or from the link above. Model packages can author the same experience. See the [spatial guide contract](spatial-guides.md). The guide uses the current WebGL canvas, loaded
 model geometry, studio environment and frame loop. Its own camera and pose
 hierarchy keep inspection state separate. The demo module loads on entry and
 releases its materials, guides, controls and event listeners on exit. No

@@ -43,44 +43,58 @@ async function selectTree(page, id) {
   await page.locator('#close-tree').click();
 }
 // Use the rendered station itself. The public app does not expose a test-only picker.
-async function renderedBead(page, approximate) {
-  const png = await page.screenshot({ scale: 'css' });
-  return await page.evaluate(async ({ data, approximate }) => {
-    const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + data)).blob());
-    const ctx = new OffscreenCanvas(bitmap.width, bitmap.height).getContext('2d');
-    ctx.drawImage(bitmap, 0, 0);
-    const { data: pixels, width, height } = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
-    bitmap.close();
-    const mask = new Uint8Array(width * height);
-    for (let i = 0; i < mask.length; i++) {
-      const r = pixels[4*i], g = pixels[4*i + 1], b = pixels[4*i + 2];
-      mask[i] = approximate ? r < 105 && g < 105 && g-r > 3 && g-b > 1 : r > 120 && r-g > 55 && r-b > 65;
+async function renderedBead(page, approximate, previous) {
+  const png = await page.screenshot({scale:'css'});
+  return page.evaluate(async ({image, previous, approximate}) => {
+    async function pixels(data) {
+      const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + data)).blob());
+      const ctx = new OffscreenCanvas(bitmap.width,bitmap.height).getContext('2d');
+      ctx.drawImage(bitmap,0,0); bitmap.close();
+      return ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
     }
-    let best = -Infinity, center;
-    for (let y = 3; y < height - 3; y++) for (let x = 3; x < width - 3; x++) {
-      if (!mask[y * width + x]) continue;
-      const d = approximate ? Math.hypot(x - approximate.x, y - approximate.y) : 0;
-      if (d > 105) continue;
-      let coverage = 0;
-      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) coverage += mask[(y + dy) * width + x + dx];
-      if (coverage < 5) continue;
-      const score = coverage - d / 6;
-      if (score <= best || document.elementFromPoint(x, y)?.tagName !== 'CANVAS') continue;
-      best = score; center = { x: x + 0.5, y: y + 0.5 };
+    const {data,width,height} = await pixels(image);
+    const before = previous ? (await pixels(previous)).data : null;
+    const mask = new Uint8Array(width*height);
+    for (let i=0; i<mask.length; i++) {
+      const pos=4*i, r=data[pos], g=data[pos+1], b=data[pos+2];
+      const ink = approximate ? g<165 && r<165 && b<165 && Math.max(r,g,b)-Math.min(r,g,b)<35
+        : r>125 && r-g>45 && r-b>55;
+      mask[i] = ink && (!before || Math.abs(before[pos]-r)+Math.abs(before[pos+1]-g)+Math.abs(before[pos+2]-b)>88);
     }
-    if (!center) throw new Error('Station was not visible on the rendered canvas.');
+    // Both an arc and a station can use the accent. Look for a circular
+    // perimeter surrounded by clear space, including the transparent center.
+    const radius=approximate ? 4.1 : 5.2;
+    const offsets=r=>Array.from({length:16},(_,i)=>Math.round(r*Math.sin(i*Math.PI/8))*width+Math.round(r*Math.cos(i*Math.PI/8)));
+    const ring=offsets(radius),outer=offsets(radius+2.5),inner=offsets(radius-2);
+    const radiusSearch=approximate?105:Infinity;
+    let score=-Infinity,center=null;
+    const firstQuarter=ring.slice(0,4);
+    for(let y=8;y<height-8;y++) for(let x=8;x<width-8;x++) {
+      const d=approximate?Math.hypot(x-approximate.x,y-approximate.y):0;
+      if(d>radiusSearch)continue;
+      const at=y*width+x;
+      if(firstQuarter.every(offset=>!mask[at+offset]))continue;
+      const coverage=ring.reduce((sum,offset)=>sum+mask[at+offset],0);
+      if(coverage<10)continue;
+      const outside=outer.reduce((sum,offset)=>sum+mask[at+offset],0);
+      const inside=inner.reduce((sum,offset)=>sum+mask[at+offset],0);
+      const rank=coverage-outside*.75-inside*.65-d/50;
+      if(rank>score && document.elementFromPoint(x,y)?.tagName==='CANVAS'){score=rank;center={x:x+.5,y:y+.5};}
+    }
+    if(!center)throw new Error('The rendered chapter station was not visible.');
     return center;
-  }, { data: png.toString('base64'), approximate });
+  },{image:png.toString('base64'),previous:previous?.toString('base64'),approximate});
 }
 async function stationPoint(page, id) {
   await page.locator('#orbit-menu > summary').click();
+  const rest = await page.screenshot({scale:'css'});
   const option = page.locator('[data-orbit-target="' + id + '"]');
   await option.focus();
   await option.hover();
   await page.waitForFunction(text => document.querySelector('#orbit-caption')?.textContent.includes(text), label[id]);
   // The index changes the stage height. Identify the emphasized bead first,
   // then find its neutral center in the final, closed composition.
-  const highlighted = await renderedBead(page);
+  const highlighted = await renderedBead(page, null, rest);
   await page.keyboard.press('Escape');
   await page.mouse.move(2, 2);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));

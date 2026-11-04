@@ -5,7 +5,8 @@ import { createOrbitalNavigation, hasOrbitalGuide } from '../../src/explorer/orb
 const model = { id: 'hexapod', revision: 'pinned', tour: { id: 'show' }, allowedCapabilities: {
   tours: ['show'], operation: true, modes: ['explore', 'explode'], renderStyles: ['engineering']
 } };
-const guide = { modelId: model.id, modelRevision: model.revision, interactiveGuide: 'hexapod-orbit-v1' };
+const guide = { schemaVersion: 1, modelId: model.id, modelRevision: model.revision, tourId: 'show', entry: 'default',
+  chapters: [{ id: 'overview' }, { id: 'leg', action: { type: 'motion' } }, { id: 'electronics', action: { type: 'separate' } }] };
 
 function setup(initial = '?model=hexapod&quality=performance') {
   const browser = { location: new URL(initial, 'https://example.test/explorer/') };
@@ -13,7 +14,7 @@ function setup(initial = '?model=hexapod&quality=performance') {
     [name, (_state, _title, url) => { browser.location = new URL(url); }]));
   let resolve, reject, navigate;
   const events = [], chunk = new Promise((yes, no) => { resolve = yes; reject = no; });
-  const navigation = createOrbitalNavigation({ model, browser, listen() {}, load: () => chunk,
+  const navigation = createOrbitalNavigation({ model, guide, browser, listen() {}, load: () => chunk,
     mount(_api, chapter, move) {
       navigate = move; events.push(chapter);
       return { setChapter(id) { events.push(id); }, dispose() { events.push('dispose'); } };
@@ -24,6 +25,9 @@ function setup(initial = '?model=hexapod&quality=performance') {
 
 test('only a top-level guide matching this revision and its allowed capabilities can replace the tour entry', () => {
   assert.ok(hasOrbitalGuide(model, guide, false));
+  assert.equal(hasOrbitalGuide(model, guide, false, 'timeline'), false);
+  assert.equal(hasOrbitalGuide(model, { ...guide, entry: 'opt-in' }, false), false);
+  assert.equal(hasOrbitalGuide(model, { ...guide, entry: 'opt-in' }, false, 'spatial'), true);
   for (const [candidate, record, embed] of [[model, guide, true], [model, { ...guide, modelRevision: 'old' }, false],
     [{ ...model, allowedCapabilities: { ...model.allowedCapabilities, operation: false } }, guide, false],
     [model, { ...guide, modelId: 'other' }, false], [model, null, false]]) {

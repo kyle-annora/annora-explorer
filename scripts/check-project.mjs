@@ -4,12 +4,15 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { loadProject } from './lib/project-config.mjs';
 
+import { loadSpatialGuides } from './lib/spatial-guides.mjs';
+
 const root = fileURLToPath(new URL('../', import.meta.url));
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const sha = buffer => createHash('sha256').update(buffer).digest('hex');
 
 try {
   const { project, models, warnings } = await loadProject(root);
+  await loadSpatialGuides(models);
   for (const model of models) {
     const { manifest, assets, metadata } = model;
     assert(assets.license && (await readFile(assets.license, 'utf8')).trim(), `${manifest.id}: a nonempty license file is required for publication.`);

@@ -4,13 +4,15 @@ import { readFile } from 'node:fs/promises';
 import { loadProject } from './scripts/lib/project-config.mjs';
 import { presentationAssetsPlugin } from './scripts/lib/presentation-assets.mjs';
 
+import { spatialGuidesPlugin } from './scripts/lib/spatial-guides.mjs';
+
 const root = fileURLToPath(new URL('./', import.meta.url));
 
 export default defineConfig({
   base: './',
   publicDir: false,
   esbuild: { jsx: 'automatic' },
-  plugins: [presentationAssetsPlugin(root), {
+  plugins: [presentationAssetsPlugin(root), spatialGuidesPlugin(root), {
     name: 'redistribution-notices',
     async generateBundle() {
       const { models } = await loadProject(root);

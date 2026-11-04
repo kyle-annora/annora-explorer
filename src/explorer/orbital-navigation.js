@@ -1,17 +1,21 @@
 import { presentationEntry } from './presentation-entry.js';
 
-const chapters = new Set(['overview', 'leg', 'electronics']);
-
-export function hasOrbitalGuide(model, presentation, embedded) {
+export function hasOrbitalGuide(model, guide, embedded, requestedGuide) {
   const policy = model.allowedCapabilities;
-  return !embedded && presentation?.interactiveGuide === 'hexapod-orbit-v1' &&
-    presentation.modelId === model.id && presentation.modelRevision === model.revision &&
-    policy.tours.includes(model.tour?.id) && policy.operation && policy.modes.includes('explode') &&
-    policy.renderStyles.includes('engineering');
+  if (embedded || requestedGuide === 'timeline' || guide?.schemaVersion !== 1 ||
+      guide.modelId !== model.id || guide.modelRevision !== model.revision || guide.tourId !== model.tour?.id ||
+      !policy.tours.includes(guide.tourId) || !policy.renderStyles.includes('engineering')) return false;
+  if (guide.entry !== 'default' && requestedGuide !== 'spatial') return false;
+  return guide.chapters.every(chapter => {
+    if (chapter.action?.type === 'motion') return policy.operation;
+    if (chapter.action?.type === 'separate') return policy.modes.includes('explode');
+    return true;
+  });
 }
 
 /** Chapter history belongs to the Explorer document. Geometry and UI are lazy. */
-export function createOrbitalNavigation({ model, browser, listen, load, mount, onPending, onExit, onFailure }) {
+export function createOrbitalNavigation({ model, guide, browser, listen, load, mount, onPending, onExit, onFailure }) {
+  const chapters = new Set(guide.chapters.map(chapter => chapter.id));
   const url = () => new URL(browser.location.href);
   function destination() {
     const current = url();

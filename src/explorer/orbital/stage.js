@@ -4,14 +4,10 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { CopyShader } from 'three/addons/shaders/CopyShader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createEngineeringLights } from '../engineering.js';
-import { createChapterAction } from './action.js';
-import { createSpatialOrbit, orbitFramePoints } from './orbit.js';
-
-const angles = {
-  overview: [.46, 1.03, 1.6],
-  leg: [1.25, .48, 1.68],
-  electronics: [1.3, .72, 1.77],
-};
+import { createModelAction } from './model-action.js';
+import { createStationOutline } from './station-outline.js';
+import { createPoseTransition, readScreenFrame, applyScreenFrame } from './scene-continuity.js';
+import { createSpatialOrbit } from './orbit.js';
 
 function corners(pair) {
   const [low, high] = pair;
@@ -24,8 +20,9 @@ function corners(pair) {
 
 // The assembly is in native model coordinates. Fit the visible geometry to a
 // fraction of the actual canvas, leaving room for the orbital navigation around the assembly.
-function fitCamera(chapter, bounds, camera, width, height, viewPoints, direction = new THREE.Vector3(...angles[chapter]).normalize()) {
-  const points = viewPoints[chapter] || corners([bounds.min.toArray(), bounds.max.toArray()]);
+function fitCamera(chapter, bounds, camera, width, height, viewPoints, orbitPoints, direction) {
+  direction = direction || new THREE.Vector3(...chapter.direction).normalize();
+  const points = viewPoints[chapter.id] || corners([bounds.min.toArray(), bounds.max.toArray()]);
   const center = bounds.getCenter(new THREE.Vector3());
   const right = new THREE.Vector3().crossVectors(camera.up, direction).normalize();
   const up = new THREE.Vector3().crossVectors(direction, right);
@@ -39,17 +36,18 @@ function fitCamera(chapter, bounds, camera, width, height, viewPoints, direction
   const portrait = width < height;
   // Each bound also encloses the empty corners of an angled part. These
   // margins keep the actual silhouette large while allowing the full motion.
-  const fillX = chapter === 'overview' ? (portrait ? .88 : .71) : (chapter === 'electronics' ? 1.03 : .91);
-  const fillY = chapter === 'overview' ? .84 : (chapter === 'electronics' ? 1.12 : .93);
+  const overview = chapter.id === 'overview';
+  const [standardX, fillY] = chapter.fill || (overview ? [.71, .84] : [.91, .93]);
+  const fillX = overview && portrait ? .88 : standardX;
   const tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   let radius = .01;
   for (const [x, y, z] of projected) {
     radius = Math.max(radius, Math.abs(x - midX) / (camera.aspect * tangent * fillX) + z, Math.abs(y - midY) / (tangent * fillY) + z);
   }
-  if (chapter === 'overview') {
+  if (overview) {
     // Fit the attached navigation to the same camera. Always reserve space
     // for a station at each edge even on a narrow portrait canvas.
-    for (const point of orbitFramePoints) {
+    for (const point of orbitPoints) {
       const delta = point.clone().sub(center), z = delta.dot(direction);
       radius = Math.max(radius, Math.abs(delta.dot(right)) / (camera.aspect * tangent * .90) + z,
         Math.abs(delta.dot(up)) / (tangent * .86) + z);
@@ -60,7 +58,7 @@ function fitCamera(chapter, bounds, camera, width, height, viewPoints, direction
 
 function smooth(t) { return t * t * (3 - 2 * t); }
 
-function createSurfaces(gltf, partsByName) {
+function createSurfaces(gltf, partsByName, colors = {}) {
   // Materials are shared within each visibility group, so a whole assembly
   // can recede during a camera cut without allocating per-frame materials.
   const variants = new Map();
@@ -68,14 +66,15 @@ function createSurfaces(gltf, partsByName) {
     if (!mesh.isMesh) return;
     const part = partsByName.get(mesh.name);
     if (!part) return;
-    const group = part.group === 'hex-body' ? 'electronics' : part.group === 'hex-leg-1' ? 'leg' : 'other';
+    const group = part.group;
     const source = mesh.material;
     const key = group + source.uuid;
     if (!variants.has(key)) {
       const material = source.clone();
-      if (source.name === 'Printed white') material.color.set('#aaafac');
-      if (source.name === 'Graphite mechanism') material.color.set('#3b3d41');
-      variants.set(key, { group, material, meshes: [], from: 1, to: 1 });
+      if (colors[source.name] && material.color) material.color.set(colors[source.name]);
+      material.forceSinglePass = true;
+      variants.set(key, { group, material, meshes: [], from: 1, to: 1, weight: 1,
+        opacity: source.opacity, transparent: source.transparent, depthWrite: source.depthWrite });
     }
     const variant = variants.get(key);
     variant.meshes.push(mesh);
@@ -85,21 +84,23 @@ function createSurfaces(gltf, partsByName) {
     dispose() { for (const { material } of variants.values()) material.dispose(); },
     target(chapter) {
       for (const variant of variants.values()) {
-        variant.from = variant.material.opacity;
-        variant.to = Number(chapter === 'overview' || chapter === variant.group);
+        variant.from = variant.weight;
+        variant.to = Number(chapter.id === 'overview' || !chapter.groups || chapter.groups.includes(variant.group));
       }
     },
     fade(progress) {
       for (const variant of variants.values()) {
-        const opacity = THREE.MathUtils.lerp(variant.from, variant.to, progress);
-        const isTranslucent = opacity > 0 && opacity < 1;
-        if (variant.material.transparent !== isTranslucent) {
-          variant.material.transparent = isTranslucent;
-          variant.material.depthWrite = !isTranslucent;
+        const weight = THREE.MathUtils.lerp(variant.from, variant.to, progress);
+        const fading = weight > 0 && weight < 1;
+        const transparent = fading || variant.transparent;
+        if (variant.material.transparent !== transparent) {
+          variant.material.transparent = transparent;
           variant.material.needsUpdate = true;
         }
-        variant.material.opacity = opacity;
-        for (const mesh of variant.meshes) mesh.visible = opacity > .001;
+        variant.material.depthWrite = fading ? false : variant.depthWrite;
+        variant.material.opacity = variant.opacity * weight;
+        variant.weight = weight;
+        for (const mesh of variant.meshes) mesh.visible = weight > 0;
       }
     },
   };
@@ -107,11 +108,13 @@ function createSurfaces(gltf, partsByName) {
 
 // Bake an assembled-pose contact plate once. Each foot tip is read from the
 // source mesh in world space; the moving detail views never show this plate.
-function contactFootprint(model, partsByName) {
-  const span = .68, resolution = 512;
+function contactFootprint(model, partsByName, config) {
+  if (!config) return null;
+  const { span, feet = [] } = config, resolution = 512;
   const surface = document.createElement('canvas');
   surface.width = surface.height = resolution;
   const context = surface.getContext('2d');
+  if (!context) return null;
   const pixel = value => (value / span + .5) * resolution;
   function patch(x, z, rx, rz, opacity, angle = 0) {
     context.save();
@@ -127,20 +130,22 @@ function contactFootprint(model, partsByName) {
     context.restore();
   }
   model.updateWorldMatrix(true, true);
-  patch(.011, -.011, .178, .148, .21);
+  patch(...(config.body || [.011, -.011, span * .262, span * .218, .21]));
   const point = new THREE.Vector3(), toe = new THREE.Vector3();
-  for (let leg = 1; leg <= 6; leg++) {
-    const tibia = model.getObjectByName(`Hex_leg_${leg}_tibia_1`);
-    const vertices = tibia.geometry.getAttribute('position');
+  for (const { tip, hip } of feet) {
+    const foot = model.getObjectByName(tip);
+    const joint = partsByName.get(hip);
+    if (!foot?.geometry || !joint) continue;
+    const vertices = foot.geometry.getAttribute('position');
     let minimum = Infinity;
     for (let i = 0; i < vertices.count; i++) {
-      point.fromBufferAttribute(vertices, i).applyMatrix4(tibia.matrixWorld);
+      point.fromBufferAttribute(vertices, i).applyMatrix4(foot.matrixWorld);
       if (point.y < minimum) { minimum = point.y; toe.copy(point); }
     }
-    const coxa = partsByName.get(`Hex_leg_${leg}_coxa_motor_1`).center;
-    const angle = Math.atan2(toe.z - coxa[2], toe.x - coxa[0]);
-    const spanLeg = Math.hypot(toe.x - coxa[0], toe.z - coxa[2]);
-    patch((coxa[0] + toe.x) / 2 + .010, (coxa[2] + toe.z) / 2 - .012,
+    const anchor = joint.center;
+    const angle = Math.atan2(toe.z - anchor[2], toe.x - anchor[0]);
+    const spanLeg = Math.hypot(toe.x - anchor[0], toe.z - anchor[2]);
+    patch((anchor[0] + toe.x) / 2 + .010, (anchor[2] + toe.z) / 2 - .012,
       spanLeg * .65, .044, .13, angle);
     patch(toe.x + .002, toe.z - .002, .028, .018, .22, angle);
     patch(toe.x, toe.z, .010, .0065, .48, angle);
@@ -170,7 +175,7 @@ function disposeGeometry(root) {
 // source textures, the studio environment and the render targets remain shared.
 function cloneRestPose(source, poses) {
   const node = source.clone(false);
-  const rest = poses.get(source);
+  const rest = poses?.get(source);
   if (rest) {
     node.position.copy(rest.position);
     node.quaternion.copy(rest.quaternion);
@@ -216,22 +221,28 @@ export function createOrbitalStage(options) {
   }
 }
 
-function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reducedMotion = false }, onDispose, dispose) {
-  if (!explorer.ready || !explorer.operationSampler?.clip || explorer.presentationStage) {
-    throw new Error('The orbital presentation requires a ready assembly and its authored motion.');
+function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation, onEmphasis, reducedMotion = false }, onDispose, dispose) {
+  if (!explorer.ready || !explorer.sourceRoot || explorer.presentationStage) {
+    throw new Error('The orbital presentation requires a ready assembly.');
   }
   const { renderer, metadata, mount } = explorer;
   const canvas = renderer.domElement;
   const partsByName = new Map(metadata.parts.map(part => [part.meshName, part]));
-  const viewPoints = {
-    overview: metadata.parts.flatMap(part => corners(part.bounds)),
-    leg: metadata.parts.filter(part => part.group === 'hex-leg-1').flatMap(part => corners(part.cycleBounds)),
-  };
+  const chapters = new Map(guide.chapters.map(record => [record.id, record]));
+  const viewPoints = {};
+  for (const record of chapters.values()) {
+    if (record.fit === 'action') continue;
+    const overview = record.id === 'overview';
+    const members = metadata.parts.filter(part => overview || !record.groups || record.groups.includes(part.group));
+    if (members.length) viewPoints[record.id] = members.flatMap(part =>
+      corners(overview ? part.bounds : (part.cycleBounds || part.bounds)));
+  }
   const world = new THREE.Scene();
   world.add(createEngineeringLights());
   world.environment = explorer.scene.environment;
   world.environmentIntensity = .92;
-  const camera = new THREE.PerspectiveCamera(26, 1, .001, 7);
+  const span = Math.max(...metadata.bounds[1].map((value, i) => value - metadata.bounds[0][i]), .00001);
+  const camera = new THREE.PerspectiveCamera(26, 1, span / 500, span * 24);
   const viewPass = new RenderPass(world, camera);
   viewPass.clearColor = new THREE.Color(0);
   viewPass.clearAlpha = 0;
@@ -259,34 +270,56 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
   controls.autoRotateSpeed = .66;
   const abort = new AbortController();
   onDispose(() => abort.abort());
-  const spatialOrbit = createSpatialOrbit({ camera, canvas, metadata, onEmphasis });
+  let emphasizedStation = null;
+  const spatialOrbit = createSpatialOrbit({ camera, canvas, metadata, orbitConfig: guide.orbit, getAccent,
+    onEmphasis(id) { emphasizedStation = id; onEmphasis?.(id); } });
   onDispose(() => disposeGeometry(spatialOrbit.root));
   world.add(spatialOrbit.root);
 
   let chapter = 'overview', progress = 0, shot = null, rotating = false, playing = false;
   let disposed = false, started = false, frames = 0, manualView = false;
   let press = null, hovering = false, focused = false;
-  const source = cloneRestPose(explorer.sourceRoot, explorer.operationSampler.rest);
-  const gltf = { scene: source, animations: [explorer.operationSampler.clip] };
+  let holdTimer, lingerTimer;
+  function clearTouchPreview() {
+    clearTimeout(holdTimer); clearTimeout(lingerTimer);
+    holdTimer = lingerTimer = undefined;
+  }
+  onDispose(clearTouchPreview);
+  const sampler = explorer.operationSampler;
+  const source = cloneRestPose(explorer.sourceRoot, sampler?.rest);
+  const gltf = { scene: source, animations: sampler?.clip ? [sampler.clip] : [] };
   const modelMeshes = [];
   source.traverse(node => { if (node.isMesh) modelMeshes.push(node); });
-  const surfaces = createSurfaces(gltf, partsByName);
+  const surfaces = createSurfaces(gltf, partsByName, guide.surface?.colors);
   onDispose(() => surfaces.dispose());
-  const footprint = contactFootprint(source, partsByName);
-  onDispose(() => disposeGeometry(footprint));
-  const action = createChapterAction(gltf, metadata);
+  const footprint = contactFootprint(source, partsByName, guide.surface?.footprint);
+  if (footprint) {
+    world.add(footprint);
+    onDispose(() => disposeGeometry(footprint));
+  }
+  const action = createModelAction(gltf, metadata, guide, getAccent?.());
   onDispose(() => action.dispose());
-  world.add(source, footprint);
+  world.add(source);
+  const hardware = new Set(modelMeshes), marks = [];
+  source.traverse(node => { if (node.material && !hardware.has(node)) marks.push(node); });
+  if (footprint) marks.push(footprint);
+  const poses = createPoseTransition(source, marks);
+
   spatialOrbit.blockersFrom(modelMeshes);
+  const outline = createStationOutline({ scene: world, camera, renderer, meshes: modelMeshes, stations: guide.orbit.stations, getAccent });
+  passes.splice(passes.indexOf(explorer.fxaa), 0, outline.pass);
+  onDispose(() => outline.dispose());
 
   function wake() {
     if (started && !disposed && !document.hidden) explorer.invalidate();
   }
   function takeover() {
     if (!started) return;
+    clearTouchPreview();
+    press = null;
     rotating = playing = false; manualView = true;
     controls.autoRotate = false;
-    if (shot) { shot = null; surfaces.fade(1); }
+    if (shot) shot.manualCamera = true;
     setHover(null);
     onTakeover?.();
     wake();
@@ -308,13 +341,24 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
   // control of the camera, including when the gesture starts on a bead.
   const pointerOptions = { capture: true, signal: abort.signal };
   canvas.addEventListener('pointerdown', event => {
+    clearTouchPreview();
     if (!event.isPrimary || event.button !== 0) {
-      if (press) { press = null; takeover(); }
+      if (press) takeover();
       return;
     }
     const id = started && spatialOrbit.pick(event);
-    press = id ? { id, x: event.clientX, y: event.clientY, pointer: event.pointerId } : null;
-    if (press) setHover(id);
+    press = id ? { id, x: event.clientX, y: event.clientY, pointer: event.pointerId, held: false } : null;
+    if (event.pointerType !== 'touch') { setHover(id || null); return; }
+    setHover(null);
+    if (!press) return;
+    setStationFocus(null);
+    const finger = press;
+    holdTimer = setTimeout(() => {
+      if (press === finger && spatialOrbit.pick(event) === id) {
+        finger.held = true;
+        setHover(id);
+      }
+    }, 350);
   }, pointerOptions);
   canvas.addEventListener('pointermove', event => {
     if (press && event.pointerId === press.pointer &&
@@ -325,14 +369,33 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
   }, pointerOptions);
   canvas.addEventListener('pointerup', event => {
     if (!press || press.pointer !== event.pointerId) return;
-    const { id, x, y } = press;
+    const { id, x, y, held } = press;
     press = null;
+    clearTimeout(holdTimer);
+    if (held) {
+      lingerTimer = setTimeout(() => {
+        lingerTimer = undefined;
+        setHover(null);
+      }, 1800);
+      return;
+    }
     if (event.pointerType === 'touch') setHover(null);
     if (Math.hypot(event.clientX - x, event.clientY - y) >= (event.pointerType === 'touch' ? 8 : 5)) return;
     if (spatialOrbit.pick(event) === id) queueMicrotask(() => { if (!disposed) onStation?.(id); });
   }, pointerOptions);
-  canvas.addEventListener('pointercancel', () => { press = null; setHover(null); }, pointerOptions);
-  canvas.addEventListener('pointerleave', () => setHover(null), pointerOptions);
+  function clearPointer() { clearTouchPreview(); press = null; setHover(null); }
+  canvas.addEventListener('contextmenu', event => {
+    if (press?.held) event.preventDefault();
+  }, pointerOptions);
+  canvas.addEventListener('pointercancel', clearPointer, pointerOptions);
+  canvas.addEventListener('pointerleave', event => {
+    // A touch ends with pointerleave even when its intentional preview lingers.
+    if (event.pointerType !== 'touch' || lingerTimer === undefined) clearPointer();
+  }, pointerOptions);
+  window.addEventListener('blur', clearPointer, { signal: abort.signal });
+  document.addEventListener('pointerdown', event => {
+    if (event.target !== canvas && lingerTimer !== undefined) clearPointer();
+  }, { capture: true, signal: abort.signal });
   controls.addEventListener('change', wake);
   mount.addEventListener('keydown', event => {
     const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', '_'];
@@ -360,54 +423,81 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
     controls.update();
   }, { signal: abort.signal });
 
-  function frameChapter(immediate, direction) {
+  function destination(width, height, direction) {
+    return fitCamera(chapters.get(chapter), action.bounds(chapter), camera, width, height,
+      viewPoints, spatialOrbit.framePoints, direction);
+  }
+
+  function projection(width, height) {
+    camera.zoom = 1;
+    camera.setViewOffset(width, height, 0, height * .02, width, height);
+  }
+
+  function frameChapter(immediate, direction, originFrame, duration = 700) {
     const width = mount.clientWidth, height = mount.clientHeight;
     if (!(width && height)) return;
-    camera.aspect = width / height;
-    camera.setViewOffset(width, height, 0, height * .02, width, height);
-    const end = fitCamera(chapter, action.bounds(chapter), camera, width, height, viewPoints, direction);
-    controls.minDistance = Math.max(.018, end.spherical.radius * .18);
-    controls.maxDistance = Math.max(end.spherical.radius * 4, .8);
     const start = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+    projection(width, height);
+    const end = destination(width, height, direction);
     end.spherical.theta = start.theta + Math.atan2(Math.sin(end.spherical.theta - start.theta), Math.cos(end.spherical.theta - start.theta));
-    shot = { elapsed: 0, start, end, origin: controls.target.clone() };
-    if (immediate) moveCamera(1);
+    // A user can approach a part much closer than its next preset permits.
+    // Include that starting distance until the flight completes.
+    controls.minDistance = Math.min(start.radius, Math.max(span * .036, end.spherical.radius * .18));
+    controls.maxDistance = Math.max(start.radius, end.spherical.radius * 4, span * 1.6);
+    camera.far = Math.max(span * 24, controls.maxDistance + span * 2);
+    camera.updateProjectionMatrix();
+    shot = { start, end, origin: controls.target.clone(), originFrame, duration,
+      started: null, progress: 0, manualCamera: false, pose: Boolean(originFrame) };
+    moveCamera(immediate ? 1 : 0);
     wake();
   }
 
   function moveCamera(fraction) {
-    const { start, end, origin } = shot;
+    const current = shot;
+    const { start, end, origin, originFrame } = current;
     const t = smooth(fraction);
-    const pose = new THREE.Spherical(
-      THREE.MathUtils.lerp(start.radius, end.spherical.radius, t),
-      THREE.MathUtils.lerp(start.phi, end.spherical.phi, t),
-      THREE.MathUtils.lerp(start.theta, end.spherical.theta, t),
-    );
-    controls.target.lerpVectors(origin, end.center, t);
-    camera.position.setFromSpherical(pose).add(controls.target);
-    controls.autoRotate = false;
-    controls.update();
-    surfaces.fade(smooth(Math.min(1, fraction * 1.9)));
-    if (fraction === 1) shot = null;
+    current.progress = fraction;
+    if (!current.manualCamera) {
+      if (originFrame) {
+        const rect = canvas.getBoundingClientRect();
+        applyScreenFrame(camera, rect, originFrame, t, 0, rect.height * .02);
+      }
+      const angle = new THREE.Spherical(
+        t === 1 ? end.spherical.radius : start.radius * Math.pow(end.spherical.radius / start.radius, t),
+        THREE.MathUtils.lerp(start.phi, end.spherical.phi, t),
+        THREE.MathUtils.lerp(start.theta, end.spherical.theta, t),
+      );
+      controls.target.lerpVectors(origin, end.center, t);
+      camera.position.setFromSpherical(angle).add(controls.target);
+      controls.autoRotate = false;
+      controls.update();
+    }
+    if (current.pose) poses.apply(t);
+    surfaces.fade(t);
+    if (fraction === 1) {
+      const radius = camera.position.distanceTo(controls.target);
+      controls.minDistance = Math.min(radius, Math.max(span * .036, end.spherical.radius * .18));
+      controls.maxDistance = Math.max(radius, end.spherical.radius * 4, span * 1.6);
+      shot = null;
+    }
   }
 
   let previousWidth = 0, previousHeight = 0;
   function resize() {
     const width = mount.clientWidth, height = mount.clientHeight;
     if (!(width > 0 && height > 0)) return;
-    camera.aspect = width / height;
-    camera.setViewOffset(width, height, 0, height * .02, width, height);
-    camera.updateProjectionMatrix();
-    // A drawer, caption or phone rotation can change just the height. Fit the
-    // track to the new rectangle while preserving the current orbit direction.
-    if (!manualView && (width !== previousWidth || height !== previousHeight)) {
-      if (!shot) {
+    const changed = width !== previousWidth || height !== previousHeight;
+    if (changed && shot && !shot.manualCamera) {
+      camera.aspect = width / height;
+      const end = destination(width, height);
+      end.spherical.theta = shot.start.theta + Math.atan2(Math.sin(end.spherical.theta - shot.start.theta), Math.cos(end.spherical.theta - shot.start.theta));
+      shot.end = end;
+      moveCamera(shot.progress);
+    } else if (changed) {
+      projection(width, height);
+      if (!manualView && !shot) {
         const direction = previousWidth ? camera.position.clone().sub(controls.target).normalize() : undefined;
         frameChapter(true, direction);
-      } else {
-        const end = fitCamera(chapter, action.bounds(chapter), camera, width, height, viewPoints);
-        end.spherical.theta = shot.start.theta + Math.atan2(Math.sin(end.spherical.theta - shot.start.theta), Math.cos(end.spherical.theta - shot.start.theta));
-        shot.end = end;
       }
     }
     previousWidth = width;
@@ -417,14 +507,17 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
   function render(elapsed) {
     const dt = Math.min(.075, elapsed);
     if (shot) {
-      shot.elapsed += dt;
-      moveCamera(Math.min(1, shot.elapsed / .55));
+      // Start at the first drawn frame, not the time since the last gesture.
+      const now = performance.now();
+      shot.started ??= now;
+      moveCamera(Math.min(1, (now - shot.started) / shot.duration));
     } else {
       controls.autoRotate = rotating && chapter === 'overview' && !hovering && !focused && !press;
       if (controls.autoRotate) controls.update(dt);
       if (playing) onTick?.(elapsed);
     }
-    spatialOrbit.update(dt, Boolean(shot));
+    spatialOrbit.update(dt, Boolean(shot), !shot || shot.progress >= .75);
+    outline.sync(chapter === 'overview' && !shot ? emphasizedStation : null);
     // Reuse the Explorer's full-size buffers and edge smoothing, including
     // when the free view was left in a linework style.
     const composer = explorer.composer;
@@ -443,18 +536,34 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
     return Boolean(shot || spatialOrbit.animating || playing || controls.autoRotate);
   }
 
-  function setChapter(value) {
-    if (!Object.hasOwn(angles, value)) return;
+  function captureChapterFrame() {
+    if (reducedMotion || !mount.clientWidth || !mount.clientHeight) return null;
+    return readScreenFrame(camera, canvas.getBoundingClientRect());
+  }
+  function setChapter(value, originFrame = null) {
+    if (!chapters.has(value)) return;
+    const previous = chapter;
+    const travel = originFrame && !reducedMotion;
+    if (travel) poses.capture();
+    else poses.apply(1);
     chapter = value; progress = 0; manualView = false;
-    press = null; setHover(null); setStationFocus(null);
-    spatialOrbit.setEnabled(chapter === 'overview', reducedMotion);
+    clearPointer(); setStationFocus(null);
+    spatialOrbit.setEnabled(chapter === 'overview', !travel);
     canvas.dataset.chapter = value;
-    footprint.visible = chapter === 'overview';
+    if (footprint) footprint.visible = chapter === 'overview';
     action.setChapter(chapter);
-    surfaces.target(chapter);
-    frameChapter(reducedMotion);
+    surfaces.target(chapters.get(chapter));
+    if (travel) poses.target();
+    const duration = previous === 'overview' || value === 'overview' ? 720 : 660;
+    frameChapter(!travel, undefined, travel ? originFrame : null, duration);
   }
   function setProgress(value) {
+    if (shot?.pose) {
+      // A scrub samples the mechanism immediately. Camera framing and contextual
+      // visibility can complete independently while the user moves the slider.
+      poses.apply(1);
+      shot.pose = false;
+    }
     progress = THREE.MathUtils.clamp(value, 0, 1);
     action.setProgress(progress);
     wake();
@@ -483,14 +592,14 @@ function mountStage({ explorer, onTakeover, onTick, onStation, onEmphasis, reduc
   started = true;
   resize();
   action.setChapter(chapter);
-  surfaces.target(chapter);
+  surfaces.target(chapters.get(chapter));
   spatialOrbit.setEnabled(true, true);
   frameChapter(true);
   wake();
   return {
-    setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, dispose,
+    captureChapterFrame, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, dispose,
     stats: () => ({
-      orbit: spatialOrbit.stats(), frames, chapter, playing, rotating, progress, transitioning: Boolean(shot),
+      orbit: spatialOrbit.stats(), frames, chapter, playing, rotating, progress, transitioning: Boolean(shot), chapterBlend: shot?.originFrame ? shot.progress : null,
       camera: camera.position.toArray(), target: controls.target.toArray(), pixelRatio: renderer.getPixelRatio(),
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       meshes: modelMeshes.length, visibleMeshes: modelMeshes.filter(mesh => mesh.visible).length,

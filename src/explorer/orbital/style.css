@@ -24,6 +24,9 @@ body.orbital-demo #tour-annotations { display: none; }
 body.orbital-demo .stage { grid-row: 2; position: relative; inset: auto; height: auto; min-height: 0; }
 body.orbital-demo .viewport,
 body.orbital-demo #scene { position: absolute; inset: 0; height: 100%; min-height: 0; }
+/* WebGL keeps inline pixel sizes until ResizeObserver runs. Match the visible
+   stage immediately, including the first frame after a chapter relayout. */
+body.orbital-demo #scene canvas { width: 100% !important; height: 100% !important; transition-property: none; }
 body.orbital-demo #scene:focus-visible { outline-color: var(--orbit-focus); }
 .orbital-head,
 .orbital-dock {
@@ -161,3 +164,14 @@ body[data-orbit-chapter="electronics"] #orbit-back { display: none; }
   .orbital-action { display: grid; grid-template-columns: auto minmax(50px,1fr); gap: 8px; align-items: center; }
   .orbital-playrow { display: grid; gap: 0; }
 }
+
+.orbital-head:has(.orbital-long-index) { z-index: 3; }
+.orbital-head:has(.orbital-long-index):has(#orbit-menu[open]) { padding-bottom: var(--head-bottom); }
+.orbital-choices.orbital-long-index {
+  inset: 100% var(--orbit-gutter) auto auto;
+  display: grid; gap: 0; align-content: start;
+  width: min(275px, calc(100vw - 2 * var(--orbit-gutter)));
+  max-height: min(55vh, 420px); overflow-y: auto;
+  background: var(--orbit-paper); border: 1px solid var(--orbit-rule); padding: 4px 12px;
+}
+@media (max-width: 440px) { #orbit-caption { min-height: 2.8em; } }

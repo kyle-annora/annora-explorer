@@ -11,6 +11,7 @@ import { MODEL_CATALOG, resolveModel, validatePackage } from './model-catalog.js
 import { AssemblyScene } from './scene.js';
 import { GuidedTour } from './tour-ui.js';
 import { presentationEntry } from './presentation-entry.js';
+import spatialGuides from 'virtual:annora-spatial-guides';
 import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
@@ -33,7 +34,8 @@ document.body.dataset.embedded = String(embedded);
 document.body.dataset.compactChrome = String(compactChrome);
 const model = resolveModel(params.get('model'));
 const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
-const offersOrbit = hasOrbitalGuide(model, presentationMedia, embedded || window.parent !== window) && params.get('guide') !== 'timeline';
+const spatialGuide = spatialGuides.find(guide => guide.modelId === model.id);
+const offersOrbit = hasOrbitalGuide(model, spatialGuide, embedded || window.parent !== window, params.get('guide'));
 let orbital;
 if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
@@ -419,12 +421,12 @@ async function start(){
     explorer.setDisplayOptions({appearance,grid:displayPreferences.grids[openingStyle]});
     if(shellAbort.signal.aborted)return;syncPresentationUI();
     if (offersOrbit) orbital = createOrbitalNavigation({
-      model, browser: window, listen, load: () => import('./orbital/ui.js'),
+      model, guide: spatialGuide, browser: window, listen, load: () => import('./orbital/ui.js'),
       mount({ mountOrbitalUI }, chapter, navigate, exit) {
         controller.takeover();
         closePath(); closeDisplay(); closeTheme();
         if (!$('perf-panel').hidden) closePerformance();
-        return mountOrbitalUI({ explorer, chapter, navigate, exit });
+        return mountOrbitalUI({ explorer, guide: spatialGuide, getAccent: () => clientTheme.accent, chapter, navigate, exit });
       },
       onPending(pending) {
         $('tour-start').disabled = pending;
@@ -440,7 +442,7 @@ async function start(){
         $('status-message').textContent = 'The presentation could not open. You can still explore the model.';
       }
     });
-    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),entry:orbital&&{label:'3 chapters',open:orbital.open},captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
+    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),entry:orbital&&{label:spatialGuide.chapters.length+' chapters',open:orbital.open},captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
     renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
     overlayObserver=new ResizeObserver(()=>{if(!explorer.ready||shellAbort.signal.aborted)return;cancelAnimationFrame(overlayFrame);overlayFrame=requestAnimationFrame(()=>{document.documentElement.style.setProperty('--dock-height',`${document.querySelector('.stage-tools').getBoundingClientRect().height}px`);explorer.refitLayout();$('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;});});
     for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel','#tour-copy','.tour-transport'])overlayObserver.observe(document.querySelector(selector));

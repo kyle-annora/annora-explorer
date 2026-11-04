@@ -117,3 +117,7 @@ assembly scope. Scope transitions prepare the next view before playback.
 
 The [short-action review](short-actions.md) records the reference decisions,
 transport behavior, API additions and validation boundaries.
+
+## Optional spatial guide
+
+Add a revision-bound chapter presentation to a prepared package through its [spatial guide configuration](spatial-guides.md).
