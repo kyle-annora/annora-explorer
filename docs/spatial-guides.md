@@ -38,7 +38,7 @@ Use a chapter’s optional `callouts` array to attach a short explanation to a r
 
 An overview can have one opening note. Hovering, focusing or holding a detail station previews that chapter’s label, hint and anchor. Each anchor can specify a fractional location in the named part’s prepared bounds. Pick a mesh that faces the entry camera and check it again after the mechanism moves.
 
-The label stays on a fixed margin or at the top of a phone screen. Its curved leader ends on the visible part surface. During a chapter flight or when another part covers the anchor, the text stays readable and the leader disappears. A bounded cubic Bézier curve leaves the caption horizontally on desktop and downward on a phone. Its control points adapt to the distance and available space around the printed text. The tangent treatment builds on the [D3 link curves](https://d3js.org/d3-shape/link).
+The label stays on a fixed margin or at the top of a phone screen. A short matching stroke beside the heading pairs it with a curved pointer at the part. Only the last 72 CSS pixels of the curve are drawn on desktop, or 42 on a phone, keeping the space between caption and product clear. The pointer ends on the visible part surface and retains its direction as the camera turns. During a chapter flight or when another part covers the anchor, the text stays readable and the pointer disappears. Its cubic Bézier path avoids the printed caption, and its final segment is bounded independently of screen size. The tangent treatment builds on the [D3 link curves](https://d3js.org/d3-shape/link).
 
 ## Plan, elevation and section in the presentation
 

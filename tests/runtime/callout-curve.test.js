@@ -137,3 +137,34 @@ test('the lead-in grows continuously under rotation and a blocked runway stays h
   const blocked = [...wrappedCopy, { left: 161, right: 170, top: 92, bottom: 101 }];
   assert.equal(calloutCurve(wideOutlet, { x: 1067, y: 473.25 }, 'right', blocked), null);
 });
+
+test('compact pointers keep their exact anchor and a fixed length on wide and narrow stages', () => {
+  for (const limit of [42, 72]) for (const target of [
+    { x: 270, y: 180 }, { x: 1067, y: 473.25 }, { x: 2810, y: 615 },
+  ]) {
+    const points = controlPoints(calloutCurve(wideOutlet, target, 'right', wrappedCopy, limit));
+    assert.deepEqual(points[3], target);
+    const bound = points.slice(1).reduce((sum, p, i) =>
+      sum + Math.hypot(p.x - points[i].x, p.y - points[i].y), 0);
+    assert.ok(bound <= limit + 1e-8);
+    assert.ok(bound >= limit - .2);
+    const full = readSegments(calloutCurve(wideOutlet, target, 'right', wrappedCopy));
+    const tangent = full[full.length - 2];
+    const cross = (target.x - tangent.x) * (target.y - points[2].y) -
+      (target.y - tangent.y) * (target.x - points[2].x);
+    assert.ok(Math.abs(cross) < 1e-7);
+  }
+  assert.equal(calloutCurve(wideOutlet, { x: NaN, y: 70 }, 'right', wrappedCopy, 72), null);
+  assert.equal(calloutCurve(wideOutlet, { x: 900, y: 70 }, 'right', wrappedCopy, -1), null);
+});
+
+test('a compact pointer moves continuously during a small camera rotation', () => {
+  let previous;
+  for (let y = 216; y <= 631; y++) {
+    const points = controlPoints(calloutCurve(wideOutlet, { x: 1067, y }, 'right', wrappedCopy, 72));
+    if (previous) for (let i = 0; i < 4; i++) {
+      assert.ok(Math.hypot(points[i].x - previous[i].x, points[i].y - previous[i].y) < 1.2);
+    }
+    previous = points;
+  }
+});

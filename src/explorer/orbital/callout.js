@@ -51,7 +51,9 @@ export function createCallout({ main, mount, getAccent }) {
 
   function draw() {
     const end = point && layout && { x: layout.x + point.x, y: layout.y + point.y };
-    const path = cue && end && calloutCurve(layout.start, end, layout.placement, layout.protectedText);
+    const path = cue && end && calloutCurve(layout.start, end, layout.placement, layout.protectedText,
+      stackedLayout.matches ? 42 : 72);
+    layer.toggleAttribute('data-anchor-visible', Boolean(path));
     if (!path) {
       ink.style.visibility = 'hidden';
       line.removeAttribute('d');

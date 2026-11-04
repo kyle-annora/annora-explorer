@@ -5,6 +5,27 @@ const tail = .28;
 const axes = { right: [1, 0], left: [-1, 0], down: [0, 1] };
 const finitePoint = p => Number.isFinite(p?.x) && Number.isFinite(p?.y);
 const mix = (a, b, t) => a + (b - a) * t;
+const between = (a, b, t) => ({ x: mix(a.x, b.x, t), y: mix(a.y, b.y, t) });
+
+// Trim the existing curve without changing its terminal tangent. The control
+// polygon bounds the arc length, so even a very wide screen gets a short cue.
+function compactTail(points, limit) {
+  const suffix = t => {
+    const [a, b, c, d] = points;
+    const ab = between(a, b, t), bc = between(b, c, t), cd = between(c, d, t);
+    const abc = between(ab, bc, t), bcd = between(bc, cd, t);
+    return [between(abc, bcd, t), bcd, cd, d];
+  };
+  const bound = p => p.slice(1).reduce((sum, q, i) => sum + Math.hypot(q.x - p[i].x, q.y - p[i].y), 0);
+  if (bound(points) <= limit) return points;
+  let low = 0, high = 1;
+  for (let i = 0; i < 16; i++) {
+    const t = (low + high) / 2;
+    if (bound(suffix(t)) > limit) low = t;
+    else high = t;
+  }
+  return suffix(high);
+}
 
 // Fraction of the perpendicular distance already covered at cubic parameter t.
 function across(t) {
@@ -75,8 +96,9 @@ function entersBox(box, handle, forward, lateral, peak) {
  * Exclusions are optional local rectangles, usually the caption and header.
  * An invisible anchor or a target behind the copy needs no leader.
  */
-export function calloutCurve(start, end, placement = 'right', exclusion = null) {
+export function calloutCurve(start, end, placement = 'right', exclusion = null, maxLength = null) {
   if (!finitePoint(start) || !finitePoint(end) || !Object.hasOwn(axes, placement)) return null;
+  if (maxLength !== null && (!Number.isFinite(maxLength) || maxLength < 8)) return null;
   const [ux, uy] = axes[placement];
   const dx = end.x - start.x, dy = end.y - start.y, span = Math.hypot(dx, dy);
   const forward = dx * ux + dy * uy, lateral = dy * ux - dx * uy;
@@ -139,6 +161,12 @@ export function calloutCurve(start, end, placement = 'right', exclusion = null) 
   const rx = start.x + ux * runway, ry = start.y + uy * runway;
   const hx = rx + ux * handle, hy = ry + uy * handle;
   const tx = mix(end.x, hx, tail), ty = mix(end.y, hy, tail);
+  if (maxLength !== null) {
+    const [a, b, c, d] = compactTail([
+      { x: rx, y: ry }, { x: hx, y: hy }, { x: tx, y: ty }, end,
+    ], maxLength);
+    return `M ${a.x} ${a.y} C ${b.x} ${b.y}, ${c.x} ${c.y}, ${d.x} ${d.y}`;
+  }
   const lead = runway ? ` L ${rx} ${ry}` : '';
   return `M ${start.x} ${start.y}${lead} C ${hx} ${hy}, ${tx} ${ty}, ${end.x} ${end.y}`;
 }
