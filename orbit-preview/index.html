@@ -40,8 +40,16 @@
     </section>
     <section class="chapter-dock" aria-label="Study controls">
       <div class="chapter-story">
+        <span id="study-path" hidden>Hexapod <span aria-hidden="true">/</span> Front right leg</span>
         <h2 id="chapter-heading" tabindex="-1"></h2>
         <p id="chapter-copy"></p>
+        <div id="track-comparison" role="group" aria-label="Compare orbit navigation" hidden>
+          <span class="study-label" aria-hidden="true">Tracks</span>
+          <div class="track-choices">
+            <button type="button" data-track-mode="single" aria-pressed="false">Single</button>
+            <button type="button" data-track-mode="layered" aria-pressed="true">Layered</button>
+          </div>
+        </div>
       </div>
       <div class="deck">
         <div class="overview-deck">
@@ -55,6 +63,7 @@
             <span class="transport-icon"><svg class="icon" aria-hidden="true"><use class="if-play" href="#i-play"/><use class="if-pause" href="#i-pause"/><use class="if-replay" href="#i-replay"/></svg></span><span data-label>Play action</span>
           </button><span id="chapter-phase"></span></div>
           <div class="scrub-line"><input id="progress" type="range" aria-label="Action progress" min="0" max="1000" value="0" step="1"><output id="timecode" for="progress">0.0 s</output></div>
+          <div id="pose-choices" role="group" aria-label="Jump to a leg pose" hidden></div>
         </div>
       </div>
       <a class="credits-link" href="./LICENSES.txt" target="_blank" rel="noopener" aria-label="Model credits and licenses">Credits<svg class="icon" aria-hidden="true"><use href="#i-credit"/></svg></a>

@@ -1,11 +1,12 @@
 import { createScene } from './scene.js';
+import { createLegComparison } from './leg-comparison.js';
+import { LEG_POSES, currentLegPhase } from './leg-poses.js';
 
 const chapters = {
   overview: { title: 'Whole model', copy: '' },
   leg: {
     title: 'Leg motion',
     copy: 'Watch the three joints move together. The orange trace follows the tip of the foot.',
-    phases: [[0, 'Lift the foot'], [.38, 'Reach outward'], [.69, 'Return to rest']],
   },
   electronics: {
     title: 'Electronics',
@@ -30,6 +31,21 @@ const preference = matchMedia('(prefers-reduced-motion: reduce)');
 const fromUrl = () => Object.hasOwn(chapters, location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
 let chapter = fromUrl();
 let progress = 0, rotating = !preference.matches, playing = false, ready = false, scene;
+const legStudy = new URLSearchParams(location.search).get('study') === 'leg-orbit';
+const comparison = legStudy ? createLegComparison({
+  changeTracks: layered => scene?.setLayered(layered),
+  choosePose: seekToPose,
+  focusPose: id => scene?.setPoseFocus(id)
+}) : null;
+
+function seekToPose(id) {
+  if (!ready || chapter !== 'leg') return;
+  const pose = LEG_POSES.find(item => item.id === id);
+  if (!pose) return;
+  setPlaying(false);
+  updateProgress(pose.progress);
+  updateTransport();
+}
 
 function updateTransport() {
   const mode = playing ? 'pause' : progress >= 1 ? 'replay' : 'play';
@@ -43,12 +59,14 @@ function updateTransport() {
 function updateProgress(value) {
   progress = Math.min(1, Math.max(0, value));
   scene?.setProgress(progress);
+  comparison?.setProgress(progress);
   slider.value = String(Math.round(progress * 1000));
   slider.style.setProperty('--progress', (progress * 100) + '%');
   const seconds = (progress * duration).toFixed(1);
   byId('timecode').textContent = seconds + ' s';
   slider.setAttribute('aria-valuetext', seconds + ' of ' + duration + ' seconds');
-  const phase = chapters[chapter].phases?.findLast(([start]) => progress >= start)?.[1] || '';
+  const phase = chapter === 'leg' ? currentLegPhase(progress).phaseLabel :
+    chapters[chapter].phases?.findLast(([start]) => progress >= start)?.[1] || '';
   if (byId('chapter-phase').textContent !== phase) byId('chapter-phase').textContent = phase;
 }
 
@@ -64,7 +82,8 @@ function present(next, focus) {
   const detail = chapter !== 'overview';
   const item = chapters[chapter];
   byId('chapter-heading').textContent = item.title;
-  byId('chapter-copy').textContent = item.copy;
+  byId('chapter-copy').textContent = legStudy && chapter === 'leg' ? 'Select a pose to pause the leg.' : item.copy;
+  comparison?.setChapter(chapter);
   for (const button of indexButtons) {
     if (button.dataset.indexTarget === chapter) button.setAttribute('aria-current', 'step');
     else button.removeAttribute('aria-current');
@@ -145,6 +164,7 @@ preference.addEventListener('change', event => {
 
 function enableControls(value) {
   for (const el of [...indexButtons, rotation, slider, playback]) el.disabled = !value;
+  comparison?.setReady(value);
 }
 function showError() {
   ready = false;
@@ -157,7 +177,8 @@ enableControls(false);
 present(chapter, false);
 try {
   scene = createScene({
-    canvas, reducedMotion: preference.matches,
+    canvas, reducedMotion: preference.matches, legStudy, onPoseSelect: seekToPose,
+    onPoseHover: id => comparison?.highlight(id),
     onReady() {
       ready = true;
       enableControls(true);

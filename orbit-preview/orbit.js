@@ -36,6 +36,9 @@ for (let i = 0; i < 240; i++) {
 }
 export const orbitFramePoints = Array.from({ length: 72 }, (_, i) => ringPoint(i * 5));
 
+// Reserve only a small portion of the assembly orbit in the detail study.
+export const legContextPoints = [-7, 0, 7].map(offset => ringPoint(stationAngles.leg + offset));
+
 function makeArc(records, width) {
   const positions = records.flatMap(({ a, b }) => [...a.toArray(), ...b.toArray()]);
   const geometry = new LineSegmentsGeometry().setPositions(positions);
@@ -93,7 +96,7 @@ function createOrbitGeometry() {
 export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
   const { root, stations, base } = createOrbitGeometry();
   let blockers = [], enabled = false, pickable = false, alpha = 0, focusId = null, hoverId = null;
-  let lastEmphasis = null;
+  let lastEmphasis = null, contextId = null;
   const raycaster = new THREE.Raycaster();
   const screenRay = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
@@ -107,19 +110,20 @@ export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
   root.visible = false;
 
   function paint() {
-    const emphasis = focusId || hoverId;
-    if (emphasis !== lastEmphasis) { lastEmphasis = emphasis; onEmphasis?.(emphasis); }
-    base.material.opacity = alpha * .82;
+    const emphasis = contextId || focusId || hoverId;
+    const inputEmphasis = contextId ? null : emphasis;
+    if (inputEmphasis !== lastEmphasis) { lastEmphasis = inputEmphasis; onEmphasis?.(inputEmphasis); }
+    base.material.opacity = alpha * (contextId ? .43 : .82);
     for (const station of stations) {
       const highlighted = station.id === emphasis;
       station.arc.material.color.set(highlighted ? ember : graphite);
       station.arc.material.linewidth = highlighted ? 1.35 : 1;
-      station.arc.material.opacity = alpha * (highlighted ? .95 : .82);
+      station.arc.material.opacity = alpha * (contextId ? (highlighted ? .48 : .43) : (highlighted ? .95 : .82));
       station.beadMaterial.color.set(highlighted || (!emphasis && station.id === 'overview') ? ember : ink);
-      station.bead.scale.setScalar(highlighted ? 1.16 : 1);
-      station.beadMaterial.opacity = alpha;
+      station.bead.scale.setScalar(contextId ? .46 : highlighted ? 1.16 : 1);
+      station.beadMaterial.opacity = alpha * (contextId ? (highlighted ? .72 : .22) : 1);
       if (station.leader) {
-        station.leader.visible = Boolean((focusId || hoverId) === station.id);
+        station.leader.visible = Boolean(!contextId && (focusId || hoverId) === station.id);
         station.leader.material.opacity = .52 * alpha;
       }
     }
@@ -133,7 +137,8 @@ export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
     if (hoverId === id) return false;
     hoverId = id; paint(); return true;
   }
-  function setEnabled(next, immediate = false) {
+  function setEnabled(next, immediate = false, context = null) {
+    if (next || immediate || alpha === 0) contextId = context;
     enabled = next; pickable = false; hoverId = null; focusId = null;
     if (immediate) alpha = Number(enabled);
     paint();
@@ -160,9 +165,10 @@ export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
   function update(dt, settling) {
     if (alpha !== Number(enabled)) {
       alpha = THREE.MathUtils.clamp(alpha + (enabled ? 1 : -1) * dt / .22, 0, 1);
+      if (!enabled && alpha === 0) contextId = null;
       paint();
     }
-    pickable = enabled && alpha === 1 && !settling;
+    pickable = enabled && !contextId && alpha === 1 && !settling;
   }
   function inView(point) {
     projected.copy(point).project(camera);
@@ -204,7 +210,7 @@ export function createSpatialOrbit({ camera, canvas, onEmphasis }) {
     root, blockersFrom, setEnabled, setFocus, setHover, update, pick,
     get animating() { return alpha !== Number(enabled); },
     stats: () => ({
-      alpha, hoverId, focusId,
+      alpha, hoverId, focusId, contextId,
       stations: !pickable ? [] : stations.map(({ id, point }) => {
         const inFrame = inView(point), blocked = inFrame && occluded(point);
         return { id, x: (projected.x+1)*canvas.clientWidth/2, y: (1-projected.y)*canvas.clientHeight/2,

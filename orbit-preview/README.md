@@ -2,6 +2,13 @@
 
 [Open the independent preview](https://kyle-annora.github.io/annora-hexapod-orbit/)
 
+[Compare single and layered tracks on the front right leg](https://kyle-annora.github.io/annora-hexapod-orbit/?study=leg-orbit#leg).
+**Single** shows the original close-up. **Layered** adds the assembly track
+in the background and a short leg arc with three selectable poses. The switch
+preserves the camera, playhead and playback state. Select a point on the arc
+or its named button below the model to hold Lift (0.625 s), Reach (1.25 s) or
+Return (2.5 s). Replay runs the original clip.
+
 This three-chapter, light-stage study uses a single Hexapod model and a single WebGL canvas. The track and its three beads sit in the same 3D space as the assembly. Drag to see the track edge-on. Hovering a bead holds rotation, traces a line to its part and shows the chapter name below the canvas. Tap the bead or the adjacent arc to open its chapter in one gesture. A station behind hardware is hidden and cannot be selected through the model. The Chapters menu lists all three destinations at any viewing angle. Focusing a destination in the overview highlights its station. The camera arrives before the selected 2.5-second action begins. Drag or pinch to take over at any time. Use the playback button to continue or replay and the slider to inspect a particular pose. **Whole model**, Escape and browser Back return to the orbit.
 
 - **Leg motion** samples the prepared front leg’s three joint tracks. The Ember trace follows one vertex on the foot through the illustrated reach. This clip describes an authored pose cycle.

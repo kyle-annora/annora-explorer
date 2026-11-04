@@ -5,7 +5,8 @@ import { loadBinary } from '../src/explorer/asset-load.js';
 import { createEngineeringEnvironment, createEngineeringLights } from '../src/explorer/engineering.js';
 import metadata from '../content/models/hexapod/metadata.json' with { type: 'json' };
 import { createChapterAction } from './action.js';
-import { createSpatialOrbit, orbitFramePoints } from './orbit.js';
+import { createSpatialOrbit, orbitFramePoints, legContextPoints } from './orbit.js';
+import { createLegMotionOrbit, poseFramePoints } from './leg-motion-orbit.js';
 
 const modelUrl = new URL('../content/models/hexapod/model.glb', import.meta.url);
 const gzipUrl = new URL('../content/models/hexapod/model.glb.gz', import.meta.url);
@@ -32,8 +33,9 @@ const viewPoints = {
 
 // The assembly is in native model coordinates. Fit the visible geometry to a
 // fraction of the actual canvas, leaving room for the orbital navigation around the assembly.
-function fitCamera(chapter, bounds, camera, width, height) {
-  const points = viewPoints[chapter] || corners([bounds.min.toArray(), bounds.max.toArray()]);
+function fitCamera(chapter, bounds, camera, width, height, legStudy) {
+  let points = viewPoints[chapter] || corners([bounds.min.toArray(), bounds.max.toArray()]);
+  if (legStudy && chapter === 'leg') points = [...points, ...legContextPoints, ...poseFramePoints];
   const center = bounds.getCenter(new THREE.Vector3());
   const direction = new THREE.Vector3(...angles[chapter]).normalize();
   const right = new THREE.Vector3().crossVectors(camera.up, direction).normalize();
@@ -175,7 +177,7 @@ function disposeGeometry(root) {
   materials.forEach(material => { material.map?.dispose(); material.dispose(); });
 }
 
-export function createScene({ canvas, onTakeover, onReady, onError, onTick, onStation, onEmphasis, reducedMotion = false }) {
+export function createScene({ canvas, onTakeover, onReady, onError, onTick, onStation, onEmphasis, legStudy = false, onPoseSelect, onPoseHover, reducedMotion = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'default' });
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.NeutralToneMapping;
@@ -200,6 +202,9 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
   const abort = new AbortController();
   const spatialOrbit = createSpatialOrbit({ camera, canvas, onEmphasis });
   world.add(spatialOrbit.root);
+  const poseOrbit = legStudy ? createLegMotionOrbit({ camera, canvas, onPoseHover }) : null;
+  if (poseOrbit) world.add(poseOrbit.root);
+  let layered = Boolean(legStudy);
 
   let action, surfaces, chapter = 'overview', progress = 0, shot = null, rotating = false, playing = false;
   let raf = 0, previous = null, disposed = false, ready = false, frames = 0, manualView = false;
@@ -224,10 +229,28 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     if (!press) takeover();
   });
   controls.addEventListener('end', wake);
+  function pick(event) { return poseOrbit?.pick(event) || spatialOrbit.pick(event); }
+  function poseVisible() { return Boolean(poseOrbit && layered && chapter === 'leg'); }
+  function syncOrbits(available, immediate) {
+    const local = available && poseVisible();
+    spatialOrbit.setEnabled(available && (chapter === 'overview' || local), immediate, local ? 'leg' : null);
+    poseOrbit?.setEnabled(local, immediate);
+  }
+  function setLayered(value) {
+    if (!poseOrbit || layered === Boolean(value)) return;
+    layered = Boolean(value);
+    if (chapter !== 'leg') return;
+    press = null; setHover(null); syncOrbits(ready, reducedMotion); wake();
+  }
+  function setPoseFocus(id) {
+    if (poseOrbit?.setFocus(poseVisible() ? id : null)) wake();
+  }
   function setHover(id) {
     hovering = Boolean(id);
     canvas.style.cursor = id ? 'pointer' : '';
-    if (spatialOrbit.setHover(id)) wake();
+    const local = poseVisible();
+    const changed = spatialOrbit.setHover(local ? null : id);
+    if (poseOrbit?.setHover(local ? id : null) || changed) wake();
   }
   function setStationFocus(id) {
     focused = Boolean(id);
@@ -241,7 +264,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
       if (press) { press = null; takeover(); }
       return;
     }
-    const id = ready && spatialOrbit.pick(event);
+    const id = ready && pick(event);
     press = id ? { id, x: event.clientX, y: event.clientY, pointer: event.pointerId } : null;
     if (press) setHover(id);
   }, pointerOptions);
@@ -250,7 +273,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
         Math.hypot(event.clientX - press.x, event.clientY - press.y) > (event.pointerType === 'touch' ? 8 : 5)) {
       press = null; takeover();
     }
-    if (!event.buttons && event.pointerType !== 'touch') setHover(ready ? spatialOrbit.pick(event) : null);
+    if (!event.buttons && event.pointerType !== 'touch') setHover(ready ? pick(event) : null);
   }, pointerOptions);
   stage.addEventListener('pointerup', event => {
     if (!press || press.pointer !== event.pointerId) return;
@@ -258,7 +281,10 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     press = null;
     if (event.pointerType === 'touch') setHover(null);
     if (Math.hypot(event.clientX - x, event.clientY - y) >= (event.pointerType === 'touch' ? 8 : 5)) return;
-    if (spatialOrbit.pick(event) === id) queueMicrotask(() => { if (!disposed) onStation?.(id); });
+    if (pick(event) === id) {
+      const select = poseVisible() ? onPoseSelect : onStation;
+      queueMicrotask(() => { if (!disposed) select?.(id); });
+    }
   }, pointerOptions);
   stage.addEventListener('pointercancel', () => { press = null; setHover(null); }, pointerOptions);
   stage.addEventListener('pointerleave', () => setHover(null), pointerOptions);
@@ -293,7 +319,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     if (!action) return;
     const width = canvas.clientWidth, height = canvas.clientHeight;
     if (!(width && height)) return;
-    const end = fitCamera(chapter, action.bounds(chapter), camera, width, height);
+    const end = fitCamera(chapter, action.bounds(chapter), camera, width, height, legStudy);
     controls.minDistance = Math.max(.018, end.spherical.radius * .18);
     controls.maxDistance = Math.max(end.spherical.radius * 4, .8);
     const start = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
@@ -352,12 +378,13 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
       if (playing) onTick?.(elapsed);
     }
     spatialOrbit.update(dt, Boolean(shot));
+    poseOrbit?.update(dt, Boolean(shot));
     renderer.render(world, camera); frames++;
     if (ready && !canvas.dataset.ready) {
       canvas.dataset.ready = 'true';
       onReady?.();
     }
-    if (shot || spatialOrbit.animating || (ready && (playing || controls.autoRotate))) wake();
+    if (shot || spatialOrbit.animating || poseOrbit?.animating || (ready && (playing || controls.autoRotate))) wake();
     if (!raf) previous = null;
   }
 
@@ -365,7 +392,8 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     if (!Object.hasOwn(angles, value)) return;
     chapter = value; progress = 0; manualView = false;
     press = null; setHover(null); setStationFocus(null);
-    spatialOrbit.setEnabled(ready && chapter === 'overview', reducedMotion);
+    syncOrbits(ready, reducedMotion);
+    poseOrbit?.setProgress(progress);
     canvas.dataset.chapter = value;
     if (footprint) footprint.visible = chapter === 'overview';
     if (action) {
@@ -377,6 +405,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
   function setProgress(value) {
     progress = THREE.MathUtils.clamp(value, 0, 1);
     action?.setProgress(progress);
+    poseOrbit?.setProgress(progress);
     wake();
   }
   function setRotating(value) {
@@ -389,7 +418,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     if (reducedMotion) {
       setRotating(false); setPlaying(false);
       if (shot) moveCamera(1);
-      spatialOrbit.setEnabled(ready && chapter === 'overview', true);
+      syncOrbits(ready, true);
     }
     wake();
   }
@@ -406,7 +435,8 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     world.add(footprint);
     action = createChapterAction(gltf);
     spatialOrbit.blockersFrom(modelMeshes);
-    spatialOrbit.setEnabled(chapter === 'overview', true);
+    poseOrbit?.blockersFrom(modelMeshes);
+    syncOrbits(true, true); poseOrbit?.setProgress(progress);
     action.setChapter(chapter); action.setProgress(progress);
     surfaces.target(chapter);
     frameChapter(true);
@@ -418,9 +448,9 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, onSt
     else wake();
   }, { signal: abort.signal });
   return {
-    setChapter, setProgress, setRotating, setPlaying, setReducedMotion, setStationFocus,
+    setChapter, setProgress, setRotating, setPlaying, setReducedMotion, setStationFocus, setLayered, setPoseFocus,
     stats: () => ({
-      orbit: spatialOrbit.stats(), frames, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      orbit: spatialOrbit.stats(), ...(poseOrbit ? { poseOrbit: poseOrbit.stats() } : {}), frames, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       meshes: modelMeshes.length, visibleMeshes: modelMeshes.filter(mesh => mesh.visible).length,
       camera: camera.position.toArray(), target: controls.target.toArray(), progress,
       ready, chapter, rotating, playing, transitioning: Boolean(shot), pixelRatio: renderer.getPixelRatio(),
