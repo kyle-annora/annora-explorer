@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%23292b2b'/%3E%3Cpath d='m5 17 7-12 7 12M8 13h8' stroke='%23ff613b' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <title>Hexapod linework study · Annora Lab</title>
+  <link rel="stylesheet" href="../src/linework-study/study.css">
+</head>
+<body data-appearance="light">
+  <svg class="icon-set" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m10 5-7 7 7 7m-7-7h17"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M20 9a8.5 8.5 0 1 0 .4 5M20 3v6h-6"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4.3" transform="rotate(-32 12 12)"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 1 1 0 17z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 13h5l3-8 4 14 3-8 1 2h4"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </svg>
+  <header class="mast">
+    <div class="brand" aria-label="Annora Lab">ANNORA <span aria-hidden="true">/</span> LAB</div>
+    <span class="preview-tag">Isolated preview</span>
+    <a class="back-link" href="https://kyle-annora.github.io/annora-explorer/"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span>Explorer</span></a>
+  </header>
+  <main class="workspace">
+    <div class="study-head">
+      <div class="title-wrap"><span class="kicker">Hexapod</span><h1>Linework study</h1></div>
+      <div class="variants" role="group" aria-label="Linework comparison">
+        <button type="button" data-variant="baseline" aria-pressed="true"><span class="index" aria-hidden="true">REF</span><span>Original</span></button>
+        <button type="button" data-variant="clarity" aria-pressed="false"><span class="index" aria-hidden="true">01</span><span>Clarity</span></button>
+        <button type="button" data-variant="density" aria-pressed="false"><span class="index" aria-hidden="true">02</span><span>Detail density</span></button>
+        <button type="button" data-variant="combined" aria-pressed="false"><span class="index" aria-hidden="true">03</span><span>Combined</span></button>
+      </div>
+    </div>
+    <section class="figure" aria-label="Interactive Hexapod comparison">
+      <div class="view-rail">
+        <div class="scopes" role="group" aria-label="Camera view">
+          <button type="button" data-scope="overview" aria-pressed="true">Whole model</button>
+          <button type="button" data-scope="leg" aria-pressed="false">Single leg</button>
+          <button type="button" data-scope="electronics" aria-pressed="false">Electronics</button>
+        </div>
+        <div class="tools" role="group" aria-label="Viewer controls">
+          <button type="button" id="rotate-toggle" title="Toggle continuous rotation" aria-label="Continuous rotation" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-orbit"/></svg></button>
+          <button type="button" id="reset-view" title="Reset camera" aria-label="Reset camera"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg></button>
+          <button type="button" id="appearance-toggle" title="Switch light or dark appearance" aria-label="Dark appearance" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-theme"/></svg></button>
+          <button type="button" id="measure-toggle" title="Performance check" aria-label="Performance check" aria-controls="measure-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-pulse"/></svg></button>
+        </div>
+      </div>
+      <div class="model-stage">
+        <div id="scene" aria-label="Hexapod linework. Drag to orbit and scroll or pinch to zoom."></div>
+        <span id="hover-label" hidden></span>
+        <div id="loading" role="status"><span class="loading-mark" aria-hidden="true"></span><span id="loading-label">Loading Hexapod…</span></div>
+      </div>
+      <aside id="measure-panel" aria-labelledby="measure-title" hidden>
+        <div class="meter-head"><h2 id="measure-title">Performance check</h2><button type="button" id="measure-close" aria-label="Close performance check"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+        <p>Measure a 12-second rotation on this device.</p>
+        <p id="render-summary" class="render-summary"></p>
+        <div id="measure-results" aria-live="polite"></div>
+        <div class="meter-actions"><button type="button" id="measure-run">Run check</button><button type="button" id="export-report" disabled>Export report</button></div>
+      </aside>
+    </section>
+    <div class="caption" aria-live="polite" aria-atomic="true">
+      <strong id="variant-title">Original</strong><p id="variant-description">Reference linework from the Explorer.</p>
+    </div>
+  </main>
+  <footer class="foot">
+    <span>Model: <a href="https://github.com/ggldnl/Hexapod-Hardware">Hexapod by ggldnl</a></span><a href="./LICENSES.txt">Licenses</a>
+  </footer>
+  <span id="status" class="sr-only" role="status"></span>
+  <script type="module" src="../src/linework-study/app.js"></script>
+</body>
+</html>
