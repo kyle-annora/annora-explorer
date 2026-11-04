@@ -132,3 +132,15 @@ The current recommendation is to review Combined first, then compare Original
 at the same frame and zoom into the PCB. No treatment is promoted into the
 formal Explorer by this release. A future rollout needs broader model coverage
 and physical lower-end GPU measurements.
+
+## Published release verification
+
+2026-11-03: source runtime `71b9cc7`; separate Pages release
+[`89c1e3c`](https://github.com/kyle-annora/annora-linework-study/commit/89c1e3c6acbf8d693f59f27dce9941f671ef4fc7).
+GitHub Pages reports a successful build. Public HTML, JavaScript and CSS hashes
+match the tested local build. The public link passed all 12 matched desktop
+comparisons and 18 mobile/theme/scope cases with no browser errors. Rotation
+pause, pointer takeover and idle rendering passed. The live performance panel
+also passed progress, cancellation without locked controls, completion and
+JSON report download. Production source paths and model content have no diff
+from the baseline; the normal Explorer deployment was not changed.
