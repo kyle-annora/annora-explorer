@@ -1,0 +1,30 @@
+# Hexapod orbital study
+
+[Open the independent preview](https://kyle-annora.github.io/annora-hexapod-orbit/)
+
+This three-chapter, light-stage study uses a single Hexapod model and a single WebGL canvas. Choose a fixed station on the orbit to leave the whole assembly. The camera arrives before the selected 2.5-second action begins. Drag or pinch to take over at any time. Use the playback button to continue or replay and the slider to inspect a particular pose. **Whole model**, Escape and browser Back return to the orbit.
+
+- **Leg motion** samples the prepared front leg’s three joint tracks. The Ember trace follows one vertex on the foot through the illustrated reach. This clip describes an authored pose cycle.
+- **Electronics** lifts the upper stiffeners first and then moves the board’s three display surfaces together. The mount and battery stay seated. The separation is an illustration of the stack.
+- With reduced motion enabled, the overview starts still and each local action waits for Play. Arrow keys orbit the focused canvas, Shift + arrows pan, and + / − zoom.
+
+## Run and verify
+
+Install the repository dependencies. From the repository root:
+
+```sh
+./node_modules/.bin/vite --config vite.orbit.config.js
+npm run verify
+./node_modules/.bin/vite build --config vite.orbit.config.js
+python3 -m http.server 8245 --bind 127.0.0.1 --directory work/site
+```
+
+Open `http://127.0.0.1:8245/annora-hexapod-orbit/`. To repeat the chapter, accessibility, gesture, reduced-motion and idle-render checks, run the following with Playwright and Chrome installed. Set `PLAYWRIGHT_MODULE` to a Playwright entry point if it is installed separately.
+
+```sh
+node scripts/qa-orbit-preview.mjs http://127.0.0.1:8245/annora-hexapod-orbit/
+```
+
+The independent Pages repository serves only the contents of `work/site/annora-hexapod-orbit/`. The normal Explorer build has its own entry point.
+
+Hexapod hardware by ggldnl and contributors. The published page links the complete bundled notices and the source location for the display adaptation. [Original hardware](https://github.com/ggldnl/Hexapod-Hardware) · [Prepared display geometry, mappings and source files](https://github.com/kyle-annora/annora-duck-showcase/tree/main/examples/hexapod).
