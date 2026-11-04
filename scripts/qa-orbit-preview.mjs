@@ -62,8 +62,16 @@ async function drag(p, touch=false) {
     await p.mouse.move(x,y); await p.mouse.down(); await p.mouse.move(x+65,y+12,{steps:6}); await p.mouse.up();
   }
 }
+async function viaIndex(p, id) {
+  await p.locator('#index-trigger').click();
+  await p.locator('[data-index-target="'+id+'"]').click();
+}
+async function enter(p, id) {
+  if (await station(p,id).isVisible()) await station(p,id).click({ timeout: 1700 }).catch(() => viaIndex(p,id));
+  else await viaIndex(p,id);
+}
 async function localChapter(p, id) {
-  await station(p, id).click();
+  await enter(p,id);
   await chapter(p, id);
   assert.equal(await p.locator('#orbit-nav').evaluate(el => el.inert), true);
   await p.waitForFunction(() => Number(document.querySelector('#progress').value) > 80);
@@ -92,7 +100,7 @@ async function reviewDesktop() {
     await p.waitForFunction(()=>Number(document.querySelector('#progress').value)>100);
     assert.ok(Number(await slider(p).inputValue()) < 850);
     await p.keyboard.press('Escape'); await chapter(p,'overview');
-    assert.equal(await p.evaluate(() => document.activeElement.dataset.chapterTarget),id);
+    assert.ok(await p.evaluate(id => document.activeElement.dataset.chapterTarget === id || document.activeElement.id === 'index-trigger', id));
     await p.goForward(); await chapter(p,id);
     await p.locator('#back-overview').click(); await chapter(p,'overview');
   }
@@ -106,9 +114,13 @@ async function reviewDesktop() {
 async function reviewMobile(width,height) {
   const [ctx,p]=await open(width,height,true,true);
   for (const id of ['overview','leg','electronics']) {
-    const stationHit = await hit(p, '[data-chapter-target="'+id+'"]');
-    assert.ok(stationHit.hit && stationHit.height>=44 && stationHit.width>=44, 'station at '+width);
-    await station(p,id).tap();
+    const tag = station(p,id);
+    if (await tag.isVisible()) {
+      const stationHit = await hit(p, '[data-chapter-target="'+id+'"]');
+      assert.ok(stationHit.height>=44 && stationHit.width>=44, 'station at '+width);
+      if (stationHit.hit) await tag.tap();
+      else await viaIndex(p,id);
+    } else await viaIndex(p,id);
     await chapter(p,id);
     if(id!=='overview'){
       assert.equal(await p.locator('#playback').getAttribute('data-mode'),'play');
@@ -132,6 +144,34 @@ async function reviewMobile(width,height) {
   report.cases.push(width+'×'+height+': actual touch events, all three chapter targets, reduced motion, scrub/takeover, portrait or landscape layout');
   await ctx.close();
 }
+// Read the physical anchor from its adjacent projected label, then bypass the
+// label entirely. The DOM element at the exact pick coordinate must be canvas.
+async function projectedNode(p,id) {
+  return station(p,id).evaluate(el=>{
+    const rect=document.querySelector('#scene').getBoundingClientRect();
+    return {x:rect.left+parseFloat(el.style.left)+(el.dataset.side.endsWith('left')?8:-8),y:rect.top+parseFloat(el.style.top)};
+  });
+}
+async function spatialControls(width,height,touch=false) {
+  const [ctx,p]=await open(width,height,touch,true);
+  const node=await projectedNode(p,'leg');
+  assert.ok(await p.evaluate(({x,y})=>document.elementFromPoint(x,y)?.id==='scene',node));
+  if (touch) await p.touchscreen.tap(node.x,node.y); else await p.mouse.click(node.x,node.y);
+  await chapter(p,'leg'); await p.locator('#back-overview').click(); await chapter(p,'overview');
+  const before=await projectedNode(p,'leg');
+  await p.locator('#scene').focus(); await p.keyboard.press('ArrowRight');
+  await p.waitForTimeout(100);
+  const after=await projectedNode(p,'leg');
+  assert.ok(Math.hypot(after.x-before.x,after.y-before.y)>2, 'station must travel with camera');
+  if(!touch){
+    await p.mouse.move(after.x,after.y); await p.mouse.down();
+    await p.mouse.move(after.x+85,after.y+16,{steps:8}); await p.mouse.up(); await chapter(p,'overview');
+    await viaIndex(p,'leg'); await chapter(p,'leg');
+    await viaIndex(p,'electronics'); await chapter(p,'electronics');
+    await p.locator('#back-overview').click(); await chapter(p,'overview');
+  }
+  report.cases.push(width+'px: direct 3D bead pick, perspective tracking and index navigation');await ctx.close();
+}
 async function deepLink() {
   const [ctx,p] = await open(960,700,false,true,'#electronics');
   await chapter(p,'electronics'); await slider(p).focus(); await p.keyboard.press('End');
@@ -144,6 +184,7 @@ async function deepLink() {
 try {
   await reviewDesktop();
   for(const [w,h] of [[320,568],[390,844],[844,390]]) await reviewMobile(w,h);
+  await spatialControls(1440,900); await spatialControls(390,844,true);
   await deepLink(); assert.deepEqual(report.errors,[]);
 } catch(error) { report.failure=error.stack; process.exitCode=1; }
 finally {await browser.close();await writeFile(path.join(out,'qa.json'),JSON.stringify(report,null,2)+'\n');}

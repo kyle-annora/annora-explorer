@@ -5,6 +5,7 @@ import { loadBinary } from '../src/explorer/asset-load.js';
 import { createEngineeringEnvironment, createEngineeringLights } from '../src/explorer/engineering.js';
 import metadata from '../content/models/hexapod/metadata.json' with { type: 'json' };
 import { createChapterAction } from './action.js';
+import { createSpatialOrbit, orbitFramePoints } from './orbit.js';
 
 const modelUrl = new URL('../content/models/hexapod/model.glb', import.meta.url);
 const gzipUrl = new URL('../content/models/hexapod/model.glb.gz', import.meta.url);
@@ -30,7 +31,7 @@ const viewPoints = {
 };
 
 // The assembly is in native model coordinates. Fit the visible geometry to a
-// fraction of the actual canvas, leaving room for the fixed orbit labels.
+// fraction of the actual canvas, leaving room for the orbital navigation around the assembly.
 function fitCamera(chapter, bounds, camera, width, height) {
   const points = viewPoints[chapter] || corners([bounds.min.toArray(), bounds.max.toArray()]);
   const center = bounds.getCenter(new THREE.Vector3());
@@ -53,6 +54,15 @@ function fitCamera(chapter, bounds, camera, width, height) {
   let radius = .01;
   for (const [x, y, z] of projected) {
     radius = Math.max(radius, Math.abs(x - midX) / (camera.aspect * tangent * fillX) + z, Math.abs(y - midY) / (tangent * fillY) + z);
+  }
+  if (chapter === 'overview') {
+    // Fit the attached navigation to the same camera. Always reserve space
+    // for a station at each edge even on a narrow portrait canvas.
+    for (const point of orbitFramePoints) {
+      const delta = point.clone().sub(center), z = delta.dot(direction);
+      radius = Math.max(radius, Math.abs(delta.dot(right)) / (camera.aspect * tangent * .90) + z,
+        Math.abs(delta.dot(up)) / (tangent * .86) + z);
+    }
   }
   return { center, spherical: new THREE.Spherical().setFromVector3(direction.multiplyScalar(radius)) };
 }
@@ -105,24 +115,53 @@ function createSurfaces(gltf) {
   };
 }
 
-// A single textured disc gives the assembly a quiet contact footprint without
-// a shadow-map render pass. The close-ups float clear of the ground plane.
-function contactFootprint() {
+// Bake an assembled-pose contact plate once. Each foot tip is read from the
+// source mesh in world space; the moving detail views never show this plate.
+function contactFootprint(model) {
+  const span = .68, resolution = 512;
   const surface = document.createElement('canvas');
-  surface.width = surface.height = 128;
+  surface.width = surface.height = resolution;
   const context = surface.getContext('2d');
-  const shadow = context.createRadialGradient(64, 64, 0, 64, 64, 64);
-  shadow.addColorStop(0, 'rgba(28,31,35,.30)');
-  shadow.addColorStop(.6, 'rgba(28,31,35,.15)');
-  shadow.addColorStop(1, 'rgba(28,31,35,0)');
-  context.fillStyle = shadow; context.fillRect(0, 0, 128, 128);
+  const pixel = value => (value / span + .5) * resolution;
+  function patch(x, z, rx, rz, opacity, angle = 0) {
+    context.save();
+    context.translate(pixel(x), pixel(z));
+    context.rotate(angle);
+    context.scale(rx / span * resolution, rz / span * resolution);
+    const shadow = context.createRadialGradient(0, 0, 0, 0, 0, 1);
+    shadow.addColorStop(0, `rgba(41,36,31,${opacity})`);
+    shadow.addColorStop(.48, `rgba(41,36,31,${opacity * .61})`);
+    shadow.addColorStop(1, 'rgba(41,36,31,0)');
+    context.fillStyle = shadow;
+    context.fillRect(-1, -1, 2, 2);
+    context.restore();
+  }
+  model.updateWorldMatrix(true, true);
+  patch(.011, -.011, .178, .148, .21);
+  const point = new THREE.Vector3(), toe = new THREE.Vector3();
+  for (let leg = 1; leg <= 6; leg++) {
+    const tibia = model.getObjectByName(`Hex_leg_${leg}_tibia_1`);
+    const vertices = tibia.geometry.getAttribute('position');
+    let minimum = Infinity;
+    for (let i = 0; i < vertices.count; i++) {
+      point.fromBufferAttribute(vertices, i).applyMatrix4(tibia.matrixWorld);
+      if (point.y < minimum) { minimum = point.y; toe.copy(point); }
+    }
+    const coxa = partsByName.get(`Hex_leg_${leg}_coxa_motor_1`).center;
+    const angle = Math.atan2(toe.z - coxa[2], toe.x - coxa[0]);
+    const spanLeg = Math.hypot(toe.x - coxa[0], toe.z - coxa[2]);
+    patch((coxa[0] + toe.x) / 2 + .010, (coxa[2] + toe.z) / 2 - .012,
+      spanLeg * .65, .044, .13, angle);
+    patch(toe.x + .002, toe.z - .002, .028, .018, .22, angle);
+    patch(toe.x, toe.z, .010, .0065, .48, angle);
+  }
   const map = new THREE.CanvasTexture(surface);
   map.colorSpace = THREE.SRGBColorSpace;
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.57, .47), new THREE.MeshBasicMaterial({
-    map, transparent: true, opacity: .65, depthWrite: false, toneMapped: false,
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(span, span), new THREE.MeshBasicMaterial({
+    map, transparent: true, depthWrite: false, toneMapped: false,
   }));
   mesh.rotation.x = -Math.PI / 2;
-  mesh.position.y = -.0015;
+  mesh.position.y = -.0004;
   return mesh;
 }
 
@@ -136,7 +175,7 @@ function disposeGeometry(root) {
   materials.forEach(material => { material.map?.dispose(); material.dispose(); });
 }
 
-export function createScene({ canvas, onTakeover, onReady, onError, onTick, reducedMotion = false }) {
+export function createScene({ canvas, onTakeover, onReady, onError, onTick, onStation, onStations, onEmphasis, reducedMotion = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'default' });
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.NeutralToneMapping;
@@ -144,10 +183,11 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
   world.add(createEngineeringLights());
   const environment = createEngineeringEnvironment(renderer);
   world.environment = environment.texture;
-  const footprint = contactFootprint();
-  world.add(footprint);
+  world.environmentIntensity = .92;
+  let footprint;
   const camera = new THREE.PerspectiveCamera(26, 1, .001, 7);
-  const controls = new OrbitControls(camera, canvas);
+  const stage = canvas.closest('.visual-stage') || canvas;
+  const controls = new OrbitControls(camera, stage);
   controls.enableDamping = false;
   controls.enablePan = false;
   controls.rotateSpeed = .72;
@@ -158,10 +198,12 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
   controls.maxDistance = 3;
   controls.autoRotateSpeed = .66;
   const abort = new AbortController();
+  const spatialOrbit = createSpatialOrbit({ camera, canvas, onStations, onEmphasis });
+  world.add(spatialOrbit.root);
 
   let action, surfaces, chapter = 'overview', progress = 0, shot = null, rotating = false, playing = false;
   let raf = 0, previous = null, disposed = false, ready = false, frames = 0, manualView = false;
-  let modelMeshes = [];
+  let modelMeshes = [], press = null, hovering = false, focused = false, interacting = false;
 
   function wake() {
     if (!disposed && !document.hidden && !raf) raf = requestAnimationFrame(render);
@@ -177,7 +219,63 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
     onTakeover?.();
     wake();
   }
-  controls.addEventListener('start', takeover);
+  controls.addEventListener('start', () => {
+    interacting = true;
+    if (!press) takeover();
+  });
+  controls.addEventListener('end', () => { interacting = false; wake(); });
+  function setHover(id) {
+    hovering = Boolean(id);
+    canvas.style.cursor = id ? 'pointer' : '';
+    if (spatialOrbit.setHover(id)) wake();
+  }
+  function setStationFocus(id) {
+    focused = Boolean(id);
+    if (spatialOrbit.setFocus(id)) wake();
+  }
+  // Both the adjacent HTML labels and the physical stations share a gesture
+  // owner. A stationary tap opens once; a drag or second finger claims the
+  // camera. Keyboard and assistive clicks retain native button behavior.
+  const pointerOptions = { capture: true, signal: abort.signal };
+  const stationLabel = target => target.closest?.('button[data-chapter-target]:not([hidden]):not(:disabled)');
+  stage.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) {
+      if (press) { press = null; takeover(); }
+      return;
+    }
+    const label = stationLabel(event.target);
+    const id = ready && (label?.dataset.chapterTarget || spatialOrbit.pick(event));
+    press = id ? { id, label, x: event.clientX, y: event.clientY, pointer: event.pointerId } : null;
+  }, pointerOptions);
+  stage.addEventListener('pointermove', event => {
+    if (press && event.pointerId === press.pointer &&
+        Math.hypot(event.clientX - press.x, event.clientY - press.y) > (event.pointerType === 'touch' ? 8 : 5)) {
+      if (press.label === document.activeElement) canvas.focus({ preventScroll: true });
+      press = null; setHover(null); takeover();
+    }
+    if (!event.buttons && event.pointerType !== 'touch') {
+      const label = stationLabel(event.target);
+      setHover(ready ? (label?.dataset.chapterTarget || spatialOrbit.pick(event)) : null);
+    }
+  }, pointerOptions);
+  stage.addEventListener('pointerup', event => {
+    if (!press || press.pointer !== event.pointerId) return;
+    const { id, label, x, y } = press;
+    press = null;
+    if (Math.hypot(event.clientX - x, event.clientY - y) >= (event.pointerType === 'touch' ? 8 : 5)) return;
+    const hit = label
+      ? !label.hidden && !label.disabled && label.contains(document.elementFromPoint(event.clientX, event.clientY))
+      : spatialOrbit.pick(event) === id;
+    if (hit) queueMicrotask(() => { if (!disposed) onStation?.(id); });
+  }, pointerOptions);
+  stage.addEventListener('pointercancel', () => { press = null; setHover(null); }, pointerOptions);
+  stage.addEventListener('pointerleave', () => setHover(null), pointerOptions);
+  stage.addEventListener('click', event => {
+    if (event.detail > 0 && event.target.closest?.('button[data-chapter-target]')) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, pointerOptions);
   controls.addEventListener('change', wake);
   canvas.addEventListener('keydown', event => {
     const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', '_'];
@@ -259,24 +357,27 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
       shot.elapsed += dt;
       moveCamera(Math.min(1, shot.elapsed / .55));
     } else if (ready) {
-      controls.autoRotate = rotating && chapter === 'overview';
+      controls.autoRotate = rotating && chapter === 'overview' && !hovering && !focused && !press;
       if (controls.autoRotate) controls.update(dt);
       if (playing) onTick?.(elapsed);
     }
+    spatialOrbit.update(dt, now, Boolean(shot || interacting || controls.autoRotate), Boolean(shot));
     renderer.render(world, camera); frames++;
     if (ready && !canvas.dataset.ready) {
       canvas.dataset.ready = 'true';
       onReady?.();
     }
-    if (shot || (ready && (playing || (rotating && chapter === 'overview')))) wake();
+    if (shot || spatialOrbit.animating || (ready && (playing || controls.autoRotate))) wake();
     if (!raf) previous = null;
   }
 
   function setChapter(value) {
     if (!Object.hasOwn(angles, value)) return;
     chapter = value; progress = 0; manualView = false;
+    press = null; setHover(null); setStationFocus(null);
+    spatialOrbit.setEnabled(ready && chapter === 'overview', reducedMotion);
     canvas.dataset.chapter = value;
-    footprint.visible = chapter === 'overview';
+    if (footprint) footprint.visible = chapter === 'overview';
     if (action) {
       action.setChapter(chapter);
       surfaces.target(chapter);
@@ -298,6 +399,7 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
     if (reducedMotion) {
       setRotating(false); setPlaying(false);
       if (shot) moveCamera(1);
+      spatialOrbit.setEnabled(ready && chapter === 'overview', true);
     }
     wake();
   }
@@ -309,7 +411,12 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
     gltf.scene.traverse(object => { if (object.isMesh) modelMeshes.push(object); });
     surfaces = createSurfaces(gltf);
     world.add(gltf.scene);
+    footprint = contactFootprint(gltf.scene);
+    footprint.visible = chapter === 'overview';
+    world.add(footprint);
     action = createChapterAction(gltf);
+    spatialOrbit.blockersFrom(modelMeshes);
+    spatialOrbit.setEnabled(chapter === 'overview', true);
     action.setChapter(chapter); action.setProgress(progress);
     surfaces.target(chapter);
     frameChapter(true);
@@ -321,9 +428,9 @@ export function createScene({ canvas, onTakeover, onReady, onError, onTick, redu
     else wake();
   }, { signal: abort.signal });
   return {
-    setChapter, setProgress, setRotating, setPlaying, setReducedMotion,
+    setChapter, setProgress, setRotating, setPlaying, setReducedMotion, setStationFocus,
     stats: () => ({
-      frames, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      orbit: spatialOrbit.stats(), frames, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       meshes: modelMeshes.length, visibleMeshes: modelMeshes.filter(mesh => mesh.visible).length,
       camera: camera.position.toArray(), target: controls.target.toArray(), progress,
       ready, chapter, rotating, playing, transitioning: Boolean(shot), pixelRatio: renderer.getPixelRatio(),

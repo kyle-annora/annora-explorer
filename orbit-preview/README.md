@@ -2,7 +2,7 @@
 
 [Open the independent preview](https://kyle-annora.github.io/annora-hexapod-orbit/)
 
-This three-chapter, light-stage study uses a single Hexapod model and a single WebGL canvas. Choose a fixed station on the orbit to leave the whole assembly. The camera arrives before the selected 2.5-second action begins. Drag or pinch to take over at any time. Use the playback button to continue or replay and the slider to inspect a particular pose. **Whole model**, Escape and browser Back return to the orbit.
+This three-chapter, light-stage study uses a single Hexapod model and a single WebGL canvas. The broken track and its three stations sit in the same 3D space as the assembly. Drag down to see the track edge-on, hover a station to locate its part, or tap the bead or nearby arc to open its chapter. A station behind hardware is hidden and cannot be selected through the model. The Chapters index reaches every chapter at any viewing angle. The camera arrives before the selected 2.5-second action begins. Drag or pinch to take over at any time. Use the playback button to continue or replay and the slider to inspect a particular pose. **Whole model**, Escape and browser Back return to the orbit.
 
 - **Leg motion** samples the prepared front leg’s three joint tracks. The Ember trace follows one vertex on the foot through the illustrated reach. This clip describes an authored pose cycle.
 - **Electronics** lifts the upper stiffeners first and then moves the board’s three display surfaces together. The mount and battery stay seated. The separation is an illustration of the stack.
@@ -19,7 +19,7 @@ npm run verify
 python3 -m http.server 8245 --bind 127.0.0.1 --directory work/site
 ```
 
-Open `http://127.0.0.1:8245/annora-hexapod-orbit/`. To repeat the chapter, accessibility, gesture, reduced-motion and idle-render checks, run the following with Playwright and Chrome installed. Set `PLAYWRIGHT_MODULE` to a Playwright entry point if it is installed separately.
+Open `http://127.0.0.1:8245/annora-hexapod-orbit/`. To repeat the chapter, perspective, physical node selection, touch, reduced-motion and idle-render checks, run the following with Playwright and Chrome installed. Set `PLAYWRIGHT_MODULE` to a Playwright entry point if it is installed separately.
 
 ```sh
 node scripts/qa-orbit-preview.mjs http://127.0.0.1:8245/annora-hexapod-orbit/
