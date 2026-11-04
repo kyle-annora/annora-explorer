@@ -24,11 +24,15 @@ function ringPoint(degrees) {
 }
 const nearArc = (angle, station) => THREE.MathUtils.euclideanModulo(angle - station + 180, 360) - 180;
 const segments = [];
+let orbitLength = 0;
 for (let i = 0; i < 240; i++) {
   const start = i * 1.5, end = start + 1.5;
+  const a = ringPoint(start), b = ringPoint(end);
+  const from = orbitLength;
+  orbitLength += a.distanceTo(b);
   const station = Object.entries(stationAngles).find(([, angle]) => Math.abs(nearArc((start + end) / 2, angle)) < 18);
   const gap = station && Math.abs(nearArc((start + end) / 2, station[1])) < 3;
-  if (!gap) segments.push({ a: ringPoint(start), b: ringPoint(end), id: station?.[0] || null });
+  if (!gap) segments.push({ a, b, from, to: orbitLength, id: station?.[0] || null });
 }
 export const orbitFramePoints = Array.from({ length: 72 }, (_, i) => ringPoint(i * 5));
 
@@ -41,16 +45,30 @@ function makeArc(records, width) {
   return arc;
 }
 
+function makeTrack(records, width) {
+  const arc = makeArc(records, width);
+  // A single distance around the ellipse keeps dashes aligned across the seam,
+  // bead clearances and independently colored station arcs as the camera turns.
+  for (const [attribute, key] of [['instanceDistanceStart', 'from'], ['instanceDistanceEnd', 'to']]) {
+    arc.geometry.setAttribute(attribute, new THREE.InstancedBufferAttribute(Float32Array.from(records, segment => segment[key]), 1));
+  }
+  const period = orbitLength / 72;
+  arc.material.dashed = true;
+  arc.material.dashSize = period * .63;
+  arc.material.gapSize = period - arc.material.dashSize;
+  return arc;
+}
+
 function createOrbitGeometry() {
   const root = new THREE.Group();
   root.name = 'Orbital chapter navigation';
-  const base = makeArc(segments.filter(segment => segment.id === null), 1);
+  const base = makeTrack(segments.filter(segment => segment.id === null), 1);
   root.add(base);
   const sphere = new THREE.SphereGeometry(.0058, 16, 10);
   const stations = Object.entries(stationAngles).map(([id, angle]) => {
     const point = ringPoint(angle);
     const hitArc = segments.filter(segment => segment.id === id);
-    const arc = makeArc(hitArc, 1.25);
+    const arc = makeTrack(hitArc, 1.25);
     const beadMaterial = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false });
     const bead = new THREE.Mesh(sphere, beadMaterial);
     bead.position.copy(point);
