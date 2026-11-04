@@ -11,6 +11,7 @@ import { MODEL_CATALOG, resolveModel, validatePackage } from './model-catalog.js
 import { AssemblyScene } from './scene.js';
 import { GuidedTour } from './tour-ui.js';
 import { presentationEntry } from './presentation-entry.js';
+import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
 import { createPageLifecycle } from './controller/page-lifecycle.js';
@@ -31,6 +32,10 @@ const embedded = params.get('embed') === '1', compactChrome = embedded && params
 document.body.dataset.embedded = String(embedded);
 document.body.dataset.compactChrome = String(compactChrome);
 const model = resolveModel(params.get('model'));
+const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
+const offersOrbit = hasOrbitalGuide(model, presentationMedia, embedded || window.parent !== window) && params.get('guide') !== 'timeline';
+let orbital;
+if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
 const displayStorageKey=`${themeStorageKey}.display.v1`;
 let preferenceStorage;try{preferenceStorage=localStorage;}catch{}
@@ -52,7 +57,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -77,7 +82,6 @@ $('model-select').value=model.id;
 listen($('model-select'),'change',event=>{const url=new URL(location.href);url.searchParams.set('model',event.target.value);url.searchParams.set('render',preferredRenderStyle);if(explorer?.quality)url.searchParams.set('quality',explorer.quality);url.hash='';location.assign(url);});
 $('scene').setAttribute('aria-label',`Interactive ${model.title}. Drag to orbit, scroll to zoom, click to select. Use the assembly index to explore individual parts.`);
 $('view-front').textContent=model.viewLabels[0];$('view-rear').textContent=model.viewLabels[1];
-const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
 $('presentation-media-link').hidden=!presentationMedia;
 if(presentationMedia)$('presentation-media-link').href=presentationMediaPath(model.id);
 $('source-title').textContent=model.title;
@@ -313,6 +317,7 @@ listen($('toggle-tree'),'click',()=>{
 });
 for(const id of ['close-tree','tree-backdrop'])listen($(id),'click',()=>{closeTree();lastFocus?.focus();});
 listen(document,'keydown',event=>{
+  if (orbital?.active) return;
   if(event.key==='Escape'){
     if(!$('path-panel').hidden){event.preventDefault();closePath(true);return;}
     if(sourceDialog.open){event.preventDefault();sourceDialog.close();return;}
@@ -413,11 +418,34 @@ async function start(){
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);
     explorer.setDisplayOptions({appearance,grid:displayPreferences.grids[openingStyle]});
     if(shellAbort.signal.aborted)return;syncPresentationUI();
-    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
+    if (offersOrbit) orbital = createOrbitalNavigation({
+      model, browser: window, listen, load: () => import('./orbital/ui.js'),
+      mount({ mountOrbitalUI }, chapter, navigate, exit) {
+        controller.takeover();
+        closePath(); closeDisplay(); closeTheme();
+        if (!$('perf-panel').hidden) closePerformance();
+        return mountOrbitalUI({ explorer, chapter, navigate, exit });
+      },
+      onPending(pending) {
+        $('tour-start').disabled = pending;
+        if (!pending) delete document.body.dataset.openingOrbit;
+      },
+      onExit() {
+        syncTreeAccess();
+        const focus = document.body.classList.contains('tree-open') ? $('close-tree') : $('tour-start');
+        focus.focus({ preventScroll: true });
+      },
+      onFailure(error) {
+        console.error('Orbital presentation unavailable:', error);
+        $('status-message').textContent = 'The presentation could not open. You can still explore the model.';
+      }
+    });
+    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),entry:orbital&&{label:'3 chapters',open:orbital.open},captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
     renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
     overlayObserver=new ResizeObserver(()=>{if(!explorer.ready||shellAbort.signal.aborted)return;cancelAnimationFrame(overlayFrame);overlayFrame=requestAnimationFrame(()=>{document.documentElement.style.setProperty('--dock-height',`${document.querySelector('.stage-tools').getBoundingClientRect().height}px`);explorer.refitLayout();$('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;});});
     for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel','#tour-copy','.tour-transport'])overlayObserver.observe(document.querySelector(selector));
     listen($('scene'),'keydown',event=>{
+      if (orbital?.active) return;
       if(guidedTour?.active){
         if(event.code==='Space'){event.preventDefault();const state=guidedTour.player.state();if(state.status==='playing')command('pauseTour');else if(guidedTour.reducedMotion){const chapter=guidedTour.tour.chapters[state.index+1];command(chapter?'goToTourChapter':'seekTour',chapter?{chapterId:chapter.id}:{seconds:guidedTour.tour.duration});}else command('resumeTour');}
         else if(event.key.toLowerCase()==='r')command('frame',{nodeId:navigation.scopeId});return;
@@ -427,7 +455,8 @@ async function start(){
       if(event.code==='Space'&&mode==='operate'){event.preventDefault();command(explorer.getOperationState().playing?'pauseOperation':'playOperation');}
     });
     const entry=presentationEntry(params,model);
-    if(entry&&!shellAbort.signal.aborted)await command('startTour',entry);
+    if (orbital) { await orbital.sync(); delete document.body.dataset.openingOrbit; }
+    else if(entry&&!shellAbort.signal.aborted)await command('startTour',entry);
   }catch(error){if(shellAbort.signal.aborted)return;controller.setLifecycle('error',error);explorer?.dispose();console.error(error);$('loading-label').textContent='The model could not be loaded. Reload this page to try again.';$('status-message').textContent='Model unavailable';document.body.dataset.error=error.message;}
 }
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');

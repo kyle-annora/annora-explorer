@@ -16,7 +16,7 @@ function render() {
     const { media } = record;
     document.title = `${record.shortTitle} · Film & keyframes`;
     $('identity').textContent = `${PROJECT_CONFIG.brand.name} / ${PROJECT_CONFIG.brand.product}`; $('model-select').value = record.modelId;
-    $('back-to-explorer').href = `../?model=${encodeURIComponent(record.modelId)}&presentation=1`;
+    $('back-to-explorer').href = `../?model=${encodeURIComponent(record.modelId)}&presentation=1${record.interactiveGuide ? '&guide=timeline' : ''}`;
     $('media-title').textContent = `Inside ${record.shortTitle}.`;
     $('description').textContent = `A silent presentation from the same prepared ${record.title} model and timeline used in Explorer. Open the interactive model to inspect a part or take control.`;
     $('credits').textContent = record.attribution; $('source-link').href = record.sourceUrl;

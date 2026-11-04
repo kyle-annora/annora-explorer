@@ -90,6 +90,27 @@ export class AssemblyScene {
 
   invalidate(){if(this.disposed)return;this.dirty=true;if(this.raf===null)this.raf=requestAnimationFrame(this.frame);}
 
+  /** A presentation may borrow the viewport and demand loop, while keeping
+   * its own camera and poses separate from the current inspection. */
+  attachPresentationStage(stage) {
+    if (this.disposed || !this.ready || this.presentationStage) throw new Error('The viewport is unavailable.');
+    this.cancelBenchmark('presentation');
+    this.hideHover();
+    const controlsEnabled = this.controls.enabled;
+    this.controls.enabled = false;
+    this.lastFrame = null;
+    this.presentationStage = stage;
+    this.invalidate();
+    return () => {
+      if (this.presentationStage !== stage) return;
+      this.presentationStage = null;
+      this.stageResizePending = false;
+      this.controls.enabled = controlsEnabled;
+      this.lastFrame = null;
+      this.invalidate();
+    };
+  }
+
   /** Completion evidence comes from the existing render loop, never a polling RAF. */
   async whenSettled({signal,settle=true,frame=true,ignorePlayback=false}={}) {
     if(this.disposed)return Promise.reject(new DOMException('Explorer disposed.','AbortError'));
@@ -292,6 +313,7 @@ export class AssemblyScene {
   }
 
   refitLayout(animate = true) {
+    if (this.presentationStage) return;
     if (!this.ready || this.layoutRegion().key === this.lastLayoutKey) return;
     if(this.tourFrame){this.tourCameraKey=null;this.fitTourCamera(this.tourFrame,animate);}
     else {
@@ -852,7 +874,9 @@ export class AssemblyScene {
     };
     const intent = createPointerIntent();
     // Record a completed release before OrbitControls releases pointer capture.
-    const listen=(type,handler)=>canvas.addEventListener(type,handler,{signal:this.abort.signal,capture:type==='pointerup'});
+    const listen=(type,handler)=>canvas.addEventListener(type,event=>{
+      if (!this.presentationStage) handler(event);
+    },{signal:this.abort.signal,capture:type==='pointerup'});
     listen('dblclick',e=>{if(!this.ready||this.benchmark.active||!intent.canDoubleClick())return;const node=hit(e);if(node&&node.id!==this.scopeId){this.callbacks.interact?.('inspect');this.callbacks.inspect?.(node.id);}});
     listen('pointerdown',e => {intent.down(e);if(e.pointerType==='touch')this.hideHover();});
     listen('pointerup',e => {
@@ -890,8 +914,12 @@ export class AssemblyScene {
   resize(){
     if(this.disposed)return;
     const width=this.mount.clientWidth,height=this.mount.clientHeight;if(!width||!height)return;
+    // Resizing the GL drawing buffer clears it. During a stage presentation,
+    // apply its size and draw in the same frame, including when a menu reflows.
+    if (this.presentationStage) { this.stageResizePending = true; this.invalidate(); return; }
     this.cancelBenchmark('settings-changed');this.resizeDrawingBuffer();this.camera.aspect=width/height;this.camera.updateProjectionMatrix();
-    if(this.ready)this.refitLayout(false);this.invalidate();
+    if (this.ready) this.refitLayout(false);
+    this.invalidate();
   }
 
   startBenchmark(){
@@ -920,6 +948,7 @@ export class AssemblyScene {
 
   dispose() {
     if(this.disposed)return;this.disposed=true;this.modeRequest=(this.modeRequest||0)+1;this.presentationRequest=(this.presentationRequest||0)+1;
+    this.presentationStage?.dispose();
     if(this.raf!==null)cancelAnimationFrame(this.raf);this.raf=null;
     this.abort.abort();this.resizeObserver.disconnect();this.controls.dispose();this.separationAction?.pause();this.operationPlayer.pause();this.operationSampler?.dispose();
     this.benchmark.cancel?.('cancelled');this.benchmarkStarted=null;
@@ -935,6 +964,24 @@ export class AssemblyScene {
   frame(time) {
     this.raf=null;if(this.disposed)return;
     if(document.hidden){if(this.benchmarkStarted){this.controls.enabled=true;this.callbacks.report?.(this.benchmark.lastReport);this.benchmarkStarted=null;}return;}
+    if (this.presentationStage) {
+      if (this.stageResizePending) {
+        this.stageResizePending = false;
+        this.resizeDrawingBuffer();
+        this.presentationStage.resize();
+      }
+      const elapsed = Math.max(0, (time - (this.lastFrame ?? time)) / 1000);
+      this.lastFrame = time;
+      this.dirty = false;
+      const moving = this.presentationStage.render(elapsed);
+      this.renderCount = (this.renderCount || 0) + 1;
+      this.mount.dataset.renderedFrames = this.renderCount;
+      this.mount.dataset.motion = moving ? 'moving' : 'settled';
+      this.flushSettledWaiters();
+      if (moving) this.invalidate();
+      if (this.raf === null) this.lastFrame = null;
+      return;
+    }
     const tourPlaying=Boolean(this.callbacks.tourTick?.(time));
     if(this.disposed)return;
     const elapsed=time-(this.lastFrame??time),seconds=Math.min(.1,Math.max(0,elapsed/1000));this.lastFrame=time;

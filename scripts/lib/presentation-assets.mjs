@@ -18,6 +18,8 @@ export async function loadPresentationAssets(root, models) {
     mediaRoot ||= await realpath(path.join(root, 'content/presentations/media'));
     assert(model.tour?.id === record.tourId, `${record.modelId} references a different authored tour.`);
     assert(/^sha256:[a-f0-9]{64}$/.test(record.modelRevision) && model.revision === record.modelRevision, `${record.modelId} media belongs to a different model package revision.`);
+    if (record.interactiveGuide !== undefined) assert(record.interactiveGuide === 'hexapod-orbit-v1' &&
+      record.modelId === 'hexapod' && record.tourId === 'hexapod-showcase', `${record.modelId} has an unsupported interactive guide.`);
     for (const key of ['title','shortTitle','description','attribution']) assert(typeof record[key] === 'string' && record[key].trim() && record[key].length <= 1000, `${key} needs bounded text.`);
     for (const key of ['sourceUrl','preparationUrl']) {
       const url = new URL(record[key]); assert(url.protocol === 'https:' && !url.username && !url.password, `${key} must be a public HTTPS source.`);

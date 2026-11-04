@@ -29,8 +29,12 @@ from the media page. Hexapod's notice retains its public modified Source Locatio
 The large raw robot source and full-resolution WebM masters are not duplicated
 into this reusable starter. They remain available at the pinned source above.
 
+Hexapod's revision-matched record also opts into the [three-chapter orbital guide](../../docs/hexapod-orbital-guide.md).
+This presentation attachment does not change the source model, its revision, or references saved by other applications.
+
 Each film is silent, 960 × 600, 30 fps and 20 seconds. Films and keyframes come
 from the same prepared model/tour. The illustrative motion and separation do not
 establish physical balance, collision clearance, a closed-chain solution or
-manufacturing validity. The media page returns to `?model=<id>&presentation=1`
-in the main Explorer, rather than opening a second renderer or application.
+manufacturing validity. The media page opens the matching timeline in the main
+Explorer. For Hexapod it includes `guide=timeline` so the link still opens the
+sequence used to create the film.

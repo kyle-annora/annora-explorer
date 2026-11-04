@@ -479,3 +479,5 @@ body .tour-chapters { left:0; top:auto; bottom:calc(100% + 10px); width:min(360p
   body[data-embedded=true] .scope-context { width:max-content; max-width:100%; flex:none; }
   body[data-embedded=true] #path-panel { width:min(320px,calc(100vw - 28px)); max-height:min(440px,calc(100dvh - 195px)); }
 }
+/* A direct presentation link should not flash the inspection panels during loading. */
+body[data-opening-orbit="true"]:not([data-error]) .app-ui { visibility: hidden; }

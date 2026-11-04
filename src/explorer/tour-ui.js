@@ -8,7 +8,7 @@ const write = (node, value) => { if (node.textContent !== value) node.textConten
 
 /** DOM adapter. The clock and scene remain separate, with one renderer-owned RAF. */
 export class GuidedTour {
-  constructor({ scene, model, captureNavigation, restoreNavigation, syncScene, closeOverlays, syncLayout, command, stateChange }) {
+  constructor({ scene, model, captureNavigation, restoreNavigation, syncScene, closeOverlays, syncLayout, command, stateChange, entry }) {
     this.scene = scene; this.tour = model.tour; this.stepwise = this.tour.playback === 'steps';
     this.command = command; this.stateChange = stateChange; this.abort = new AbortController(); this.listeners = []; this.disposed = false;
     this.captureNavigation = captureNavigation; this.restoreNavigation = restoreNavigation;
@@ -24,10 +24,10 @@ export class GuidedTour {
       // Returning to normal motion never starts playback without an explicit action.
     });
     this.active = false; this.pending = false; this.generation = 0; this.captionKey = ''; this.annotationKey = '';
-    $('tour-duration').textContent = this.stepwise ? `${this.tour.chapters.length} short steps` : `${this.tour.duration} sec`;
+    $('tour-duration').textContent = entry?.label ?? (this.stepwise ? `${this.tour.chapters.length} short steps` : `${this.tour.duration} sec`);
     write($('tour-start').querySelector('span'), 'Play presentation');
     $('tour-start').disabled = false;
-    this.listen($('tour-start'), 'click', () => this.dispatch('startTour', { tourId: this.tour.id }, () => this.start()));
+    this.listen($('tour-start'), 'click', () => entry ? entry.open() : this.dispatch('startTour', { tourId: this.tour.id }, () => this.start()));
     this.listen($('tour-exit'), 'click', () => this.dispatch('exitTour', {}, () => this.exit()));
     this.listen($('tour-chapters-toggle'), 'click', () => {
       if (!$('tour-chapters').hidden) { this.closeChapters(); return; }
