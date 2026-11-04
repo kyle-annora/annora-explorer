@@ -13,11 +13,12 @@ export function createCallout({ main, mount, getAccent }) {
   layer.className = 'orbit-callout-layer';
   const ink = svgNode('svg');
   ink.setAttribute('aria-hidden', 'true');
-  const line = svgNode('path'), terminal = svgNode('circle');
+  const line = svgNode('path'), accent = svgNode('path'), terminal = svgNode('circle');
   line.classList.add('orbit-callout-line');
+  accent.classList.add('orbit-callout-accent');
   terminal.classList.add('orbit-callout-terminal');
   terminal.setAttribute('r', '2.15');
-  ink.append(line, terminal);
+  ink.append(line, accent, terminal);
 
   const copy = document.createElement('div');
   copy.className = 'orbit-callout-copy';
@@ -51,15 +52,16 @@ export function createCallout({ main, mount, getAccent }) {
 
   function draw() {
     const end = point && layout && { x: layout.x + point.x, y: layout.y + point.y };
-    const path = cue && end && calloutCurve(layout.start, end, layout.placement, layout.protectedText,
-      stackedLayout.matches ? 42 : 72);
-    layer.toggleAttribute('data-anchor-visible', Boolean(path));
+    const path = cue && end && calloutCurve(layout.start, end, layout.placement, layout.protectedText);
     if (!path) {
       ink.style.visibility = 'hidden';
       line.removeAttribute('d');
+      accent.removeAttribute('d');
       return;
     }
     line.setAttribute('d', path);
+    accent.setAttribute('d', calloutCurve(layout.start, end, layout.placement, layout.protectedText,
+      stackedLayout.matches ? 32 : 48));
     terminal.setAttribute('cx', end.x);
     terminal.setAttribute('cy', end.y);
     ink.style.visibility = 'visible';
