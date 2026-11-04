@@ -29,14 +29,14 @@ function createLeader(point, target, length) {
   return line;
 }
 
-function stationGeometry(config, metadata, root, canvas) {
+function stationGeometry(config, metadata, root, canvas, useLabelLeader) {
   if (!config?.stations?.length) return null;
   const center = new Vector3(...config.center), axisU = new Vector3(...config.axisU), axisV = new Vector3(...config.axisV);
   const pointAt = phi => center.clone().addScaledVector(axisU,Math.cos(phi)).addScaledVector(axisV,Math.sin(phi));
   const framePoints = Array.from({length:72}, (_,i) => pointAt(radians(i*5)));
   const length = framePoints.reduce((sum,p,i) => sum+p.distanceTo(framePoints[(i+1)%framePoints.length]),0);
   const stations = config.stations.map(record => {
-    const phi = radians(record.angle), point = pointAt(phi), target = anchorPoint(record.anchor,metadata);
+    const phi = radians(record.angle), point = pointAt(phi), target = useLabelLeader?.(record.id) ? null : anchorPoint(record.anchor,metadata);
     const leader = target ? createLeader(point,target,length) : null;
     if (leader) root.add(leader);
     // Neighbouring stations split the intervening arc, even on a dense orbit.
@@ -54,10 +54,10 @@ function stationGeometry(config, metadata, root, canvas) {
   return {framePoints,stations,marks};
 }
 
-export function createSpatialOrbit({camera, canvas, metadata, orbitConfig, getAccent, onEmphasis}) {
+export function createSpatialOrbit({camera, canvas, metadata, orbitConfig, getAccent, onEmphasis, useLabelLeader}) {
   const root = new Group();
   root.name = 'Orbital chapter navigation'; root.visible = false;
-  const geometry = stationGeometry(orbitConfig,metadata,root,canvas);
+  const geometry = stationGeometry(orbitConfig,metadata,root,canvas,useLabelLeader);
   const stations = geometry?.stations ?? [], activeId = stations[0]?.id;
   const blockers = [], hits = [];
   const raycaster = new Raycaster(), cursorRay = new Raycaster();

@@ -12,6 +12,21 @@
         0.46,
         1.03,
         1.6
+      ],
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Upper braces",
+          "text": "The braces sit above the controller board.",
+          "anchor": {
+            "meshName": "Hex_top_stiffeners_1",
+            "fraction": [
+              0.85,
+              0.8,
+              0.7
+            ]
+          }
+        }
       ]
     },
     {
@@ -55,7 +70,35 @@
         ],
         "trace": "Hex_leg_1_tibia_1"
       },
-      "hint": "Follow the foot through one reach."
+      "hint": "Follow the foot through one reach.",
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Lower leg",
+          "text": "Three joints carry the tip through its reach.",
+          "anchor": {
+            "meshName": "Hex_leg_1_tibia_1",
+            "fraction": [
+              0.5,
+              0.2,
+              0.5
+            ]
+          }
+        },
+        {
+          "at": 0.69,
+          "title": "Return stroke",
+          "text": "The leg brings the foot back to its starting position.",
+          "anchor": {
+            "meshName": "Hex_leg_1_tibia_1",
+            "fraction": [
+              0.5,
+              0.2,
+              0.5
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "electronics",
@@ -125,7 +168,35 @@
         ],
         "guideMesh": "Hex_top_stiffeners_1"
       },
-      "hint": "See how the braces and board lift."
+      "hint": "See how the braces and board lift.",
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Upper braces",
+          "text": "The two braces lift clear of the board.",
+          "anchor": {
+            "meshName": "Hex_top_stiffeners_1",
+            "fraction": [
+              0.85,
+              0.8,
+              0.7
+            ]
+          }
+        },
+        {
+          "at": 0.44,
+          "title": "Controller board",
+          "text": "The board rises while the battery stays seated.",
+          "anchor": {
+            "meshName": "Hex_electronics_1",
+            "fraction": [
+              0.5,
+              0.67,
+              0.72
+            ]
+          }
+        }
+      ]
     }
   ],
   "orbit": {

@@ -24,6 +24,20 @@ export function validateSpatialGuide(guide, model, animations = []) {
     if (c.fill) require(boundedPair(c.fill) && c.fill.every(v => v > 0 && v <= 1.5), c.id + ' has invalid camera framing.');
     if (c.hint !== undefined) require(text(c.hint), c.id + ' has an invalid station hint.');
     if (c.fit !== undefined) require(c.fit === 'action', c.id + ' has an unknown fit.');
+    if (c.callouts !== undefined) {
+      const cues = c.callouts;
+      require(Array.isArray(cues) && cues.length > 0 && cues.length <= 12 && cues[0]?.at === 0 &&
+        (c.id !== 'overview' || cues.length === 1), c.id + ' needs an opening callout.');
+      for (const [i, cue] of cues.entries()) {
+        require(cue && unit(cue.at) && (!i || cue.at > cues[i - 1].at) &&
+          text(cue.title) && cue.title.length <= 45 && text(cue.text) && cue.text.length <= 135,
+          c.id + ' needs ordered callouts with a short title and sentence.');
+        const anchor = cue.anchor, part = parts.get(anchor?.meshName);
+        require(part && (c.id === 'overview' || c.groups?.includes(part.group)) &&
+          (anchor.fraction === undefined || (vector(anchor.fraction) && anchor.fraction.every(unit))),
+          c.id + ' has an unknown, out-of-scope or invalid callout anchor.');
+      }
+    }
     if (c.id === 'overview') continue;
     require(text(c.copy) && c.duration > 0 && Number.isFinite(c.duration) && c.duration <= 30, c.id + ' needs a caption and duration.');
     require(Array.isArray(c.groups) && c.groups.length && c.groups.every(g => groups.has(g)), c.id + ' references unknown part groups.');
@@ -98,7 +112,12 @@ export function spatialGuidesPlugin(root) {
     async load(value) {
       if (value !== '\0' + id) return null;
       const { models } = await loadProject(root);
-      return 'export default ' + JSON.stringify(await loadSpatialGuides(models)) + ';';
+      const guides = await loadSpatialGuides(models);
+      const configured = new Set(guides.map(guide => guide.modelId));
+      for (const model of models) {
+        if (configured.has(model.manifest.id)) this.addWatchFile(path.join(path.dirname(model.manifestPath), 'spatial-guide.json'));
+      }
+      return 'export default ' + JSON.stringify(guides) + ';';
     },
   };
 }

@@ -21,5 +21,8 @@ test('optional guides are revision-bound to their own geometry and authored clip
   assert.throws(() => check(g => { g.modelRevision = 'older'; }), /revision/);
   assert.throws(() => check(g => { g.orbit.stations[1].anchor.meshName = 'missing'; }), /anchor/);
   assert.throws(() => check(g => { g.chapters[2].action.joints = ['unbound']; }), /joint/);
+  assert.throws(() => check(g => { g.chapters[0].callouts[0].anchor.meshName = 'unknown'; }), /callout anchor/);
+  assert.throws(() => check(g => { g.chapters[1].callouts[0].anchor.meshName = g.chapters[2].action.trace; }), /out-of-scope/);
+  assert.throws(() => check(g => { g.chapters[1].callouts[1].at = 0; }), /ordered callouts/);
   assert.throws(() => check(g => { g.chapters[1].action.lifts[0].meshes = [g.chapters[2].action.trace]; }), /out-of-scope/);
 });

@@ -12,15 +12,25 @@
         1.5,
         0.85,
         1.5
+      ],
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Head shell",
+          "text": "The controller sits inside this shell, above the neck.",
+          "anchor": {
+            "meshName": "Duck_head_assembly_02_head"
+          }
+        }
       ]
     },
     {
       "id": "head",
       "label": "Inside the head",
       "direction": [
-        1.3,
-        0.64,
-        1.45
+        1.35,
+        0.42,
+        -1.45
       ],
       "groups": [
         "duck-head",
@@ -57,7 +67,7 @@
             ],
             "vector": [
               0,
-              0.075,
+              0.12,
               0
             ],
             "window": [
@@ -82,7 +92,30 @@
           }
         ]
       },
-      "hint": "Lift the shell to see the controller."
+      "hint": "Lift the shell to see the controller.",
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Head shell",
+          "text": "The outer shell lifts to reveal the head assembly.",
+          "anchor": {
+            "meshName": "Duck_head_assembly_02_head"
+          }
+        },
+        {
+          "at": 0.45,
+          "title": "Controller board",
+          "text": "The board lifts clear of its seat beneath the shell.",
+          "anchor": {
+            "meshName": "Duck_head_assembly_04_raspberrypizerow",
+            "fraction": [
+              0.7,
+              0.8,
+              0.2
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "leg",
@@ -129,7 +162,25 @@
           1
         ]
       },
-      "hint": "Follow one foot through the pose."
+      "hint": "Follow one foot through the pose.",
+      "callouts": [
+        {
+          "at": 0,
+          "title": "Left foot",
+          "text": "Follow the foot as the hip, knee and ankle bend.",
+          "anchor": {
+            "meshName": "Duck_foot_assembly_01_foot_side"
+          }
+        },
+        {
+          "at": 0.68,
+          "title": "Return stroke",
+          "text": "The same foot retraces the pose.",
+          "anchor": {
+            "meshName": "Duck_foot_assembly_01_foot_side"
+          }
+        }
+      ]
     }
   ],
   "orbit": {
@@ -164,7 +215,7 @@
         "id": "leg",
         "angle": 325,
         "anchor": {
-          "meshName": "Duck_foot_assembly_03_foot_bottom_pla"
+          "meshName": "Duck_foot_assembly_01_foot_side"
         }
       }
     ]

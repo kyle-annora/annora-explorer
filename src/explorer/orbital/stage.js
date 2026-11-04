@@ -8,6 +8,7 @@ import { createModelAction } from './model-action.js';
 import { createStationOutline } from './station-outline.js';
 import { createPoseTransition, readScreenFrame, applyScreenFrame } from './scene-continuity.js';
 import { createSpatialOrbit } from './orbit.js';
+import { createSurfaceCallout } from './surface-callout.js';
 
 function corners(pair) {
   const [low, high] = pair;
@@ -39,17 +40,18 @@ function fitCamera(chapter, bounds, camera, width, height, viewPoints, orbitPoin
   const overview = chapter.id === 'overview';
   const [standardX, fillY] = chapter.fill || (overview ? [.71, .84] : [.91, .93]);
   const fillX = overview && portrait ? .88 : standardX;
+  const aspect = width / height;
   const tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   let radius = .01;
   for (const [x, y, z] of projected) {
-    radius = Math.max(radius, Math.abs(x - midX) / (camera.aspect * tangent * fillX) + z, Math.abs(y - midY) / (tangent * fillY) + z);
+    radius = Math.max(radius, Math.abs(x - midX) / (aspect * tangent * fillX) + z, Math.abs(y - midY) / (tangent * fillY) + z);
   }
   if (overview) {
     // Fit the attached navigation to the same camera. Always reserve space
     // for a station at each edge even on a narrow portrait canvas.
     for (const point of orbitPoints) {
       const delta = point.clone().sub(center), z = delta.dot(direction);
-      radius = Math.max(radius, Math.abs(delta.dot(right)) / (camera.aspect * tangent * .90) + z,
+      radius = Math.max(radius, Math.abs(delta.dot(right)) / (aspect * tangent * .90) + z,
         Math.abs(delta.dot(up)) / (tangent * .86) + z);
     }
   }
@@ -221,7 +223,7 @@ export function createOrbitalStage(options) {
   }
 }
 
-function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation, onEmphasis, reducedMotion = false }, onDispose, dispose) {
+function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation, onEmphasis, onCallout, getCalloutInset, reducedMotion = false }, onDispose, dispose) {
   if (!explorer.ready || !explorer.sourceRoot || explorer.presentationStage) {
     throw new Error('The orbital presentation requires a ready assembly.');
   }
@@ -272,6 +274,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   onDispose(() => abort.abort());
   let emphasizedStation = null;
   const spatialOrbit = createSpatialOrbit({ camera, canvas, metadata, orbitConfig: guide.orbit, getAccent,
+    useLabelLeader: id => Boolean(onCallout && chapters.get(id)?.hint),
     onEmphasis(id) { emphasizedStation = id; onEmphasis?.(id); } });
   onDispose(() => disposeGeometry(spatialOrbit.root));
   world.add(spatialOrbit.root);
@@ -290,6 +293,8 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   const gltf = { scene: source, animations: sampler?.clip ? [sampler.clip] : [] };
   const modelMeshes = [];
   source.traverse(node => { if (node.isMesh) modelMeshes.push(node); });
+  const callout = onCallout && createSurfaceCallout({ camera, canvas, meshes: modelMeshes, partsByName, onPoint: onCallout });
+  if (callout) onDispose(() => callout.hide());
   const surfaces = createSurfaces(gltf, partsByName, guide.surface?.colors);
   onDispose(() => surfaces.dispose());
   const footprint = contactFootprint(source, partsByName, guide.surface?.footprint);
@@ -423,14 +428,19 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     controls.update();
   }, { signal: abort.signal });
 
+  function calloutInset(width, height) {
+    const inset = getCalloutInset?.(width, height) ?? 0;
+    return Number.isFinite(inset) ? THREE.MathUtils.clamp(inset, 0, Math.max(0, width - 1)) : 0;
+  }
+
   function destination(width, height, direction) {
-    return fitCamera(chapters.get(chapter), action.bounds(chapter), camera, width, height,
+    return fitCamera(chapters.get(chapter), action.bounds(chapter), camera, width - calloutInset(width, height), height,
       viewPoints, spatialOrbit.framePoints, direction);
   }
 
   function projection(width, height) {
     camera.zoom = 1;
-    camera.setViewOffset(width, height, 0, height * .02, width, height);
+    camera.setViewOffset(width, height, -calloutInset(width, height) / 2, height * .02, width, height);
   }
 
   function frameChapter(immediate, direction, originFrame, duration = 700) {
@@ -460,7 +470,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     if (!current.manualCamera) {
       if (originFrame) {
         const rect = canvas.getBoundingClientRect();
-        applyScreenFrame(camera, rect, originFrame, t, 0, rect.height * .02);
+        applyScreenFrame(camera, rect, originFrame, t, -calloutInset(rect.width, rect.height) / 2, rect.height * .02);
       }
       const angle = new THREE.Spherical(
         t === 1 ? end.spherical.radius : start.radius * Math.pow(end.spherical.radius / start.radius, t),
@@ -482,11 +492,12 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     }
   }
 
-  let previousWidth = 0, previousHeight = 0;
+  let previousWidth = 0, previousHeight = 0, previousInset = 0;
   function resize() {
     const width = mount.clientWidth, height = mount.clientHeight;
     if (!(width > 0 && height > 0)) return;
-    const changed = width !== previousWidth || height !== previousHeight;
+    const inset = calloutInset(width, height);
+    const changed = width !== previousWidth || height !== previousHeight || inset !== previousInset;
     if (changed && shot && !shot.manualCamera) {
       camera.aspect = width / height;
       const end = destination(width, height);
@@ -502,6 +513,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     }
     previousWidth = width;
     previousHeight = height;
+    previousInset = inset;
     wake();
   }
   function render(elapsed) {
@@ -528,6 +540,8 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
       explorer.fxaa.enabled = true;
       renderer.info.reset();
       composer.render(dt);
+      // The renderer has now evaluated the current camera and posed hierarchy.
+      callout?.update(Boolean(shot));
       frames++;
     } finally {
       composer.passes = normalPasses;
@@ -552,6 +566,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     canvas.dataset.chapter = value;
     if (footprint) footprint.visible = chapter === 'overview';
     action.setChapter(chapter);
+    callout?.invalidatePose();
     surfaces.target(chapters.get(chapter));
     if (travel) poses.target();
     const duration = previous === 'overview' || value === 'overview' ? 720 : 660;
@@ -566,7 +581,11 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     }
     progress = THREE.MathUtils.clamp(value, 0, 1);
     action.setProgress(progress);
+    callout?.invalidatePose();
     wake();
+  }
+  function setCalloutTarget(anchor) {
+    if (!disposed && callout?.setTarget(anchor)) wake();
   }
   function setRotating(value) {
     rotating = Boolean(value); controls.autoRotate = false;
@@ -597,7 +616,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   frameChapter(true);
   wake();
   return {
-    captureChapterFrame, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, dispose,
+    captureChapterFrame, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, setCalloutTarget, dispose,
     stats: () => ({
       orbit: spatialOrbit.stats(), frames, chapter, playing, rotating, progress, transitioning: Boolean(shot), chapterBlend: shot?.originFrame ? shot.progress : null,
       camera: camera.position.toArray(), target: controls.target.toArray(), pixelRatio: renderer.getPixelRatio(),

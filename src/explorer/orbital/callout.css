@@ -1,0 +1,48 @@
+.orbit-callout-layer {
+  --callout-stroke: color-mix(in srgb, var(--callout-accent, #ff6840) 56%, var(--orbit-ink));
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  user-select: none; overflow: hidden;
+}
+.orbit-callout-layer[hidden] { display: none; }
+.orbit-callout-layer svg {
+  position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden;
+}
+.orbit-callout-line {
+  fill: none; stroke: var(--callout-stroke); stroke-width: 1.25; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.orbit-callout-terminal { fill: var(--callout-stroke); stroke: var(--orbit-paper); stroke-width: .85; }
+.orbit-callout-copy {
+  position: absolute; inset-inline-start: var(--orbit-gutter);
+  top: clamp(24px, 13%, 105px);
+  width: clamp(140px, 17vw, 224px);
+  color: var(--orbit-ink); text-align: start; font-family: var(--sans);
+}
+.orbit-callout-title {
+  display: block; width: fit-content; max-width: 100%;
+  font-size: clamp(16px, 1.35vw, 20px); line-height: 1.16;
+  letter-spacing: -.036em; font-weight: 600;
+}
+.orbit-callout-text {
+  display: block; margin-top: 5px;
+  font-size: clamp(13px, 1.02vw, 15px); line-height: 1.43; color: var(--orbit-muted);
+}
+body.orbit-has-cue #orbit-copy { display: none; }
+body.orbit-has-cue #orbit-caption[data-active] { visibility: hidden; max-width: 46ch; }
+@media (min-width: 701px) and (max-height: 510px) {
+  .orbit-callout-copy { top: 15px; width: clamp(132px, 18vw, 198px); }
+  .orbit-callout-title { font-size: 16px; }
+  .orbit-callout-text { font-size: 12px; line-height: 1.32; }
+}
+@media (max-width: 700px) {
+  body.orbital-annotated .orbital-head { padding-block: max(8px, env(safe-area-inset-top)) 7px; gap: 8px; }
+  body.orbital-annotated .orbital-identity { gap: 2px; }
+  body.orbital-annotated .orbital-identity span { font-size: 10px; }
+  body.orbital-annotated .orbital-identity h1 { font-size: clamp(20px, 5.4vw, 30px); line-height: 1.02; }
+  body.orbital-annotated #main-content[data-callout-room] .viewport {
+    top: var(--callout-headroom, 78px); height: auto;
+  }
+  .orbit-callout-copy { top: 10px; width: min(33ch, calc(100% - 2 * var(--orbit-gutter))); }
+  .orbit-callout-title { font-size: 16px; }
+  .orbit-callout-text { font-size: 13px; margin-top: 3px; line-height: 1.34; }
+}

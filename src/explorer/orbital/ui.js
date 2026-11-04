@@ -1,3 +1,4 @@
+import { createCallout } from './callout.js';
 import { createOrbitalStage } from './stage.js';
 import './style.css';
 
@@ -76,6 +77,22 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   const next = find('next'), slider = find('progress'), caption = find('caption');
   const time = find('time'), phase = find('phase');
   const play = find('play'), rotation = find('rotation'), back = find('back');
+  const supportsCallouts = guide.chapters.some(record => record.callouts?.length);
+  const callout = supportsCallouts ? createCallout({ main, mount, getAccent }) : null;
+  const previews = new Map(guide.orbit.stations.filter(s => s.anchor && chapters[s.id].hint)
+    .map(s => [s.id, { title: chapters[s.id].label, text: chapters[s.id].hint, anchor: s.anchor }]));
+  let previewId = null, displayedCue;
+  function syncCallout() {
+    if (!callout || !stage) return;
+    const record = chapters[chapter];
+    const cue = (chapter === 'overview' && previews.get(previewId)) ||
+      record?.callouts?.findLast(c => progress >= c.at) || null;
+    if (cue === displayedCue) return;
+    displayedCue = cue;
+    document.body.classList.toggle('orbit-has-cue', Boolean(cue));
+    callout.setCue(cue);
+    stage.setCalloutTarget(cue?.anchor ?? null);
+  }
   let stage, chapter, progress = 0, playing = false, rotating = !media.matches, disposed = false;
 
   function setTransport(button, glyph, label) {
@@ -108,12 +125,15 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
     }
     const currentPhase = chapters[chapter]?.phases?.findLast(([at]) => progress >= at)?.[1] || '';
     if (phase.textContent !== currentPhase) phase.textContent = currentPhase;
+    syncCallout();
   }
   const captionAnimations = [];
   function stopWords() {
     while (captionAnimations.length) captionAnimations.pop().cancel();
   }
   function emphasize(id) {
+    previewId = id;
+    syncCallout();
     const current = chapters[id];
     caption.textContent = current ? [current.label, current.hint].filter(Boolean).join(' · ') : defaultHint;
     caption.toggleAttribute('data-active', Boolean(id));
@@ -125,11 +145,13 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   function setChapter(id) {
     if (disposed || !Object.hasOwn(chapters, id)) return;
     if (id === chapter) return;
+    previewId = null;
     const initialMount = chapter === undefined;
     const frame = initialMount ? null : stage.captureChapterFrame();
     menu.open = false;
-    chapter = id;
+    chapter = id; progress = 0;
     const record = chapters[chapter];
+    main.toggleAttribute('data-callout-room', Boolean(callout && (record.callouts?.length || (id === 'overview' && previews.size))));
     document.body.dataset.orbitChapter = chapter;
     for (const button of choices) {
       if (button.dataset.orbitTarget === id) button.setAttribute('aria-current', 'step');
@@ -172,7 +194,9 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
     abort.abort();
     header.remove();
     footer.remove();
-    document.body.classList.remove('orbital-demo');
+    document.body.classList.remove('orbital-demo','orbital-annotated','orbit-has-cue');
+    main.removeAttribute('data-callout-room');
+    callout?.dispose();
     delete document.body.dataset.orbitChapter;
     if (oldLabel === null) mount.removeAttribute('aria-label');
     else mount.setAttribute('aria-label', oldLabel);
@@ -180,12 +204,14 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   }
 
   document.body.classList.add('orbital-demo');
+  if (callout) document.body.classList.add('orbital-annotated');
   main.before(header);
   main.after(footer);
   mount.setAttribute('aria-label', explorer.model.title + ' presentation. Drag or use the arrow keys to orbit. Select a point or choose a chapter.');
   try {
     stage = createOrbitalStage({
       explorer, guide, getAccent, reducedMotion: media.matches,
+      onCallout: callout?.setPoint, getCalloutInset: callout?.getInset,
       onTakeover: takeover, onEmphasis: emphasize, onStation: requestChapter,
       onTick(seconds) {
         if (!playing) return;
