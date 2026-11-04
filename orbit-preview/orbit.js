@@ -60,6 +60,10 @@ function createOrbitGeometry() {
     if (detailAnchors[id]) {
       leader = makeArc([{ a: point, b: detailAnchors[id] }], 1);
       leader.material.color.set(ember);
+      leader.material.dashed = true;
+      leader.material.dashSize = 0.008;
+      leader.material.gapSize = 0.0055;
+      leader.computeLineDistances();
       leader.visible = false;
       root.add(leader);
     }
