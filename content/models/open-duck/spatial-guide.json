@@ -22,7 +22,13 @@
             "meshName": "Duck_head_assembly_02_head"
           }
         }
-      ]
+      ],
+      "referenceViews": {
+        "initial": "elevation",
+        "plan": "plates/overview-plan.svg",
+        "elevation": "plates/overview-elevation.svg",
+        "section": "plates/overview-section.svg"
+      }
     },
     {
       "id": "head",
@@ -115,7 +121,19 @@
             ]
           }
         }
-      ]
+      ],
+      "referenceViews": {
+        "initial": "elevation",
+        "plan": "plates/head-plan.svg",
+        "elevation": "plates/head-elevation.svg",
+        "section": "plates/head-section.svg",
+        "cues": [
+          {
+            "at": 0.45,
+            "view": "section"
+          }
+        ]
+      }
     },
     {
       "id": "leg",
@@ -180,7 +198,13 @@
             "meshName": "Duck_foot_assembly_01_foot_side"
           }
         }
-      ]
+      ],
+      "referenceViews": {
+        "initial": "elevation",
+        "plan": "plates/leg-plan.svg",
+        "elevation": "plates/leg-elevation.svg",
+        "section": "plates/leg-section.svg"
+      }
     }
   ],
   "orbit": {

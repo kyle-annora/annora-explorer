@@ -11,7 +11,7 @@ import { MODEL_CATALOG, resolveModel, validatePackage } from './model-catalog.js
 import { AssemblyScene } from './scene.js';
 import { GuidedTour } from './tour-ui.js';
 import { presentationEntry } from './presentation-entry.js';
-import spatialGuides from 'virtual:annora-spatial-guides';
+import spatialGuides, { referenceAssets } from 'virtual:annora-spatial-guides';
 import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
@@ -426,7 +426,7 @@ async function start(){
         controller.takeover();
         closePath(); closeDisplay(); closeTheme();
         if (!$('perf-panel').hidden) closePerformance();
-        return mountOrbitalUI({ explorer, guide: spatialGuide, getAccent: () => clientTheme.accent, chapter, navigate, exit });
+        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit });
       },
       onPending(pending) {
         $('tour-start').disabled = pending;

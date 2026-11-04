@@ -1,3 +1,4 @@
+import { createDrawingPlate } from './drawing-plate.js';
 import { createCallout } from './callout.js';
 import { createOrbitalStage } from './stage.js';
 import './style.css';
@@ -58,7 +59,7 @@ function makeControls(model, chapters) {
   return { header, footer };
 }
 
-export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 'overview', navigate, exit }) {
+export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: initial = 'overview', navigate, exit }) {
   const chapters = Object.fromEntries(guide.chapters.map((chapter, i, list) =>
     [chapter.id, { ...chapter, next: list[(i + 1) % list.length].id }]));
   const shell = document.querySelector('.app-shell');
@@ -79,6 +80,7 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   const play = find('play'), rotation = find('rotation'), back = find('back');
   const supportsCallouts = guide.chapters.some(record => record.callouts?.length);
   const callout = supportsCallouts ? createCallout({ main, mount, getAccent }) : null;
+  const drawing = createDrawingPlate({ main, guide, assets });
   const previews = new Map(guide.orbit.stations.filter(s => s.anchor && chapters[s.id].hint)
     .map(s => [s.id, { title: chapters[s.id].label, text: chapters[s.id].hint, anchor: s.anchor }]));
   let previewId = null, displayedCue;
@@ -114,6 +116,7 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   function setProgress(value, sample = true) {
     progress = Math.max(0, Math.min(1, value));
     if (sample) stage?.setProgress(progress);
+    drawing.setProgress(progress);
     slider.value = String(Math.round(progress * 1000));
     slider.style.setProperty('--position', (progress * 100) + '%');
     const actionDuration = chapters[chapter].duration ?? 0;
@@ -162,6 +165,7 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
     next.querySelector('span').textContent = record.next === 'overview' ? 'Whole model' : 'Next: ' + chapters[record.next].label;
     emphasize(null);
     stage.setStationFocus(null);
+    drawing.setChapter(id);
     stage.setChapter(id, frame);
     setProgress(0, false);
     setRotating(rotating);
@@ -196,6 +200,7 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
     footer.remove();
     document.body.classList.remove('orbital-demo','orbital-annotated','orbit-has-cue');
     main.removeAttribute('data-callout-room');
+    drawing.dispose();
     callout?.dispose();
     delete document.body.dataset.orbitChapter;
     if (oldLabel === null) mount.removeAttribute('aria-label');
@@ -211,7 +216,8 @@ export function mountOrbitalUI({ explorer, guide, getAccent, chapter: initial = 
   try {
     stage = createOrbitalStage({
       explorer, guide, getAccent, reducedMotion: media.matches,
-      onCallout: callout?.setPoint, getCalloutInset: callout?.getInset,
+      onCallout: callout?.setPoint,
+      getCalloutInset: width => Math.max(callout?.getInset(width) ?? 0, drawing.getInset(width)),
       onTakeover: takeover, onEmphasis: emphasize, onStation: requestChapter,
       onTick(seconds) {
         if (!playing) return;

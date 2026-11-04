@@ -1,5 +1,6 @@
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
+import { resolveReferenceAssets, validateReferenceViews } from './spatial-reference-assets.mjs';
 import { loadProject } from './project-config.mjs';
 
 const vector = value => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite);
@@ -24,6 +25,7 @@ export function validateSpatialGuide(guide, model, animations = []) {
     if (c.fill) require(boundedPair(c.fill) && c.fill.every(v => v > 0 && v <= 1.5), c.id + ' has invalid camera framing.');
     if (c.hint !== undefined) require(text(c.hint), c.id + ' has an invalid station hint.');
     if (c.fit !== undefined) require(c.fit === 'action', c.id + ' has an unknown fit.');
+    if (c.referenceViews !== undefined) validateReferenceViews(c.referenceViews, require);
     if (c.callouts !== undefined) {
       const cues = c.callouts;
       require(Array.isArray(cues) && cues.length > 0 && cues.length <= 12 && cues[0]?.at === 0 &&
@@ -86,7 +88,7 @@ export function validateSpatialGuide(guide, model, animations = []) {
   return guide;
 }
 
-export async function loadSpatialGuides(models) {
+export async function loadSpatialGuides(models, onReferenceAssets) {
   const guides = [];
   for (const model of models) {
     const dir = path.dirname(model.manifestPath);
@@ -100,6 +102,8 @@ export async function loadSpatialGuides(models) {
     const animations = (gltf.animations ?? []).map(clip => ({ name: clip.name,
       rotations: clip.channels.filter(c => c.target.path === 'rotation').map(c => gltf.nodes[c.target.node].name) }));
     guides.push(validateSpatialGuide(guide, model, animations));
+    const assets = await resolveReferenceAssets(model, guide, glb);
+    onReferenceAssets?.(model.manifest.id, assets);
   }
   return guides;
 }
@@ -112,12 +116,22 @@ export function spatialGuidesPlugin(root) {
     async load(value) {
       if (value !== '\0' + id) return null;
       const { models } = await loadProject(root);
-      const guides = await loadSpatialGuides(models);
+      const imports = [], packages = [];
+      const guides = await loadSpatialGuides(models, (modelId, assets) => {
+        const entries = [];
+        for (const { filename, absolute } of assets) {
+          const name = 'plate' + imports.length;
+          imports.push('import ' + name + ' from ' + JSON.stringify(absolute + '?url') + ';');
+          entries.push(JSON.stringify(filename) + ':' + name);
+          this.addWatchFile(absolute);
+        }
+        packages.push(JSON.stringify(modelId) + ':{' + entries.join(',') + '}');
+      });
       const configured = new Set(guides.map(guide => guide.modelId));
       for (const model of models) {
         if (configured.has(model.manifest.id)) this.addWatchFile(path.join(path.dirname(model.manifestPath), 'spatial-guide.json'));
       }
-      return 'export default ' + JSON.stringify(guides) + ';';
+      return imports.join('\n') + '\nexport const referenceAssets = {' + packages.join(',') + '};\nexport default ' + JSON.stringify(guides) + ';';
     },
   };
 }

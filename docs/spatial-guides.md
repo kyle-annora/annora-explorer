@@ -40,6 +40,28 @@ An overview can have one opening note. Hovering, focusing or holding a detail st
 
 The label stays on a fixed margin or at the top of a phone screen. Its curved leader ends on the visible part surface. During a chapter flight or when another part covers the anchor, the text stays readable and the leader disappears. A bounded cubic Bézier curve leaves the caption horizontally on desktop and downward on a phone. Its control points adapt to the distance and available space around the printed text. The tangent treatment builds on the [D3 link curves](https://d3js.org/d3-shape/link).
 
+## Plan, elevation and section in the presentation
+
+The Open Duck and Hexapod chapters place a transparent technical drawing beside the model. It shows the assembly at rest while the main view illustrates motion or separation. A plan includes the A–A trace identifying the cut used in its section. These views are derived from the presentation mesh; they do not carry manufacturing dimensions, tolerances or a drawing approval. The original engineering documents and their project references remain separate.
+
+The viewer can select a view without moving the camera or stopping playback. On a phone, tap the drawing to enlarge it in the stage. A chapter can also change the drawing at a particular moment. In the Open Duck head chapter, the elevation changes to the controller section as the board lifts. Scrub backwards to restore the elevation. Choosing a view manually pins it for that chapter; **Follow chapter** resumes its automatic changes.
+
+To add drawings to a model:
+
+1. Add a `plates-source.json` next to the guide. Choose an elevation axis and the location of each chapter's vertical cut. The fraction is measured across the chapter's rest-pose bounds on the named axis. Check the cut passes through the feature the chapter explains. See [Open Duck's cut definitions](../content/models/open-duck/plates-source.json).
+2. Run `node scripts/generate-spatial-plates.mjs <model-id>`. It generates transparent SVG files from the configured GLB, using the chapter's part groups. Commit the resulting `plates/` files with the source settings. Run the same command with `--check` to compare the committed output with a fresh projection.
+3. Configure the chapter's optional `referenceViews`. Each asset belongs to that model revision, chapter and view; the build rejects mismatches. Use `cues` only when switching drawings helps explain the action. The browser loads the selected SVG on demand.
+
+```json
+"referenceViews": {
+  "initial": "elevation",
+  "plan": "plates/head-plan.svg",
+  "elevation": "plates/head-elevation.svg",
+  "section": "plates/head-section.svg",
+  "cues": [{ "at": 0.45, "view": "section" }]
+}
+```
+
 ## Open from another product
 
 Use a full Explorer URL with `model=<id>&presentation=1&guide=spatial`. Add a chapter hash to start directly in that chapter. For example, a sales page can link straight to the controller inside the head. [Open Duck head assembly](https://kyle-annora.github.io/annora-explorer/?model=open-duck&presentation=1&guide=spatial#head)
@@ -50,4 +72,5 @@ A direct chapter link starts with its camera in place. During navigation, Next, 
 
 - Start with the whole model. Hover or hold a station and verify its caption and target part. Rotate until the station passes behind the product and check that the concealed point cannot be selected.
 - Pause the mechanism partway through an action and change chapter. Follow the same part through the first frame. Rapidly choose another chapter and use Back. Each move should start at the visible pose.
+- Select plan, elevation and section in turn. Compare the A–A line on the plan with the cut in the section. Pin a view, scrub across a cue in both directions, then resume automatic changes. The model and curved label should retain their pose when switching only the drawing.
 - On a phone, tap a station, drag on the canvas, scrub an action and turn the screen during a transition. Confirm the correct final pose, visible controls and working return to free inspection.

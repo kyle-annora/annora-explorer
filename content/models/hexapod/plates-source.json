@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "elevation": "z",
+  "sections": {
+    "overview": { "axis": "x", "fraction": 0.48 },
+    "leg": { "axis": "z", "fraction": 0.46 },
+    "electronics": { "axis": "x", "fraction": 0.57 }
+  }
+}
