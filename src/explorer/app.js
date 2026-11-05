@@ -13,6 +13,8 @@ import { GuidedTour } from './tour-ui.js';
 import { presentationEntry } from './presentation-entry.js';
 import spatialGuides, { referenceAssets } from 'virtual:annora-spatial-guides';
 import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
+import { createTimelineNavigation } from './timeline-navigation.js';
+import { createViewerNavigation } from './ui/viewer-navigation.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
 import { createPageLifecycle } from './controller/page-lifecycle.js';
@@ -35,8 +37,9 @@ document.body.dataset.compactChrome = String(compactChrome);
 const model = resolveModel(params.get('model'));
 const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
 const spatialGuide = spatialGuides.find(guide => guide.modelId === model.id);
-const offersOrbit = hasOrbitalGuide(model, spatialGuide, embedded || window.parent !== window, params.get('guide'));
-let orbital;
+const topLevelViewer = !embedded && window.parent === window;
+const offersOrbit = hasOrbitalGuide(model, spatialGuide, !topLevelViewer, params.get('guide'));
+let orbital, timeline, viewerNavigation, lastViewerState, freeCamera;
 if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
 const displayStorageKey=`${themeStorageKey}.display.v1`;
@@ -59,7 +62,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -81,7 +84,36 @@ $('breadcrumbs').replaceChildren(textNode('span',model.title));
 $('selection-title').textContent=model.title;
 $('model-select').replaceChildren(...Object.values(MODEL_CATALOG).map(item=>{const option=textNode('option',item.shortTitle);option.value=item.id;return option;}));
 $('model-select').value=model.id;
-listen($('model-select'),'change',event=>{const url=new URL(location.href);url.searchParams.set('model',event.target.value);url.searchParams.set('render',preferredRenderStyle);if(explorer?.quality)url.searchParams.set('quality',explorer.quality);url.hash='';location.assign(url);});
+function changeModel(id) {
+  const nextModel = MODEL_CATALOG[id];
+  if (!nextModel || id === model.id) return;
+  const url = new URL(location.href);
+  url.searchParams.set('model', id);
+  url.searchParams.set('render', preferredRenderStyle);
+  if (explorer?.quality) url.searchParams.set('quality', explorer.quality);
+  if ((orbital?.active || guidedTour?.active) && nextModel.allowedCapabilities.tours.length) url.searchParams.set('presentation', '1');
+  else url.searchParams.delete('presentation');
+  url.searchParams.delete('guide');
+  url.hash = '';
+  location.assign(url);
+}
+function syncViewerNavigation() {
+  const active = orbital?.active || guidedTour?.active;
+  const state = { mode: active ? 'demo' : 'explore', pending: Boolean(orbital?.state.pending || timeline?.state.pending || guidedTour?.pending || !explorer?.ready), canDemo: Boolean(policy.tours.length) };
+  const key = JSON.stringify(state);
+  if (key === lastViewerState) return;
+  lastViewerState = key;
+  viewerNavigation?.sync(state);
+}
+function restoreFreeCamera() {
+  if (!freeCamera || !explorer?.ready) return;
+  explorer.resize();
+  explorer.restoreCameraView(freeCamera, { animate: false });
+  freeCamera = null;
+}
+if (topLevelViewer) viewerNavigation = createViewerNavigation({ model, models: MODEL_CATALOG,
+  onModel: changeModel, onMode: () => orbital ? orbital.close() : timeline?.close() });
+else listen($('model-select'), 'change', event => changeModel(event.target.value));
 $('scene').setAttribute('aria-label',`Interactive ${model.title}. Drag to orbit, scroll to zoom, click to select. Use the assembly index to explore individual parts.`);
 $('view-front').textContent=model.viewLabels[0];$('view-rear').textContent=model.viewLabels[1];
 $('presentation-media-link').hidden=!presentationMedia;
@@ -328,7 +360,7 @@ listen(document,'keydown',event=>{
     if(!$('display-panel').hidden){closeDisplay(true);return;}
     if(guidedTour?.closeChapters(true)){event.preventDefault();return;}
     if(document.body.classList.contains('tree-open')){closeTree();lastFocus?.focus();return;}
-    if(guidedTour?.active){event.preventDefault();command('exitTour');return;}
+    if(guidedTour?.active){event.preventDefault();guidedTour.requestExit();return;}
   }
   const panel=document.body.classList.contains('tree-open')?$('assembly-panel'):!$('theme-panel').hidden?$('theme-panel'):!$('perf-panel').hidden?$('perf-panel'):!$('display-panel').hidden?$('display-panel'):!$('path-panel').hidden?$('path-panel'):null;
   if(event.key==='Tab'&&panel){const items=[...panel.querySelectorAll('button:not(:disabled),input,select')].filter(node=>node.getClientRects().length);const first=items[0],last=items.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
@@ -422,11 +454,13 @@ async function start(){
     if(shellAbort.signal.aborted)return;syncPresentationUI();
     if (offersOrbit) orbital = createOrbitalNavigation({
       model, guide: spatialGuide, browser: window, listen, load: () => import('./orbital/ui.js'),
-      mount({ mountOrbitalUI }, chapter, navigate, exit) {
+      mount({ mountOrbitalUI }, chapter, navigate, exit, checkpoints) {
         controller.takeover();
+        explorer.pausePresentation();
+        freeCamera = explorer.captureCameraView();
         closePath(); closeDisplay(); closeTheme();
         if (!$('perf-panel').hidden) closePerformance();
-        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit });
+        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit, checkpoints, navigationHost: viewerNavigation?.context });
       },
       onPending(pending) {
         $('tour-start').disabled = pending;
@@ -434,15 +468,23 @@ async function start(){
       },
       onExit() {
         syncTreeAccess();
+        restoreFreeCamera();
         const focus = document.body.classList.contains('tree-open') ? $('close-tree') : $('tour-start');
         focus.focus({ preventScroll: true });
       },
+      onChange: syncViewerNavigation,
       onFailure(error) {
+        restoreFreeCamera();
         console.error('Orbital presentation unavailable:', error);
         $('status-message').textContent = 'The presentation could not open. You can still explore the model.';
       }
     });
-    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>controller.notify(),entry:orbital&&{label:spatialGuide.chapters.length+' chapters',open:orbital.open},captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
+    if (topLevelViewer && !orbital && policy.tours.length) timeline = createTimelineNavigation({ browser: window, listen, getTour: () => guidedTour,
+      start: () => command('startTour', { tourId: model.tour.id }), exit: options => command('exitTour', options),
+      onChange: syncViewerNavigation, onFailure: error => { console.error('Presentation unavailable:', error); $('status-message').textContent = 'The demo could not open. You can still explore the model.'; } });
+    const tourEntry = orbital ? { label: spatialGuide.chapters.length + ' chapters', open: orbital.open } : timeline ? { open: timeline.open, exit: timeline.close } : null;
+    if(policy.tours.length)guidedTour=new GuidedTour({scene:explorer,model,command,stateChange:()=>{controller.notify();syncViewerNavigation();},entry:tourEntry,captureNavigation:()=>({...navigation,expanded:new Set(navigation.expanded)}),restoreNavigation:saved=>{navigation=saved;renderTree();renderDetails();},syncScene:syncPresentationUI,closeOverlays:()=>{closePath();closeDisplay();closeTree();closeTheme();closePerformance();},syncLayout:()=>{syncTreeAccess();explorer.refitLayout();}});
+    if (timeline) viewerNavigation?.bindTimelineChapters();
     renderTree();renderDetails();syncOperation(explorer.getOperationState());$('assembly-search').disabled=false;$('reveal-selection').disabled=false;$('loading').hidden=true;document.body.dataset.ready='true';$('perf-run').disabled=!PROJECT_CONFIG.features.explode;controller.setLifecycle('ready');
     overlayObserver=new ResizeObserver(()=>{if(!explorer.ready||shellAbort.signal.aborted)return;cancelAnimationFrame(overlayFrame);overlayFrame=requestAnimationFrame(()=>{document.documentElement.style.setProperty('--dock-height',`${document.querySelector('.stage-tools').getBoundingClientRect().height}px`);explorer.refitLayout();$('breadcrumbs').scrollLeft=$('breadcrumbs').scrollWidth;});});
     for(const selector of ['.detail-panel','.assembly-panel','.stage-tools','.stage-heading','#perf-panel','#tour-panel','#tour-copy','.tour-transport'])overlayObserver.observe(document.querySelector(selector));
@@ -458,7 +500,9 @@ async function start(){
     });
     const entry=presentationEntry(params,model);
     if (orbital) { await orbital.sync(); delete document.body.dataset.openingOrbit; }
+    else if (timeline) await timeline.sync();
     else if(entry&&!shellAbort.signal.aborted)await command('startTour',entry);
+    syncViewerNavigation();
   }catch(error){if(shellAbort.signal.aborted)return;controller.setLifecycle('error',error);explorer?.dispose();console.error(error);$('loading-label').textContent='The model could not be loaded. Reload this page to try again.';$('status-message').textContent='Model unavailable';document.body.dataset.error=error.message;}
 }
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');

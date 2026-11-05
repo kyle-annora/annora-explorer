@@ -3,7 +3,7 @@
   "modelId": "open-duck",
   "modelRevision": "sha256:ae7b564b2551e9ce73fe4bd4477efb480c92b30e11ad13fcaa24c8f73bf55993",
   "tourId": "open-duck-showcase",
-  "entry": "opt-in",
+  "entry": "default",
   "chapters": [
     {
       "id": "overview",

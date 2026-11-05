@@ -554,6 +554,27 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     if (reducedMotion || !mount.clientWidth || !mount.clientHeight) return null;
     return readScreenFrame(camera, canvas.getBoundingClientRect());
   }
+  function captureView() {
+    return { position: camera.position.toArray(), target: controls.target.toArray() };
+  }
+  function restoreView(view) {
+    if (![view?.position, view?.target].every(value => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite))) return;
+    // Complete visibility and projection as well as the camera flight. Otherwise
+    // a revisited detail can retain the outgoing chapter's hidden surfaces.
+    if (shot) moveCamera(1);
+    else { poses.apply(1); surfaces.fade(1); }
+    projection(mount.clientWidth, mount.clientHeight);
+    camera.position.fromArray(view.position);
+    controls.target.fromArray(view.target);
+    const radius = camera.position.distanceTo(controls.target);
+    controls.minDistance = Math.min(controls.minDistance, radius);
+    controls.maxDistance = Math.max(controls.maxDistance, radius);
+    manualView = true;
+    controls.update();
+    camera.updateMatrixWorld();
+    callout?.invalidatePose();
+    wake();
+  }
   function setChapter(value, originFrame = null) {
     if (!chapters.has(value)) return;
     const previous = chapter;
@@ -616,7 +637,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   frameChapter(true);
   wake();
   return {
-    captureChapterFrame, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, setCalloutTarget, dispose,
+    captureChapterFrame, captureView, restoreView, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, setCalloutTarget, dispose,
     stats: () => ({
       orbit: spatialOrbit.stats(), frames, chapter, playing, rotating, progress, transitioning: Boolean(shot), chapterBlend: shot?.originFrame ? shot.progress : null,
       camera: camera.position.toArray(), target: controls.target.toArray(), pixelRatio: renderer.getPixelRatio(),

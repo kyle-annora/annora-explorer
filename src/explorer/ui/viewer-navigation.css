@@ -1,0 +1,136 @@
+/* Persistent navigation follows the existing neutral workspace shell. The same
+   model and mode controls stay in place when the scene enters the spatial demo. */
+body[data-viewer-navigation=true] .app-header.viewer-navigation {
+  --viewer-paper:var(--panel); --viewer-ink:var(--ink); --viewer-rule:var(--edge-soft);
+  position:absolute; inset:0 0 auto; z-index:9; width:100%; height:64px;
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(170px,250px) minmax(0,1fr);
+  align-items:center; gap:20px; padding:0 var(--ui-edge,28px);
+  color:var(--viewer-ink); background:var(--viewer-paper); border:0; border-bottom:1px solid var(--viewer-rule);
+  pointer-events:none; box-shadow:none;
+}
+body[data-viewer-navigation=true] .viewer-navigation > * { min-width:0; pointer-events:auto; }
+body[data-viewer-navigation=true] .viewer-navigation .lab-brand { max-width:100%; overflow:hidden; }
+body[data-viewer-navigation=true] .viewer-navigation .header-product-picker {
+  width:100%; min-width:0; justify-self:stretch; padding:0 7px; gap:3px;
+  border:1px solid transparent; border-radius:4px; background:var(--surface);
+}
+body[data-viewer-navigation=true] .viewer-navigation .header-product-picker:focus-within { border-color:var(--ink); }
+body[data-viewer-navigation=true] .viewer-navigation #model-select {
+  display:block; width:100%; min-width:0; min-height:44px; height:44px; margin:0;
+  padding-block:0; overflow:hidden; text-overflow:ellipsis; color:inherit; font:12px/1.3 var(--sans);
+}
+.viewer-navigation-actions { display:flex; align-items:center; justify-content:flex-end; gap:18px; min-width:0; }
+/* A shared right-hand context slot prevents the mode controls from jumping
+   when Chapters gives way to the free workspace appearance control. */
+.viewer-modes { display:inline-flex; align-items:center; gap:3px; padding:3px; background:var(--surface); border-radius:4px; }
+body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button {
+  position:static; inset:auto; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  width:auto; min-width:68px; min-height:44px; height:44px; margin:0; padding:0 13px;
+  border:1px solid transparent; border-radius:3px; background:transparent; color:var(--muted);
+  box-shadow:none; font:500 12px/1.2 var(--sans); white-space:nowrap; cursor:pointer; transform:none;
+}
+body[data-viewer-navigation=true] .viewer-navigation #tour-start:not([hidden]) { display:inline-flex!important; }
+body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button[aria-pressed=true] {
+  color:var(--viewer-ink); background:var(--surface-hover); border-color:var(--edge); box-shadow:0 1px 2px #00000004;
+}
+body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button:disabled { opacity:.45; cursor:default; }
+body[data-viewer-navigation=true] .viewer-navigation #tour-start > svg { width:13px; height:13px; }
+body[data-viewer-navigation=true] .viewer-navigation :is(.viewer-tour-label,#tour-duration) { display:none!important; }
+body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.viewer-context { position:relative; display:flex; align-items:center; justify-content:flex-end; min-width:0; flex:0 0 128px; }
+.viewer-context:empty { display:block; }
+body[data-viewer-navigation=true] #viewer-context #orbit-menu { position:relative; color:var(--viewer-ink); }
+body[data-viewer-navigation=true] #viewer-context #orbit-menu summary {
+  display:flex; align-items:center; gap:6px; min-height:44px; padding:0 3px; list-style:none;
+  color:inherit; font:500 12px/1.3 var(--sans); white-space:nowrap; cursor:pointer;
+}
+body[data-viewer-navigation=true] #viewer-context #orbit-menu summary::-webkit-details-marker { display:none; }
+body[data-viewer-navigation=true] #viewer-context #orbit-menu summary svg { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.6; }
+body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-choices {
+  position:absolute; inset:calc(100% + 8px) 0 auto auto; z-index:30; display:grid; align-items:stretch; justify-content:stretch; gap:0;
+  width:min(270px,calc(100vw - 28px)); max-height:min(60dvh,440px); overflow:auto;
+  padding:6px; background:var(--viewer-paper); border:1px solid var(--viewer-rule); border-radius:4px; box-shadow:0 8px 30px #00000010;
+}
+body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-choices :is(button,a) {
+  display:flex; align-items:center; justify-content:flex-start; gap:5px; width:100%; min-height:44px;
+  margin:0; padding:8px 11px; border:0; border-radius:2px; color:var(--muted); background:transparent;
+  font:12px/1.4 var(--sans); text-align:left; text-decoration:none; white-space:normal; cursor:pointer;
+}
+body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-choices [aria-current] { background:var(--surface); color:var(--viewer-ink); }
+body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-credits { border-top:1px solid var(--viewer-rule); margin-top:4px; padding-top:10px; }
+body[data-viewer-navigation=true] #viewer-context :is(summary,button,a):focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+@media(hover:hover) {
+  body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button[aria-pressed=false]:not(:disabled):hover { color:var(--viewer-ink); background:transparent; border-color:transparent; }
+  body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-choices :is(button,a):hover { color:var(--viewer-ink); background:var(--surface); }
+}
+/* The legacy spatial identity is removed only after its chapter menu has a home
+   in this shared header. Root owns moving that menu and its existing listeners. */
+body.orbital-demo[data-viewer-navigation=true]:has(#viewer-context #orbit-menu) .orbital-head { display:none; }
+body.orbital-demo[data-viewer-navigation=true] .app-header.viewer-navigation {
+  --viewer-paper:var(--orbit-paper); --viewer-ink:var(--orbit-ink); --viewer-rule:var(--orbit-rule);
+  position:relative; inset:auto; grid-row:1; color:var(--viewer-ink);
+}
+@media(max-width:980px) {
+  body[data-viewer-navigation=true] .app-header.viewer-navigation { gap:12px; grid-template-columns:minmax(100px,1fr) minmax(150px,210px) auto; }
+  body[data-viewer-navigation=true] .viewer-navigation .brand-product,
+  body[data-viewer-navigation=true] .viewer-navigation .brand-divider { display:none; }
+  .viewer-navigation-actions { gap:10px; }
+  body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button { min-width:62px; padding-inline:10px; }
+}
+@media(max-width:760px) {
+  body[data-viewer-navigation=true] .app-header.viewer-navigation {
+    --ui-edge:14px; height:100px; min-height:100px; grid-template-columns:auto minmax(0,1fr); grid-template-rows:44px 44px;
+    column-gap:12px; row-gap:4px; padding:4px 14px; align-items:center;
+  }
+  body[data-viewer-navigation=true] .viewer-navigation .lab-brand { grid-row:1; grid-column:1; min-height:44px; font-size:15px; letter-spacing:-.4px; gap:8px; }
+  body[data-viewer-navigation=true] .viewer-navigation .brand-mark { width:19px; height:19px; }
+  body[data-viewer-navigation=true] .viewer-navigation .header-product-picker { grid-row:1; grid-column:2; justify-self:stretch; padding:0 6px; }
+  body[data-viewer-navigation=true][data-viewer-mode=explore] .viewer-navigation .header-product-picker { width:calc(100% - 51px); margin-right:51px; }
+  body[data-viewer-navigation=true] .viewer-navigation #model-select { font-size:12px; min-height:44px; }
+  .viewer-navigation-actions { grid-row:2; grid-column:1 / -1; justify-content:space-between; padding:0!important; gap:12px; }
+  .viewer-context { flex-basis:auto; }
+  .viewer-context:empty { display:none; }
+  .viewer-modes { padding:0; gap:3px; background:transparent; }
+  body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button { min-width:76px; min-height:44px; height:44px; padding:0 13px; font-size:13px; }
+  body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button[aria-pressed=true] { background:var(--surface-hover); border-color:var(--edge); box-shadow:none; }
+  body[data-viewer-navigation=true] .appearance-control { top:5px; }
+  body[data-viewer-navigation=true] .stage-heading,
+  body[data-viewer-navigation=true].tour-active .stage-heading { top:112px; }
+  body[data-viewer-navigation=true] .view-appearance-control { top:112px; }
+  body[data-viewer-navigation=true] #viewer-context #orbit-menu summary { min-height:44px; font-size:12px; padding-inline:4px; }
+  body[data-viewer-navigation=true] #viewer-context #orbit-menu .orbital-choices { max-height:calc(100dvh - 126px); }
+}
+@media(max-width:360px) {
+  body[data-viewer-navigation=true] .app-header.viewer-navigation { padding-inline:10px; column-gap:8px; }
+  body[data-viewer-navigation=true] .viewer-navigation .lab-brand { font-size:14px; gap:6px; }
+  body[data-viewer-navigation=true] .viewer-navigation .brand-mark { width:17px; }
+  body[data-viewer-navigation=true] .viewer-navigation #model-select { font-size:11px; padding-inline:3px; }
+  body[data-viewer-navigation=true] .viewer-navigation .header-product-picker { padding-inline:3px; }
+  body[data-viewer-navigation=true] .viewer-navigation .viewer-mode-button { min-width:74px; }
+}
+
+/* Legacy timeline chapters use the same context position and the same live
+   GuidedTour toggle/panel; only their placement changes in the shared shell. */
+body[data-viewer-navigation=true][data-viewer-mode=demo] .app-header.viewer-navigation { z-index:19; }
+body[data-viewer-navigation=true][data-viewer-mode=demo] .appearance-control { visibility:hidden; pointer-events:none; }
+body[data-viewer-navigation=true][data-viewer-timeline-chapters=true] .tour-heading { display:none; }
+body[data-viewer-navigation=true] #viewer-context #tour-chapters-toggle {
+  position:static; display:inline-flex; align-items:center; justify-content:flex-end; gap:6px; min-height:44px;
+  margin:0; padding:0 3px; border:0; border-radius:0; background:transparent; color:var(--viewer-ink); font:500 12px/1.3 var(--sans);
+}
+body[data-viewer-navigation=true] #viewer-context #tour-count { color:var(--muted); font:10px/1.2 var(--mono); letter-spacing:-.2px; }
+body[data-viewer-navigation=true] #viewer-context #tour-chapters-toggle svg { width:11px; height:11px; }
+body[data-viewer-navigation=true] #viewer-context #tour-chapters {
+  position:absolute; inset:calc(100% + 8px) 0 auto auto; z-index:30;
+  width:min(270px,calc(100vw - 28px)); max-width:none; max-height:min(60dvh,440px); overflow:auto;
+  margin:0; padding:6px; background:var(--viewer-paper); border:1px solid var(--viewer-rule); border-radius:4px; box-shadow:0 8px 30px #00000010;
+}
+body[data-viewer-navigation=true] #viewer-context #tour-chapters button { min-height:44px; font:12px/1.4 var(--sans); }
+body[data-viewer-navigation=true] #viewer-context #tour-chapters button[aria-current] { color:var(--viewer-ink); background:var(--surface); border-color:transparent; }
+body[data-viewer-navigation=true] #viewer-context #tour-chapters button[aria-current] .chapter-number { color:var(--viewer-ink); }
+@media(hover:hover) {
+  body[data-viewer-navigation=true] #viewer-context #tour-chapters button:hover { color:var(--viewer-ink); background:var(--surface); border-color:transparent; }
+}
+@media(max-width:760px) {
+  body[data-viewer-navigation=true] #viewer-context #tour-chapters { max-height:calc(100dvh - 126px); }
+}

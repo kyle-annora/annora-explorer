@@ -33,7 +33,7 @@ function authoredTour(steps) {
   }));
   return { id:'fixture-presentation', duration:5, playback:steps ? 'steps' : 'continuous', chapters };
 }
-function fixture(t, { steps = false, reducedMotion = false } = {}) {
+function fixture(t, { steps = false, reducedMotion = false, entry } = {}) {
   const document = new Element(), elements = new Map(), selectors = new Map(), motion = new Element();
   document.ownerDocument = document; document.hidden = false; document.body = new Element(document); motion.matches = reducedMotion;
   const element = id => { if (!elements.has(id)) elements.set(id, new Element(document)); return elements.get(id); };
@@ -57,7 +57,7 @@ function fixture(t, { steps = false, reducedMotion = false } = {}) {
     applyTourFrame(frame) { calls.push(['sample', frame.time]); }, projectTourAnchor:id => anchors.get(id),
   };
   const tour = new GuidedTour({
-    scene, model:{ id:'fixture', tour:authoredTour(steps) }, captureNavigation:() => navigation,
+    scene, model:{ id:'fixture', tour:authoredTour(steps) }, entry, captureNavigation:() => navigation,
     restoreNavigation:value => calls.push(['navigation', value]), syncScene() {}, closeOverlays() {}, syncLayout() {},
   });
   t.after(() => { tour.dispose(); Object.assign(globalThis, previous); });
@@ -130,6 +130,36 @@ test('a presentation prepared in an already hidden page remains paused until exp
   f.tour.tick(0); f.tour.tick(500);
   assert.equal(f.tour.player.state().status, 'paused'); assert.equal(f.tour.player.state().time, 0);
   f.tour.resume(); assert.equal(f.tour.player.state().status, 'playing');
+});
+
+test('shell checkpoint restoration pauses at the exact step end while external start stays fresh', async t => {
+  const f = fixture(t, { steps: true }); await f.tour.start();
+  f.tour.player.holdChapterEnd(0); f.tour.apply();
+  const saved = f.tour.captureCheckpoint();
+  assert.deepEqual(saved, { tourId: 'fixture-presentation', chapterId: 'whole', seconds: 2.5 });
+  await f.tour.exit(); await f.tour.start();
+  assert.equal(f.tour.player.state().time, 0);
+  assert.equal(f.tour.restoreCheckpoint(saved), true);
+  assert.equal(f.tour.player.state().status, 'paused');
+  assert.equal(f.tour.player.state().index, 0); assert.equal(f.tour.player.state().time, 2.5);
+  assert.equal(f.element('tour-progress').value, '100');
+  for (const invalid of [{ ...saved, tourId: 'other' }, { ...saved, seconds: 3 }, { ...saved, seconds: NaN }]) {
+    assert.equal(f.tour.restoreCheckpoint(invalid), false);
+    assert.equal(f.tour.player.state().time, 2.5);
+  }
+});
+
+test('all visible timeline exit controls delegate to optional route entry while direct exit remains local', async t => {
+  const exits = [];
+  const f = fixture(t, { steps: true, entry: { open() {}, exit: options => exits.push(options) } });
+  await f.tour.start();
+  f.element('tour-exit').dispatchEvent(new Event('click'));
+  f.element('tour-explore').dispatchEvent(new Event('click'));
+  f.tour.player.holdChapterEnd(1); f.tour.apply();
+  f.element('tour-play').dispatchEvent(new Event('click'));
+  assert.deepEqual(exits, [{}, { restore: false }, { restore: false }]);
+  assert.equal(f.tour.active, true);
+  await f.tour.exit(); assert.equal(f.tour.active, false); assert.equal(exits.length, 3);
 });
 
 test('annotation collision checks the visible caption and transport rather than their large wrapper', t => {

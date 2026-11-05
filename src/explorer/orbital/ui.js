@@ -59,7 +59,7 @@ function makeControls(model, chapters) {
   return { header, footer };
 }
 
-export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: initial = 'overview', navigate, exit }) {
+export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: initial = 'overview', navigate, exit, checkpoints = new Map(), navigationHost }) {
   const chapters = Object.fromEntries(guide.chapters.map((chapter, i, list) =>
     [chapter.id, { ...chapter, next: list[(i + 1) % list.length].id }]));
   const shell = document.querySelector('.app-shell');
@@ -74,6 +74,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
   const find = id => footer.querySelector('#orbit-' + id) || header.querySelector('#orbit-' + id);
   const menu = find('menu');
   const summary = menu.querySelector('summary');
+  const exitButton = find('exit');
   const choices = [...menu.querySelectorAll('button')];
   const next = find('next'), slider = find('progress'), caption = find('caption');
   const time = find('time'), phase = find('phase');
@@ -145,7 +146,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     if (chapter === 'overview') setRotating(false);
     setPlaying(false);
   }
-  function setChapter(id) {
+  function setChapter(id, checkpoint = checkpoints.get(id)) {
     if (disposed || !Object.hasOwn(chapters, id)) return;
     if (id === chapter) return;
     previewId = null;
@@ -160,6 +161,8 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
       if (button.dataset.orbitTarget === id) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
     }
+    const chapterIndex = guide.chapters.findIndex(item => item.id === id);
+    summary.firstChild.textContent = 'Chapters · ' + (chapterIndex + 1) + ' / ' + guide.chapters.length + ' ';
     find('title').textContent = record.label;
     find('copy').textContent = record.copy || '';
     next.querySelector('span').textContent = record.next === 'overview' ? 'Whole model' : 'Next: ' + chapters[record.next].label;
@@ -167,10 +170,12 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     stage.setStationFocus(null);
     drawing.setChapter(id);
     stage.setChapter(id, frame);
-    setProgress(0, false);
-    setRotating(rotating);
-    setPlaying(id !== 'overview' && !media.matches);
-    const focusTarget = id === 'overview' ? initialMount ? header.querySelector('h1') : summary : find('title');
+    const saved = checkpoint?.chapterId === id && Number.isFinite(checkpoint.progress) ? checkpoint : null;
+    if (saved?.view) stage.restoreView(saved.view);
+    setProgress(saved ? saved.progress : 0, Boolean(saved));
+    setRotating(saved ? false : rotating);
+    setPlaying(!saved && id !== 'overview' && !media.matches);
+    const focusTarget = id === 'overview' ? initialMount && !navigationHost ? header.querySelector('h1') : summary : find('title');
     focusTarget.focus({ preventScroll: true });
     stopWords();
     if (frame) {
@@ -196,6 +201,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     disposed = true;
     stopWords();
     abort.abort();
+    menu.remove();
     header.remove();
     footer.remove();
     document.body.classList.remove('orbital-demo','orbital-annotated','orbit-has-cue');
@@ -212,6 +218,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
   if (callout) document.body.classList.add('orbital-annotated');
   main.before(header);
   main.after(footer);
+  if (navigationHost) navigationHost.append(menu);
   mount.setAttribute('aria-label', explorer.model.title + ' presentation. Drag or use the arrow keys to orbit. Select a point or choose a chapter.');
   try {
     stage = createOrbitalStage({
@@ -231,7 +238,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     throw error;
   }
 
-  listen(find('exit'), 'click', exit);
+  listen(exitButton, 'click', exit);
   listen(back, 'click', () => requestChapter('overview'));
   listen(next, 'click', () => requestChapter(chapters[chapter].next));
   listen(rotation, 'click', () => setRotating(!rotating));
@@ -269,5 +276,5 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     if (event.matches) { stopWords(); setRotating(false); setPlaying(false); }
   });
   listen(document, 'visibilitychange', () => { if (document.hidden && playing) setPlaying(false); });
-  return { setChapter, dispose };
+  return { setChapter, dispose, captureState: () => ({ chapterId: chapter, progress, view: stage.captureView() }) };
 }

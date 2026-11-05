@@ -88,7 +88,6 @@ body.orbital-demo:not([data-orbit-chapter="overview"]) .orbital-overview { displ
 #orbit-caption[data-active] { color: var(--orbit-focus); }
 #orbit-next { gap: 10px; justify-self: end; }
 #orbit-back { color: var(--orbit-muted); font-size: 12px; }
-body[data-orbit-chapter="electronics"] #orbit-back { display: none; }
 .orbital-story h2 { margin: 0; font: 500 clamp(24px, 2.05vw, 33px)/1.08 var(--sans); letter-spacing: -.045em; }
 .orbital-story p { margin: 6px 0 0; max-width: 61ch; color: var(--orbit-muted); font-size: clamp(13px, .95vw, 16px); line-height: 1.42; }
 .orbital-action { min-width: 0; }

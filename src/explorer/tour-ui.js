@@ -10,7 +10,10 @@ const write = (node, value) => { if (node.textContent !== value) node.textConten
 export class GuidedTour {
   constructor({ scene, model, captureNavigation, restoreNavigation, syncScene, closeOverlays, syncLayout, command, stateChange, entry }) {
     this.scene = scene; this.tour = model.tour; this.stepwise = this.tour.playback === 'steps';
+    this.modelId = model.id;
     this.command = command; this.stateChange = stateChange; this.abort = new AbortController(); this.listeners = []; this.disposed = false;
+    this.entryExit = entry?.exit;
+    if (this.entryExit) write($('tour-explore').querySelector('span'), 'Explore this view');
     this.captureNavigation = captureNavigation; this.restoreNavigation = restoreNavigation;
     this.syncScene = syncScene; this.closeOverlays = closeOverlays; this.syncLayout = syncLayout;
     this.motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
@@ -28,7 +31,7 @@ export class GuidedTour {
     write($('tour-start').querySelector('span'), 'Play presentation');
     $('tour-start').disabled = false;
     this.listen($('tour-start'), 'click', () => entry ? entry.open() : this.dispatch('startTour', { tourId: this.tour.id }, () => this.start()));
-    this.listen($('tour-exit'), 'click', () => this.dispatch('exitTour', {}, () => this.exit()));
+    this.listen($('tour-exit'), 'click', () => this.requestExit());
     this.listen($('tour-chapters-toggle'), 'click', () => {
       if (!$('tour-chapters').hidden) { this.closeChapters(); return; }
       this.closeOverlays(); this.pause('chapters');
@@ -44,15 +47,15 @@ export class GuidedTour {
       const next = event.relatedTarget;
       if (next && !$('tour-chapters').contains(next) && next !== $('tour-chapters-toggle')) this.closeChapters();
     });
-    this.listen($('tour-explore'), 'click', () => this.dispatch('exitTour', { restore: false }, () => this.exit({ restore: false })));
+    this.listen($('tour-explore'), 'click', () => this.requestExit({ restore: false }));
     this.listen($('tour-play'), 'click', () => {
       if (this.player.state().status === 'playing') this.dispatch('pauseTour', {}, () => this.pause('user'));
       else if (this.stepwise && (this.player.heldChapterIndex !== null || this.player.state().status === 'completed')) {
         const index = this.player.state().index;
-        if (index === this.tour.chapters.length - 1) this.dispatch('exitTour', { restore: false }, () => this.exit({ restore: false }));
+        if (index === this.tour.chapters.length - 1) this.requestExit({ restore: false });
         else this.playChapter(index + 1);
       }
-      else if (this.reducedMotion && this.stepwise && this.player.state().index === this.tour.chapters.length - 1) this.dispatch('exitTour', { restore: false }, () => this.exit({ restore: false }));
+      else if (this.reducedMotion && this.stepwise && this.player.state().index === this.tour.chapters.length - 1) this.requestExit({ restore: false });
       else if (this.reducedMotion) this.requestJump('next');
       else this.dispatch('resumeTour', {}, () => this.resume());
     });
@@ -96,6 +99,25 @@ export class GuidedTour {
     if (this.disposed) return Promise.resolve(false);
     this.intent = (this.intent || 0) + 1;
     return Promise.resolve(this.command ? this.command(method, params) : fallback());
+  }
+
+  requestExit(options = {}) {
+    if (this.disposed) return Promise.resolve(false);
+    return this.entryExit ? this.entryExit(options) : this.dispatch('exitTour', options, () => this.exit(options));
+  }
+
+  captureCheckpoint() {
+    if (this.disposed || !this.active) return null;
+    const state = this.player.state();
+    return { tourId: this.tour.id, chapterId: state.chapter.id, seconds: state.time };
+  }
+
+  restoreCheckpoint(checkpoint) {
+    if (this.disposed || !this.active || checkpoint?.tourId !== this.tour.id) return false;
+    const chapter = this.player.chapters.find(record => record.id === checkpoint.chapterId);
+    if (!chapter || !Number.isFinite(checkpoint.seconds) || checkpoint.seconds < chapter.start || checkpoint.seconds > chapter.end) return false;
+    this.jump('seek', checkpoint.seconds, checkpoint.chapterId);
+    return true;
   }
 
   playChapter(index) {
@@ -286,7 +308,7 @@ export class GuidedTour {
     write($('tour-count'), `${String(index + 1).padStart(2, '0')} / ${String(state.count).padStart(2, '0')}`);
     $('tour-chapters-toggle').setAttribute('aria-label', `Step ${index + 1} of ${state.count}: ${chapter.label}. Choose step`);
     write($('tour-title'), frame.title); write($('tour-caption'), frame.caption);
-    const label = state.status === 'playing' ? 'Pause' : held ? last ? 'Explore freely' : 'Next step' : this.reducedMotion ? last ? 'Finish tour' : 'Next step' : local > 0 ? 'Resume' : 'Play step';
+    const label = state.status === 'playing' ? 'Pause' : held ? last ? this.entryExit ? 'Explore this view' : 'Explore freely' : 'Next step' : this.reducedMotion ? last ? 'Finish tour' : 'Next step' : local > 0 ? 'Resume' : 'Play step';
     write($('tour-play').querySelector('span'), label);
     $('tour-play').setAttribute('aria-label', label);
     $('tour-play').querySelector('use').setAttribute('href', state.status === 'playing' ? '#i-pause' : held ? '#i-arrow' : '#i-play');
