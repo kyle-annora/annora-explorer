@@ -17,6 +17,7 @@ export function validateSpatialGuide(guide, model, animations = []) {
   require(guide?.schemaVersion === 1 && guide.modelId === model.manifest.id &&
     guide.modelRevision === model.revision && guide.tourId === model.tour?.id, 'model revision or tour does not match.');
   require(['default', 'opt-in'].includes(guide.entry), 'choose a valid presentation entry.');
+  if (guide.referenceWorkspace !== undefined) require(typeof guide.referenceWorkspace === 'boolean', 'referenceWorkspace must be a boolean.');
   const chapters = guide.chapters;
   require(Array.isArray(chapters) && chapters.length >= 2 && chapters.length <= 12 &&
     chapters[0]?.id === 'overview', 'start with an overview and at least one detail.');

@@ -1,0 +1,59 @@
+/* View controls retain the neutral floating workspace language. Rendering style
+   remains a separate 3D setting, while Demo / Explore stays in the main header. */
+body[data-reference-workspace=true] { --reference-top:64px; --reference-bar-height:52px; }
+.reference-workspace-bar {
+  position:absolute; z-index:8; inset:var(--reference-top) 0 auto; height:var(--reference-bar-height);
+  display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 var(--ui-edge,28px);
+  background:var(--orbit-paper,var(--panel)); color:var(--orbit-ink,var(--ink)); border-bottom:1px solid var(--orbit-rule,var(--edge-soft));
+  font:12px/1.3 var(--sans);
+}
+.reference-workspace-switch { display:flex; gap:4px; }
+.reference-workspace-bar button {
+  position:relative; display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:64px;
+  padding:0 12px; border:0; border-radius:3px; background:transparent; color:var(--orbit-muted,var(--muted)); font:inherit; cursor:pointer;
+}
+.reference-workspace-bar button[aria-pressed=true] { color:var(--orbit-ink,var(--ink)); background:color-mix(in srgb,var(--orbit-ink,var(--ink)) 6%,transparent); font-weight:600; }
+.reference-workspace-bar button:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.reference-workspace-bar [hidden],.reference-workspace-pane[hidden] { display:none; }
+.reference-workspace-status { color:var(--orbit-muted,var(--muted)); font-size:11px; }
+.reference-workspace-pane { position:absolute; z-index:5; inset:calc(var(--reference-top) + var(--reference-bar-height)) 0 0; min-width:0; min-height:0; background:var(--orbit-paper,var(--panel)); }
+body[data-reference-workspace=true]:not(.orbital-demo) .stage-heading { top:calc(var(--reference-top) + var(--reference-bar-height) + 12px); }
+body[data-reference-workspace=true]:not(.orbital-demo) .view-appearance-control { top:calc(var(--reference-top) + var(--reference-bar-height) + 12px); }
+body[data-reference-view=drawings] #viewport { visibility:hidden; pointer-events:none; }
+body[data-reference-view=drawings] :is(.stage-heading,.stage-tools,.detail-panel,.viewport-hint,.view-appearance-control,.assembly-panel,.tree-backdrop,.orbit-callout-layer,.orbit-motion-diagram) { visibility:hidden; pointer-events:none; }
+body[data-reference-view=drawings] :is(.orbital-action,.orbital-overview .orbital-transport,#orbit-inspect) { visibility:hidden; pointer-events:none; }
+body[data-reference-view=compare] #viewport { width:55%; }
+body[data-reference-view=compare] #scene { position:absolute; width:100%; }
+body[data-reference-view=compare] .reference-workspace-pane { left:55%; border-left:1px solid var(--orbit-rule,var(--edge-soft)); }
+body[data-reference-view=compare] :is(.detail-panel,.viewport-hint,.view-appearance-control,.orbit-callout-layer,.orbit-motion-diagram) { visibility:hidden; pointer-events:none; }
+body[data-reference-view=compare]:not(.orbital-demo) .stage-heading { max-width:calc(55vw - 40px); }
+body[data-reference-view=compare]:not(.orbital-demo) .stage-tools { left:27.5%; }
+body[data-reference-workspace=true].orbital-demo { --reference-top:0px; }
+body[data-reference-workspace=true].orbital-demo #viewport { top:var(--reference-bar-height); height:calc(100% - var(--reference-bar-height)); }
+body[data-reference-workspace=true].orbital-demo .orbit-callout-copy { margin-top:var(--reference-bar-height); }
+body[data-reference-view=drawings].orbital-demo #orbit-copy,
+body[data-reference-view=compare].orbital-demo #orbit-copy { display:block; }
+body[data-reference-view=drawings].orbital-demo .orbital-dock { grid-template-columns:minmax(0,1fr) auto; }
+body[data-reference-view=drawings].orbital-demo .orbital-action { display:none; }
+body[data-reference-workspace=true].orbital-demo[data-orbit-chapter=overview] .reference-workspace-status { max-width:40%; }
+@media(hover:hover) { .reference-workspace-bar button:hover { background:color-mix(in srgb,var(--orbit-ink,var(--ink)) 6%,transparent); color:var(--orbit-ink,var(--ink)); } }
+@media(max-width:760px) {
+  body[data-reference-workspace=true] { --reference-top:100px; }
+  .reference-workspace-bar { padding-inline:14px; }
+  .reference-workspace-status { font-size:10px; text-align:right; max-width:45%; }
+  body[data-reference-workspace=true].orbital-demo #main-content[data-callout-room] #viewport { top:calc(var(--reference-bar-height) + var(--callout-headroom,78px)); height:auto; }
+  body[data-reference-view=drawings].orbital-demo #main-content[data-callout-room] #viewport { top:var(--reference-bar-height); }
+}
+body[data-reference-view=drawings] .orbit-callout-layer,
+body[data-reference-view=compare] .orbit-callout-layer { display:none; }
+body[data-reference-workspace=true]:not(.orbital-demo) .reference-workspace-pane { bottom:44px; }
+/* The reader already names the chapter. Keep only its useful back/next actions
+   below a full-size sheet, especially on short phone screens. */
+body[data-reference-view=drawings].orbital-demo .orbital-dock {
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  min-height:60px; padding-block:8px max(8px,env(safe-area-inset-bottom));
+}
+body[data-reference-view=drawings].orbital-demo .orbital-story { display:contents; }
+body[data-reference-view=drawings].orbital-demo :is(.orbital-story h2,#orbit-copy,#orbit-inspect,.orbital-overview) { display:none; }
+body[data-reference-view=drawings].orbital-demo #orbit-next { margin-left:auto; }
+body[data-reference-view=drawings].orbital-demo[data-orbit-chapter=overview] #orbit-back { display:none; }

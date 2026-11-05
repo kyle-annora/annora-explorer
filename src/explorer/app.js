@@ -15,6 +15,8 @@ import spatialGuides, { referenceAssets } from 'virtual:annora-spatial-guides';
 import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
 import { createTimelineNavigation } from './timeline-navigation.js';
 import { createViewerNavigation } from './ui/viewer-navigation.js';
+import { createReferenceWorkspace } from './ui/reference-workspace.js';
+import { canUseReferenceWorkspace, referenceChapterForNode } from './ui/reference-context.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
 import { ExplorerController } from './controller.js';
 import { createPageLifecycle } from './controller/page-lifecycle.js';
@@ -39,7 +41,7 @@ const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
 const spatialGuide = spatialGuides.find(guide => guide.modelId === model.id);
 const topLevelViewer = !embedded && window.parent === window;
 const offersOrbit = hasOrbitalGuide(model, spatialGuide, !topLevelViewer, params.get('guide'));
-let orbital, timeline, viewerNavigation, lastViewerState, freeCamera, contextualInspection;
+let orbital, timeline, viewerNavigation, lastViewerState, freeCamera, contextualInspection, referenceWorkspace;
 if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
 const displayStorageKey=`${themeStorageKey}.display.v1`;
@@ -62,7 +64,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); referenceWorkspace?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -105,6 +107,7 @@ function syncViewerNavigation() {
   if (key === lastViewerState) return;
   lastViewerState = key;
   viewerNavigation?.sync(state);
+  if (!active && referenceWorkspace && hierarchy) referenceWorkspace.setChapter(referenceChapterForNode(spatialGuide,hierarchy,navigation.selectedId)?.id,navigation.selectedId);
 }
 function restoreFreeCamera() {
   if (!freeCamera || !explorer?.ready) return;
@@ -178,6 +181,7 @@ function viewportInsets(){
     const bottom=height-(mobileLayout.matches&&!shortLandscape.matches?Math.min(copy?.top||height,transport?.top||height):(transport?.top||height))+12;
     return shortLandscape.matches?{left:240,right:12,top:(header?.bottom||0)+8,bottom}:{left:12,right:12,top:Math.max(header?.bottom||0,heading?.bottom||0)+12,bottom};
   }
+  if(referenceWorkspace?.view==='compare')return {left:12,right:12,top:Math.max(header?.bottom||0,heading?.bottom||0)+12,bottom:100};
   const dock=document.body.classList.contains('performance-open')&&mobileLayout.matches?null:rect('.stage-tools');
   const details=document.body.classList.contains('performance-open')?rect('#perf-panel'):guidedTour?.active?null:rect('.detail-panel'),tree=rect('.assembly-panel');
   const top=Math.max(header?.bottom||0,heading?.bottom||0)+12;
@@ -334,6 +338,7 @@ listen($('reveal-selection'),'click',()=>{
 });
 listen($('collapse-tree'),'click',()=>{navigation={...navigation,expanded:new Set(ancestors(hierarchy.nodes,navigation.scopeId).map(node=>node.id))};renderTree();});
 function renderDetails(){
+  if(referenceWorkspace && !orbital?.active)referenceWorkspace.setChapter(referenceChapterForNode(spatialGuide,hierarchy,navigation.selectedId)?.id,navigation.selectedId);
   const state=inspectionState(hierarchy.nodes,navigation.selectedId,navigation.scopeId),{selected}=state,scopePath=ancestors(hierarchy.nodes,navigation.scopeId);
   if(lastDetailId!==selected.id){$('model-details').open=false;lastDetailId=selected.id;setDetailsCollapsed(selected.id===model.rootId||compactChrome);}
   assemblyPath.sync(hierarchy.nodes, state);
@@ -486,16 +491,23 @@ async function start(){
     if(openingStyle!=='engineering')await explorer.setRenderStyle(openingStyle);
     explorer.setDisplayOptions({appearance,grid:displayPreferences.grids[openingStyle]});
     if(shellAbort.signal.aborted)return;syncPresentationUI();
+    if(topLevelViewer && offersOrbit && canUseReferenceWorkspace(spatialGuide)) {
+      referenceWorkspace=createReferenceWorkspace({main:$('main-content'),guide:spatialGuide,assets:referenceAssets[model.id],
+        beforeChange(){closePath();closeDisplay();closeTheme();closeTree();closePerformance();},
+        freeAdapter:{pause(){controller.takeover();explorer.pausePresentation();},capture:()=>explorer.captureCameraView(),restore:view=>explorer.restoreCameraView(view,{animate:false}),resize:()=>explorer.resize(),reframe:()=>explorer.fit(false,explorer.currentDirection(true))}});
+      referenceWorkspace.setChapter(referenceChapterForNode(spatialGuide,hierarchy,navigation.selectedId)?.id,navigation.selectedId);
+    }
     if (offersOrbit) orbital = createOrbitalNavigation({
       model, guide: spatialGuide, browser: window, listen, load: () => import('./orbital/ui.js'),
       mount({ mountOrbitalUI }, chapter, navigate, exit, checkpoints) {
         contextualInspection?.cancel();
         controller.takeover();
         explorer.pausePresentation();
+        referenceWorkspace?.checkpoint();
         freeCamera = explorer.captureCameraView();
         closePath(); closeDisplay(); closeTheme();
         if (!$('perf-panel').hidden) closePerformance();
-        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit, checkpoints, navigationHost: viewerNavigation?.context, inspectAssembly: inspectCurrentDemoAssembly });
+        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit, checkpoints, navigationHost: viewerNavigation?.context, inspectAssembly: inspectCurrentDemoAssembly, referenceWorkspace });
       },
       onPending(pending) {
         $('tour-start').disabled = pending;

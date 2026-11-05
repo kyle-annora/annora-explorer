@@ -4,6 +4,7 @@
   "modelRevision": "sha256:7e90cdc60b1ea2f711ca3edd9800454654609496262ff3e03d1caf2ee8fa7f39",
   "tourId": "hexapod-showcase",
   "entry": "default",
+  "referenceWorkspace": true,
   "chapters": [
     {
       "id": "overview",

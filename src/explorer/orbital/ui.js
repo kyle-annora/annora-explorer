@@ -61,7 +61,7 @@ function makeControls(model, chapters) {
   return { header, footer };
 }
 
-export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: initial = 'overview', navigate, exit, inspectAssembly, checkpoints = new Map(), navigationHost }) {
+export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: initial = 'overview', navigate, exit, inspectAssembly, checkpoints = new Map(), navigationHost, referenceWorkspace }) {
   const chapters = Object.fromEntries(guide.chapters.map((chapter, i, list) =>
     [chapter.id, { ...chapter, next: list[(i + 1) % list.length].id }]));
   const shell = document.querySelector('.app-shell');
@@ -83,7 +83,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
   const play = find('play'), rotation = find('rotation'), back = find('back');
   const supportsCallouts = guide.chapters.some(record => record.callouts?.length);
   const callout = supportsCallouts ? createCallout({ main, mount, getAccent }) : null;
-  const drawing = createDrawingPlate({ main, guide, assets });
+  const drawing = referenceWorkspace ? {setProgress(){},setChapter(){},setSuppressed(){},getInset(){return 0;},dispose(){}} : createDrawingPlate({ main, guide, assets });
   const referenceBack = document.createElement('button');
   referenceBack.type = 'button';
   referenceBack.className = 'orbit-reference-back';
@@ -91,7 +91,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
   referenceBack.hidden = true;
   main.append(referenceBack);
   const diagram = createMotionDiagram({ main, mount, getAccent, onTakeover: takeover,
-    onReference: () => showReference(true) });
+    onReference: referenceWorkspace ? undefined : () => showReference(true) });
   function showReference(value) {
     takeover();
     diagram.setHidden(value);
@@ -121,7 +121,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     button.querySelector('.orbital-label').textContent = label;
   }
   function setPlaying(value) {
-    playing = Boolean(value && chapter !== 'overview' && !document.hidden);
+    playing = Boolean(value && referenceWorkspace?.view !== 'drawings' && chapter !== 'overview' && !document.hidden);
     stage?.setPlaying(playing);
     const label = playing ? 'Pause action' : progress >= 1 ? 'Replay action' : progress > 0 ? 'Resume action' : 'Play action';
     setTransport(play, playing ? 'pause' : progress >= 1 ? 'reset' : 'play', label);
@@ -191,12 +191,14 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     referenceBack.hidden = true;
     drawing.setSuppressed(Boolean(record.explanation));
     drawing.setChapter(id);
+    referenceWorkspace?.setChapter(id);
     stage.setChapter(id, frame);
     const saved = checkpoint?.chapterId === id && Number.isFinite(checkpoint.progress) ? checkpoint : null;
     if (saved?.view) stage.restoreView(saved.view);
     setProgress(saved ? saved.progress : 0, Boolean(saved));
     setRotating(saved ? false : rotating);
-    setPlaying(!saved && id !== 'overview' && !media.matches);
+    setPlaying(!saved && id !== 'overview' && !media.matches && (!referenceWorkspace || referenceWorkspace.view==='3d'));
+    if(referenceWorkspace?.view && referenceWorkspace.view!=='3d'){takeover();diagram.setHidden(true);}
     const focusTarget = id === 'overview' ? initialMount && !navigationHost ? header.querySelector('h1') : summary : find('title');
     focusTarget.focus({ preventScroll: true });
     stopWords();
@@ -220,6 +222,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
 
   function dispose() {
     if (disposed) return;
+    referenceWorkspace?.checkpoint();
     disposed = true;
     stopWords();
     abort.abort();
@@ -236,6 +239,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
     if (oldLabel === null) mount.removeAttribute('aria-label');
     else mount.setAttribute('aria-label', oldLabel);
     stage?.dispose();
+    referenceWorkspace?.bindDemo(null);
   }
 
   document.body.classList.add('orbital-demo');
@@ -249,7 +253,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
       explorer, guide, getAccent, reducedMotion: media.matches,
       onCallout: callout?.setPoint,
       onExplanation: frame => { if (frame) diagram.setFrame(frame); },
-      getCalloutInset: width => Math.max(callout?.getInset(width) ?? 0, drawing.getInset(width)),
+      getCalloutInset: width => referenceWorkspace && referenceWorkspace.view!=='3d' ? 0 : Math.max(callout?.getInset(width) ?? 0, drawing.getInset(width)),
       onTakeover: takeover, onEmphasis: emphasize, onStation: requestChapter,
       onTick(seconds) {
         if (!playing) return;
@@ -258,6 +262,7 @@ export function mountOrbitalUI({ explorer, guide, assets, getAccent, chapter: in
       },
     });
     setChapter(Object.hasOwn(chapters, initial) ? initial : 'overview');
+    referenceWorkspace?.bindDemo({pause:takeover,capture:()=>stage.captureView(),restore:view=>{if(view)stage.restoreView(view);},resize:()=>explorer.resize(),reframe:()=>stage.reframeView(),representation:view=>diagram.setHidden(view!=='3d')});
   } catch (error) {
     dispose();
     throw error;

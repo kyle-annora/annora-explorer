@@ -97,3 +97,11 @@ test('explanation copy is bounded, typo-resistant and available only on motion c
   invalid((leg, guide) => { guide.chapters[0].explanation = leg.explanation; }, /needs a motion action/);
   invalid((leg, guide) => { guide.chapters.find(chapter => chapter.id === 'electronics').explanation = leg.explanation; }, /needs a motion action/);
 });
+
+test('reference workspace is an optional boolean capability and rejects truthy substitutes', () => {
+  for (const value of [true, false]) { const { guide } = fixture(); guide.referenceWorkspace = value; assert.equal(validate(guide), guide); }
+  const { guide } = fixture(); delete guide.referenceWorkspace; assert.equal(validate(guide), guide);
+  for (const value of ['true', 1, 0, null, {}, []]) {
+    invalid((_leg, candidate) => { candidate.referenceWorkspace = value; }, /referenceWorkspace must be a boolean/);
+  }
+});

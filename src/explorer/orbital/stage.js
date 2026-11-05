@@ -645,6 +645,12 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   frameChapter(true);
   wake();
   return {
+    reframeView() {
+      if(disposed)return;
+      manualView=false;
+      frameChapter(true,camera.position.clone().sub(controls.target).normalize());
+      wake();
+    },
     captureChapterFrame, captureView, restoreView, setChapter, setProgress, setPlaying, setRotating, setReducedMotion, setStationFocus, setCalloutTarget, dispose,
     stats: () => ({
       orbit: spatialOrbit.stats(), frames, chapter, playing, rotating, progress, transitioning: Boolean(shot), chapterBlend: shot?.originFrame ? shot.progress : null,
