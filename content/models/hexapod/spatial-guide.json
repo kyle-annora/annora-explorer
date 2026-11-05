@@ -37,7 +37,7 @@
     },
     {
       "id": "leg",
-      "label": "Leg motion",
+      "label": "How a leg reaches",
       "direction": [
         1.25,
         0.48,
@@ -50,20 +50,24 @@
         0.91,
         0.93
       ],
-      "duration": 2.5,
-      "copy": "Three joints lift and extend the leg. The path follows the tip of the foot.",
+      "duration": 2.8,
+      "copy": "The upper joint lifts the leg. The lower joint changes its reach.",
       "phases": [
         [
           0,
-          "Lift the foot"
+          "Ready to reach"
         ],
         [
-          0.38,
-          "Reach outward"
+          0.14,
+          "Lift and reach"
         ],
         [
-          0.69,
-          "Return to rest"
+          0.5,
+          "Return together"
+        ],
+        [
+          0.86,
+          "Back at rest"
         ]
       ],
       "action": {
@@ -74,27 +78,18 @@
           "HexJoint_leg_1_femur",
           "HexJoint_leg_1_tibia"
         ],
-        "trace": "Hex_leg_1_tibia_1"
+        "trace": "Hex_leg_1_tibia_1",
+        "playbackWindow": [
+          0.14,
+          0.86
+        ]
       },
-      "hint": "Follow the foot through one reach.",
+      "hint": "See how two moving joints carry the foot.",
       "callouts": [
         {
           "at": 0,
-          "title": "Lower leg",
-          "text": "Three joints carry the tip through its reach.",
-          "anchor": {
-            "meshName": "Hex_leg_1_tibia_1",
-            "fraction": [
-              0.5,
-              0.2,
-              0.5
-            ]
-          }
-        },
-        {
-          "at": 0.69,
-          "title": "Return stroke",
-          "text": "The leg brings the foot back to its starting position.",
+          "title": "Two joints. One reach.",
+          "text": "The upper joint lifts the leg. The lower joint changes its reach.",
           "anchor": {
             "meshName": "Hex_leg_1_tibia_1",
             "fraction": [
@@ -110,6 +105,49 @@
         "plan": "plates/leg-plan.svg",
         "elevation": "plates/leg-elevation.svg",
         "section": "plates/leg-section.svg"
+      },
+      "inspectNodeId": "hex-leg-1",
+      "explanation": {
+        "title": "Two joints. One reach.",
+        "summary": "The upper joint lifts the leg. The lower joint changes its reach.",
+        "joints": [
+          {
+            "node": "HexJoint_leg_1_femur",
+            "label": "Upper joint",
+            "highlightMesh": "Hex_leg_1_femur_motor_1"
+          },
+          {
+            "node": "HexJoint_leg_1_tibia",
+            "label": "Lower joint",
+            "highlightMesh": "Hex_leg_1_tibia_motor_1"
+          }
+        ],
+        "diagram": {
+          "horizontal": [
+            0.70710678,
+            0,
+            -0.70710678
+          ],
+          "vertical": [
+            0,
+            1,
+            0
+          ]
+        },
+        "cues": [
+          [
+            0,
+            0
+          ],
+          [
+            0.32,
+            1
+          ],
+          [
+            0.5,
+            -1
+          ]
+        ]
       }
     },
     {

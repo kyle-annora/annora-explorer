@@ -6,7 +6,7 @@ import { readDisplayPreferences, writeDisplayPreferences, normalizeDisplayPrefer
 import { PROJECT_CONFIG } from '../generated/project.js';
 import { applyProjectBrand, openingTheme, preferenceNamespace } from './project-brand.js';
 import { buildHierarchy, ancestors } from './model-state.js';
-import { createNavigation, selectNode, enterScope, toggleBranch } from './navigation-state.js';
+import { createNavigation, selectNode, enterScope, toggleBranch, resolveChapterInspectionTarget, createContextualInspectionHandoff } from './navigation-state.js';
 import { MODEL_CATALOG, resolveModel, validatePackage } from './model-catalog.js';
 import { AssemblyScene } from './scene.js';
 import { GuidedTour } from './tour-ui.js';
@@ -39,7 +39,7 @@ const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
 const spatialGuide = spatialGuides.find(guide => guide.modelId === model.id);
 const topLevelViewer = !embedded && window.parent === window;
 const offersOrbit = hasOrbitalGuide(model, spatialGuide, !topLevelViewer, params.get('guide'));
-let orbital, timeline, viewerNavigation, lastViewerState, freeCamera;
+let orbital, timeline, viewerNavigation, lastViewerState, freeCamera, contextualInspection;
 if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
 const displayStorageKey=`${themeStorageKey}.display.v1`;
@@ -62,7 +62,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -87,6 +87,7 @@ $('model-select').value=model.id;
 function changeModel(id) {
   const nextModel = MODEL_CATALOG[id];
   if (!nextModel || id === model.id) return;
+  contextualInspection?.cancel();
   const url = new URL(location.href);
   url.searchParams.set('model', id);
   url.searchParams.set('render', preferredRenderStyle);
@@ -99,7 +100,7 @@ function changeModel(id) {
 }
 function syncViewerNavigation() {
   const active = orbital?.active || guidedTour?.active;
-  const state = { mode: active ? 'demo' : 'explore', pending: Boolean(orbital?.state.pending || timeline?.state.pending || guidedTour?.pending || !explorer?.ready), canDemo: Boolean(policy.tours.length) };
+  const state = { mode: active ? 'demo' : 'explore', pending: Boolean(contextualInspection?.pending || orbital?.state.pending || timeline?.state.pending || guidedTour?.pending || !explorer?.ready), canDemo: Boolean(policy.tours.length) };
   const key = JSON.stringify(state);
   if (key === lastViewerState) return;
   lastViewerState = key;
@@ -110,6 +111,39 @@ function restoreFreeCamera() {
   explorer.resize();
   explorer.restoreCameraView(freeCamera, { animate: false });
   freeCamera = null;
+}
+if (topLevelViewer && offersOrbit) contextualInspection = createContextualInspectionHandoff({
+  resolveTarget: () => resolveChapterInspectionTarget(hierarchy?.nodes, spatialGuide, orbital?.state.chapter),
+  isDemoActive: () => Boolean(orbital?.active), closeDemo: () => orbital.close(),
+  isDisposed: () => shellAbort.signal.aborted, onPending: syncViewerNavigation,
+  async focusTarget({ nodeId }, owns) {
+    if (!owns() || !explorer?.ready || !hierarchy.nodes.has(nodeId)) return false;
+    // Contextual inspection starts with an assembled, unisolated scope. Ordinary
+    // Explore continues to restore its original camera, pose and selection.
+    if (explorer.mode !== 'explore' || explorer.fraction > .001) {
+      const result = await command('setMode', { mode: 'explore' });
+      if (!owns() || result.payload.status !== 'completed') return false;
+    }
+    if (explorer.isolated) {
+      const result = await command('isolate', { nodeId: null });
+      if (!owns() || result.payload.status !== 'completed') return false;
+    }
+    const result = await command('focus', { nodeId });
+    return owns() && result.payload.status === 'completed';
+  },
+});
+if (contextualInspection) {
+  listen(window, 'popstate', () => contextualInspection.cancel());
+  listen(window, 'hashchange', () => contextualInspection.cancel());
+}
+function inspectCurrentDemoAssembly() {
+  return contextualInspection?.inspect().then(applied => {
+    if (applied && !shellAbort.signal.aborted && !orbital?.active) $('viewer-explore')?.focus({ preventScroll: true });
+    return applied;
+  }).catch(error => {
+    if (!shellAbort.signal.aborted) $('status-message').textContent = error.message || 'This assembly could not be opened. Please try again.';
+    return false;
+  });
 }
 if (topLevelViewer) viewerNavigation = createViewerNavigation({ model, models: MODEL_CATALOG,
   onModel: changeModel, onMode: () => orbital ? orbital.close() : timeline?.close() });
@@ -455,12 +489,13 @@ async function start(){
     if (offersOrbit) orbital = createOrbitalNavigation({
       model, guide: spatialGuide, browser: window, listen, load: () => import('./orbital/ui.js'),
       mount({ mountOrbitalUI }, chapter, navigate, exit, checkpoints) {
+        contextualInspection?.cancel();
         controller.takeover();
         explorer.pausePresentation();
         freeCamera = explorer.captureCameraView();
         closePath(); closeDisplay(); closeTheme();
         if (!$('perf-panel').hidden) closePerformance();
-        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit, checkpoints, navigationHost: viewerNavigation?.context });
+        return mountOrbitalUI({ explorer, guide: spatialGuide, assets: referenceAssets[model.id], getAccent: () => clientTheme.accent, chapter, navigate, exit, checkpoints, navigationHost: viewerNavigation?.context, inspectAssembly: inspectCurrentDemoAssembly });
       },
       onPending(pending) {
         $('tour-start').disabled = pending;

@@ -223,7 +223,7 @@ export function createOrbitalStage(options) {
   }
 }
 
-function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation, onEmphasis, onCallout, getCalloutInset, reducedMotion = false }, onDispose, dispose) {
+function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation, onEmphasis, onCallout, onExplanation, getCalloutInset, reducedMotion = false }, onDispose, dispose) {
   if (!explorer.ready || !explorer.sourceRoot || explorer.presentationStage) {
     throw new Error('The orbital presentation requires a ready assembly.');
   }
@@ -311,7 +311,11 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
   const poses = createPoseTransition(source, marks);
 
   spatialOrbit.blockersFrom(modelMeshes);
-  const outline = createStationOutline({ scene: world, camera, renderer, meshes: modelMeshes, stations: guide.orbit.stations, getAccent });
+  const explanationTargets = guide.chapters.flatMap(chapter => chapter.explanation?.joints.map((joint, index) => ({
+    id: chapter.id + ':' + index, anchor: { meshName: joint.highlightMesh },
+  })) ?? []);
+  const outline = createStationOutline({ scene: world, camera, renderer, meshes: modelMeshes,
+    stations: [...guide.orbit.stations, ...explanationTargets], getAccent });
   passes.splice(passes.indexOf(explorer.fxaa), 0, outline.pass);
   onDispose(() => outline.dispose());
 
@@ -529,7 +533,9 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
       if (playing) onTick?.(elapsed);
     }
     spatialOrbit.update(dt, Boolean(shot), !shot || shot.progress >= .75);
-    outline.sync(chapter === 'overview' && !shot ? emphasizedStation : null);
+    const explanation = action.explanationFrame();
+    outline.sync(shot ? null : chapter === 'overview' ? emphasizedStation :
+      explanation?.activeIndex >= 0 ? chapter + ':' + explanation.activeIndex : null);
     // Reuse the Explorer's full-size buffers and edge smoothing, including
     // when the free view was left in a linework style.
     const composer = explorer.composer;
@@ -587,6 +593,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     canvas.dataset.chapter = value;
     if (footprint) footprint.visible = chapter === 'overview';
     action.setChapter(chapter);
+    onExplanation?.(action.explanationFrame());
     callout?.invalidatePose();
     surfaces.target(chapters.get(chapter));
     if (travel) poses.target();
@@ -602,6 +609,7 @@ function mountStage({ explorer, guide, getAccent, onTakeover, onTick, onStation,
     }
     progress = THREE.MathUtils.clamp(value, 0, 1);
     action.setProgress(progress);
+    onExplanation?.(action.explanationFrame());
     callout?.invalidatePose();
     wake();
   }

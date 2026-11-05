@@ -34,7 +34,7 @@ export function createDrawingPlate({ main, guide, assets }) {
       chapters.set(chapter.id, { label: chapter.label, initial, cues, files });
     }
   }
-  if (!chapters.size) return { setChapter() {}, setProgress() {}, getInset() { return 0; }, dispose() {} };
+  if (!chapters.size) return { setChapter() {}, setProgress() {}, setSuppressed() {}, getInset() { return 0; }, dispose() {} };
 
   const root = element('aside', 'orbit-drawing-plate');
   root.setAttribute('aria-label', 'Model reference');
@@ -89,7 +89,7 @@ export function createDrawingPlate({ main, guide, assets }) {
   for (const [id, view] of remembered) {
     if (!chapters.get(id)?.files.has(view)) remembered.delete(id);
   }
-  let chapterId = null, progress = 0, expanded = false;
+  let chapterId = null, progress = 0, expanded = false, suppressed = false;
   const caption = main.querySelector('.orbit-callout-copy');
   function measure() {
     const height = mobile.matches && !root.hidden ? Math.ceil(root.getBoundingClientRect().height) : 0;
@@ -157,8 +157,8 @@ export function createDrawingPlate({ main, guide, assets }) {
     chapterId = id;
     progress = 0;
     updateFollow(chapter);
-    root.hidden = !chapter;
-    main.toggleAttribute('data-has-drawing-plate', Boolean(chapter));
+    root.hidden = !chapter || suppressed;
+    main.toggleAttribute('data-has-drawing-plate', Boolean(chapter && !suppressed));
     if (chapter) {
       root.dataset.chapter = id;
       for (const key of views.keys()) {
@@ -207,6 +207,12 @@ export function createDrawingPlate({ main, guide, assets }) {
   setExpanded(false);
   return {
     setChapter, setProgress,
+    setSuppressed(value) {
+      suppressed = Boolean(value);
+      root.hidden = suppressed || !chapters.has(chapterId);
+      main.toggleAttribute('data-has-drawing-plate', !root.hidden);
+      measure();
+    },
     getInset(width) { return root.hidden || mobile.matches ? 0 : Math.min(width * .24, 284); },
     dispose() {
       controller.abort();

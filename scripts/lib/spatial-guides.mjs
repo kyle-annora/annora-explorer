@@ -2,11 +2,15 @@ import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { resolveReferenceAssets, validateReferenceViews } from './spatial-reference-assets.mjs';
 import { loadProject } from './project-config.mjs';
+import { buildHierarchy } from '../../src/explorer/model-state.js';
 
 const vector = value => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite);
 const text = value => typeof value === 'string' && value.trim() && value.length <= 400;
 const boundedPair = value => Array.isArray(value) && value.length === 2 && value.every(Number.isFinite);
 const unit = value => Number.isFinite(value) && value >= 0 && value <= 1;
+const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+const onlyKeys = (value, keys) => plain(value) && Object.keys(value).every(key => keys.includes(key));
+const directionAxis = value => vector(value) && Math.abs(Math.hypot(...value) - 1) <= 1e-4;
 
 export function validateSpatialGuide(guide, model, animations = []) {
   const require = (test, message) => { if (!test) throw Error(model.manifest.id + ' spatial guide: ' + message); };
@@ -18,9 +22,22 @@ export function validateSpatialGuide(guide, model, animations = []) {
     chapters[0]?.id === 'overview', 'start with an overview and at least one detail.');
   const ids = new Set(), parts = new Map(model.metadata.parts.map(part => [part.meshName, part]));
   const groups = new Set([...parts.values()].map(p => p.group));
+  const hierarchy = model.hierarchy || (model.metadata.root?.id && Array.isArray(model.metadata.groups)
+    ? buildHierarchy(model.metadata, model.manifest.presentationPolicy || model.runtime?.presentationPolicy || {}) : null);
   for (const c of chapters) {
     require(c && /^[a-z][a-z0-9-]{0,49}$/.test(c.id) && !ids.has(c.id) && text(c.label), 'invalid or duplicate chapter.');
     ids.add(c.id);
+    const inScope = name => parts.has(name) && (c.id === 'overview' || Array.isArray(c.groups) && c.groups.includes(parts.get(name).group));
+    if (c.inspectNodeId !== undefined) {
+      require(text(c.inspectNodeId) && c.inspectNodeId.length <= 150, c.id + ' has an invalid inspection target.');
+      if (hierarchy) {
+        const node = hierarchy.nodes.get(c.inspectNodeId);
+        require(node && node.meshNames.length && node.meshNames.every(inScope), c.id + ' has an unknown or out-of-scope inspection target.');
+      }
+    }
+    if (c.explanation !== undefined) require(c.id !== 'overview' && c.action?.type === 'motion', c.id + ' explanation needs a motion action.');
+    if (c.action?.playbackWindow !== undefined) require(c.id !== 'overview' && c.action.type === 'motion' &&
+      boundedPair(c.action.playbackWindow) && c.action.playbackWindow.every(unit) && c.action.playbackWindow[0] < c.action.playbackWindow[1], c.id + ' has an invalid playback window.');
     require(vector(c.direction) && Math.hypot(...c.direction) > 0, c.id + ' needs a camera direction.');
     if (c.fill) require(boundedPair(c.fill) && c.fill.every(v => v > 0 && v <= 1.5), c.id + ' has invalid camera framing.');
     if (c.hint !== undefined) require(text(c.hint), c.id + ' has an invalid station hint.');
@@ -46,7 +63,6 @@ export function validateSpatialGuide(guide, model, animations = []) {
     require(Array.isArray(c.phases) && c.phases.length && c.phases[0][0] === 0 &&
       c.phases.every(([at,label],i) => unit(at) && text(label) && (!i || at > c.phases[i-1][0])), c.id + ' has invalid caption timings.');
     const a = c.action;
-    const inScope = name => parts.has(name) && c.groups.includes(parts.get(name).group);
     if (a?.type === 'separate') {
       const moved = new Set();
       require(Array.isArray(a.lifts) && a.lifts.length, c.id + ' needs authored separations.');
@@ -66,6 +82,31 @@ export function validateSpatialGuide(guide, model, animations = []) {
       require(Array.isArray(a.joints) && a.joints.length && a.joints.every(name => clip.rotations.includes(name)), c.id + ' references an unanimated joint.');
       if (a.window) require(boundedPair(a.window) && a.window.every(unit) && a.window[0] < a.window[1], c.id + ' has an invalid clip interval.');
       if (a.trace) require(inScope(a.trace), c.id + ' has an unknown trace target.');
+      if (c.explanation !== undefined) {
+        const e = c.explanation;
+        require(onlyKeys(e, ['title','summary','joints','diagram','cues']) && text(e.title) && e.title.length <= 70 &&
+          text(e.summary) && e.summary.length <= 180, c.id + ' explanation needs a short title and summary.');
+        require(Array.isArray(e.joints) && e.joints.length === 2, c.id + ' explanation needs exactly two joints.');
+        require(typeof a.trace === 'string' && inScope(a.trace), c.id + ' explanation needs an in-scope foot trace.');
+        const named = new Set();
+        for (const joint of e.joints) {
+          require(onlyKeys(joint, ['node','label','highlightMesh']) && text(joint.node) && a.joints.includes(joint.node) && !named.has(joint.node) &&
+            text(joint.label) && joint.label.length <= 48, c.id + ' explanation references an unknown, repeated or unlabelled action joint.');
+          named.add(joint.node);
+          require(inScope(joint.highlightMesh), c.id + ' explanation has an unknown or out-of-scope highlight mesh.');
+        }
+        const diagram = e.diagram;
+        require(onlyKeys(diagram, ['horizontal','vertical']) && directionAxis(diagram.horizontal) && directionAxis(diagram.vertical),
+          c.id + ' explanation diagram needs finite unit axes.');
+        require(Math.abs(diagram.horizontal.reduce((sum, value, i) => sum + value * diagram.vertical[i], 0)) <= 1e-4,
+          c.id + ' explanation diagram axes must be orthogonal.');
+        require(Array.isArray(e.cues) && e.cues.length > 0 && e.cues.length <= 24 && e.cues[0]?.[0] === 0,
+          c.id + ' explanation needs opening and ordered joint cues.');
+        for (const [i, cue] of e.cues.entries()) {
+          require(boundedPair(cue) && unit(cue[0]) && Number.isInteger(cue[1]) && cue[1] >= -1 && cue[1] < e.joints.length &&
+            (!i || cue[0] > e.cues[i - 1][0]), c.id + ' explanation has an invalid or unordered joint cue.');
+        }
+      }
     }
   }
   const orbit = guide.orbit;

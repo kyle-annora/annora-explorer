@@ -24,6 +24,11 @@ header position for chapter navigation.
 - **Explore** restores the previous inspection, including selection and camera.
   A timeline's secondary **Explore this view** intentionally keeps the current
   demonstrated scene; it is labelled separately from the mode switch.
+- A spatial chapter may explicitly offer **Inspect this assembly**. It opens
+  its authored `inspectNodeId` in an assembled, unisolated Explore view. The
+  global Explore button keeps its restoration behavior. Returning to Demo
+  resumes the same paused chapter, progress and camera. Only chapters with a
+  validated target display this contextual action; the first is Hexapod's leg.
 - Browser Back and Forward reconcile the mode with the URL. Spatial chapter
   changes also participate in history and retain their individual checkpoints.
 - Changing models preserves Demo or Explore when the destination supports it.
@@ -41,6 +46,9 @@ header position for chapter navigation.
   existing controls. It retains their IDs and listeners.
 - `orbital-navigation.js` owns spatial mode/chapter history and checkpoints.
 - `timeline-navigation.js` owns standalone timeline mode history and checkpoints.
+- `navigation-state.js` validates contextual inspection targets at runtime and
+  coordinates the exit before focusing the selected assembly. Duplicate actions
+  are ignored; history, model changes and disposal cancel stale handoffs.
 - `tour-ui.js` keeps playback ownership. User exits can use the route adapter;
   external controller commands retain their existing contract.
 - Spatial rendering still borrows the existing renderer. On return, the saved

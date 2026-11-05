@@ -1,0 +1,83 @@
+/* The explanatory figure shares the existing presentation paper. */
+.orbit-motion-diagram {
+  --motion-ink: color-mix(in srgb, var(--motion-accent, #ff6840) 68%, var(--orbit-ink));
+  position: absolute;
+  z-index: 3;
+  inset-inline-start: var(--orbit-gutter);
+  bottom: clamp(14px, 3vh, 30px);
+  width: clamp(240px, 23vw, 304px);
+  color: var(--orbit-muted);
+  font: 400 12px/1.4 var(--sans);
+  pointer-events: none;
+}
+.orbit-motion-diagram[hidden], .orbit-motion-diagram [hidden] { display: none; }
+.orbit-motion-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.orbit-motion-kicker {
+  color: var(--orbit-ink);
+  font: 500 10px/1.4 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.orbit-motion-projection { font-size: 11px; }
+.orbit-motion-figure { margin: 0; }
+.orbit-motion-svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; overflow: visible; }
+.orbit-motion-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.orbit-motion-rest { stroke: var(--orbit-muted); stroke-width: 1; stroke-dasharray: 4 4; opacity: .40; }
+.orbit-motion-path { stroke: var(--motion-ink); stroke-width: 1.1; opacity: .27; }
+.orbit-motion-travelled { stroke: var(--motion-ink); stroke-width: 1.7; }
+.orbit-motion-link { stroke: var(--orbit-ink); stroke-width: 1.75; }
+.orbit-motion-link[data-active] { stroke: var(--motion-ink); stroke-width: 2.4; }
+.orbit-motion-joint { fill: var(--orbit-paper); stroke: var(--orbit-ink); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.orbit-motion-joint[data-active] { fill: var(--motion-ink); stroke: var(--motion-ink); }
+.orbit-motion-number { fill: var(--orbit-muted); font: 500 11px var(--mono); }
+.orbit-motion-foot { fill: var(--motion-ink); stroke: var(--orbit-paper); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.orbit-motion-joints { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 1px; color: var(--orbit-ink); }
+.orbit-motion-joint-label { display: inline-flex; align-items: baseline; gap: 6px; }
+.orbit-motion-index { font: 500 10px var(--mono); color: var(--orbit-muted); }
+.orbit-motion-joint-label[data-active] { color: var(--motion-ink); }
+.orbit-motion-caption { display: flex; gap: 16px; margin-top: 8px; font-size: 11px; }
+.orbit-motion-caption span { display: inline-flex; align-items: center; gap: 6px; }
+.orbit-motion-caption span::before { content: ''; display: block; width: 16px; border-top: 1px dashed var(--orbit-muted); opacity: .65; }
+.orbit-motion-caption .orbit-motion-key-path::before { border-top-style: solid; border-color: var(--motion-ink); opacity: 1; }
+.orbit-motion-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; font-size: 10px; }
+.orbit-motion-toggle, .orbit-motion-reference {
+  min-height: 44px;
+  padding: 0;
+  color: var(--orbit-muted);
+  font: 400 11px/1.3 var(--sans);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.orbit-motion-toggle { display: none; }
+.orbit-motion-reference { text-decoration: underline; text-decoration-color: var(--orbit-rule); text-underline-offset: 3px; }
+.orbit-motion-reference:focus-visible, .orbit-motion-toggle:focus-visible { outline: 2px solid var(--orbit-focus); outline-offset: 3px; }
+@media (hover: hover) {
+  .orbit-motion-reference:hover, .orbit-motion-toggle:hover { color: var(--orbit-ink); text-decoration-color: currentColor; }
+}
+@media (max-width: 700px), (max-height: 520px) {
+  .orbit-motion-diagram { inset-inline: var(--orbit-gutter); bottom: 0; width: auto; display: flex; flex-direction: column-reverse; align-items: flex-start; }
+  .orbit-motion-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; }
+  .orbit-motion-toggle::after { content: '+'; font: 400 16px/1 var(--mono); }
+  .orbit-motion-toggle[aria-expanded='true']::after { content: '−'; }
+  .orbit-motion-panel {
+    width: min(100%, 340px);
+    box-sizing: border-box;
+    background: var(--orbit-paper);
+    padding: 12px 14px 0;
+    border: 1px solid var(--orbit-rule);
+    pointer-events: auto;
+  }
+  .orbit-motion-svg { max-height: min(180px, 26svh); }
+  .orbit-motion-footer { font-size: 10px; }
+  .orbit-motion-heading { gap: 10px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .orbit-motion-diagram { inset-inline-end: auto; width: 280px; }
+  .orbit-motion-panel { padding-top: 8px; }
+  .orbit-motion-svg { max-height: 105px; }
+  .orbit-motion-caption { margin-top: 4px; }
+  .orbit-motion-joints { font-size: 11px; }
+}

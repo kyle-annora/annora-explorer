@@ -21,3 +21,39 @@ export function toggleBranch(state, nodes, id) {
   if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
   return { ...state, expanded };
 }
+
+/** A contextual Demo exit is authored explicitly; a visible group alone does
+ * not authorize changing the visitor's saved inspection workspace. */
+export function resolveChapterInspectionTarget(nodes, guide, chapterId) {
+  if (!nodes || !Array.isArray(guide?.chapters) || typeof chapterId !== 'string') return null;
+  const chapter = guide.chapters.find(item => item?.id === chapterId);
+  const nodeId = chapter?.inspectNodeId;
+  if (typeof nodeId !== 'string' || !nodes.has(nodeId)) return null;
+  return { chapterId, nodeId };
+}
+
+/** Close through the existing route owner before focusing the free scene. The
+ * route owner retains the paused Demo checkpoint and ordinary Explore restore. */
+export function createContextualInspectionHandoff({ resolveTarget, isDemoActive, closeDemo, focusTarget, isDisposed = () => false, onPending } = {}) {
+  let pending = false, intent = 0;
+  const notify = () => { if (!isDisposed()) onPending?.(pending); };
+  return {
+    get pending() { return pending; },
+    cancel() { intent++; if (pending) { pending = false; notify(); } },
+    async inspect() {
+      if (pending || isDisposed() || !isDemoActive()) return false;
+      const target = resolveTarget(); if (!target) return false;
+      const request = ++intent;
+      const owns = () => request === intent && !isDisposed() && !isDemoActive();
+      pending = true; notify();
+      try {
+        await closeDemo();
+        if (!owns()) return false;
+        const result = await focusTarget(target, owns);
+        return owns() && result !== false;
+      } finally {
+        if (request === intent) { pending = false; notify(); }
+      }
+    }
+  };
+}

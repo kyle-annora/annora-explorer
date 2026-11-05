@@ -174,3 +174,25 @@ body.orbital-demo:not([data-orbit-chapter="overview"]) .orbital-overview { displ
   background: var(--orbit-paper); border: 1px solid var(--orbit-rule); padding: 4px 12px;
 }
 @media (max-width: 440px) { #orbit-caption { min-height: 2.8em; } }
+
+/* Context belongs to the chapter; global Demo / Explore remains in the header. */
+#orbit-inspect, .orbit-reference-back {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+  padding: 0; border: 0; border-radius: 0; background: none; color: var(--orbit-muted);
+  font: 400 12px/1.3 var(--sans); cursor: pointer;
+}
+#orbit-inspect[hidden], .orbit-reference-back[hidden] { display: none; }
+#orbit-inspect svg { width: 14px; height: 14px; }
+#orbit-inspect:disabled { opacity: .5; cursor: wait; }
+#orbit-inspect:focus-visible, .orbit-reference-back:focus-visible {
+  outline: 2px solid var(--orbit-focus); outline-offset: 3px;
+}
+.orbit-reference-back { position: absolute; z-index: 5; left: var(--orbit-gutter); bottom: 0; }
+.orbital-demo #main-content[data-motion-diagram] .viewport { bottom: 0; }
+@media (hover: hover) {
+  #orbit-inspect:hover, .orbit-reference-back:hover { color: var(--orbit-ink); text-decoration: underline; text-underline-offset: 4px; }
+}
+@media (max-width: 700px) {
+  .orbital-demo #main-content[data-motion-diagram] .viewport { bottom: 44px; }
+  .orbit-reference-back { left: auto; right: var(--orbit-gutter); bottom: 4px; font-size: 11px; }
+}

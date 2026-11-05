@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { sampleMotionProgress, activeExplanationJoint } from './motion-timing.js';
 
 const TRACE_SAMPLES = 90;
 
@@ -75,13 +76,14 @@ function createPointTrace(gltf, meshName, pose, guides, accent, span) {
     node.userData.chapterGuide = true;
     guides.add(node);
   }
-  return (active, progress) => {
+  const update = (active, progress) => {
     trail.visible = active && progress > 0;
     marker.visible = active;
     if (!active) return;
     geometry.instanceCount = Math.floor(TRACE_SAMPLES * progress);
     marker.position.copy(sampleToe());
   };
+  return { update, sampleToe, points: Array.from({ length: TRACE_SAMPLES + 1 }, (_, i) => points.slice(i * 3, i * 3 + 3)) };
 }
 
 function liftInModelSpace(root, meshName, vector) {
@@ -141,9 +143,27 @@ export function createModelAction(gltf, metadata, guide, accent) {
     if (config.type === 'motion') {
       const joints = jointSampler(gltf, config);
       const trace = config.trace && createPointTrace(gltf, config.trace, p => joints.sample(p), guides, accent, span);
-      const reset = () => { joints.reset(); if (trace) trace(false, 0); };
+      const pivots = chapter.explanation?.joints.map(joint => root.getObjectByName(joint.node));
+      const point = new THREE.Vector3();
+      const readPoints = () => [...pivots.map(node => {
+        node.getWorldPosition(point);
+        return root.worldToLocal(point).toArray();
+      }), trace.sampleToe().toArray()];
+      const restPoints = pivots && readPoints();
+      let clipProgress = 0, timelineProgress = 0;
+      const reset = () => { joints.reset(); trace?.update(false, 0); };
       reset();
-      actions.set(chapter.id, { reset, sample(p) { joints.sample(p); if (trace) trace(true, p); } });
+      actions.set(chapter.id, {
+        reset,
+        sample(p) {
+          timelineProgress = p;
+          clipProgress = sampleMotionProgress(p, config.playbackWindow);
+          joints.sample(clipProgress);
+          trace?.update(true, clipProgress);
+        },
+        explanationFrame: pivots ? () => ({ points: readPoints(), restPoints, trace: trace.points,
+          progress: clipProgress, activeIndex: activeExplanationJoint(timelineProgress, chapter.explanation.cues) }) : null,
+      });
     } else {
       const lifts = config.lifts.map(({meshes, vector, window}) => {
         const move = meshes.map(name => liftInModelSpace(root, name, vector));
@@ -168,6 +188,7 @@ export function createModelAction(gltf, metadata, guide, accent) {
       current?.sample(0);
     },
     setProgress(value) { current?.sample(THREE.MathUtils.clamp(value, 0, 1)); },
+    explanationFrame: () => current?.explanationFrame?.() ?? null,
     bounds: id => bounds.get(id).clone(),
     dispose() {
       current?.reset();
