@@ -29,6 +29,10 @@ styles, Product Room, Studio and versioned commercial data were not redesigned.
   diagram/reference return, visible focus, at least 44px diagram controls, no
   horizontal overflow or JavaScript errors. Small-screen expansion pauses the
   action; Escape closes the diagram before leaving the chapter.
+- Short-screen review found and corrected an expanded diagram heading clipping
+  beneath the header. The figure now fits within the stage; exceptionally short
+  screens scroll its contents. Compiled checks passed at 320×568, 844×390 and
+  667×375, including diagram dismissal and contextual inspection.
 - Contextual inspection passed keyboard and touch checks, including entry from an
   already exploded/isolated scene. Demo returns at the saved 65% progress.
 - Reduced-motion emulation starts paused and permits explicit pose scrubbing.
