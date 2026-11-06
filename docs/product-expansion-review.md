@@ -76,6 +76,12 @@ Visual evidence: [request review on phone](evidence/product-expansion/request-re
 and [authored story on desktop](evidence/product-expansion/authored-story-desktop.png).
 
 Publication is pending a successful GitHub Pages run and target verification.
+The implementation commit is `7edc54958d0f6290f0316eb8d063e495094fc040`.
+On November 6, [deployment run 42204497615](https://github.com/kyle-annora/annora-explorer/actions/runs/42204497615)
+passed its build and verification, but both deployment attempts reached the
+Pages synchronization timeout. The public Studio still served its previous
+bundle when checked. A new documentation commit triggers one fresh deployment;
+this is a retry, not evidence of a resolved cause or a successful release.
 The local evidence directory is `work/product-expansion/`; it contains retained
 failed probes as well as the corrected acceptance runs, so failed intermediate
 test assumptions are not mistaken for final product failures.
