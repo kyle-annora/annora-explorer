@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./inquiry-host.css";
 import {
   DRAWING_CATALOG,
   DRAWING_RELEASES,
@@ -20,6 +21,7 @@ import { createTechnicalDrawingView } from "./technical-view.js";
 import { createDrawingOverview } from "../drawings/drawing-overview.js";
 import { resolveReferencePreview } from '../drawings/reference-preview.js';
 import { normalizeOverviewPresentation, overviewPresentationIssues } from '../drawings/overview-presentation.js';
+import { createDrawingInquiryHost } from './inquiry-host.js';
 import "../drawings/drawing-overview.css";
 
 const $ = (id) => document.getElementById(id),
@@ -62,6 +64,8 @@ let currentRoute = { view: "explore" },
   returnRoute,
   unavailableVersion = false;
 let committedURL = location.href;
+let inquiryState = { open: false, expanded: false, busy: false, hasDraft: false }, inquiryOpening = false;
+let inquiryMount = null, inquiryLayoutFrame = null;
 const canInquire = () =>
   !unavailableVersion &&
   entry?.available &&
@@ -106,6 +110,60 @@ const currentContext = () =>
     model: entry.model,
     presentationSnapshot: overviewSnapshot,
   });
+function syncInquiryEntry() {
+  const button = $("dp-inquire"), resumable = inquiryState.hasDraft || inquiryState.stage === 'confirmed';
+  button.textContent = inquiryState.stage === 'confirmed' ? 'View saved inquiry' : resumable ? 'Continue request' : 'Ask about this detail';
+  button.disabled = inquiryOpening || inquiryState.busy || (!resumable && !canInquire());
+  button.setAttribute('aria-expanded', String(inquiryState.open && inquiryState.expanded));
+  button.setAttribute('aria-busy', String(inquiryOpening || inquiryState.busy));
+}
+function syncInquiryLayout(state) {
+  const changed = inquiryState.expanded !== state.expanded || inquiryState.open !== state.open;
+  inquiryState = state;
+  document.body.dataset.drawingInquiryExpanded = String(Boolean(state.open && state.expanded));
+  document.body.dataset.drawingInquiryOpen = String(Boolean(state.open));
+  syncInquiryEntry();
+  if (changed) {
+    cancelAnimationFrame(inquiryLayoutFrame);
+    inquiryLayoutFrame = requestAnimationFrame(() => drawingView?.resize());
+  }
+}
+function positionInquiry() {
+  inquiryMount?.style.setProperty('--embedded-inquiry-top', `${Math.ceil(document.querySelector('.dp-header').getBoundingClientRect().bottom) + 12}px`);
+}
+const inquiryHost = createDrawingInquiryHost({
+  repository, readContext: currentContext, canCapture: canInquire,
+  onOpening(value) { inquiryOpening = value; syncInquiryEntry(); },
+  onState: syncInquiryLayout,
+  async onRestore(context) {
+    await useSavedContext(context);
+    // Reopening uses the saved sheet and overview. It never adopts today's
+    // selection or publication into the draft, quotation or conversation.
+    view = mobile.matches ? 'drawings' : 'compare';
+    syncView(); updateURL({ replace: true });
+    if (!mobile.matches && entry.available) await ensureViewer();
+    await drawingView.ready;
+    drawingView.select(regionId, { focus: true });
+  },
+  onProject: project => navigate({ view: 'project', projectId: project.id }),
+  async mountPanel(options) {
+    const { mountEmbeddedInquiry } = await import('../product-room/embedded-inquiry.jsx');
+    const element = document.createElement('div');
+    element.id = 'drawing-inquiry-root'; document.body.append(element);
+    inquiryMount = element; positionInquiry();
+    try {
+      const panel = await mountEmbeddedInquiry(element, options);
+      return { ...panel, async dispose() {
+        if (!(await panel.dispose())) return false;
+        element.remove(); if (inquiryMount === element) inquiryMount = null;
+        return true;
+      } };
+    } catch (error) {
+      element.remove(); if (inquiryMount === element) inquiryMount = null;
+      throw error;
+    }
+  },
+});
 function selectOptions(element, items, value) {
   element.replaceChildren(
     ...items.map(([id, title]) =>
@@ -125,10 +183,7 @@ function renderSelection() {
   $("dp-dimension").textContent = region?.dimension || "";
   $("dp-detail-note").textContent =
     region?.note || "Select a source detail to locate its linked model part.";
-  $("dp-inquire").disabled =
-    unavailableVersion ||
-    !entry.available ||
-    region?.mappingStatus !== "confirmed";
+  syncInquiryEntry();
   $("dp-show-3d").disabled = !entry.available || !entry.model.parts.some(part => part.id === region?.partId);
   $("dp-show-drawing").disabled = !region;
   document.body.dataset.detail = regionId;
@@ -423,6 +478,9 @@ async function navigate(route, { record = true, skipGuard = false } = {}) {
     route = { view: "explore" };
   }
   const turn = ++navigation;
+  if (!skipGuard && route.view !== 'explore' && !(await inquiryHost.beforeLeave({ release: true }))) {
+    updateURL({ replace: true }); return;
+  }
   if (
     !skipGuard &&
     workspace &&
@@ -466,6 +524,12 @@ async function navigate(route, { record = true, skipGuard = false } = {}) {
 async function setView(next) {
   view = mobile.matches && next === "compare" ? "3d" : next;
   await navigate({ view: "explore" });
+}
+async function leaveDrawingHost(url, { replace = false } = {}) {
+  if (!(await inquiryHost.beforeLeave({ release: true }))) return false;
+  if (workspace && page !== 'explore' && !(await workspace.beforeLeave({ view: 'explore' }))) return false;
+  location[replace ? 'replace' : 'assign'](url);
+  return true;
 }
 async function locate3D() {
   if (view === "drawings") await setView("3d");
@@ -531,13 +595,13 @@ $("dp-technical-view-select").addEventListener("change", act(() => {
 }));
 for (const button of document.querySelectorAll("[data-technical-zoom]"))
   button.addEventListener("click", () => drawingView?.setZoom?.(Number(button.dataset.technicalZoom)));
-$("dp-product-select").addEventListener("change", () => {
+$("dp-product-select").addEventListener("change", act(async () => {
   const url = new URL(location.href);
   url.search = "";
   url.searchParams.set("product", $("dp-product-select").value);
   url.hash = "explore";
-  location.assign(url);
-});
+  if (!(await leaveDrawingHost(url))) $("dp-product-select").value = entry.id;
+}));
 $("dp-show-3d").addEventListener("click", act(locate3D));
 $("dp-show-drawing").addEventListener(
   "click",
@@ -557,10 +621,7 @@ $("dp-show-drawing").addEventListener(
 );
 $("dp-inquire").addEventListener(
   "click",
-  act(() => {
-    activeContext = currentContext();
-    return navigate({ view: "inquiry", context: activeContext });
-  }),
+  act(() => inquiryHost.open({ opener: $("dp-inquire") })),
 );
 $("dp-projects").addEventListener(
   "click",
@@ -596,6 +657,11 @@ $("dp-source").addEventListener("click", () =>
 $("dp-source-close").addEventListener("click", () =>
   $("dp-source-dialog").close(),
 );
+$("dp-studio").addEventListener('click', event => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  void leaveDrawingHost($("dp-studio").href).catch(error => notice(error.message));
+});
 window.addEventListener("annora:routechange", () => {
   currentRoute = { ...readBuyerRoute(), context: activeContext };
   committedURL = location.href;
@@ -611,8 +677,16 @@ mobile.addEventListener("change", () => {
   syncView();
   updateURL({ replace: true });
 });
+window.addEventListener('resize', positionInquiry);
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || event.defaultPrevented || !inquiryState.open || !inquiryState.expanded || $("dp-source-dialog").open) return;
+  event.preventDefault();
+  void inquiryHost.minimize().catch(error => notice(error.message));
+});
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) {
+    cancelAnimationFrame(inquiryLayoutFrame);
+    void inquiryHost.beforeLeave({ release: true }).catch(() => {});
     drawingView?.dispose();
     entry?.dispose?.();
     viewer.dispose();
@@ -627,6 +701,7 @@ window.addEventListener(
       route = readBuyerRoute();
     const turn = ++navigation;
     history.replaceState({}, "", previous);
+    if (!(await inquiryHost.beforeLeave({ release: true }))) return;
     if (
       workspace &&
       page !== "explore" &&
@@ -662,14 +737,14 @@ window.addEventListener(
     await navigate(route, { record: false, skipGuard: true });
   }),
 );
-$("dp-use-current").addEventListener("click", () => {
+$("dp-use-current").addEventListener("click", act(async () => {
   const url = new URL(location.href);
   url.search = "";
   url.searchParams.set("product", entry.id);
   url.searchParams.set("view", view);
   url.hash = "explore";
-  location.assign(url);
-});
+  await leaveDrawingHost(url);
+}));
 function readSelection(query) {
   const issues = requestedDrawingIssues(drawing, query);
   if (issues.length) { unavailableVersion = true; notice(`${issues[0]} Current files are view-only; the saved reference is preserved.`); }

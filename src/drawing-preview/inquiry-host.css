@@ -1,0 +1,46 @@
+/* Keep the approved inquiry panel beside the source. The existing drawing
+   canvas, typography and controls retain their roles from embedded-inquiry.md. */
+.drawing-host[data-drawing-inquiry-expanded=true] #drawing-main {
+  padding-right: 448px;
+}
+.drawing-host #drawing-inquiry-root .room-ui {
+  --ar-canvas: var(--paper, #f4f4f3);
+  --ar-surface: var(--white, #fff);
+}
+.drawing-host #drawing-inquiry-root .ei-minimized {
+  bottom: auto;
+  top: var(--embedded-inquiry-top, 78px);
+}
+@media (min-width: 851px) and (max-width: 1250px) {
+  .drawing-host[data-drawing-inquiry-expanded=true] .dp-stage[data-view=compare] {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .drawing-host[data-drawing-inquiry-expanded=true] .dp-stage[data-view=compare] .dp-model-pane {
+    min-height: 340px;
+  }
+  .drawing-host[data-drawing-inquiry-expanded=true] .dp-stage[data-view=compare] .dp-drawing-pane {
+    min-height: 600px;
+    border-left: 0;
+  }
+  .drawing-host[data-drawing-inquiry-expanded=true] .dp-reference-bar {
+    flex-wrap: wrap;
+  }
+  .drawing-host[data-drawing-inquiry-expanded=true] .dp-selection {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+@media (max-width: 850px) {
+  .drawing-host[data-drawing-inquiry-expanded=true] #drawing-main { padding-right: 0; }
+  /* The visible header becomes Continue request after saving. Keeping the
+     minimized chip out of the canvas leaves source and locate controls clear. */
+  .drawing-host #drawing-inquiry-root .ei-minimized { display: none; }
+  .drawing-host #drawing-inquiry-root .ei-panel {
+    top: auto;
+    bottom: calc(100dvh - var(--ei-viewport-height, 100dvh) - var(--ei-viewport-offset, 0px) + 10px);
+    right: 10px;
+    width: calc(100% - 20px);
+    max-height: calc(var(--ei-viewport-height, 100dvh) - var(--embedded-inquiry-top, 124px) - 10px);
+  }
+}

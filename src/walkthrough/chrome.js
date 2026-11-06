@@ -2,7 +2,7 @@ import './chrome.css';
 import {walkthroughPresentation} from './presentation.js';
 import {readWalkthroughSession, createWalkthroughRepository} from './session.js';
 import {WALKTHROUGH_CHAPTERS, walkthroughFlow, walkthroughDestination} from './flow.js';
-import {getWalkthroughAction, subscribeWalkthroughActions, createAdvanceGuard, isWalkthroughActionCurrent} from './actions.js';
+import {getWalkthroughAction, subscribeWalkthroughActions, createAdvanceGuard, isWalkthroughActionCurrent, walkthroughHostOwnsStep} from './actions.js';
 
 const id=readWalkthroughSession();
 // Studio's embedded draft preview already has its own preview controls. It must
@@ -57,6 +57,9 @@ function mountWalkthrough(sessionId) {
     // settled. Keep its lock instead of offering an early role handoff.
     if(host?.busy && (is3D||inWorkspace)) currentAction=host;
     else if(host?.id==='buyer-refresh' && inWorkspace) currentAction=host;
+    // A native editor/review remains the current task even when the saved
+    // project would otherwise suggest changing roles. Never skip its gate.
+    else if(inWorkspace && walkthroughHostOwnsStep(host)) currentAction=host;
     else if(is3D && !project && host) currentAction=host;
     else if(role!==flow.role) currentAction={id:`handoff-${flow.role}-${flow.state}`,note:`Next: view this project as ${flow.role}.`,run:()=>navigate(walkthroughDestination(flow,project,location.href,sessionId))};
     else if(is3D || !inWorkspace) currentAction={id:'return-to-project',note:'Next: return to the current step in this project.',run:()=>navigate(walkthroughDestination(flow,project,location.href,sessionId))};
@@ -81,7 +84,7 @@ function mountWalkthrough(sessionId) {
     strip.querySelector('#wt-next-action').textContent=note;
     strip.querySelector('.wt-menu-note').textContent=note;
     actionURL=location.href;
-    if(!handoff.disabled && restoreKeyboardFocus && !document.querySelector('dialog[open]')) {
+    if(!handoff.disabled && restoreKeyboardFocus && !document.querySelector('dialog[open], .ei-panel[role="dialog"]')) {
       restoreKeyboardFocus=false;
       try {sessionStorage.removeItem(keyboardKey);} catch {}
       handoff.focus({preventScroll:true});

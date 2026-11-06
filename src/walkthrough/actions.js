@@ -43,3 +43,9 @@ export function createAdvanceGuard({now = () => Date.now(), settleMs = 800} = {}
     },
   };
 }
+
+/** Visible editing, review and receipt steps finish before a suggested role handoff. */
+export function walkthroughHostOwnsStep(host) {
+  return Boolean(host && (host.confirmation || ['inquiry-project','inquiry-resume','inquiry-recovery',
+    'seller-review-current-quotation','seller-review-current-reply'].includes(host.id)));
+}

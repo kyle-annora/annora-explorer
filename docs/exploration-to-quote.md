@@ -55,6 +55,13 @@ Specs, and protects pending input. Temporary capture links are removed when
 navigating to a durable saved project. Failed handoffs leave a retry path and
 unlock the form.
 
+Product Room now opens the same floating request over its existing 3D viewer.
+The walkthrough's Continue demo first prepares review, then explicitly confirms,
+then opens the saved project before the seller handoff. SK08 and connecting-rod
+drawing hosts use the same panel with their established drawing repository.
+**Use current detail** explicitly attaches a changed selection; **View** reopens
+the saved source and overview. See the [host contract](embedded-inquiry-integration.md).
+
 ## Design references and retained style
 
 The visual authority remains the existing Annora interface: neutral surfaces,

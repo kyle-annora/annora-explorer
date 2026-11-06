@@ -19,6 +19,7 @@ import {
 import { prepareInquirySubmission, confirmInquirySubmission } from "./inquiry-session.js";
 import { inquiryField, inquiryFields } from "./inquiry-profile.js";
 import { sampleInquiryValues } from "./project-fixtures.js";
+import { prepareSampleInquiry } from "./inquiry-sample.js";
 import {
   pendingProjectChange,
   pendingClarification,
@@ -926,20 +927,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   function prepareInquiryReview({ fillSample = false } = {}) {
     return run("review", async () => {
       if (fillSample) {
-        const current = draftRef.current;
-        const values = { ...current.values };
-        const wasEmpty = !Object.entries(values).some(([key, value]) => key !== "quoteScope" && String(value).trim());
-        for (const [key, value] of Object.entries(sampleInquiryValues(current.context))) {
-          if (inquiryField(current.context, key)?.enabled && !String(values[key] || "").trim()) values[key] = value;
-        }
-        const requirements = [...current.requirements];
-        // This is a fictional sample requirement, displayed in the full review.
-        // Never infer confirmation for a requirement the presenter entered.
-        if (wasEmpty && values.stroke && !requirements.some(item => item.id === "stroke-confirmed")) requirements.push({
-          id:"stroke-confirmed",label:"Required carriage stroke",value:values.stroke,unit:"mm",source:"customer",confirmed:true,
-          ...(current.context.part ? {part:current.context.part} : {}),
-        });
-        setDraft({ ...current, values, requirements });
+        setDraft(prepareSampleInquiry(draftRef.current));
         setNotice("Fictional sample details fill empty fields. Review the complete request before confirming.");
       }
       const { draft: saved, review: packet } = await prepareInquirySubmission({ repository, draft: draftRef.current, saveDraft: persistDraft });

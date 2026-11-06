@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createWalkthroughActions, createAdvanceGuard, isWalkthroughActionCurrent} from '../src/walkthrough/actions.js';
+import {createWalkthroughActions, createAdvanceGuard, isWalkthroughActionCurrent, walkthroughHostOwnsStep} from '../src/walkthrough/actions.js';
 import {createWalkthroughViewerAction} from '../src/walkthrough/viewer-action.js';
 import {getWalkthroughAction} from '../src/walkthrough/actions.js';
 
@@ -56,4 +56,13 @@ test('reduced-motion presentation selects a real part before opening an inquiry,
   await getWalkthroughAction('buyer-viewer').run();assert.equal(opened,1);
   assert.equal(calls.at(-1)[1].nodeId,'rod');host.dispose();
   assert.equal(getWalkthroughAction('buyer-viewer'),null);
+});
+
+test('an active review, inquiry receipt, or collapsed inquiry precedes a suggested role change', () => {
+  for (const host of [{id:'inquiry-confirm',confirmation:true},{id:'inquiry-project'},{id:'inquiry-resume'},
+    {id:'inquiry-recovery',disabled:true},{id:'seller-review-current-reply'},{id:'seller-confirm-response',confirmation:true}]) {
+    assert.equal(walkthroughHostOwnsStep(host),true,host.id);
+  }
+  assert.equal(walkthroughHostOwnsStep({id:'seller-review-sample-quotation'}),false);
+  assert.equal(walkthroughHostOwnsStep(null),false);
 });

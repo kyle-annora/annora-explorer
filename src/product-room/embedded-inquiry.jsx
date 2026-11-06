@@ -4,6 +4,8 @@ import { Button, Field, Glyph } from './ui/components.jsx';
 import { INQUIRY_INTENTS, QUOTE_SCOPES, inquiryIntentLabel, quoteScopeLabel } from './project-domain.js';
 import { inquiryField } from './inquiry-profile.js';
 import { createInquirySession } from './inquiry-session.js';
+import { prepareSampleInquiry } from './inquiry-sample.js';
+import { InquiryReference } from './inquiry-reference.jsx';
 import { createDemoProjectRepository } from './project-repository.js';
 import './embedded-inquiry.css';
 
@@ -11,29 +13,6 @@ const swallow = promise => { void Promise.resolve(promise).catch(() => {}); };
 const announce = (callback, value) => { try { callback?.(value); } catch { /* Host presentation cannot interrupt the inquiry. */ } };
 const titleFor = state => state.stage === 'confirmed' ? 'Inquiry saved.' : state.stage === 'review' ? 'Review your request.' : 'Tell us what you need.';
 const saveLabel = state => state.loading ? 'Opening draft…' : state.saving ? 'Saving…' : state.error && state.dirty ? 'Draft not saved' : state.dirty ? 'Unsaved changes' : state.draft?.updatedAt ? 'Saved in this browser' : state.stage === 'confirmed' ? 'Saved in this browser' : 'Saves as you type';
-
-function Reference({ context, editable, busy, onCapture, onRestore, session }) {
-  const preview = context.inspection?.preview;
-  return <section className="ei-reference" aria-label="Attached product reference">
-    <div className="ei-reference-summary">
-      {preview ? <img src={preview.dataUrl} width={preview.width} height={preview.height} alt={`Saved view of ${context.part?.title || context.productTitle}`} /> : <span className="ei-reference-placeholder"><Glyph name="document" /></span>}
-      <div><small>{context.inspection ? 'Saved 3D view' : context.drawing ? 'Saved drawing reference' : 'Product reference'}</small><strong>{context.part?.title || context.productTitle}</strong>{context.chapter && <span>{context.chapter.title}</span>}</div>
-      {onRestore && <Button variant="quiet" className="ei-view" disabled={busy} onClick={() => swallow(onRestore())}>View</Button>}
-    </div>
-    <details className="ei-reference-details">
-      <summary>Reference details</summary>
-      <dl><div><dt>Product</dt><dd>{context.productTitle}</dd></div>
-        {context.part && <div><dt>Component</dt><dd>{context.part.title}</dd></div>}
-        {context.chapter && <div><dt>Explanation</dt><dd>{context.chapter.title}</dd></div>}
-        {context.document && <div><dt>Document</dt><dd>{context.document.title} · {context.document.revision}</dd></div>}
-        {context.drawing && <div><dt>Drawing detail</dt><dd>{context.drawing.regionLabel} · {context.drawing.revisionLabel || context.drawing.revision}</dd></div>}
-        <div><dt>Version</dt><dd>{context.roomSnapshot ? `Product version ${context.roomSnapshot.version}` : context.modelRevision}</dd></div>
-      </dl>
-      <p>Viewing context does not confirm a requirement or engineering suitability.</p>
-    </details>
-    {editable && onCapture && <div className="ei-reference-update"><span>This view stays attached while you explore.</span><Button variant="quiet" disabled={busy} pending={session.getState().pending === 'capture'} pendingLabel="Attaching…" onClick={() => swallow(session.capture(onCapture))}>Use current view</Button></div>}
-  </section>;
-}
 
 function DraftFields({ state, session, formId, disabled }) {
   const { draft, error, pending } = state, values = draft.values, context = draft.context, errors = error?.fields || {};
@@ -152,9 +131,9 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
       </div>}
       {state.notice && <p className="ei-message" role="status">{state.notice}</p>}
       {state.loading ? <p className="ei-loading" role="status">Opening your saved inquiry…</p> : <>
-        {context && <Reference context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restore : undefined} session={session} />}
+        {context && <InquiryReference context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restore : undefined} session={session} />}
         {state.draft && (state.stage === 'review' ? <Review draft={state.review?.draft || state.draft} /> : <DraftFields state={state} session={session} formId={formId} disabled={busy} />)}
-        {state.stage === 'confirmed' && state.project && <div className="ei-receipt"><span className="ei-receipt-mark"><Glyph name="check" /></span><h3>Your inquiry and saved view are together.</h3><p>You can continue exploring or open the project to follow the quotation and conversation.</p><dl className="ei-facts"><div><dt>Project</dt><dd>{state.project.id}</dd></div><div><dt>Purpose</dt><dd>{inquiryIntentLabel(state.project.inquiry.values)}</dd></div></dl><p className="ei-hint">This fictional inquiry is saved in this browser. Nothing has been sent.</p><Button variant="secondary" disabled={busy} pending={state.pending === 'new'} pendingLabel="Attaching current view…" onClick={() => swallow(session.startAnother({ capture: callbacks.onCapture }))}>Start another inquiry</Button></div>}
+        {state.stage === 'confirmed' && state.project && <div className="ei-receipt"><span className="ei-receipt-mark"><Glyph name="check" /></span><h3>Your inquiry and saved view are together.</h3><p>You can continue exploring or open the project to follow the quotation and conversation.</p><dl className="ei-facts"><div><dt>Project</dt><dd>{state.project.id}</dd></div><div><dt>Purpose</dt><dd>{inquiryIntentLabel(state.project.inquiry.values)}</dd></div></dl><p className="ei-hint">This fictional inquiry is saved in this browser. Nothing has been sent.</p>{callbacks.allowAnother && <Button variant="secondary" disabled={busy} pending={state.pending === 'new'} pendingLabel="Attaching current view…" onClick={() => swallow(session.startAnother({ capture: callbacks.onCapture }))}>Start another inquiry</Button>}</div>}
       </>}
     </div>
     <footer className="ei-footer"><div className="ei-save-state" role="status" aria-live="polite"><span>{saveLabel(state)}</span><small>Demo only · Nothing is sent</small></div><div className="ei-actions">
@@ -166,11 +145,11 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
 }
 
 /** Host-owned floating presentation; shares business records with Product Room. */
-export async function mountEmbeddedInquiry(element, { repository = createDemoProjectRepository(), context, onCapture, onRestore, onProject, onState, onClose } = {}) {
+export async function mountEmbeddedInquiry(element, { repository = createDemoProjectRepository(), context, onCapture, onRestore, onProject, onState, onClose, allowAnother = true } = {}) {
   if (!element?.ownerDocument) throw new TypeError('Provide an inquiry mount element.');
   const doc = element.ownerDocument, win = doc.defaultView;
   const session = createInquirySession({ repository });
-  const root = createRoot(element), callbacks = { onCapture, onRestore, onProject };
+  const root = createRoot(element), callbacks = { onCapture, onRestore, onProject, allowAnother };
   let state = session.getState(), ui = { open: false, expanded: false, leaving: false }, disposed = false, opener = null;
   const abort = new AbortController();
   element.classList.add('embedded-inquiry-host');
@@ -178,7 +157,7 @@ export async function mountEmbeddedInquiry(element, { repository = createDemoPro
     if (disposed) return;
     root.render(<EmbeddedInquiry state={state} ui={ui} session={session} controls={controls} callbacks={callbacks} />);
     announce(onState, { open: ui.open, expanded: ui.expanded, busy: state.loading || Boolean(state.pending) || ui.leaving,
-      draftId: state.draft?.id || null, hasDraft: Boolean(state.draft), stage: state.stage, status: saveLabel(state), projectId: state.project?.id || null });
+      draftId: state.draft?.id || null, hasDraft: Boolean(state.draft), stage: state.stage, status: saveLabel(state), projectId: state.project?.id || null, errorCode: state.error?.code || null });
   };
   const updateUI = patch => { ui = { ...ui, ...patch }; render(); };
   const restoreFocus = () => {
@@ -229,11 +208,16 @@ export async function mountEmbeddedInquiry(element, { repository = createDemoPro
   return {
     async open(options = {}) {
       if (disposed) throw new Error('This inquiry surface has been disposed.');
-      const { opener: requestedOpener, ...request } = options;
+      const { opener: requestedOpener, stage, ...request } = options;
       const explicitOpener = requestedOpener?.ownerDocument === doc && typeof requestedOpener.focus === 'function' ? requestedOpener : null;
       if (explicitOpener || !ui.open || !ui.expanded) opener = explicitOpener || doc.activeElement;
       updateUI({ open: true, expanded: true });
-      return session.open({ ...request, context: request.context || context });
+      await session.open({ ...request, context: request.context || context });
+      // The host may restore a review route, but that only prepares a fresh
+      // review. A URL never supplies consent or submits an inquiry.
+      if (stage === 'review' && state.stage === 'details') await session.review();
+      else if (stage === 'details' && state.stage === 'review') session.edit();
+      return session.getState();
     },
     async beforeLeave() {
       if (disposed) return true;
@@ -243,6 +227,22 @@ export async function mountEmbeddedInquiry(element, { repository = createDemoPro
       return saved;
     },
     getContext: () => state.draft || state.project ? session.getContext() : null,
+    resume: controls.expand,
+    openProject: controls.openProject,
+    review({ fillSample = false } = {}) {
+      if (!ui.open || !ui.expanded) throw new Error('Reopen the inquiry before reviewing it.');
+      if (fillSample) {
+        const draft = prepareSampleInquiry(session.getState().draft);
+        session.updateValues(draft.values); session.updateRequirements(draft.requirements);
+      }
+      return session.review();
+    },
+    confirm() {
+      if (!ui.open || !ui.expanded) throw new Error('Reopen and review the inquiry before confirming it.');
+      return session.confirm();
+    },
+    // The host must first pass beforeLeave; suspension never discards a draft.
+    suspend: () => updateUI({ open: false, expanded: false }),
     minimize: controls.minimize,
     async dispose() {
       if (disposed) return true;

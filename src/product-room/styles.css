@@ -1200,3 +1200,25 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .room-workspace .pw-context>.pw-release-reference,.room-workspace .pw-context>.pw-release-evidence { flex-basis:100%; margin-block:0; }
 
 .room-source > summary { min-height:44px; cursor:pointer; padding:10px 0; color:var(--aw-ink); font-size:12px; }
+
+/* Room owns the viewport around its one embedded Explorer. The inquiry keeps
+   the approved floating surface; resizing happens only on expand/minimize. */
+body[data-room-inquiry-expanded=true] .room-viewer { width:calc(100% - 448px); }
+#room-inquiry-root .ei-panel { top:var(--embedded-inquiry-top,84px); }
+.room-part-information { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.room-part-information > details { flex:1; min-width:0; }
+#room-component-inquiry { flex:none; min-height:40px; font-size:11px; }
+@media (max-width:1000px) {
+  body[data-room-inquiry-expanded=true] .room-viewer { width:100%; }
+}
+@media (max-width:760px) {
+  #room-inquiry-root .ei-panel { top:auto; max-height:calc(var(--ei-viewport-height,100dvh) - var(--embedded-inquiry-top,84px) - 10px); }
+  /* Header Continue inquiry, or the walkthrough's Continue demo, resumes the
+     sheet without covering the embedded model's bottom navigation controls. */
+  #room-inquiry-root .ei-minimized { display:none; }
+  .room-part-information { flex-wrap:wrap; gap:0; }
+  #room-component-inquiry { margin-top:-2px; }
+}
+@media (max-height:480px) {
+  #room-inquiry-root .ei-panel { top:calc(var(--ei-viewport-offset,0px) + var(--embedded-inquiry-top,74px)); bottom:auto; max-height:calc(var(--ei-viewport-height,100dvh) - var(--embedded-inquiry-top,74px) - 10px); }
+}

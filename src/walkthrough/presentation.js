@@ -3,6 +3,9 @@ import { WALKTHROUGH_CHAPTERS } from './flow.js';
 const actionTitles = Object.freeze({
   'inquiry-review': 'Prepare your inquiry',
   'inquiry-confirm': 'Review your inquiry',
+  'inquiry-resume': 'Continue your saved inquiry',
+  'inquiry-recovery': 'Resolve the saved draft',
+  'inquiry-project': 'Open your saved project',
   'seller-review-sample-quotation': 'Prepare the quotation',
   'seller-review-current-quotation': 'Review your draft',
   'seller-confirm-quotation': 'Review the quotation',

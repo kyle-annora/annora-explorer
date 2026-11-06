@@ -25,9 +25,15 @@ visual and functional evidence, rather than gradually drifting across projects.
 | D-18 | Request intent determines relevant questions | Quotation requires quantity; application review may leave it unknown; every branch retains editable review and explicit confirmation |
 | D-19 | Live exploration and attached inquiry context are separate | Changing selection cannot silently change the request; explicit reference replacement invalidates review |
 | D-20 | Product Room follows the request; Studio handles seller work | Saving an in-Explorer inquiry preserves one project identity and its historical versions |
+| D-21 | Hosts reuse one inquiry surface while retaining their own repositories | Ordinary, drawing, preview and walkthrough records remain in their established namespaces; navigation awaits the active editor's save boundary |
+| D-22 | Presenter actions finish the visible review or receipt before suggesting a role switch | Continue demo cannot bypass confirmation, conflict recovery or the inquiry receipt |
+| D-23 | Drawing requests retain source, association and overview identities independently | Viewing another detail never adopts it; source B needs explicit review and adoption while older records keep A |
 
 The first scope and reference lock for D-17–D-20 are recorded in
 [In-context inquiry](embedded-inquiry.md).
+The continuing scope and acceptance gates are in the
+[Explorer-to-quotation program](explorer-to-quote-program.md), with the shared
+[host integration contract](embedded-inquiry-integration.md).
 
 ## Skill structure
 

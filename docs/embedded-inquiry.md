@@ -4,6 +4,11 @@ Approved on November 5, 2026. This first iteration connects the prepared crank
 product to the existing buyer and seller workflow. It does not change the
 Explorer's renderer or create a second quotation system.
 
+The follow-on [delivery program](explorer-to-quote-program.md) extends this same
+surface to Product Room, the guided walkthrough and prepared drawing hosts. Its
+[integration review](explorer-to-quote-review.md) records the new scope separately
+from this original pilot record.
+
 ## Customer journey
 
 The customer can start from a selected component, an authored chapter, or the
