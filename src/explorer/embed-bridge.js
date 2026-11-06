@@ -1,6 +1,7 @@
 /** Exact-origin transport around the shared controller. No DOM or renderer access. */
+import { INSPECTION_MAX_BYTES } from './inspection-reference.js';
 export const EMBED_PROTOCOL = 'annora.explorer/0.1-draft';
-const METHODS = new Set(['getCapabilities','getState','getNode','getChildren','getTour','select','focus','frame','isolate','setRenderStyle','setDisplayOptions','setMode','setExplosion','pauseExplosion','resumeExplosion','replayExplosion','replayOperation','playOperation','pauseOperation','seekOperation','setOperationSpeed','setFollowCamera','startTour','pauseTour','resumeTour','seekTour','goToTourChapter','exitTour','setTheme','setQuality','captureView','restoreView','cancel','dispose']);
+const METHODS = new Set(['getCapabilities','getState','getNode','getChildren','getTour','select','focus','frame','isolate','setRenderStyle','setDisplayOptions','setMode','setExplosion','pauseExplosion','resumeExplosion','replayExplosion','replayOperation','playOperation','pauseOperation','seekOperation','setOperationSpeed','setFollowCamera','startTour','pauseTour','resumeTour','seekTour','goToTourChapter','exitTour','setTheme','setQuality','captureView','restoreView','captureInspection','restoreInspection','cancel','dispose']);
 const TOKEN = /^[A-Za-z0-9_.:-]{1,96}$/;
 let sequence = 0;
 const token = prefix => `${prefix}-${globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${(++sequence).toString(36)}`}`;
@@ -77,7 +78,7 @@ export function createEmbedBridge({controller, parentOrigin, window: win = globa
     if (message.type === 'hello') { hello(message); return; }
     if (!session || message.protocolVersion !== EMBED_PROTOCOL || message.sessionId !== session.id || message.type !== 'command') return;
     if (typeof message.requestId !== 'string' || !TOKEN.test(message.requestId) || message.requestId.length > 64) return;
-    if (!Object.keys(message).every(key=>['protocolVersion','sessionId','requestId','type','method','params'].includes(key)) || !METHODS.has(message.method) || !record(message.params ?? {}) || !safeJSON(message) || JSON.stringify(message).length > 65536) {
+    if (!Object.keys(message).every(key=>['protocolVersion','sessionId','requestId','type','method','params'].includes(key)) || !METHODS.has(message.method) || !record(message.params ?? {}) || !safeJSON(message) || JSON.stringify(message).length > (message.method === 'restoreInspection' ? INSPECTION_MAX_BYTES + 512 : 65536)) {
       await reject(message.requestId,'The request does not match the Explorer command contract.');return;
     }
     const current=session, internalId=current.prefix+message.requestId;

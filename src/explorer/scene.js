@@ -112,16 +112,36 @@ export class AssemblyScene {
   }
 
   /** Completion evidence comes from the existing render loop, never a polling RAF. */
-  async whenSettled({signal,settle=true,frame=true,ignorePlayback=false}={}) {
+  async whenSettled({signal,settle=true,frame=true,ignorePlayback=false,read}={}) {
     if(this.disposed)return Promise.reject(new DOMException('Explorer disposed.','AbortError'));
     throwIfAborted(signal);
     return new Promise((resolve,reject)=>{
       const waiters=this.settleWaiters??=new Set();
-      const waiter={settle,ignorePlayback,renderCount:(this.renderCount||0)+(frame?1:0),finish:error=>{waiters.delete(waiter);signal?.removeEventListener('abort',cancel);error?reject(error):resolve();}};
+      const waiter={settle,ignorePlayback,renderCount:(this.renderCount||0)+(frame?1:0),finish:error=>{waiters.delete(waiter);signal?.removeEventListener('abort',cancel);if(error)reject(error);else try{resolve(read?.());}catch(error){reject(error);}}};
       const cancel=()=>waiter.finish(signal.reason||new DOMException('The operation was aborted.','AbortError'));
       waiters.add(waiter);signal?.addEventListener('abort',cancel,{once:true});
       this.flushSettledWaiters();if(waiters.has(waiter))this.invalidate();
     });
+  }
+
+  /** Copy this renderer's completed frame before WebGL releases its buffer. */
+  captureInspectionPreview({ signal } = {}) {
+    return this.whenSettled({ signal, read: () => {
+      const source = this.renderer.domElement;
+      if (this.presentationStage || !source.width || !source.height) return null;
+      const scale = Math.min(1, 480 / Math.max(source.width, source.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(source.width * scale));
+      canvas.height = Math.max(1, Math.round(source.height * scale));
+      const context = canvas.getContext('2d');
+      if (!context) return null;
+      context.drawImage(source, 0, 0, canvas.width, canvas.height);
+      for (const quality of [.78, .6, .4]) {
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        if (dataUrl.startsWith('data:image/jpeg;base64,') && dataUrl.length <= 120000) return { dataUrl, width: canvas.width, height: canvas.height };
+      }
+      return null;
+    } });
   }
 
   isSettled({ignorePlayback=false}={}) {
@@ -143,7 +163,7 @@ export class AssemblyScene {
     return {position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray(),projection:{kind:'perspective',verticalFovDegrees:this.camera.fov,zoom:this.camera.zoom,offsetX:this.offsetX||0,offsetY:this.offsetY||0},viewport:{width:layout.width,height:layout.height},layoutKey:layout.key};
   }
 
-  restoreCameraView(view,{animate=true,refit=false}={}) {
+  restoreCameraView(view,{animate=true,refit=false,preserve=false}={}) {
     if(this.disposed||!view)return false;
     const triple=value=>Array.isArray(value)&&value.length===3&&value.every(Number.isFinite);
     if(!triple(view.position)||!triple(view.target)||!triple(view.up)||view.up.every(value=>value===0))return false;
@@ -153,7 +173,10 @@ export class AssemblyScene {
     if(offset.lengthSq()<.0001)return false;
     this.camera.up.fromArray(view.up);this.camera.fov=projection.verticalFovDegrees;this.camera.zoom=projection.zoom;this.camera.updateProjectionMatrix();
     const layout=this.layoutRegion(),direction=offset.clone().normalize();
-    if(!refit&&view.layoutKey===layout.key){this.moveCamera(center,direction,offset.length(),{offsetX:projection.offsetX,offsetY:projection.offsetY},animate);this.lastLayoutKey=layout.key;}
+    if(preserve||!refit&&view.layoutKey===layout.key){
+      const xScale=preserve&&view.viewport?.width>0?layout.width/view.viewport.width:1,yScale=preserve&&view.viewport?.height>0?layout.height/view.viewport.height:1;
+      this.moveCamera(center,direction,offset.length(),{offsetX:projection.offsetX*xScale,offsetY:projection.offsetY*yScale},animate);this.lastLayoutKey=layout.key;
+    }
     else this.fitMeshes(this.active,animate,direction);
     this.invalidate();return true;
   }
@@ -667,7 +690,9 @@ export class AssemblyScene {
     this.operationPlayer.pause();this.separationAction?.clear(explosion);
     const progress=operation?THREE.MathUtils.clamp(frame.operationProgress,0,1):null;
     const poseKey=JSON.stringify([this.scopeId,explosion,progress,mode]);
-    if(this.tourPoseKey!==poseKey){
+    // An exact restore must commit the source pose even when a preceding seek
+    // has already named the same target but is still aligning toward it.
+    if(this.tourPoseKey!==poseKey||immediate){
       if(operation)this.operationPlayer.seek(progress);else if(modeChanged||reacquiring)this.operationSampler?.restore();
       const targets=operation?this.operationTargets(progress):this.restTargets(explosion);
       if(immediate||reducedMotion.matches){

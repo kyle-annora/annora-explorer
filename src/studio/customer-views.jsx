@@ -8,7 +8,7 @@ import {
   Section,
   Status,
 } from "../product-room/ui/components.jsx";
-import { compareQuotes } from "../product-room/project-domain.js";
+import { compareQuotes, quoteScopeLabel } from "../product-room/project-domain.js";
 import { inquiryField } from "../product-room/inquiry-profile.js";
 import { STUDIO_ASSETS } from "./seed.js";
 import { date, readRoute } from "./navigation.js";
@@ -18,6 +18,7 @@ import {
 } from "../walkthrough/session.js";
 import { recordContext } from "../product-room/drawing-revision.js";
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
+import { InspectionReference } from "../product-room/inspection-reference.jsx";
 import crankImage from "../product-room/assets/crank.png";
 
 export const money = (value) =>
@@ -108,6 +109,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
       )}
       <section className="customer-document-section">
         <h3>Scope</h3>
+        {project && <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
         <p className="customer-preserve">{quote.scope}</p>
       </section>
       <section className="customer-document-section">
@@ -221,6 +223,7 @@ export function InquiryDetails({ project }) {
         <p>{values.application}</p>
       </div>
       <dl className="customer-facts">
+        <div><dt>Requested quote scope</dt><dd>{quoteScopeLabel(values, project.context)}</dd></div>
         {fields.map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
@@ -274,13 +277,15 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
   );
   const visibleDocs = selectedDocs.length ? selectedDocs : docs;
   return (
+    <>
+    <InspectionReference context={context} href={buyerHref(project, true)} />
     <details className="customer-reference">
       <summary>
         <span>Product reference<small>{context.part?.title || context.productTitle}{context.drawing ? ` · ${context.drawing.revisionLabel || context.drawing.revision}` : snapshot ? ` · Version ${snapshot.version}` : ""}</small></span>
         <Glyph name="document" />
       </summary>
       <div className="customer-reference-body">
-        {!context.drawing && context.modelId === "kinetic-01" && <img
+        {!context.inspection && !context.drawing && context.modelId === "kinetic-01" && <img
           src={crankImage}
           alt="Crank-slider mechanism"
           width="240"
@@ -308,7 +313,7 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
             </dd>
           </div>
         </dl>
-        <SmallLink href={buyerHref(project, true)}>{context.drawing ? "View selected drawing detail" : "View in 3D"}</SmallLink>
+        {!context.inspection && <SmallLink href={buyerHref(project, true)}>{context.drawing ? "View selected drawing detail" : "View in 3D"}</SmallLink>}
         {context.drawing && <>
           <p className="customer-fine">Pinned viewing context. Dimensions, tolerances and manufacturing suitability remain to confirm.</p>
           <details><summary>Exact drawing reference</summary>
@@ -345,6 +350,7 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
         </p>
       </div>
     </details>
+    </>
   );
 }
 export function responseFor(change, kind = "reply") {

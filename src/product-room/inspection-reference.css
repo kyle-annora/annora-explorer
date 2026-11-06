@@ -1,0 +1,10 @@
+.ar-inspection-reference { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: start; gap: 12px; padding: 14px; border: 1px solid #d4d5d6; border-radius: 4px; background: #fafaf9; max-width: 100%; }
+.ar-inspection-reference > img, .ar-inspection-no-preview { width: 88px; height: 72px; object-fit: contain; border-radius: 2px; background: #eaeae8; }
+.ar-inspection-no-preview { display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; text-align: center; font-size: 10px; line-height: 1.5; color: #64686c; }
+.ar-inspection-copy { min-width: 0; }
+.ar-inspection-copy > strong { display: block; font-size: 13px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; margin: 3px 0; }
+.ar-inspection-status, .ar-inspection-copy > small { display: block; font-size: 11px; line-height: 1.5; color: #64686c; }
+.ar-inspection-copy > .ar-button, .ar-inspection-copy > a { font-size: 11px; padding: 8px 0; margin-top: 4px; min-height: 36px; max-width: 100%; white-space: normal; }
+.ar-inspection-copy > a { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-underline-offset: 3px; box-sizing: border-box; }
+.ar-inspection-copy > a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (max-width: 430px) { .ar-inspection-reference { grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 12px; } .ar-inspection-reference > img, .ar-inspection-no-preview { width: 72px; height: 64px; } .ar-inspection-copy > .ar-button, .ar-inspection-copy > a { min-height: 44px; } }

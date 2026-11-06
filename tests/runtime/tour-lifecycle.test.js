@@ -98,3 +98,13 @@ test('short-step replay and progress stay scoped to the current chapter',async t
   assert.deepEqual(commands[1],{method:'seekTour',params:{seconds:data.chapters[1].end,chapterId:data.chapters[1].id}});
   tour.dispose();
 });
+
+test('restoring a continuous tour starts paused before any frame or status is published', async t => {
+  const statuses = [], { tour, scene } = setup(t, async () => {}, { stateChange() { statuses.push(tour.player.state().status); } });
+  scene.cancelBenchmark = () => {}; scene.invalidate = () => {};
+  tour.apply = () => { statuses.push(tour.player.state().status); };
+  assert.equal(await tour.start({ paused: true }), true);
+  assert.equal(tour.active, true); assert.equal(tour.player.state().status, 'paused');
+  assert.ok(statuses.length > 0); assert.ok(statuses.every(status => status === 'paused'));
+  tour.dispose();
+});

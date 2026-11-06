@@ -12,6 +12,15 @@ export const cloneProjectValue = value => JSON.parse(JSON.stringify(value));
 const text = value => typeof value === 'string' ? value.trim() : '';
 const fieldNames = ['name', 'email', 'company', 'application', 'quantity', 'targetWeeks', 'stroke', 'load', 'notes'];
 const blankValues = () => Object.fromEntries(fieldNames.map(key => [key, '']));
+export const QUOTE_SCOPES = Object.freeze([
+  Object.freeze({ value: 'discuss', label: 'Help define scope' }),
+  Object.freeze({ value: 'product', label: 'Whole product' }),
+  Object.freeze({ value: 'part', label: 'Selected component' })
+]);
+export function quoteScopeLabel(values, context) {
+  if (values?.quoteScope === 'part') return `Selected component${context?.part ? ` · ${context.part.title}` : ''}`;
+  return QUOTE_SCOPES.find(item => item.value === values?.quoteScope)?.label || 'Not specified';
+}
 const id = () => `DRAFT-${globalThis.crypto.randomUUID()}`;
 export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
@@ -56,13 +65,18 @@ export function normalizeProjectContext(input) {
 }
 
 export function createInquiryDraft(context, draftId = id()) {
-  return { id: draftId, revision: 0, context: normalizeProjectContext(context), values: blankValues(), requirements: [], updatedAt: null };
+  return { id: draftId, revision: 0, context: normalizeProjectContext(context), values: { ...blankValues(), quoteScope: 'discuss' }, requirements: [], updatedAt: null };
 }
 
 /** Normalization is intentionally separate from final review: incomplete drafts can be saved. */
 export function normalizeInquiryDraft(input) {
   if (!input || !text(input.id) || !Number.isSafeInteger(input.revision) || input.revision < 0) throw new ProjectError('VALIDATION', 'This draft has no valid identity or revision.');
   const values = Object.fromEntries(fieldNames.map(key => [key, text(input.values?.[key])]));
+  // Older inquiries keep their original shape. A viewed part never supplies scope.
+  if (Object.hasOwn(input.values || {}, 'quoteScope')) {
+    values.quoteScope = text(input.values.quoteScope);
+    if (values.quoteScope && !QUOTE_SCOPES.some(item => item.value === values.quoteScope)) throw new ProjectError('VALIDATION', 'Choose a quotation scope.', { quoteScope: 'Choose a listed scope or leave it open.' });
+  }
   if (!Array.isArray(input.requirements) || input.requirements.length > 30) throw new ProjectError('VALIDATION', 'Keep the inquiry within 30 confirmed requirements.', { requirements: 'Check the requirement list.' });
   const requirements = input.requirements.map(item => {
     if (!item || !text(item.id) || !text(item.label) || !['customer', 'model-reference'].includes(item.source)) throw new ProjectError('VALIDATION', 'A requirement needs a label and source.', { requirements: 'Check each requirement and its source.' });
@@ -81,6 +95,7 @@ export function normalizeInquiryDraft(input) {
 
 export function inquiryErrors(draft) {
   const { values, requirements } = draft, fields = {};
+  if (values.quoteScope === 'part' && !draft.context.part) fields.quoteScope = 'Attach a component reference or choose another scope.';
   if (!values.application) fields.application = 'Describe the application or question to review.';
   else if (values.application.length > 2000) fields.application = 'Keep the application within 2,000 characters.';
   if (!/^\d+$/.test(values.quantity) || +values.quantity < 1 || +values.quantity > 100000) fields.quantity = 'Enter a whole quantity from 1 to 100,000.';
@@ -135,7 +150,7 @@ export function reviewRevision(project, quoteId, input) {
   if (values.notes.length > 2000) fields.notes = 'Keep the question within 2,000 characters.';
   if (!Object.keys(fields).length && +values.quantity === quote.quantity && (values.targetWeeks ? +values.targetWeeks : null) === quote.requestedWeeks && !values.notes) fields.notes = 'Describe what you want to change, or update quantity or timing.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the requested changes.', fields);
-  return reviewedProjectValue({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values, ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
+  return reviewedProjectValue({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values, ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 export function reviewNextStep(project, quoteId, input) {
   const quote = assertCurrentQuote(project, quoteId);
@@ -144,7 +159,7 @@ export function reviewNextStep(project, quoteId, input) {
   if (!message) fields.message = 'Add what you would like to discuss or review.';
   else if (message.length > 2000) fields.message = 'Keep the message within 2,000 characters.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the next-step request.', fields);
-  return reviewedProjectValue({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message, ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
+  return reviewedProjectValue({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message, ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 
 const money = value => value === null ? 'Pending review' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value);

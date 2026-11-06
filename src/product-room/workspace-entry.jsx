@@ -15,6 +15,8 @@ export function createWorkspace(
     async beforeLeave(route) {
       return projectHost?.beforeLeave ? projectHost.beforeLeave(route) : true;
     },
+    getContext() { return projectHost?.getContext() || null; },
+    cancelLeave() { projectHost?.cancelLeave(); },
     open(route) {
       if (route.view === "components") {
         projectHost?.dispose();

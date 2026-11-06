@@ -45,6 +45,8 @@ import {
 import "./customer-workspace.css";
 import { recordContext, projectDrawingContext } from "../product-room/drawing-revision.js";
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
+import { InspectionReference } from "../product-room/inspection-reference.jsx";
+import { quoteScopeLabel } from "../product-room/project-domain.js";
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const nextStep = (p) =>
@@ -1160,6 +1162,7 @@ export function CustomerWorkspace({
                   title="Scope"
                   description="Describe the offer and its boundaries."
                 >
+                  <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>
                   <div className="studio-form-grid">
                     {field("quantity", "Quoted quantity", {
                       inputMode: "numeric",
@@ -1445,6 +1448,7 @@ export function CustomerWorkspace({
                 </p>
               </div>
               <DrawingReference context={recordContext(project, draft)} label="Drawing included in this quotation" href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
+              <InspectionReference context={recordContext(project, draft)} href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
               <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} comparisonExpanded productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
               {response && <ResponseSummary value={response} />}
               <div className="customer-confirmation">

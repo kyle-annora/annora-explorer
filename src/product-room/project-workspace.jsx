@@ -1,5 +1,6 @@
 import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
+import { InspectionReference } from "./inspection-reference.jsx";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -10,6 +11,8 @@ import {
   projectStatus,
   projectContextKey,
   sameProjectValue,
+  QUOTE_SCOPES,
+  quoteScopeLabel,
 } from "./project-domain.js";
 import { inquiryField, inquiryFields } from "./inquiry-profile.js";
 import { sampleInquiryValues } from "./project-fixtures.js";
@@ -126,6 +129,7 @@ function ContextSummary({
   onAdopt,
   disabled = false,
   compact = false,
+  showInspection = true,
 }) {
   const referenceLabels = {
     part: "viewed component",
@@ -134,9 +138,12 @@ function ContextSummary({
   };
   return (
     <div className={`pw-context ${compact ? "pw-context-compact" : ""}`}>
+      {showInspection && <InspectionReference context={context} onOpen={onExplore} disabled={disabled} />}
       <div>
-        <p className="pw-eyebrow">PRODUCT CONTEXT</p>
-        <strong>{context.productTitle || "Crank-slider mechanism"}</strong>
+        {!(context.inspection && showInspection) && <>
+          <p className="pw-eyebrow">PRODUCT CONTEXT</p>
+          <strong>{context.productTitle || "Crank-slider mechanism"}</strong>
+        </>}
         {["part", "document", "chapter"].map(
           (key) =>
             context[key] && (
@@ -176,7 +183,7 @@ function ContextSummary({
           </div>
         )}
       </div>
-      {onExplore && (
+      {onExplore && !context.inspection && (
         <Button
           variant="quiet"
           disabled={disabled}
@@ -225,13 +232,15 @@ function ContextSummary({
 }
 
 /** Reference disclosure changes presentation only; the saved context is unchanged. */
-function InquiryReference({ context, children }) {
+function InquiryReference({ context, children, onExplore, disabled = false, showInspection = true, showDisclosure = true }) {
   const [expanded, setExpanded] = useState(false);
   const contentId = useId();
+  if (!showDisclosure) return children;
   return <div className={`pw-inquiry-reference ${expanded ? "is-open" : ""}`}>
+    {showInspection && <InspectionReference context={context} onOpen={onExplore} disabled={disabled} />}
     <button type="button" className="pw-reference-toggle" aria-expanded={expanded}
       aria-controls={contentId} onClick={() => setExpanded(value => !value)}>
-      <span><small>Product reference</small><strong>{context.drawing?.regionLabel || context.part?.title || context.productTitle}</strong>
+      <span>{!context.inspection && <small>Product reference</small>}<strong>{context.inspection ? "Reference details" : context.drawing?.regionLabel || context.part?.title || context.productTitle}</strong>
         <small>{context.drawing ? `${context.drawing.title} · ${context.drawing.revisionLabel || context.drawing.revision}` : context.roomSnapshot ? `Product version ${context.roomSnapshot.version}` : context.modelRevision}</small></span>
       <span aria-hidden="true">{expanded ? "−" : "+"}</span>
     </button>
@@ -243,10 +252,13 @@ function InquiryDocument({ draft, onExplore }) {
   const values = draft.values;
   return (
     <div className="pw-document">
-      <ContextSummary context={draft.context} onExplore={onExplore} compact />
+      {draft.context.inspection ? <InquiryReference context={draft.context} onExplore={onExplore}>
+        <ContextSummary context={draft.context} showInspection={false} compact />
+      </InquiryReference> : <ContextSummary context={draft.context} onExplore={onExplore} compact />}
       <Section title={`${inquiryField(draft.context, "application").label} & requirements`}>
         <p className="pw-application">{values.application}</p>
         <dl className="pw-facts">
+          <div><dt>Requested quote scope</dt><dd>{quoteScopeLabel(values, draft.context)}</dd></div>
           {["quantity", "targetWeeks", "stroke", "load"].filter(key => inquiryField(draft.context, key)?.enabled || values[key]).map((key) => (
             <div key={key}>
               <dt>{inquiryField(draft.context, key)?.label || fieldLabels[key]}</dt>
@@ -489,7 +501,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     if (
       !draftRef.current ||
       (!draftRef.current.revision &&
-        !Object.values(draftRef.current.values).some(Boolean))
+        !Object.entries(draftRef.current.values).some(([key, value]) => value && (key !== "quoteScope" || value !== "discuss")))
     )
       return true;
     try {
@@ -536,7 +548,8 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
       );
       const confirmationCleared =
         requirements.length !== source.requirements.length;
-      setDraft({ ...source, context: copy(nextContext), requirements });
+      const scopeCleared = source.values.quoteScope === "part" && !sameProjectValue(source.context.part, nextContext.part);
+      setDraft({ ...source, context: copy(nextContext), requirements, values: scopeCleared ? { ...source.values, quoteScope: "discuss" } : source.values });
       setNotice("");
       setSaveState("Saving draft…");
       try {
@@ -546,7 +559,9 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         throw error;
       }
       setNotice(
-        confirmationCleared
+        scopeCleared
+          ? "Product reference updated. Quote scope is now Help define scope; choose Selected component if you want to quote this component."
+          : confirmationCleared
           ? "Product reference updated. Your entered values are unchanged; confirm the stroke requirement again for the new reference."
           : "Product reference updated. Your entered requirements and contact details are unchanged.",
       );
@@ -629,7 +644,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         }
         if (next.revision > 0 && !sameProjectValue(next.context, route.context))
           setNotice(
-            "Your saved draft keeps its original product reference. The recently viewed component or document has not replaced it.",
+            "Your saved draft keeps its original product reference. The recently viewed component, document or 3D view has not replaced it.",
           );
         setSaveState(
           next.updatedAt
@@ -764,6 +779,14 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     project?.quotes.find((item) => item.id === quoteId) ||
     project?.quotes.at(-1);
   const projectContext = project ? recordContext(project, quote) : undefined;
+  lifecycle.getContext = () => {
+    if (!["inquiry", "project"].includes(route.view)) return null;
+    if (loading || !uiReady.current) throw new Error("Wait for the saved inquiry reference to finish loading, then try again.");
+    const context = route.view === "inquiry" ? draftRef.current?.context : projectContext;
+    if (!context) throw new Error("The saved inquiry reference could not be read. Try loading the project again.");
+    return copy(context);
+  };
+  lifecycle.cancelLeave = () => { lifecycle.leaving = false; setLeaving(false); };
   const previousQuote = quote?.previousQuoteId
     ? project?.quotes.find((item) => item.id === quote.previousQuoteId)
     : null;
@@ -785,7 +808,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     draft &&
     route.context &&
     projectContextKey(draft.context) === projectContextKey(route.context) &&
-    ["part", "document", "chapter", "drawing"].some(
+    ["part", "document", "chapter", "drawing", "inspection"].some(
       (key) =>
         !sameProjectValue(draft.context[key], route.context[key]),
     );
@@ -901,7 +924,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
       if (fillSample) {
         const current = draftRef.current;
         const values = { ...current.values };
-        const wasEmpty = !Object.values(values).some(value => String(value).trim());
+        const wasEmpty = !Object.entries(values).some(([key, value]) => key !== "quoteScope" && String(value).trim());
         for (const [key, value] of Object.entries(sampleInquiryValues(current.context))) {
           if (inquiryField(current.context, key)?.enabled && !String(values[key] || "").trim()) values[key] = value;
         }
@@ -1172,7 +1195,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         <div className="pw-layout">
           <div className="pw-main-column">
             {reviewed ? (
-              <InquiryDocument draft={draft} />
+              <InquiryDocument draft={draft} onExplore={onExplore} />
             ) : (
               <form
                 id="pw-inquiry-form"
@@ -1196,7 +1219,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         onClick={() => {
                           setDraft((current) => ({
                             ...current,
-                            values: Object.fromEntries(Object.entries(sampleInquiryValues(current.context)).map(([key, value]) => [key, inquiryField(current.context, key)?.enabled ? value : ""])),
+                            values: { ...current.values, ...Object.fromEntries(Object.entries(sampleInquiryValues(current.context)).map(([key, value]) => [key, inquiryField(current.context, key)?.enabled ? value : ""])) },
                             requirements: [],
                           }));
                           setNotice(
@@ -1209,6 +1232,15 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                       </Button>
                     }
                   >
+                    <Field
+                      label="Requested quote scope"
+                      name="quoteScope"
+                      value={draft.values.quoteScope || ""}
+                      options={[["", "Not specified"], ...QUOTE_SCOPES.filter(item => item.value !== "part" || draft.context.part).map(item => [item.value, item.value === "part" ? `Selected component · ${draft.context.part.title}` : item.label])]}
+                      onChange={event => updateDraft("quoteScope", event.target.value)}
+                      error={errors.quoteScope}
+                      hint="A viewed component is a reference. Choose what you want quoted."
+                    />
                     <ConfiguredInquiryField
                       context={draft.context}
                       label="Application"
@@ -1401,9 +1433,13 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             )}
           </div>
           <aside className="pw-sidebar">
-            <InquiryReference context={draft.context}>
-            <ContextSummary
+            <InquiryReference context={draft.context} disabled={Boolean(pending) || leaving} showInspection={!reviewed} showDisclosure={!(reviewed && draft.context.inspection)}
+              onExplore={reviewed ? undefined : async context => {
+                await run("leave", async () => { await persistDraft(); onExplore(context); });
+              }}>
+            {!(reviewed && draft.context.inspection) && <ContextSummary
               context={draft.context}
+              showInspection={false}
               disabled={Boolean(pending) || leaving}
               onRemove={reviewed ? undefined : removeDraftReference}
               onAdopt={
@@ -1421,7 +1457,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                       });
                     }
               }
-            />
+            />}
             <div className="pw-side-note">
               <p className="pw-eyebrow">
                 {reviewed ? "BEFORE YOU CONFIRM" : "WHAT HAPPENS NEXT"}
@@ -2061,8 +2097,8 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                     </article>
                   </div>
                   <aside className="pw-sidebar">
-                    <InquiryReference context={projectContext}>
-                      <ContextSummary context={projectContext} onExplore={onExplore} compact />
+                    <InquiryReference context={projectContext} onExplore={onExplore}>
+                      <ContextSummary context={projectContext} onExplore={onExplore} compact showInspection={false} />
                     </InquiryReference>
                     {currentNextStep && (
                       <div className="pw-next-receipt">
@@ -2138,6 +2174,11 @@ export function mountProjectWorkspace(
         ? lifecycle.beforeLeave(nextRoute)
         : Promise.resolve(true);
     },
+    getContext() {
+      if (!lifecycle.getContext) throw new Error("Wait for the saved inquiry reference to finish loading, then try again.");
+      return lifecycle.getContext();
+    },
+    cancelLeave() { lifecycle.cancelLeave?.(); },
     dispose() {
       disposed = true;
       root.unmount();

@@ -1,5 +1,6 @@
 /** In-memory demo request state. No delivery, account or storage implementation. */
 import { normalizeDrawingContext, drawingVersionKey } from './drawing-context.js';
+import { normalizeInspection } from '../explorer/inspection-reference.js';
 export const REQUEST_PURPOSES = Object.freeze([
   Object.freeze({ id: 'question', label: 'Ask a product question' }),
   Object.freeze({ id: 'application', label: 'Discuss an application' }),
@@ -26,6 +27,7 @@ export function requestContext(input) {
     }
   }
   if (input.drawing !== undefined) context.drawing = normalizeDrawingContext(input.drawing, context);
+  if (input.inspection !== undefined) context.inspection = normalizeInspection(input.inspection, { model: { id: context.modelId, revision: context.modelRevision } });
   return context;
 }
 

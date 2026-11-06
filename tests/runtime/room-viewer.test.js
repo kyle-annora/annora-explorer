@@ -12,6 +12,9 @@ const completed = result => ({ payload: { status: 'completed', result } });
 const stateFor = (id = 'kinetic-01') => ({ lifecycle: 'ready', model: { id, revision: '1.0' },
   navigation: { selectedId: 'root', scopeId: 'root' }, presentation: { separation: { available: false, playing: false } },
   operation: { available: false, status: 'unavailable' }, tour: { active: false, status: 'idle' }, busy: [] });
+const inspectionFor = state => ({version:'1',model:structuredClone(state.model),
+  [state.tour.active ? 'tour' : 'view']: {selectedId:state.navigation.selectedId,scopeId:state.navigation.scopeId,
+    ...(state.tour.active ? {tourId:state.tour.tourId,chapterId:state.tour.chapterId,time:.35} : {})}});
 
 class Target {
   listeners = new Map();
@@ -54,6 +57,7 @@ function fixture(options = {}) {
         if (method === 'getCapabilities') return completed(this.capabilities);
         if (method === 'getNode') return completed({ id: params.nodeId, title: params.nodeId === 'root' ? 'Whole assembly' : 'Drive crank', parentId: params.nodeId === 'root' ? null : 'root' });
         if (method === 'getTour') return completed({ id: params.tourId, chapters: [{ id: 'motion', label: 'From rotation to motion' }] });
+        if (method === 'captureInspection') return completed({inspection:inspectionFor(this.state),previewStatus:'unavailable'});
         if (method === 'pauseTour') this.state.tour.status = 'paused';
         if (method === 'pauseOperation') this.state.operation.status = 'paused';
         if (method === 'pauseExplosion') this.state.presentation.separation.playing = false;
@@ -190,6 +194,100 @@ test('context attaches the exact revision, selected part and active chapter with
   assert.deepEqual(await f.viewer.context(), { modelId: 'kinetic-01', modelRevision: '2.4',
     part: { id: 'crank', title: 'Drive crank' }, chapter: { tourId: 'kinetic-01', id: 'motion', title: 'From rotation to motion' } });
   assert.ok(!client.calls.some(call => call.method === 'captureView'));
+  await f.viewer.dispose();
+});
+
+test('inspection context pauses first and derives semantic references from the exact captured view', async () => {
+  let snapshot;
+  const f = fixture({request:(client,method)=> {
+    if (method !== 'captureInspection') return;
+    assert.equal(client.state.tour.status,'paused');
+    assert.equal(client.state.operation.status,'paused');
+    assert.equal(client.state.presentation.separation.playing,false);
+    snapshot = inspectionFor(client.state);
+    snapshot.preview = {dataUrl:'data:image/webp;base64,AAAA',width:400,height:250};
+    client.state.navigation.selectedId = 'root';
+    client.state.tour = {active:false,status:'idle'};
+    return completed({inspection:snapshot,previewStatus:'captured'});
+  }});
+  const {client} = await f.open();
+  client.state.navigation.selectedId = 'crank';
+  client.state.tour = {active:true,status:'playing',tourId:'kinetic-01',chapterId:'motion'};
+  client.state.operation = {available:true,status:'playing'};
+  client.state.presentation.separation = {available:true,playing:true};
+  const context = await f.viewer.context({includeInspection:true});
+  assert.deepEqual(context,{modelId:'kinetic-01',modelRevision:'1.0',part:{id:'crank',title:'Drive crank'},
+    chapter:{tourId:'kinetic-01',id:'motion',title:'From rotation to motion'},inspection:snapshot});
+  assert.ok(client.calls.findIndex(call=>call.method === 'pauseExplosion') < client.calls.findIndex(call=>call.method === 'captureInspection'));
+  snapshot.preview.width = 999;
+  assert.equal(context.inspection.preview.width,400);
+  await f.viewer.dispose();
+});
+
+test('inspection capture waits briefly for settling and never returns partial context on a persistent failure', async () => {
+  let attempts = 0;
+  const busy = {payload:{status:'failed',error:{code:'BUSY_STATE',message:'Wait for the view to settle.'}}};
+  const f = fixture({request:(client,method)=>method === 'captureInspection' && attempts++ === 0 ? busy : undefined});
+  await f.open();
+  const context = await f.viewer.context({includeInspection:true});
+  assert.equal(attempts,2); assert.ok(context.inspection);
+  await f.viewer.dispose();
+  const failed = fixture({viewer:{captureSettleTimeoutMs:0},request:(client,method)=>method === 'captureInspection' ? busy : undefined});
+  const {client} = await failed.open(); client.state.navigation.selectedId = 'crank';
+  await assert.rejects(failed.viewer.context({includeInspection:true}),error=>error.code === 'BUSY_STATE');
+  assert.equal(client.state.navigation.selectedId,'crank');
+  assert.ok(!client.calls.some(call=>call.method === 'getNode'));
+  await failed.viewer.dispose();
+});
+
+test('a preparing tour is preserved instead of attaching the previous view to an inquiry', async () => {
+  const f = fixture(); const {client} = await f.open();
+  client.state.tour = {active:false,status:'preparing'};
+  await assert.rejects(f.viewer.context({includeInspection:true}),error=>error.code === 'BUSY_STATE');
+  assert.ok(!client.calls.some(call=>['exitTour','captureInspection'].includes(call.method)));
+  assert.equal(client.state.tour.status,'preparing');
+  await f.viewer.dispose();
+});
+
+test('an old inspection capture cannot attach to a newly loaded model', async () => {
+  const pending = gate();
+  const f = fixture({request:(client,method)=>method === 'captureInspection' ? pending.promise : undefined});
+  const {client,frame} = await f.open();
+  const inspection = inspectionFor(client.state);
+  const capture = f.viewer.context({includeInspection:true});
+  const rejected = assert.rejects(capture,error=>error.code === 'SUPERSEDED');
+  await tick();
+  frame.emit('load'); f.clients[1].handshake(stateFor('apollo')); await tick();
+  pending.resolve(completed({inspection,previewStatus:'unavailable'}));
+  await rejected;
+  assert.equal(f.viewer.state.model.id,'apollo');
+  await f.viewer.dispose();
+});
+
+test('saved inspection restore is authoritative and failure never substitutes a part or chapter view', async () => {
+  const rejected = {payload:{status:'failed',error:{code:'INCOMPATIBLE_VIEW',message:'Saved view cannot be restored.'}}};
+  const f = fixture({request:(client,method)=>method === 'restoreInspection' ? rejected : undefined});
+  const {client} = await f.open();
+  const context = {modelId:'kinetic-01',modelRevision:'1.0',part:{id:'crank',title:'Drive crank'},
+    chapter:{tourId:'kinetic-01',id:'motion',title:'Motion'},inspection:inspectionFor(client.state)};
+  await assert.rejects(f.viewer.restoreContext(context),error=>error.code === 'INCOMPATIBLE_VIEW');
+  assert.deepEqual(client.calls.find(call=>call.method === 'restoreInspection').params,{inspection:context.inspection});
+  assert.ok(!client.calls.some(call=>['focus','startTour','goToTourChapter'].includes(call.method)));
+  client.calls.length = 0;
+  await assert.rejects(f.viewer.restoreContext({...context,modelRevision:'2.0'}),error=>error.code === 'INCOMPATIBLE_VIEW');
+  assert.deepEqual(client.calls.map(call=>call.method),['getState']);
+  await f.viewer.dispose();
+});
+
+test('legacy inquiry references still reopen their part or paused chapter without a second renderer', async () => {
+  const f = fixture(); const {client,frame} = await f.open();
+  const base = {modelId:'kinetic-01',modelRevision:'1.0'};
+  await f.viewer.restoreContext({...base,part:{id:'crank',title:'Drive crank'}});
+  assert.deepEqual(client.calls.find(call=>call.method === 'focus').params,{nodeId:'crank'});
+  await f.viewer.restoreContext({...base,chapter:{tourId:'kinetic-01',id:'motion',title:'Motion'}});
+  assert.deepEqual(client.calls.find(call=>call.method === 'startTour').params,{tourId:'kinetic-01'});
+  assert.deepEqual(client.calls.find(call=>call.method === 'goToTourChapter').params,{chapterId:'motion'});
+  assert.equal(f.viewer.iframe,frame); assert.equal(f.frames.length,1);
   await f.viewer.dispose();
 });
 

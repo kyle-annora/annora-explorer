@@ -15,6 +15,9 @@ import spatialGuides, { referenceAssets } from 'virtual:annora-spatial-guides';
 import { createOrbitalNavigation, hasOrbitalGuide } from './orbital-navigation.js';
 import { createTimelineNavigation } from './timeline-navigation.js';
 import { createViewerNavigation } from './ui/viewer-navigation.js';
+import { createInquiryEntry } from './ui/inquiry-entry.js';
+import commerce from '../../content/commerce.json';
+import { createExplorationHandoff, readExplorationHandoff } from '../product-room/exploration-handoff.js';
 import { createReferenceWorkspace } from './ui/reference-workspace.js';
 import { canUseReferenceWorkspace, referenceChapterForNode } from './ui/reference-context.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
@@ -41,7 +44,8 @@ const presentationMedia=getPresentationAssets(model.id,model.tour?.id);
 const spatialGuide = spatialGuides.find(guide => guide.modelId === model.id);
 const topLevelViewer = !embedded && window.parent === window;
 const offersOrbit = hasOrbitalGuide(model, spatialGuide, !topLevelViewer, params.get('guide'));
-let orbital, timeline, viewerNavigation, lastViewerState, freeCamera, contextualInspection, referenceWorkspace;
+let orbital, timeline, viewerNavigation, lastViewerState, freeCamera, contextualInspection, referenceWorkspace, inquiryEntry;
+const commercialProduct = commerce.products.find(item => item.modelId === model.id);
 if (offersOrbit && presentationEntry(params, model)) document.body.dataset.openingOrbit = 'true';
 const policy=model.allowedCapabilities, themeStorageKey=preferenceNamespace(PROJECT_CONFIG);
 const displayStorageKey=`${themeStorageKey}.display.v1`;
@@ -64,7 +68,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); viewerNavigation?.dispose(); referenceWorkspace?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); inquiryEntry?.dispose(); viewerNavigation?.dispose(); referenceWorkspace?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -97,6 +101,7 @@ function changeModel(id) {
   if ((orbital?.active || guidedTour?.active) && nextModel.allowedCapabilities.tours.length) url.searchParams.set('presentation', '1');
   else url.searchParams.delete('presentation');
   url.searchParams.delete('guide');
+  url.searchParams.delete('inspection');
   url.hash = '';
   location.assign(url);
 }
@@ -151,6 +156,71 @@ function inspectCurrentDemoAssembly() {
 if (topLevelViewer) viewerNavigation = createViewerNavigation({ model, models: MODEL_CATALOG,
   onModel: changeModel, onMode: () => orbital ? orbital.close() : timeline?.close() });
 else listen($('model-select'), 'change', event => changeModel(event.target.value));
+
+async function inquiryCommand(method, args = {}) {
+  const event = await command(method, args);
+  if (event.payload.status !== 'completed') throw Object.assign(new Error(event.payload.error?.message || 'The 3D reference could not be prepared.'), { code: event.payload.error?.code });
+  return event.payload.result;
+}
+let restoredInquiryContext = null;
+async function openCommercialInquiry() {
+  const state = await inquiryCommand('getState');
+  if (state.tour?.active && state.tour.status === 'playing') await inquiryCommand('pauseTour');
+  if (state.operation?.status === 'playing') await inquiryCommand('pauseOperation');
+  if (state.presentation?.separation?.playing) await inquiryCommand('pauseExplosion');
+  let captured;
+  for (let attempt = 0; attempt < 12; attempt++) {
+    try { captured = await inquiryCommand('captureInspection'); break; }
+    catch (error) {
+      if (error.code !== 'BUSY_STATE' || attempt === 11) throw error;
+      await new Promise(resolve => setTimeout(resolve, 180));
+    }
+  }
+  if (shellAbort.signal.aborted) return;
+  const inspection = captured.inspection, selected = inspection.view?.selectedId || inspection.tour?.selectedId;
+  let context = { productId:commercialProduct.productId, productTitle:model.title, modelId:model.id, modelRevision:model.revision, inspection };
+  // A returned inquiry keeps its reviewed product content even if Studio has
+  // published a newer release while the buyer was looking at the model.
+  if (restoredInquiryContext) {
+    const saved = restoredInquiryContext;
+    if (saved.modelId === model.id && saved.modelRevision === model.revision && saved.roomReleaseId) {
+      const {part,chapter,inspection:previousInspection,...release} = saved;
+      context = {...release,inspection};
+    }
+  }
+  if (selected && selected !== model.rootId) {
+    const node = await inquiryCommand('getNode', {nodeId:selected});
+    context.part = {id:node.id,title:node.title};
+  }
+  if (inspection.tour) {
+    const tour = await inquiryCommand('getTour', {tourId:inspection.tour.tourId});
+    const chapter = tour.chapters.find(item => item.id === inspection.tour.chapterId);
+    if (chapter) context.chapter = {id:chapter.id,title:chapter.label || chapter.title || chapter.id,tourId:tour.id};
+  }
+  const token = createExplorationHandoff(context);
+  const url = new URL('./product-room/',location.href);
+  url.searchParams.set('model',model.id); url.searchParams.set('handoff',token); url.hash='inquiry';
+  location.assign(url);
+}
+if (topLevelViewer && commercialProduct && viewerNavigation) inquiryEntry = createInquiryEntry({navigation:viewerNavigation,label:commercialProduct.label,onRequest:openCommercialInquiry});
+
+async function restoreIncomingInspection() {
+  try {
+    const context = readExplorationHandoff(params.get('inspection'));
+    if (context.modelId !== model.id || context.modelRevision !== model.revision) throw new Error('The saved view belongs to another model version. Return to your project to open its original reference.');
+    await inquiryCommand('restoreInspection',{inspection:context.inspection});
+    restoredInquiryContext = context;
+    const url = new URL(location.href);
+    if (context.inspection.tour) url.searchParams.set('presentation','1');
+    else url.searchParams.delete('presentation');
+    history.replaceState(null,'',url);
+    await timeline?.sync();
+    $('status-message').textContent = 'Saved view restored. Your inquiry draft remains available.';
+  } catch(error) {
+    inquiryEntry?.showError(error);
+    $('status-message').textContent = error.message;
+  }
+}
 $('scene').setAttribute('aria-label',`Interactive ${model.title}. Drag to orbit, scroll to zoom, click to select. Use the assembly index to explore individual parts.`);
 $('view-front').textContent=model.viewLabels[0];$('view-rear').textContent=model.viewLabels[1];
 $('presentation-media-link').hidden=!presentationMedia;
@@ -546,10 +616,12 @@ async function start(){
       if(event.code==='Space'&&mode==='operate'){event.preventDefault();command(explorer.getOperationState().playing?'pauseOperation':'playOperation');}
     });
     const entry=presentationEntry(params,model);
-    if (orbital) { await orbital.sync(); delete document.body.dataset.openingOrbit; }
+    if (topLevelViewer && params.has('inspection')) await restoreIncomingInspection();
+    else if (orbital) { await orbital.sync(); delete document.body.dataset.openingOrbit; }
     else if (timeline) await timeline.sync();
     else if(entry&&!shellAbort.signal.aborted)await command('startTour',entry);
     syncViewerNavigation();
+    inquiryEntry?.setReady(true);
   }catch(error){if(shellAbort.signal.aborted)return;controller.setLifecycle('error',error);explorer?.dispose();console.error(error);$('loading-label').textContent='The model could not be loaded. Reload this page to try again.';$('status-message').textContent='Model unavailable';document.body.dataset.error=error.message;}
 }
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');

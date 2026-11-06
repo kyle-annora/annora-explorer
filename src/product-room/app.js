@@ -9,6 +9,8 @@ import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughReposit
 import { BUNDLED_RELEASE, resolveStudioContent } from '../studio/seed.js';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
 import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
+import { createExplorationHandoff, readExplorationHandoff } from './exploration-handoff.js';
+import { openWorkspaceReference } from './reference-navigation.js';
 import crankImage from './assets/crank.png';
 import apolloImage from './assets/apollo.png';
 
@@ -26,11 +28,32 @@ async function boot() {
   const walkthroughRepository = walkthrough ? createWalkthroughRepository(walkthrough) : null;
   const customerRepository = walkthroughRepository || undefined;
   const referenceProjectId = initialRoute.view === 'explore' && initialRoute.projectId || parameters.get('project');
-  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('walkthrough')]);
-  let referenceProject = null;
+  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('walkthrough'),params.get('handoff'),params.get('inspection')]);
+  let referenceProject = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
     if (hasWalkthroughRequest(parameters) && !walkthrough) throw new Error('This demonstration link is invalid. Return to the walkthrough to open a separate sample session.');
+    if (parameters.has('handoff')) {
+      if (referenceProjectId || parameters.has('studioPreview') || parameters.has('release') || walkthrough)
+        throw new Error('This link mixes the saved Explorer view with another product reference. Return to Explorer and open the inquiry again.');
+      handoffContext = readExplorationHandoff(parameters.get('handoff'));
+      if (handoffContext.productId !== 'kinetic-01' || handoffContext.modelId !== 'kinetic-01' || !handoffContext.inspection)
+        throw new Error('This saved Explorer view is not a complete crank product reference. Return to Explorer and try again.');
+      if (MODEL_CATALOG[handoffContext.modelId]?.revision !== handoffContext.modelRevision)
+        throw new Error('The model revision saved with this Explorer view is not available. Return to Explorer to start from the current model.');
+      parameters.set('model',handoffContext.modelId);
+    }
+    if (parameters.has('inspection')) {
+      if (parameters.has('handoff') || parameters.has('studioPreview') || referenceProjectId) throw new Error('This link contains more than one saved 3D reference. Open the view from the inquiry again.');
+      restoredContext = readExplorationHandoff(parameters.get('inspection'));
+      if (restoredContext.productId !== 'kinetic-01' || restoredContext.modelId !== 'kinetic-01' || MODEL_CATALOG[restoredContext.modelId]?.revision !== restoredContext.modelRevision)
+        throw new Error('The exact model revision saved with this inquiry is not available. The original inquiry remains unchanged.');
+      if (parameters.has('release') && restoredContext.roomReleaseId !== parameters.get('release'))
+        throw new Error('This link mixes the saved 3D view with another product version. Open the view from the inquiry again.');
+      parameters.set('model',restoredContext.modelId);
+    }
+    savedInquiryContext = handoffContext?.roomSnapshot ? handoffContext : restoredContext?.roomSnapshot ? restoredContext : null;
+    if (savedInquiryContext) releaseState = {release:savedInquiryContext.roomSnapshot,preview:false,pinned:true};
     if (referenceProjectId) {
       if (parameters.has('studioPreview') || parameters.has('release')) throw new Error('This link mixes a customer project with another product version. Open the 3D reference from the project again.');
       const {createDemoProjectRepository} = await import('./project-repository.js');
@@ -45,7 +68,7 @@ async function boot() {
     }
     if (MODEL_CATALOG['kinetic-01']) {
       try {
-        if (!referenceProject) {
+        if (!referenceProject && !savedInquiryContext) {
           const explicitVersion = parameters.has('studioPreview') || parameters.has('release');
           releaseState = walkthrough && !explicitVersion
             ? {release:BUNDLED_RELEASE,preview:false,pinned:true}
@@ -64,14 +87,20 @@ async function boot() {
       }
       releaseByProduct['kinetic-01'] = releaseState.release;
       rooms['kinetic-01'] = resolveStudioContent(releaseState.release.content);
+      if (handoffContext?.roomReleaseId && handoffContext.roomReleaseId !== releaseState.release.id)
+        throw new Error('The product version saved with this Explorer view is not available. Return to Explorer and open a new inquiry.');
+      if (restoredContext?.roomReleaseId && restoredContext.roomReleaseId !== releaseState.release.id)
+        throw new Error('The product version saved with this inquiry is not available. Open the 3D view from the inquiry again.');
     } else if (parameters.has('studioPreview') || parameters.has('release')) throw new Error('This deployment does not include the model for this product version.');
   } catch (error) {
     $('room-loading').hidden = true; $('room-error').hidden = false;
-    $('room-error').querySelector('h1').textContent = 'Product version unavailable.';
+    $('room-error').querySelector('h1').textContent = parameters.has('handoff') || parameters.has('inspection') ? 'Saved 3D view unavailable.' : 'Product version unavailable.';
     $('room-error-message').textContent = error.message;
     $('room-retry').textContent = 'Try again'; $('room-retry').addEventListener('click', () => location.reload());
     const link = $('room-error').querySelector('a');
-    if (parameters.has('studioPreview') && (!hasWalkthroughRequest(parameters) || walkthrough)) {
+    if (parameters.has('handoff') || parameters.has('inspection') && !referenceProjectId) {
+      link.href = '../?model=kinetic-01'; link.textContent = 'Return to Explorer';
+    } else if (parameters.has('studioPreview') && (!hasWalkthroughRequest(parameters) || walkthrough)) {
       link.href = walkthrough ? withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href : '../studio/';
       link.target = '_top'; link.textContent = 'Return to Studio';
     } else {
@@ -101,7 +130,7 @@ async function boot() {
   if (!configuredRooms.includes(productId)) productId = configuredRooms.includes(DEFAULT_ROOM_ID) ? DEFAULT_ROOM_ID : configuredRooms[0];
   if (releaseState.preview || releaseState.pinned) { productId = 'kinetic-01'; $('room-product').disabled = true; }
   let page = 'explore', navigation = 0, action = 0, loading = null, mountedModel = null, noticeTimer;
-  let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null, walkthroughViewer;
+  let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null, walkthroughViewer, retrySavedContext;
   const flow = createRequestFlow({ dialog: $('room-request') });
   const viewer = createRoomViewer({
     mount: $('room-viewer'), explorerURL: new URL('../', location.href).href,
@@ -129,6 +158,7 @@ async function boot() {
     },
     onError(error) {
       $('room-loading').hidden = true; $('room-error').hidden = false;
+      $('room-error').querySelector('h1').textContent = '3D is unavailable right now.';
       $('room-error-message').textContent = `${error.message} Product information and documents remain available.`;
     }
   });
@@ -139,7 +169,13 @@ async function boot() {
 
   function updateURL(replace = false) {
     const url = new URL(location.href); url.searchParams.set('model', productId);
-    for (const key of ['studioPreview','release','project']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
+    const referenceModel = (handoffContext || restoredContext)?.modelId;
+    if (page === 'project' && currentRoute.projectId || ['projects','components'].includes(page) || referenceModel && referenceModel !== productId) {
+      for (const key of ['handoff','inspection']) { parameters.delete(key); url.searchParams.delete(key); }
+      handoffContext = null; restoredContext = null;
+      if (referenceModel && referenceModel !== productId) savedInquiryContext = null;
+    }
+    for (const key of ['studioPreview','release','project','handoff','inspection','returnRole','returnView']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
     url.hash = buyerRouteHash({...currentRoute,view:page});
     history[replace ? 'replaceState' : 'pushState'](replace ? history.state : {}, '', url);
     window.dispatchEvent(new Event('annora:routechange'));
@@ -149,47 +185,86 @@ async function boot() {
     const room = rooms[id];
     return releaseByProduct[id] ? contextForRelease(releaseByProduct[id]) : { productId:id, productTitle:room.title, modelId:id, modelRevision:MODEL_CATALOG[id].revision };
   }
+  function rememberDraftInspection(context) {
+    if (releaseState.preview || !context.inspection) return;
+    const token = createExplorationHandoff(context);
+    for (const key of ['project','handoff','returnRole','returnView']) parameters.delete(key);
+    parameters.set('inspection',token);
+    handoffContext = null; restoredContext = context; referenceProject = null;
+    savedInquiryContext = context.roomSnapshot ? context : null;
+    renderContent();
+  }
+  async function exploreContext(context, {leaveChecked = false, record = true, allowStandalone = true} = {}) {
+    if (!configuredRooms.includes(context.modelId)) { if (leaveChecked) workspace?.cancelLeave(); notice('This project’s model is not available in this deployment.'); return; }
+    ++action;
+    if (context.modelRevision !== MODEL_CATALOG[context.modelId].revision) {
+      if (leaveChecked) workspace?.cancelLeave();
+      notice('The exact model revision saved with this inquiry is unavailable. The saved inquiry remains unchanged.'); return;
+    }
+    if (allowStandalone && parameters.has('handoff') && !currentRoute.projectId && context.inspection) {
+      if (!leaveChecked && workspace && !(await workspace.beforeLeave())) return;
+      try {
+        const token = createExplorationHandoff(context);
+        const url = new URL('../',location.href);
+        url.searchParams.set('model',context.modelId); url.searchParams.set('inspection',token);
+        location[record ? 'assign' : 'replace'](url.href);
+      } catch (error) { workspace?.cancelLeave(); notice(`The saved view could not be reopened. ${error.message} Please try again.`); }
+      return;
+    }
+    // Projects carry their own immutable product snapshot. Resolve it from
+    // that record even if its original Studio release is no longer listed.
+    if (currentRoute.projectId && !releaseState.preview) {
+      if (!leaveChecked && workspace && !(await workspace.beforeLeave())) return;
+      await viewer.pause().catch(()=>{});
+      const url = new URL('../product-room/',location.href);
+      url.searchParams.set('model',context.modelId);
+      url.searchParams.set('returnRole','buyer');
+      url.searchParams.set('returnView',location.hash);
+      if (walkthrough) url.searchParams.set('walkthrough',walkthrough);
+      url.hash = `explore&project=${encodeURIComponent(currentRoute.projectId)}`;
+      location[record ? 'assign' : 'replace'](url.href); return;
+    }
+    if (context.roomSnapshot && context.modelId === 'kinetic-01' && context.roomReleaseId !== releaseByProduct['kinetic-01']?.id) {
+      if (!leaveChecked && workspace && !(await workspace.beforeLeave())) return;
+      await viewer.pause().catch(()=>{});
+      const url = new URL(location.href); url.searchParams.set('model',context.modelId);
+      for (const key of ['studioPreview','handoff','project','returnRole','returnView']) url.searchParams.delete(key);
+      url.searchParams.set('release',context.roomReleaseId);
+      // Drafts can carry a product snapshot before a project ID exists.
+      // Keep their exact saved view across this product-version reload.
+      const destination = new URLSearchParams();
+      if (context.inspection) {
+        try { url.searchParams.set('inspection',createExplorationHandoff(context)); }
+        catch (error) { workspace?.cancelLeave(); notice(`The saved view could not be reopened. ${error.message} Please try again.`); return; }
+      } else if (context.part?.id) destination.set('part',context.part.id);
+      else if (context.chapter) { destination.set('chapter',context.chapter.id); destination.set('tour',context.chapter.tourId); }
+      url.hash = 'explore' + (destination.size ? `&${destination}` : '');
+      location[record ? 'assign' : 'replace'](url.href); return;
+    }
+    try { rememberDraftInspection(context); }
+    catch (error) { workspace?.cancelLeave(); notice(`The saved view could not be reopened. ${error.message} Please try again.`); return; }
+    await showSavedContext(context,{record,leaveChecked});
+  }
+  async function openExplore(options = {}) {
+    const turn = ++action;
+    try {
+      if (await openWorkspaceReference({workspace,modelId:productId,open:context => {
+        if (turn !== action) return;
+        return exploreContext(context,{...options,leaveChecked:true});
+      }})) return;
+      if (turn !== action) return;
+      const context = referenceProject?.context || restoredContext || handoffContext;
+      if (context?.modelId === productId) await showSavedContext(context,options);
+      else await showPage('explore',{focus:true,...options});
+    } catch (error) { notice(`The saved view could not be reopened. ${error.message} Please try again.`); }
+  }
   async function ensureWorkspace() {
     if (workspace) return workspace;
     if (!workspaceLoading) workspaceLoading = import('./workspace-entry.jsx').then(({createWorkspace}) => {
       workspace = createWorkspace($('room-workspace'), {
         ...(previewRepository || customerRepository ? {repository:previewRepository || customerRepository} : {}),
         onNavigate: route => { ++action; void showPage(route.view, {route,focus:true}).catch(error=>notice(error.message)); },
-        onExplore: async context => {
-          if (!configuredRooms.includes(context.modelId)) { notice('This project’s model is not available in this deployment.'); return; }
-          ++action;
-          if (context.modelRevision !== MODEL_CATALOG[context.modelId].revision) {
-            await showPage('overview', {focus:true,modelId:context.modelId});
-            notice('The model has changed since this inquiry. The saved inquiry keeps its original revision.'); return;
-          }
-          // Projects carry their own immutable product snapshot. Resolve it from
-          // that record even if its original Studio release is no longer listed.
-          if (currentRoute.projectId && !releaseState.preview) {
-            if (workspace && !(await workspace.beforeLeave())) return;
-            await viewer.pause().catch(()=>{});
-            const url = new URL('../product-room/',location.href);
-            url.searchParams.set('model',context.modelId);
-            url.searchParams.set('returnRole','buyer');
-            url.searchParams.set('returnView',location.hash);
-            if (walkthrough) url.searchParams.set('walkthrough',walkthrough);
-            url.hash = `explore&project=${encodeURIComponent(currentRoute.projectId)}`;
-            location.assign(url.href); return;
-          }
-          if (context.roomSnapshot && context.modelId === 'kinetic-01' && context.roomReleaseId !== releaseByProduct['kinetic-01']?.id) {
-            if (workspace && !(await workspace.beforeLeave())) return;
-            await viewer.pause().catch(()=>{});
-            const url = new URL(location.href); url.searchParams.set('model',context.modelId);
-            url.searchParams.delete('studioPreview'); url.searchParams.set('release',context.roomReleaseId);
-            const destination = new URLSearchParams();
-            if (context.part?.id) destination.set('part',context.part.id);
-            else if (context.chapter) { destination.set('chapter',context.chapter.id); destination.set('tour',context.chapter.tourId); }
-            url.hash = 'explore' + (destination.size ? `&${destination}` : '');
-            location.assign(url.href); return;
-          }
-          if (context.part?.id) await showTarget({kind:'part',nodeId:context.part.id},context.modelId);
-          else if (context.chapter) await showTarget({kind:'chapter',tourId:context.chapter.tourId,chapterId:context.chapter.id},context.modelId);
-          else await showPage('explore',{modelId:context.modelId});
-        }
+        onExplore: context => exploreContext(context),
       });
       return workspace;
     }).catch(error => { workspaceLoading = null; throw error; });
@@ -208,18 +283,22 @@ async function boot() {
     pending.finally(()=> { if (loading === pending) loading = null; }).catch(()=>{});
     return pending;
   }
-  async function showPage(next, {record = true, focus = false, route = {view:next}, modelId} = {}) {
+  async function showPage(next, {record = true, focus = false, route = {view:next}, modelId, leaveChecked = false} = {}) {
     const turn = ++navigation;
     if (walkthrough && !releaseState.preview && next === 'inquiry') {
       walkthroughProject = (await walkthroughRepository.listProjects())[0] || null;
       if (walkthroughProject) { next = 'project'; route = {view:'project',projectId:walkthroughProject.id}; }
     }
     if (turn !== navigation) return;
-    if (workspace && workspacePages.includes(page) && !(await workspace.beforeLeave(route))) {
+    if (!leaveChecked && workspace && workspacePages.includes(page) && !(await workspace.beforeLeave(route))) {
       if (turn === navigation) { renderContent(); updateURL(true); }
       return;
     }
     if (turn !== navigation) return;
+    if (next === 'inquiry' && route.context?.inspection) {
+      try { rememberDraftInspection(route.context); }
+      catch (error) { workspace?.cancelLeave(); throw error; }
+    }
     if (next !== 'explore') await viewer.pause().catch(()=>{});
     if (turn !== navigation) return;
     const desiredModel = workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
@@ -243,7 +322,10 @@ async function boot() {
       try {
         const host = await ensureWorkspace();
         if (turn !== navigation) return;
-        host.open({...currentRoute, context:route.context || baseContext(configuredRooms.includes('kinetic-01') ? 'kinetic-01' : productId)});
+        const productContext = baseContext(configuredRooms.includes('kinetic-01') ? 'kinetic-01' : productId);
+        const incoming = handoffContext || restoredContext;
+        const incomingContext = page === 'inquiry' && incoming ? {...productContext,...incoming,productTitle:productContext.productTitle} : productContext;
+        host.open({...currentRoute, context:route.context || incomingContext});
       } catch (error) { notice(`The project workspace could not open. ${error.message} Please try again.`); }
     }
   }
@@ -251,7 +333,7 @@ async function boot() {
     const room = rooms[productId]; $('room-product').value = productId;
     const release = releaseByProduct[productId];
     versionBanner.hidden = !release || walkthrough && !referenceProject && !releaseWarning && !parameters.has('studioPreview') && !parameters.has('release') || release.source === 'bundled' && !releaseState.preview && !releaseState.pinned && !releaseWarning;
-    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
+    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : savedInquiryContext ? 'Saved inquiry reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject || savedInquiryContext ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
     renderSelectedPart(viewer.state);
     $('room-discuss').querySelector('.room-discuss-full').textContent = walkthroughProject ? 'View project' : productId === 'kinetic-01' ? 'Request a quote' : 'Discuss application';
     $('room-discuss').querySelector('.room-discuss-short').textContent = walkthroughProject ? 'Project' : productId === 'kinetic-01' ? 'Inquire' : 'Discuss';
@@ -287,25 +369,51 @@ async function boot() {
     const turn = ++action, id = productId, room = rooms[id];
     $('room-discuss').disabled = true;
     try {
-      await viewer.pause().catch(()=>{});
-      const context = viewer.state?.lifecycle === 'ready' ? await viewer.context().catch(()=>null) : null;
+      if (id === 'kinetic-01') await ensureViewer();
+      else await viewer.pause();
+      const context = viewer.state?.lifecycle === 'ready' ? await viewer.context({includeInspection:id === 'kinetic-01'}) : null;
+      if (id === 'kinetic-01' && !context) throw new Error('Wait for the 3D model to finish loading, then try again.');
       if (turn !== action || id !== productId) return;
       const matched = context?.modelId === id;
+      if (context && !matched) throw new Error('The product changed while its 3D view was being saved. Please try again.');
       const doc = room.documents.find(item=>item.id === documentId);
       const request = {...baseContext(id),
         modelRevision: matched ? context.modelRevision : MODEL_CATALOG[id].revision,
         ...(matched && context.part ? {part:context.part}:{}),
         ...(matched && context.chapter ? {chapter:context.chapter}:{}),
+        ...(matched && context.inspection ? {inspection:context.inspection}:{}),
         ...(doc ? {document:{id:doc.id,title:doc.title,revision:doc.revision}}:{})};
-      if (id === 'kinetic-01') await showPage('inquiry',{route:{view:'inquiry',context:request},focus:true});
+      if (id === 'kinetic-01') {
+        await showPage('inquiry',{route:{view:'inquiry',context:request},focus:true});
+      }
       else flow.open(request);
-    } catch { notice('The request could not be opened. Please try again.'); }
+    } catch (error) { if (error.code !== 'SUPERSEDED') notice(`The selected 3D reference could not be attached. ${error.message || 'Please try again.'} Choose Request a quote again to retry.`); }
     finally { $('room-discuss').disabled = false; }
+  }
+  async function showSavedContext(context, options = {}) {
+    const turn = ++action, id = context.modelId;
+    try {
+      const route = {view:'explore',...(referenceProject ? {projectId:referenceProject.id} : {})};
+      await showPage('explore',{modelId:id,...options,route});
+      if (turn !== action || id !== productId || page !== 'explore') return;
+      await viewer.restoreContext(context);
+      if (turn !== action || id !== productId || page !== 'explore') return;
+      retrySavedContext = null; $('room-error').hidden = true;
+      if (context.inspection) notice('Saved 3D view restored. Playback is paused.');
+    } catch (error) {
+      if (turn !== action || ['SUPERSEDED','CANCELLED'].includes(error.code)) return;
+      retrySavedContext = context;
+      $('room-loading').hidden = true; $('room-error').hidden = false;
+      $('room-error').querySelector('h1').textContent = 'Saved 3D view could not open.';
+      $('room-error-message').textContent = `${error.message || 'Please try again.'} The saved inquiry has not changed.`;
+      $('room-retry').textContent = 'Retry saved view';
+    }
   }
   async function showTarget(target, targetProductId = productId, options = {}) {
     const turn = ++action, id = targetProductId;
     const current = () => turn === action && id === productId && page === 'explore' && !$('room-request').open;
     try {
+      retrySavedContext = null; $('room-error').hidden = true; $('room-retry').textContent = 'Try loading again';
       await showPage('explore',{modelId:id,...options,route:{view:'explore',target}});
       if (!current()) return;
       await viewer.pause();
@@ -324,7 +432,12 @@ async function boot() {
   }
   document.addEventListener('click',event=> {
     const link = event.target.closest('a[href^="#"]');
-    if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0 && [...pages,...workspacePages].includes(link.hash.slice(1))) { event.preventDefault(); ++action; void showPage(link.hash.slice(1),{focus:true}).catch(()=>{}); return; }
+    if (link && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0 && [...pages,...workspacePages].includes(link.hash.slice(1))) {
+      event.preventDefault();
+      if (link.hash === '#explore') void openExplore();
+      else { ++action; void showPage(link.hash.slice(1),{focus:true}).catch(error=>notice(error.message)); }
+      return;
+    }
     const question = event.target.closest('[data-question]');
     if (question) void showTarget(rooms[productId].questions.find(item=>item.id===question.dataset.question).target);
     const part = event.target.closest('[data-node]'); if (part) void showTarget({kind:'part',nodeId:part.dataset.node});
@@ -335,7 +448,7 @@ async function boot() {
     void showPage(workspacePages.includes(page) ? 'overview' : page,{focus:true,modelId:$('room-product').value}).catch(()=>{});
   });
   $('room-discuss').addEventListener('click',()=>void openRequest());
-  $('room-retry').addEventListener('click',()=>void ensureViewer(true).catch(()=>{}));
+  $('room-retry').addEventListener('click',()=>void (retrySavedContext ? showSavedContext(retrySavedContext,{record:false}) : ensureViewer(true)).catch(error=>notice(error.message)));
   window.addEventListener('annora:walkthrough-navigate',event=> {
     const detail = event.detail;
     if (!walkthrough || !detail?.url) return;
@@ -353,7 +466,10 @@ async function boot() {
         location.reload(); return;
       }
       const id = nextURL.searchParams.get('model');
-      if (route.view === 'explore' && route.target) await showTarget(route.target,id,{record:false});
+      if (route.view === 'explore' && referenceProject) await showSavedContext(referenceProject.context,{record:false});
+      else if (route.view === 'explore' && restoredContext) await showSavedContext(restoredContext,{record:false});
+      else if (route.view === 'explore' && route.target) await showTarget(route.target,id,{record:false});
+      else if (route.view === 'explore' && id === productId) await openExplore({record:false,allowStandalone:false});
       else await showPage(route.view,{record:false,route,modelId:id});
     })().catch(error=>notice(error.message));
   });
@@ -364,12 +480,10 @@ async function boot() {
     window.addEventListener('annora:walkthrough-change',()=> { void walkthroughRepository.listProjects().then(items=> { walkthroughProject=items[0] || null; renderContent(); }).catch(error=>notice(error.message)); });
   }
   renderContent(); const route = readRoute();
-  if (referenceProject && route.view === 'explore' && !route.target) {
-    const context = referenceProject.context;
-    if (context.part?.id) route.target = {kind:'part',nodeId:context.part.id};
-    else if (context.chapter) route.target = {kind:'chapter',chapterId:context.chapter.id,tourId:context.chapter.tourId};
-  }
-  if (route.view === 'explore' && route.target) void showTarget(route.target,productId,{record:false}).catch(error=>notice(error.message));
+  if (route.view === 'explore' && referenceProject) void showSavedContext(referenceProject.context,{record:false});
+  else if (route.view === 'explore' && restoredContext) void showSavedContext(restoredContext,{record:false});
+  else if (route.view === 'explore' && handoffContext) void showSavedContext(handoffContext,{record:false});
+  else if (route.view === 'explore' && route.target) void showTarget(route.target,productId,{record:false}).catch(error=>notice(error.message));
   else void showPage(route.view,{record:false,route}).catch(()=>{});
 
 }

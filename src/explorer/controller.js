@@ -1,12 +1,13 @@
 import { DISPLAY_DEFAULTS, LINE_WEIGHTS, APPEARANCES, displayOptions } from './display-profiles.js';
 import { CLIENT_THEMES, normalizeHex } from './themes.js';
 import { intersectCapabilities, tourRequirements } from './project-features.js';
+import { INSPECTION_MAX_BYTES, normalizeInspectionReference } from './inspection-reference.js';
 
 export const EXPLORER_PROTOCOL = 'annora.explorer/0.1-draft';
 const STYLES = ['engineering', 'linework', 'flat'];
 const QUALITIES = ['balanced', 'performance', 'quality'];
 const SPEEDS = [.25, .5, 1];
-const QUERIES = new Set(['getState', 'getCapabilities', 'getNode', 'getChildren', 'getTour', 'captureView']);
+const QUERIES = new Set(['getState', 'getCapabilities', 'getNode', 'getChildren', 'getTour', 'captureView', 'captureInspection']);
 const TOUR_COMMANDS = new Set(['startTour', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter', 'exitTour']);
 const ERROR_CODES = new Set(['NOT_READY', 'UNKNOWN_NODE', 'UNKNOWN_TOUR', 'UNKNOWN_CHAPTER', 'UNSUPPORTED_ACTION', 'INVALID_ARGUMENT', 'INVALID_REQUEST', 'BUSY_STATE', 'ASSET_LOAD_FAILED', 'INCOMPATIBLE_VIEW', 'PROTOCOL_MISMATCH', 'SESSION_MISMATCH', 'DISPOSED']);
 const PARAMETERS = {
@@ -15,7 +16,7 @@ const PARAMETERS = {
   setRenderStyle: ['style'], setDisplayOptions: ['options'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
   playOperation: [], replayOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
   startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
-  setTheme: ['themeId', 'accent'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], cancel: ['requestId'], dispose: [],
+  setTheme: ['themeId', 'accent'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], captureInspection: [], restoreInspection: ['inspection'], cancel: ['requestId'], dispose: [],
 };
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -34,7 +35,7 @@ function jsonValue(value, depth = 0) {
   return plain(value) && Object.keys(value).length <= 1000 && Object.values(value).every(item => jsonValue(item, depth + 1));
 }
 const laneFor = method => method === 'setRenderStyle' ? ['render']
-  : ['startTour', 'exitTour', 'restoreView'].includes(method) ? ['pose', 'render', 'tour']
+  : ['startTour', 'exitTour', 'restoreView', 'restoreInspection'].includes(method) ? ['pose', 'render', 'tour']
   : ['focus', 'frame', 'isolate', 'setMode', 'setExplosion', 'pauseExplosion', 'resumeExplosion', 'replayExplosion', 'seekOperation', 'playOperation', 'replayOperation', 'pauseOperation', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter'].includes(method) ? ['pose'] : [];
 
 /** The scene is private. Both the existing shell and an iframe host use this boundary.
@@ -92,6 +93,7 @@ export class ExplorerController {
       operation: { supported: this.operationSupported, enabled: operation, available: active && operation && Boolean(this.scene.getOperationState().available), clips: clipId ? [clipId] : [], speeds: operation ? SPEEDS : [] },
       tours: { supported: Boolean(authored), enabled: Boolean(tours.length), available: active && Boolean(this.tour) && Boolean(tours.length), items: tours.map(tour => ({ id: tour.id, title: tour.title, duration: tour.duration })) },
       displayOptions: { defaults: DISPLAY_DEFAULTS, lineWeights: Object.keys(LINE_WEIGHTS), appearances: APPEARANCES },
+      inspections: { version: '1', supported: true, available: active && !this.scene?.presentationStage },
       customAccent: this.enabled.themes !== false && !Array.isArray(this.enabled.themes),
       qualityProfiles: allowed('qualityProfiles', QUALITIES), themes: allowed('themes', CLIENT_THEMES.map(theme => theme.id)),
     });
@@ -130,7 +132,7 @@ export class ExplorerController {
       check(plain(envelope) && typeof requestId === 'string' && requestId.length > 0 && requestId.length <= 256, 'A request needs a bounded string requestId.', 'INVALID_REQUEST');
       method = envelope.method; params = envelope.params ?? {};
       check(typeof method === 'string' && Object.hasOwn(PARAMETERS, method), 'Unknown Explorer command.', 'INVALID_REQUEST');
-      check(plain(params) && jsonValue(params) && canonical(params).length <= 65536, 'Command parameters must be bounded JSON data.', 'INVALID_REQUEST');
+      check(plain(params) && jsonValue(params) && canonical(params).length <= (method === 'restoreInspection' ? INSPECTION_MAX_BYTES + 64 : 65536), 'Command parameters must be bounded JSON data.', 'INVALID_REQUEST');
       check(Object.keys(params).every(key => PARAMETERS[method].includes(key)), 'Unexpected command parameter.');
       params = copy(params); fingerprint = canonical({ method, params });
       const existing = this.requests.get(requestId);
@@ -153,7 +155,7 @@ export class ExplorerController {
         const execute = this.prepare(method, params);
         if (!QUERIES.has(method) && !['cancel', 'dispose'].includes(method)) {
           for (const other of this.requests.values()) if (other.order < record.order && !other.terminal && record.lanes.some(lane => other.lanes.includes(lane))) this.cancelRecord(other, 'superseded');
-          if (!TOUR_COMMANDS.has(method) && !['setTheme', 'setDisplayOptions'].includes(method) && (this.tour?.active || this.tour?.pending)) {
+          if (!TOUR_COMMANDS.has(method) && !['setTheme', 'setDisplayOptions', 'restoreInspection'].includes(method) && (this.tour?.active || this.tour?.pending)) {
             // A pending tour still owns a future semantic commit. Even a selection
             // (which otherwise preserves camera/style preparation) must take that
             // ownership away before late line assets can start or restore a tour.
@@ -329,6 +331,54 @@ export class ExplorerController {
       return async record => { scene.setQuality(params.profile); await this.wait(record, false); return this.getState().appearance; };
     }
     if (method === 'captureView') return () => this.captureView();
+    if (method === 'captureInspection') return record => this.captureInspection(record);
+    if (method === 'restoreInspection') {
+      check(!scene.presentationStage, 'Close the spatial presentation before restoring an inspection.', 'UNSUPPORTED_ACTION');
+      const inspection = normalizeInspectionReference(params.inspection, { model: this.identity });
+      if (inspection.view) {
+        const restore = this.prepare('restoreView', { bookmark: inspection.view });
+        return async record => {
+          if (tour?.active || tour?.pending) await tour.exit({ restore: false, signal: record.abort.signal });
+          if (record.abort.signal.aborted) return;
+          await restore(record);
+          if (record.abort.signal.aborted) return;
+          scene.restoreCameraView(inspection.view.camera, { preserve: true, animate: false }); await this.wait(record);
+          return { restored: true };
+        };
+      }
+      const saved = inspection.tour;
+      check(caps.tours.available && tour.tour.id === saved.tourId, 'This inspection tour is unavailable for this model revision.', 'INCOMPATIBLE_VIEW');
+      const chapter = tour.player.chapters.find(chapter => chapter.id === saved.chapterId);
+      check(chapter && saved.time >= chapter.start && saved.time <= chapter.end && (saved.time < chapter.end || tour.tour.playback === 'steps' || saved.time === tour.tour.duration), 'This inspection chapter position is unavailable.', 'INCOMPATIBLE_VIEW');
+      this.node(saved.selectedId); this.node(saved.scopeId); saved.highlightIds.forEach(id => this.node(id));
+      check(caps.modes.enabled.includes(saved.mode) && caps.renderStyles.enabled.includes(saved.renderStyle), 'The saved inspection presentation is not enabled.', 'UNSUPPORTED_ACTION');
+      check(saved.separation === 0 || this.node(saved.scopeId).type !== 'component', 'An individual component cannot be separated.');
+      if (saved.operation) check(caps.operation.available && saved.operation.clipId === caps.operation.clips[0], 'The saved inspection operation is unavailable.', 'INCOMPATIBLE_VIEW');
+      const up = saved.camera.up, authoredUp = scene.camera.up?.toArray?.() || [0, 1, 0];
+      check(up.every((value, index) => Math.abs(value / Math.hypot(...up) - authoredUp[index] / Math.hypot(...authoredUp)) < 1e-6), 'This runtime preserves the authored camera up direction.', 'INCOMPATIBLE_VIEW');
+      return async record => {
+        await scene.prepareEdges();
+        if (record.abort.signal.aborted) return;
+        if (!tour.active) {
+          const started = await tour.start({ signal: record.abort.signal, paused: true });
+          if (record.abort.signal.aborted) return;
+          check(started !== false && tour.active, 'The saved inspection tour could not be prepared.', 'ASSET_LOAD_FAILED');
+        }
+        tour.jump('seek', saved.time, saved.chapterId);
+        scene.setDisplayOptions(saved.displayOptions);
+        // The source time owns narration; the saved source pose and camera own
+        // the exact inspected view, including a visitor's paused takeover.
+        scene.applyTourFrame({ ...tour.frame, scopeId: saved.scopeId, selectedId: saved.selectedId,
+          isolated: saved.isolated, mode: saved.mode, renderStyle: saved.renderStyle,
+          explosion: saved.separation, operationProgress: saved.operation?.progress ?? null,
+          highlightIds: saved.highlightIds }, { immediate: true });
+        if (!saved.sourceOwned) scene.leaveTour();
+        tour.pause(saved.sourceOwned ? 'inspection' : 'takeover');
+        await this.wait(record);
+        scene.restoreCameraView(saved.camera, { preserve: true, animate: false }); await this.wait(record);
+        return { restored: true };
+      };
+    }
     if (method === 'restoreView') {
       const bookmark = this.validateBookmark(params.bookmark);
       return async record => {
@@ -357,6 +407,30 @@ export class ExplorerController {
     const scene = this.scene, operation = scene.getOperationState();
     return copy({ viewVersion: '0.1', model: this.identity, coordinateFrame: 'normalized-assembly-v1', selectedId: scene.selectedId, scopeId: scene.scopeId, isolated: Boolean(scene.isolated), mode: scene.mode, renderStyle: scene.renderStyle, displayOptions: { ...DISPLAY_DEFAULTS, ...scene.displayOptions }, separation: scene.fraction || 0,
       operation: scene.mode === 'operate' ? { clipId: this.getCapabilities().operation.clips[0], progress: operation.progress, status: 'paused' } : null, camera: scene.captureCameraView() });
+  }
+  inspectionSource() {
+    const scene = this.scene, tour = this.tour, transport = tour?.player?.state();
+    check(!scene.presentationStage, 'This presentation does not support saved inspections.', 'UNSUPPORTED_ACTION');
+    const settled = scene.isSettled?.() ?? (!this.transitioning() && !scene.controlsMoving && !scene.benchmark?.active);
+    check(!tour?.pending && settled && !scene.presentationPoseDetached && !scene.getOperationState().playing && (!tour?.active || ['paused', 'completed'].includes(transport?.status)) && ![...this.requests.values()].some(item => !item.terminal && item.lanes.length), 'Pause playback and let the inspection settle before saving it.', 'BUSY_STATE');
+    if (!tour?.active) return { version: '1', model: this.identity, view: this.captureView() };
+    return { version: '1', model: this.identity, tour: {
+      tourId: tour.tour.id, chapterId: transport.chapter.id, time: transport.time,
+      sourceOwned: Boolean(scene.tourFrame), highlightIds: [...(scene.tourFrame?.highlightIds || [])],
+      selectedId: scene.selectedId, scopeId: scene.scopeId, isolated: Boolean(scene.isolated),
+      mode: scene.mode, renderStyle: scene.renderStyle, displayOptions: { ...DISPLAY_DEFAULTS, ...scene.displayOptions },
+      separation: scene.fraction || 0, operation: scene.mode === 'operate' ? { clipId: this.getCapabilities().operation.clips[0], progress: scene.getOperationState().progress, status: 'paused' } : null,
+      camera: scene.captureCameraView(),
+    } };
+  }
+  async captureInspection(record) {
+    const source = normalizeInspectionReference(this.inspectionSource(), { model: this.identity });
+    let preview;
+    try { preview = await this.scene.captureInspectionPreview?.({ signal: record.abort.signal }); }
+    catch (error) { if (record.abort.signal.aborted) throw error; }
+    check(canonical(source) === canonical(normalizeInspectionReference(this.inspectionSource(), { model: this.identity })), 'The inspection changed while its preview was being captured. Try again.', 'BUSY_STATE');
+    const inspection = normalizeInspectionReference({ ...source, ...(preview ? { preview } : {}) }, { model: this.identity });
+    return { inspection, previewStatus: preview ? 'captured' : 'unavailable' };
   }
   validateBookmark(value) {
     check(plain(value) && value.viewVersion === '0.1' && value.coordinateFrame === 'normalized-assembly-v1' && value.model?.id === this.identity.id && value.model?.revision === this.identity.revision, 'This view belongs to another model revision or coordinate convention.', 'INCOMPATIBLE_VIEW');

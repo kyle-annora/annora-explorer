@@ -168,7 +168,7 @@ export class GuidedTour {
     return true;
   }
 
-  async start({ signal } = {}) {
+  async start({ signal, paused = false } = {}) {
     if (this.disposed || this.active || this.pending || !this.scene.ready) return;
     const generation = ++this.generation;
     this.pendingAbort = new AbortController();
@@ -182,7 +182,7 @@ export class GuidedTour {
       this.closeOverlays(); this.scene.cancelBenchmark(); this.scene.pausePresentation();
       this.active = true; document.body.dataset.tourPlayback = this.stepwise ? 'steps' : 'continuous'; document.body.classList.add('tour-active'); $('tour-panel').hidden = false;
       document.querySelector('.stage-tools').inert = true; document.querySelector('.detail-panel').inert = true;
-      this.syncLayout?.(); this.player.setVisibility(document.hidden); this.player.start(); if (this.stepwise) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
+      this.syncLayout?.(); this.player.setVisibility(document.hidden); this.player.start(); if (this.stepwise || paused) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
       return true;
     } catch (error) {
       if (this.disposed || generation !== this.generation || signal?.aborted || error?.name === 'AbortError') return false;

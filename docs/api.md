@@ -95,6 +95,8 @@ These signatures share the result/event contract below.
 | `setQuality` | `profile` | Set an advertised profile; expose requested/effective values when adaptive reduction occurs. Preserve semantic state and camera. |
 | `captureView` | none | Return the versioned JSON bookmark specified below. This is not image capture. |
 | `restoreView` | `bookmark` | Validate compatibility first, then restore a supported bookmark with operation paused. |
+| `captureInspection` | none | Return `{ inspection, previewStatus }` for settled free exploration or a paused timeline tour; preserve the active tour. |
+| `restoreInspection` | `inspection` | Validate the complete saved reference before mutation, restore its exact source pose/camera, and keep playback stopped. |
 | `cancel` | `requestId` | Stop a pending request; retain a coherent current view. Cancellation is not an undo. |
 | `dispose` | none | Abort owned work, end subscriptions and release instance-owned resources. Repeated disposal is safe. |
 
@@ -112,7 +114,8 @@ Completion depends on the command:
 - An animated focus, separation or view restoration completes after the relevant transition settles and a frame is submitted. This does not certify display scan-out or GPU timing.
 - A rendering change completes after assets are ready, the selected treatment is committed and a frame is submitted. A failed load retains the previous usable style.
 - `startTour`, `resumeTour` and `playOperation` complete when transport has started, or has entered its documented paused state. They do not wait 60 seconds or an entire source cycle. Completion of playback is a separate state/event.
-- `captureView` completes when a valid bookmark is returned; `dispose` completes when owned asynchronous work can no longer commit state and resources have been released.
+- `captureView` completes when a valid bookmark is returned. `captureInspection` completes after copying an existing-renderer frame, or explicitly reporting an unavailable preview; a changed source during capture returns `BUSY_STATE`.
+- `dispose` completes when owned asynchronous work can no longer commit state and resources have been released.
 
 Rapid requests must not allow an older async result to override a newer intent. A later rendering request supersedes pending rendering preparation; a later camera/pose request supersedes incompatible active transitions. The former request receives `cancelled` with reason `superseded`. Shared downloaded data may still be cached, but a cancelled consumer cannot update the display. Unrelated mutations may proceed only if the controller can serialize their state commits deterministically.
 
@@ -144,7 +147,7 @@ Events: `ready`, `stateChanged`, `commandAccepted`, `commandResult`, `takeover`,
 | `UNKNOWN_NODE` / `UNKNOWN_TOUR` / `UNKNOWN_CHAPTER` | Referenced ID is absent from the loaded revision or active tour; query content again. |
 | `UNSUPPORTED_ACTION` | Package/runtime/host policy does not permit the action; inspect capabilities. |
 | `INVALID_ARGUMENT` / `INVALID_REQUEST` | Invalid range, shape or reused request identity; correct the request. |
-| `BUSY_STATE` | A stable bookmark cannot be captured in the current state; explicitly pause/settle/exit first. |
+| `BUSY_STATE` | A stable reference cannot be captured; pause playback and let transitions settle. Only legacy `captureView` also requires leaving an active tour. |
 | `ASSET_LOAD_FAILED` | Required data failed to load; preserve the last usable presentation and report a retryable flag based on the actual failure. |
 | `INCOMPATIBLE_VIEW` | Bookmark version, model revision or coordinate convention differs; do not partially apply it. |
 | Transport mismatch | Wrong-origin, source, protocol and stale-session messages are ignored. The current client reports a handshake timeout if no valid peer responds; it does not send error replies to untrusted origins. |
@@ -154,11 +157,77 @@ Errors include code, English message and `retryable`, without private host data 
 
 ## JSON view bookmarks
 
-`captureView` captures **settled free exploration/explosion, or paused manual operation**. It rejects an active tour, a moving transition, residual orbit damping, an active benchmark, a detached intermediate pose or playing operation with `BUSY_STATE`. Tour timestamps are already accessible through `getState()`; persisting an arbitrary intermediate tour pose is outside version 0.1-draft.
+`captureView` captures **settled free exploration/explosion, or paused manual operation**. It rejects an active tour, a moving transition, residual orbit damping, an active benchmark, a detached intermediate pose or playing operation with `BUSY_STATE`. Use the separate inspection contract below to retain a paused timeline tour.
 
 A bookmark includes `viewVersion`, exact `model.id`/`model.revision`, `coordinateFrame`, selected/scope IDs, isolation, mode, render style, separation, a paused operation clip/progress where applicable, and camera `position`, `target`, `up` arrays plus `projection: { kind, verticalFovDegrees, zoom, offsetX, offsetY }`. All numbers are finite; `kind` is `perspective` in this draft. Camera values use the revision-scoped `normalized-assembly-v1` display frame, distinct from source units. Include capture viewport dimensions; exclude DOM IDs, meshes, animation objects, Maps and buffers.
 
 Validate bookmarks before mutation. Restore the camera exactly for identical layout; otherwise preserve direction and fit available space. Operation remains paused, following off. Theme/quality stay host-configured. Reject revision mismatch without title-based ID remapping. Internal tour snapshots retain their richer reversible behavior.
+
+## JSON inspection references
+
+`getCapabilities().inspections` advertises `{ version: "1", supported, available }`.
+`captureInspection({})` returns `{ inspection, previewStatus }`, where `previewStatus`
+is `"captured"` or `"unavailable"`. The snapshot is a plain JSON value:
+
+```js
+{
+  version: "1",
+  model: { id, revision },
+  // Exactly one source:
+  view: /* complete existing 0.1 view bookmark */,
+  // OR
+  tour: {
+    tourId, chapterId, time,
+    sourceOwned, highlightIds,
+    selectedId, scopeId, isolated, mode, renderStyle, displayOptions,
+    separation, operation, camera
+  },
+  preview: { dataUrl, width, height } // optional
+}
+```
+
+The free `view` retains the existing bookmark format. A `tour` records the existing
+GuidedTour timeline at its exact global time and chapter, including held step
+endpoints. Its presentation fields have the same meaning as the bookmark fields.
+`sourceOwned` indicates whether the authored tour still owns the displayed pose
+and emphasis; `false` retains a visitor's paused takeover. `highlightIds` preserves
+authored emphasis independently of the selected part. `operation` is either `null`
+or `{ clipId, progress, status: "paused" }`. Cameras retain the bookmark coordinate
+frame and projection format.
+
+Capture requires a settled source pose with all playback stopped. A paused or
+completed timeline tour remains active; capture neither exits it nor seeks it.
+Moving transitions, residual camera damping, pending presentation commands,
+detached intermediate poses and playing transport return `BUSY_STATE`. Hosts may
+explicitly pause and retry after settling. The separate spatial presentation stage
+is unsupported and returns `UNSUPPORTED_ACTION`; it is never silently substituted
+with the underlying free view.
+
+`restoreInspection({ inspection })` returns `{ restored: true }` after a submitted,
+settled frame. Exact model ID/revision, format version, tour/chapter position,
+enabled presentation capabilities, node IDs and camera values are validated before
+mutation. Incompatibility returns `INCOMPATIBLE_VIEW`; malformed values return
+`INVALID_ARGUMENT`, and unavailable nodes return `UNKNOWN_NODE`. There is no
+title-based remapping or fallback to a different chapter. Source playback remains
+stopped, and restoring a tour never starts its clock automatically. Saved camera
+position, target, field of view and zoom survive host viewport changes; pixel
+projection offsets scale with the viewport instead of reframing the subject.
+Theme and quality remain host-configured. Existing `captureView`/`restoreView`
+behavior is unchanged.
+
+The preview copies the current renderer canvas during the existing render loop;
+it creates no second WebGL renderer, animation clock or model instance. Default
+captures are JPEG with a maximum side of 480 pixels. Accepted stored previews are
+PNG/JPEG/WebP base64 data URLs, at most 120,000 characters and 640 pixels per side.
+Remote URLs, SVG and executable data are rejected. If the browser cannot read the
+canvas, the source reference is still returned with `previewStatus: "unavailable"`
+and no `preview`. Cancellation/disposal removes the frame waiter, and the temporary
+2D canvas is not retained. Shared normalization is exported as
+`normalizeInspectionReference(value, { model })` for host storage validation.
+
+Only `restoreInspection` receives an expanded, bounded transport allowance for
+the small image. This contract adds no account, authentication, cloud storage or
+backend; hosts decide where to keep the validated local reference.
 
 ## Iframe transport
 

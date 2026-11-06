@@ -25,7 +25,7 @@ export function createQuoteDraft(project, id) {
   return {
     id, revision: 0, projectId: project.id, projectRevision: project.revision,
     previousQuoteId: quote?.id || null, changeId: change?.id || null,
-    ...(project.context.drawing ? {context:cloneProjectValue(projectDrawingContext(project))} : {}),
+    ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(projectDrawingContext(project))} : {}),
     replyDraft: pending ? {kind:'change-response',body:'',changeId:pending.id,resolutions:changeTopics(pending).map(topic=>({topic,status:'needs-info',response:''}))} : null,
     values: {
       quantity: String(quote?.quantity ?? project.inquiry.values.quantity),
@@ -89,7 +89,7 @@ export function quoteDraftPreview(input, project) {
   const resolvedQuestions = new Set((project.messages || []).flatMap(message => message.resolutions?.some(item => item.topic === 'notes' && item.status !== 'needs-info') ? [project.changes.find(item => item.id === message.changeId)?.values.notes] : []));
   const openItems = existingOpenItems.filter(item => !item.id.startsWith('unpriced-') && !resolvedQuestions.has(item.label));
   for (const item of lineItems.filter(item => item.amount === null)) if (!openItems.some(existing => existing.label === item.label)) openItems.push({id:`unpriced-${item.id}`,label:item.label,owner:'Sales / customer',status:'Unpriced'});
-  return { ...(project.context.drawing ? {context:cloneProjectValue(recordContext(project,draft))} : {}),version:project.quotes.length+1,quantity:+values.quantity,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
+  return { ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,draft))} : {}),version:project.quotes.length+1,quantity:+values.quantity,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
     subtotal:cents(lineItems.reduce((sum,item) => sum+(item.amount ?? 0),0)),total:null,requestedWeeks:requestedWeeks ? +requestedWeeks : null,
     proposedLeadTime:values.proposedLeadTime,scope:values.scope,assumptions:lines(values.assumptions),exclusions:lines(values.exclusions),validity:values.validity,
     openItems,
@@ -119,6 +119,7 @@ export function reviewQuote(project,input,optionalReply = null) {
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION','Check the quotation details.',fields);
   if (draft.revision < 1 || draft.projectId !== project.id || draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('STALE_REVIEW','Save and review the latest quotation draft before issuing it.');
   if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project))) throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Explicitly review and replace it before issuing a new quotation.');
+  if(project.context.inspection&&!project.context.drawing&&!sameProjectValue(draft.context,project.context)) throw new ProjectError('STALE_REVIEW','Keep the saved inquiry view attached to this quotation.');
   const replyInput = optionalReply || draft.replyDraft;
   const reply = replyInput ? normalizeReply(project,replyInput) : null;
   if (pendingClarification(project)) throw new ProjectError('CONFLICT','Wait for the customer clarification before issuing a quotation.');

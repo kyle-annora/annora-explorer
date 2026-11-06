@@ -26,7 +26,7 @@ function unwrap(event, method) {
 export function createRoomViewer({ mount, explorerURL, onState, onReady, onError,
   clientFactory = createExplorerClient, window: win = globalThis.window,
   document: doc = mount?.ownerDocument || globalThis.document,
-  readyTimeoutMs = 45000, disposeTimeoutMs = 1500 } = {}) {
+  readyTimeoutMs = 45000, disposeTimeoutMs = 1500, captureSettleTimeoutMs = 1800 } = {}) {
   if (!mount?.replaceChildren || !doc?.createElement) throw new TypeError('A Product Room mount element is required.');
   const parentOrigin = exactOrigin(win?.location?.origin);
   const baseURL = new URL(explorerURL, win?.location?.href);
@@ -217,10 +217,36 @@ export function createRoomViewer({ mount, explorerURL, onState, onReady, onError
     return state;
   }
 
-  async function context() {
+  async function context({ includeInspection = false } = {}) {
     const record = current, connection = record?.connection;
-    const state = await request('getState');
+    let state = await request('getState');
     if (state.lifecycle !== 'ready' || !state.model) throw problem('NOT_READY', 'Wait for the product model before attaching a 3D reference.');
+    let inspection;
+    if (includeInspection) {
+      // A preparing chapter has no stable presentation to save. Keep it intact
+      // and ask the visitor to retry instead of silently saving the prior view.
+      if (state.tour?.status === 'preparing') throw problem('BUSY_STATE', 'The explanation is still preparing. Wait for it to appear, then try again.');
+      await pause();
+      const deadline = Date.now() + captureSettleTimeoutMs;
+      for (;;) {
+        if (!active(record, connection)) throw stale();
+        try {
+          const captured = await invoke(connection, 'captureInspection');
+          if (!captured?.inspection) throw problem('CAPTURE_FAILED', 'The selected 3D view could not be saved. Please try again.');
+          inspection = clone(captured.inspection);
+          break;
+        } catch (error) {
+          if (error.code !== 'BUSY_STATE' || Date.now() >= deadline) throw error;
+          await new Promise(resolve => setTimeout(resolve, 60));
+        }
+      }
+      if (!active(record, connection)) throw stale();
+      // Labels come from the immutable capture, never from a later UI selection.
+      const saved = inspection.tour || inspection.view;
+      state = { model: inspection.model, navigation: { selectedId: saved?.selectedId },
+        tour: inspection.tour ? {active:true,...inspection.tour} : {active:false} };
+      if (!state.model || !saved) throw problem('CAPTURE_FAILED', 'The selected 3D view is incomplete. Please try again.');
+    }
     const value = { modelId: state.model.id, modelRevision: state.model.revision };
     if (state.navigation?.selectedId) {
       const node = await invoke(connection, 'getNode', { nodeId: state.navigation.selectedId });
@@ -229,10 +255,37 @@ export function createRoomViewer({ mount, explorerURL, onState, onReady, onError
     if (state.tour?.active && state.tour.tourId && state.tour.chapterId) {
       const tour = await invoke(connection, 'getTour', { tourId: state.tour.tourId });
       const chapter = tour.chapters?.find(item => item.id === state.tour.chapterId);
-      if (chapter) value.chapter = { tourId: tour.id, id: chapter.id, title: chapter.label || chapter.title || chapter.id };
+      if (!chapter) throw problem('UNKNOWN_CHAPTER', 'The selected explanation is no longer available. Please choose it again.');
+      value.chapter = { tourId: tour.id, id: chapter.id, title: chapter.label || chapter.title || chapter.id };
     }
     if (!active(record, connection)) throw stale();
+    if (inspection) value.inspection = inspection;
     return value;
+  }
+
+  async function restoreContext(context) {
+    const record = current, connection = record?.connection;
+    const state = await request('getState');
+    if (state.lifecycle !== 'ready' || !state.model) throw problem('NOT_READY', 'Wait for the product model before opening its saved 3D reference.');
+    if (context?.modelId !== state.model.id || context?.modelRevision !== state.model.revision)
+      throw problem('INCOMPATIBLE_VIEW', 'The exact model revision saved with this inquiry is not available. The original inquiry remains unchanged.');
+    await pause();
+    if (!active(record, connection)) throw stale();
+    if (context.inspection) {
+      // A saved inspection is authoritative. Failure must never turn into a
+      // different part or chapter view that appears to be the saved reference.
+      return request('restoreInspection', {inspection:clone(context.inspection)});
+    }
+    if (state.tour?.active) await request('exitTour', {restore:false});
+    if (context.part?.id) return request('focus', {nodeId:context.part.id});
+    if (context.chapter) {
+      await request('startTour', {tourId:context.chapter.tourId});
+      if (!active(record, connection)) throw stale();
+      await request('goToTourChapter', {chapterId:context.chapter.id});
+      await pause();
+      return {restored:true};
+    }
+    return {restored:true};
   }
 
   function dispose() {
@@ -253,7 +306,7 @@ export function createRoomViewer({ mount, explorerURL, onState, onReady, onError
   }
   win.addEventListener('pagehide', onPageHide);
 
-  return { mountModel, whenReady, request, pause, context, dispose, close: dispose,
+  return { mountModel, whenReady, request, pause, context, restoreContext, dispose, close: dispose,
     get state() { return clone(current?.state || null); },
     get capabilities() { return clone(current?.capabilities || null); },
     get iframe() { return current?.frame || null; },

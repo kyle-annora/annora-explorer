@@ -133,3 +133,18 @@ test('exact-origin embeds can share display preferences and bounded custom accen
   ]);
   stop();
 });
+
+test('inspection commands cross the exact-origin bridge with a bounded raster preview', async () => {
+  const wire = transport(), runtime = controller();
+  const stop = createEmbedBridge({ controller: runtime, parentOrigin: 'https://host.test', window: wire.child });
+  wire.send(hello('inspection')); const session = lastAck(wire).sessionId;
+  const inspection = { preview: { dataUrl: 'data:image/jpeg;base64,' + 'A'.repeat(100000) } };
+  wire.send(command(session, 'capture', 'captureInspection'));
+  wire.send(command(session, 'restore', 'restoreInspection', { inspection }));
+  wire.send(command(session, 'too-large', 'restoreInspection', { inspection: { preview: { dataUrl: 'A'.repeat(140000) } } }));
+  wire.send(command(session, 'ordinary-large', 'restoreView', { bookmark: inspection }));
+  await tick();
+  assert.deepEqual(runtime.calls.map(call => call.method), ['captureInspection', 'restoreInspection', '__invalid_transport_request__', '__invalid_transport_request__']);
+  assert.equal(runtime.calls[1].params.inspection.preview.dataUrl, inspection.preview.dataUrl);
+  stop();
+});

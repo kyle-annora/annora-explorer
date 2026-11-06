@@ -140,3 +140,40 @@ test('bookmark projection zoom is respected by both ordinary and tour refitting'
   assert(Math.abs(distances[2] / distances[0] - 2) < 1e-10);
   assert(Math.abs(distances[3] / distances[1] - 2) < 1e-10);
 });
+
+test('inspection previews copy the existing submitted WebGL frame before the render callback returns', async t => {
+  const { scene } = sceneFixture(), calls = [];
+  scene.renderer.domElement.width = 1600; scene.renderer.domElement.height = 900;
+  const canvas = { getContext: () => ({ drawImage(...args) { calls.push(args); } }), toDataURL: (type, quality) => { assert.equal(type, 'image/jpeg'); assert.equal(quality, .78); return 'data:image/jpeg;base64,/9j/AA=='; } };
+  replace(t, globalThis, 'document', { createElement(name) { assert.equal(name, 'canvas'); return canvas; } });
+  const pending = scene.captureInspectionPreview();
+  assert.equal(calls.length, 0);
+  scene.renderCount = 1; scene.flushSettledWaiters();
+  assert.equal(calls.length, 1, 'pixel copy happens synchronously inside the submitted-frame callback');
+  const preview = await pending;
+  assert.deepEqual(preview, { dataUrl: 'data:image/jpeg;base64,/9j/AA==', width: 480, height: 270 });
+  assert.equal(calls[0][0], scene.renderer.domElement);
+  assert.deepEqual(calls[0].slice(1), [0, 0, 480, 270]);
+});
+
+test('inspection restore preserves saved camera center and scale across a changed viewport', () => {
+  const { scene } = sceneFixture(); scene.offsetX = 20; scene.offsetY = -5;
+  const saved = scene.captureCameraView(), calls = [];
+  scene.mount.clientWidth = 400; scene.mount.clientHeight = 300;
+  scene.moveCamera = (...args) => { calls.push(args); };
+  scene.fitMeshes = () => assert.fail('A saved inspection must not reframe its subject.');
+  assert.equal(scene.restoreCameraView(saved, { preserve: true, animate: false }), true);
+  assert.deepEqual(calls[0][0].toArray(), saved.target); assert.equal(calls[0][2], 10);
+  assert.deepEqual(calls[0][3], { offsetX: 10, offsetY: -2.5 });
+});
+
+test('cancelled or unreadable inspection previews release the submitted-frame waiter', async t => {
+  const { scene } = sceneFixture(), owner = new AbortController();
+  let reads = 0;
+  scene.renderer.domElement.width = scene.renderer.domElement.height = 100;
+  replace(t, globalThis, 'document', { createElement() { reads++; return { getContext: () => ({ drawImage() { throw new Error('Canvas unavailable'); } }) }; } });
+  const cancelled = scene.captureInspectionPreview({ signal: owner.signal }); owner.abort();
+  await assert.rejects(cancelled, isAbort); assert.equal(scene.settleWaiters.size, 0); assert.equal(reads, 0);
+  const unreadable = scene.captureInspectionPreview(); scene.renderCount = 1; scene.flushSettledWaiters();
+  await assert.rejects(unreadable, /Canvas unavailable/); assert.equal(scene.settleWaiters.size, 0);
+});

@@ -229,3 +229,14 @@ test('tour emphasis restores the client accent and clears hover contours without
   assert.equal(scene.meshes.get('B').material.emissive.r,0);assert.deepEqual(scene.outline.hoveredObjects,[]);
   assert.equal(scene.outline.visibleEdgeColor.getHex(THREE.LinearSRGBColorSpace),0x42d6ff);
 });
+
+test('an immediate inspection restore commits a matching in-flight tour target before pausing', () => {
+  const scene = fixture(), frame = shot({ operationProgress: .6, highlightIds: ['drive'] });
+  scene.applyTourFrame(frame); assert.ok(scene.transformTransition);
+  const pendingKey = scene.tourPoseKey;
+  scene.applyTourFrame(frame, { immediate: true });
+  assert.equal(scene.tourPoseKey, pendingKey); assert.equal(scene.transformTransition, null);
+  scene.pausePresentation(); assert.equal(scene.presentationPoseDetached, false);
+  const restored = matrices(scene);
+  scene.applyTourFrame(frame, { immediate: true }); assert.deepEqual(matrices(scene), restored);
+});

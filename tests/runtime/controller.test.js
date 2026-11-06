@@ -46,8 +46,8 @@ function fixture({ operation = true, ready = true, enabled = {} } = {}) {
   const tourData = TOUR_CATALOG[model.id], player = new TourPlayer(tourData);
   const tour = {
     tour: tourData, player, active: false, pending: false,
-    async start() { this.active = true; player.start(); return true; }, pause(reason) { player.pause(reason); }, resume() { player.resume(); },
-    jump(action, value) { player.seek(action === 'chapter' ? tourData.chapters[value].start + tourData.chapters[value].previewAt : value); },
+    async start({ paused = false } = {}) { this.active = true; player.start(); if (paused) player.pause('ready'); return true; }, pause(reason) { player.pause(reason); }, resume() { player.resume(); },
+    jump(action, value, chapterId) { player.seek(action === 'chapter' ? tourData.chapters[value].start + tourData.chapters[value].previewAt : value, { chapterIndex: chapterId ? tourData.chapters.findIndex(chapter => chapter.id === chapterId) : undefined }); },
     interact() { calls.push(['takeover']); player.pause('takeover'); },
     async exit() { this.active = false; player.stop(); }, cancelPending() { this.pending = false; calls.push(['cancel-tour']); },
   };
@@ -368,4 +368,78 @@ test('appearance bookmarks round-trip while legacy references preserve the curre
   const invalid = structuredClone(bookmark); invalid.displayOptions.appearance = 'auto';
   assert.equal((await f.command('restoreView', { bookmark: invalid })).payload.error.code, 'INVALID_ARGUMENT');
   assert.equal(f.scene.displayOptions.appearance, 'dark');
+});
+
+test('inspection capture preserves a paused tour and exact source view with a bounded preview', async () => {
+  const f = fixture();
+  f.scene.captureInspectionPreview = async () => ({ dataUrl: 'data:image/jpeg;base64,/9j/AA==', width: 480, height: 320 });
+  await f.command('startTour', { tourId: f.tour.tour.id });
+  assert.equal((await f.command('captureInspection')).payload.error.code, 'BUSY_STATE');
+  await f.command('pauseTour');
+  f.scene.tourFrame = { highlightIds: ['part'] }; f.scene.selectedId = 'part';
+  f.tour.player.seek(14.2);
+  const before = f.calls.length, state = f.tour.player.state();
+  const result = await f.command('captureInspection'), { inspection, previewStatus } = result.payload.result;
+  assert.equal(previewStatus, 'captured'); assert.equal(inspection.tour.time, 14.2);
+  assert.equal(inspection.tour.selectedId, 'part'); assert.deepEqual(inspection.tour.camera, camera());
+  assert.equal(inspection.tour.chapterId, state.chapter.id); assert.deepEqual(inspection.tour.highlightIds, ['part']);
+  assert.equal(f.tour.active, true); assert.equal(f.tour.player.state().status, 'paused');
+  assert.equal(f.calls.length, before, 'capture does not take over, exit or change the paused demo');
+  assert.equal((await f.command('captureView')).payload.error.code, 'BUSY_STATE', 'existing view contract is unchanged');
+});
+
+test('inspection restore reopens paused source time and exact camera without ever starting playback', async () => {
+  const f = fixture();
+  await f.command('startTour', { tourId: f.tour.tour.id }); await f.command('pauseTour');
+  f.tour.player.seek(14.2); f.scene.selectedId = 'part'; f.scene.tourFrame = { highlightIds: ['part'] };
+  const { inspection } = (await f.command('captureInspection')).payload.result;
+  await f.command('exitTour'); await f.command('select', { nodeId: 'b' });
+  const statuses = []; f.controller.subscribe(event => { if (event.type === 'stateChanged') statuses.push(event.payload.tour.status); });
+  f.scene.applyTourFrame = function(frame, options) {
+    assert.equal(options.immediate, true); this.scopeId = frame.scopeId; this.selectedId = frame.selectedId; this.tourFrame = frame; this.mode = frame.mode; this.fraction = frame.explosion; this.renderStyle = frame.renderStyle;
+  };
+  f.scene.leaveTour = function() { this.tourFrame = null; };
+  const result = await f.command('restoreInspection', { inspection });
+  assert.equal(result.payload.status, 'completed'); assert.equal(f.tour.active, true); assert.equal(f.tour.player.state().status, 'paused');
+  assert.equal(f.tour.player.state().time, 14.2); assert.equal(f.scene.selectedId, 'part');
+  assert.deepEqual(f.scene.tourFrame.highlightIds, ['part']);
+  assert.deepEqual(f.calls.findLast(call => call[0] === 'restore-camera')[1], inspection.tour.camera);
+  assert.equal(statuses.includes('playing'), false);
+});
+
+test('free inspections retain exact view and reject incompatible revisions before mutation', async () => {
+  const f = fixture(); await f.command('seekOperation', { progress: .62 });
+  const { inspection, previewStatus } = (await f.command('captureInspection')).payload.result;
+  assert.equal(previewStatus, 'unavailable'); assert.equal(inspection.view.operation.progress, .62);
+  const bad = structuredClone(inspection); bad.model.revision = 'other';
+  const before = f.calls.length;
+  assert.equal((await f.command('restoreInspection', { inspection: bad })).payload.error.code, 'INCOMPATIBLE_VIEW');
+  assert.equal(f.calls.length, before);
+  await f.command('startTour', { tourId: f.tour.tour.id });
+  assert.equal((await f.command('restoreInspection', { inspection })).payload.status, 'completed');
+  assert.equal(f.tour.active, false); assert.equal(f.scene.operationState.progress, .62); assert.equal(f.scene.operationState.playing, false);
+});
+
+test('inspection capture detects changes during preview and declines external presentation ownership', async () => {
+  const f = fixture();
+  f.scene.captureInspectionPreview = async () => { f.scene.selectedId = 'part'; return null; };
+  assert.equal((await f.command('captureInspection')).payload.error.code, 'BUSY_STATE');
+  f.scene.presentationStage = {};
+  assert.equal((await f.command('captureInspection')).payload.error.code, 'UNSUPPORTED_ACTION');
+});
+
+test('an unreadable preview is explicit while the source reference remains usable', async () => {
+  const f = fixture(); f.scene.captureInspectionPreview = async () => { throw new Error('Canvas unavailable'); };
+  const { inspection, previewStatus } = (await f.command('captureInspection')).payload.result;
+  assert.equal(previewStatus, 'unavailable'); assert.equal(inspection.preview, undefined); assert.equal(inspection.view.selectedId, 'root');
+});
+
+test('tour inspection validation rejects stale chapter and camera before changing presentation', async () => {
+  const f = fixture(); await f.command('startTour', { tourId: f.tour.tour.id }); await f.command('pauseTour');
+  const { inspection } = (await f.command('captureInspection')).payload.result;
+  for (const edit of [value => { value.tour.chapterId = 'missing'; }, value => { value.tour.camera.up = [1, 0, 0]; }, value => { value.tour.selectedId = 'missing'; }]) {
+    const invalid = structuredClone(inspection); edit(invalid); const before = f.calls.length;
+    assert.equal((await f.command('restoreInspection', { inspection: invalid })).payload.status, 'failed');
+    assert.equal(f.calls.length, before); assert.equal(f.tour.active, true); assert.equal(f.tour.player.state().status, 'paused');
+  }
 });

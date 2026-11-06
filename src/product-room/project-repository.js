@@ -17,6 +17,9 @@ const integer = value => Number.isSafeInteger(value) && value >= 0;
 const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const unique = records => new Set(records.map(record => record.id)).size === records.length;
 const validOpenItems = items => array(items) && items.every(item => nonempty(item.id) && nonempty(item.label) && nonempty(item.owner) && nonempty(item.status));
+const validateInspectionRecord = (project, record) => {
+  if (!project?.context.drawing && (project?.context.inspection || record.context?.inspection) && !sameProjectValue(record.context, project?.context)) throw new Error('A saved record changed its inquiry view.');
+};
 
 /** Reject corrupt/unknown versions without replacing or silently resetting user records. */
 export function parseProjectStore(raw) {
@@ -45,6 +48,7 @@ export function parseProjectStore(raw) {
       for (const key of ['quotes', 'changes', 'replies', 'nextSteps', 'messages']) if (!array(project[key]) || !unique(project[key])) throw new Error();
       for (const [index, quote] of project.quotes.entries()) {
         if(project.context.drawing)validateRecordDrawingContext(project,quote,projectContextAtRevision(project,quote.issuedProjectRevision || 1));
+        validateInspectionRecord(project, quote);
         if (!nonempty(quote.id) || quote.version !== index + 1 || !date(quote.createdAt) || !integer(quote.quantity) || quote.quantity < 1 || (quote.unitPrice !== null && (!Number.isFinite(quote.unitPrice) || quote.unitPrice < 0)) || !Number.isFinite(quote.subtotal) || quote.total !== null || quote.currency !== 'USD' || !['sample', 'seller-demo'].includes(quote.source) || !nonempty(quote.scope) || !nonempty(quote.proposedLeadTime) || !array(quote.assumptions) || !quote.assumptions.every(item => typeof item === 'string') || !validOpenItems(quote.openItems)) throw new Error();
         if (quote.requestedWeeks !== null && (!integer(quote.requestedWeeks) || quote.requestedWeeks < 1)) throw new Error();
         if (!array(quote.lineItems) || !quote.lineItems.every(item => nonempty(item.label) && (item.amount === null || (Number.isFinite(item.amount) && item.amount >= 0)))) throw new Error();
@@ -62,17 +66,20 @@ export function parseProjectStore(raw) {
         }
       }
       for (const change of project.changes) {
+        validateInspectionRecord(project, change);
         const quote = project.quotes.find(item => item.id === change.quoteId);
         if(project.context.drawing&&quote)validateRecordDrawingContext(project,change,recordContext(project,quote));
         if (!nonempty(change.id) || !quote || quote.version !== change.quoteVersion || !date(change.createdAt) || !nonempty(change.reviewToken) || !change.values || !/^\d+$/.test(change.values.quantity) || +change.values.quantity < 1 || typeof change.values.targetWeeks !== 'string' || typeof change.values.notes !== 'string') throw new Error();
       }
       for (const reply of project.replies) {
+        validateInspectionRecord(project, reply);
         const change = project.changes.find(item => item.id === reply.changeId);
         if(project.context.drawing&&change)validateRecordDrawingContext(project,reply,recordContext(project,change));
         if (!nonempty(reply.id) || !change || reply.quoteId !== change.quoteId || reply.quoteVersion !== change.quoteVersion || !date(reply.createdAt) || reply.source !== 'sample' || !array(reply.topics) || !reply.topics.every(item => ['label', 'requested', 'response', 'status'].every(key => typeof item[key] === 'string')) || !validOpenItems(reply.openItems)) throw new Error();
       }
       if (new Set(project.replies.map(reply => reply.changeId)).size !== project.replies.length) throw new Error();
       for (const [messageIndex,message] of project.messages.entries()) {
+        validateInspectionRecord(project, message);
         if(project.context.drawing){
           const parent=message.replyTo?project.messages.find(item=>item.id===message.replyTo):message.changeId?project.changes.find(item=>item.id===message.changeId):message.nextStepId?project.nextSteps.find(item=>item.id===message.nextStepId):null;
           validateRecordDrawingContext(project,message,parent?recordContext(project,parent):projectContextAtRevision(project,message.projectRevision));
@@ -90,6 +97,7 @@ export function parseProjectStore(raw) {
       if (new Set(project.messages.filter(item => item.kind === 'customer-reply').map(item => item.replyTo)).size !== project.messages.filter(item => item.kind === 'customer-reply').length) throw new Error();
       if (new Set(project.messages.filter(item => item.kind === 'next-step-confirmation').map(item => item.nextStepId)).size !== project.messages.filter(item => item.kind === 'next-step-confirmation').length) throw new Error();
       for (const step of project.nextSteps) {
+        validateInspectionRecord(project, step);
         const quote = project.quotes.find(item => item.id === step.quoteId);
         if(project.context.drawing&&quote)validateRecordDrawingContext(project,step,recordContext(project,quote));
         if (!nonempty(step.id) || !quote || quote.version !== step.quoteVersion || !date(step.createdAt) || !nonempty(step.reviewToken) || !nonempty(step.message) || !['discussion', 'engineering-review'].includes(step.intent) || step.delivery !== 'demo-only') throw new Error();
@@ -98,6 +106,7 @@ export function parseProjectStore(raw) {
     for (const draft of store.quoteDrafts) {
       const normalized = normalizeQuoteDraft(draft), project = store.projects.find(item => item.id === draft.projectId);
       if(project?.context.drawing)validateRecordDrawingContext(project,draft);
+      validateInspectionRecord(project, draft);
       if (!project || draft.revision < 1 || !date(draft.updatedAt) || !sameProjectValue(normalized,{...draft,replyDraft:draft.replyDraft ?? null}) || draft.projectRevision > project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null) || (draft.changeId !== null && !project.changes.some(item => item.id === draft.changeId && item.quoteId === draft.previousQuoteId))) throw new Error();
     }
     if (new Set(store.quoteDrafts.map(item => item.projectId)).size !== store.quoteDrafts.length) throw new Error();
@@ -194,7 +203,7 @@ export function createDemoProjectRepository(options = {}) {
   function appendMessage(project,values,token,authorRole = 'seller') {
     const parent=values.replyTo?project.messages.find(item=>item.id===values.replyTo):values.changeId?project.changes.find(item=>item.id===values.changeId):values.nextStepId?project.nextSteps.find(item=>item.id===values.nextStepId):null;
     const pinned=parent?recordContext(project,parent):projectDrawingContext(project);
-    const message = { ...(project.context.drawing ? {context:cloneProjectValue(pinned)} : {}),id:makeId('MSG'),projectRevision:project.revision+1,authorRole,kind:values.kind,body:values.body,changeId:values.changeId || null,replyTo:values.replyTo || null,nextStepId:values.nextStepId || null,resolutions:cloneProjectValue(values.resolutions || []),createdAt:now(),reviewToken:token,delivery:'demo-only' };
+    const message = { ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(pinned)} : {}),id:makeId('MSG'),projectRevision:project.revision+1,authorRole,kind:values.kind,body:values.body,changeId:values.changeId || null,replyTo:values.replyTo || null,nextStepId:values.nextStepId || null,resolutions:cloneProjectValue(values.resolutions || []),createdAt:now(),reviewToken:token,delivery:'demo-only' };
     project.messages.push(message); return message;
   }
   async function drawingRelease(input) {
@@ -253,6 +262,7 @@ export function createDemoProjectRepository(options = {}) {
         const project = findProject(store,draft.projectId); assertCommercial(project);
         const previous = store.quoteDrafts.find(item => item.projectId === project.id);
         if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Review and explicitly replace it before saving or issuing a new version.');
+        if(project.context.inspection&&!project.context.drawing&&!sameProjectValue(draft.context,project.context))throw new ProjectError('VALIDATION','Keep the saved inquiry view attached to this quotation.');
         if(previous&&project.context.drawing&&!sameProjectValue(recordContext(project,draft),recordContext(project,previous)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','A quotation draft reference can change only through explicit drawing-reference review.');
         if (draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('CONFLICT','The customer project changed. Reopen it before saving the quotation draft. Your input is still available.');
         if (previous ? previous.id !== draft.id || previous.revision !== draft.revision : draft.revision !== 0) throw new ProjectError('CONFLICT','This quotation draft changed or was issued in another tab. Reopen the latest draft.');
@@ -354,7 +364,9 @@ export function createDemoProjectRepository(options = {}) {
         if (project.quotes.length) return project;
         const createdAt = now();
         if (store.quoteDrafts.some(item => item.projectId === project.id)) throw new ProjectError('CONFLICT','A seller quotation draft is already in progress. Open Studio to review it.');
-        project.quotes.push(sampleQuote({ id: makeId('QT'), version: 1, createdAt, values: project.inquiry.values }));
+        const quote = sampleQuote({ id: makeId('QT'), version: 1, createdAt, values: project.inquiry.values });
+        if (project.context.inspection) quote.context = cloneProjectValue(project.context);
+        project.quotes.push(quote);
         return touch(project, createdAt);
       });
     },
@@ -366,7 +378,7 @@ export function createDemoProjectRepository(options = {}) {
         const quote = assertFreshProject(project, packet); reviewRevision(project, quote.id, packet.values);
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'A change request already awaits a reply for this quotation.');
         const createdAt = now();
-        project.changes.push({ id: makeId('CHG'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, values: cloneProjectValue(packet.values), ...(project.context.drawing?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, reviewToken: review.token });
+        project.changes.push({ id: makeId('CHG'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, values: cloneProjectValue(packet.values), ...(project.context.drawing || project.context.inspection?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, reviewToken: review.token });
         return touch(project, createdAt);
       });
     },
@@ -381,7 +393,7 @@ export function createDemoProjectRepository(options = {}) {
         const createdAt = now(), reply = sampleSupplierReply({ id: makeId('REPLY'), createdAt, change: requested, quote, inquiry: project.inquiry });
         const revised = sampleQuote({ id: makeId('QT'), version: quote.version + 1, createdAt, values: { ...project.inquiry.values, quantity: requested.values.quantity, targetWeeks: requested.values.targetWeeks }, additionalQuestions: project.changes.map(item => item.values.notes), previousQuoteId: quote.id, changeId, replyId: reply.id });
         if (store.quoteDrafts.some(item => item.projectId === project.id)) throw new ProjectError('CONFLICT','A seller quotation draft is already in progress. Open Studio to review it.');
-        if(project.context.drawing){reply.context=cloneProjectValue(recordContext(project,requested));revised.context=cloneProjectValue(projectDrawingContext(project));}
+        if(project.context.drawing || project.context.inspection){reply.context=cloneProjectValue(recordContext(project,requested));revised.context=cloneProjectValue(projectDrawingContext(project));}
         project.replies.push(reply); project.quotes.push(revised);
         return touch(project, createdAt);
       });
@@ -395,7 +407,7 @@ export function createDemoProjectRepository(options = {}) {
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'Review the pending change response before confirming a next step.');
         if (project.nextSteps.some(item => item.quoteId === quote.id && ((!project.messages.some(message => message.kind === 'next-step-confirmation' && message.nextStepId === item.id)) || (item.intent === packet.intent && item.message === packet.message)))) throw new ProjectError('CONFLICT','A matching or unanswered next-step request is already saved for this quotation.');
         const createdAt = now();
-        project.nextSteps.push({ id: makeId('NEXT'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, intent: packet.intent, message: packet.message, ...(project.context.drawing?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, delivery: 'demo-only', reviewToken: review.token });
+        project.nextSteps.push({ id: makeId('NEXT'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, intent: packet.intent, message: packet.message, ...(project.context.drawing || project.context.inspection?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, delivery: 'demo-only', reviewToken: review.token });
         return touch(project, createdAt);
       });
     }
