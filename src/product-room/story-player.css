@@ -1,0 +1,40 @@
+.room-story-host { background: var(--aw-surface); border-bottom: 1px solid var(--aw-border); }
+.room-story-bar { padding: 10px 24px; display: grid; grid-template-columns: minmax(180px,1fr) auto; gap: 6px 24px; align-items: center; color: var(--aw-ink); }
+.room-story-intro strong { display: block; font-size: 15px; line-height: 1.35; }
+.room-story-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.room-story-exit { background: transparent; border-color: transparent; color: var(--aw-muted); white-space: nowrap; min-height: 44px; padding: 6px; font-size: 12px; }
+.room-story-intro p { margin: 3px 0 0; color: var(--aw-muted); font-size: 13px; line-height: 1.45; max-width: 64ch; }
+.room-story-status { display: block; color: var(--aw-muted); font-size: 12px; margin-bottom: 3px; }
+.room-story-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.room-story-controls .room-button { min-height: 40px; padding: 8px 12px; font-size: 13px; }
+.room-story-controls .room-story-icon { width: 40px; padding: 8px; flex: none; }
+.room-story-icon svg { display: block; width: 18px; height: 18px; margin: auto; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.room-story-seek { width: 100%; grid-column: 1 / -1; height: 24px; margin: 0; accent-color: var(--aw-ink); cursor: pointer; }
+.room-story-error { grid-column: 1 / -1; margin: 4px 0; font-size: 13px; }
+@media (max-width: 800px) {
+  .room-story-bar { padding: 10px 16px; gap: 10px; grid-template-columns: minmax(0,1fr); }
+  .room-story-controls { justify-content: flex-start; }
+  .room-story-controls .room-button { min-height: 44px; }
+  .room-story-controls .room-story-icon { width: 44px; }
+  .room-story-bar[data-expanded=false] { grid-template-columns: minmax(0,1fr) auto; }
+  .room-story-bar[data-expanded=false] p { display: none; }
+}
+/* A short landscape viewport needs the explanation beside the model. Scope this
+   layout to an open authored story; existing Room pages keep their own layout. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) {
+  body:has(.room-story-host:not([hidden]) .room-story-bar[data-expanded=true]) { --room-story-rail: min(280px,35vw); }
+  body:has(.room-story-host:not([hidden]) .room-story-bar[data-expanded=true]) .room-story-host {
+    position: absolute; left: 0; top: calc(var(--header) + var(--room-host-chrome));
+    width: var(--room-story-rail); height: calc(100svh - var(--header) - var(--room-host-chrome));
+    overflow: auto; border-bottom: 0; border-right: 1px solid var(--aw-border);
+  }
+  body:has(.room-story-host:not([hidden]) .room-story-bar[data-expanded=true]) .room-explore {
+    min-height: 0; width: calc(100% - var(--room-story-rail)); margin-left: var(--room-story-rail);
+  }
+  .room-story-bar[data-expanded=true] { display: block; padding: 8px 12px; }
+  .room-story-bar[data-expanded=true] .room-story-heading { gap: 6px; }
+  .room-story-bar[data-expanded=true] .room-story-intro p { font-size: 12px; }
+  .room-story-bar[data-expanded=true] .room-story-controls { justify-content: flex-start; gap: 4px; margin-top: 8px; }
+  .room-story-bar[data-expanded=true] .room-story-controls .room-button { min-height: 44px; }
+  .room-story-bar[data-expanded=true] .room-story-seek { margin-top: 6px; }
+}

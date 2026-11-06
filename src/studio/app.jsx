@@ -115,6 +115,8 @@ const drawingPreviewURL = (record) => {
 
 function Studio({ repository, projectRepository }) {
   const [selectedPartId, setSelectedPartId] = useState('rod');
+  const [modelViewer, setModelViewer] = useState(null);
+  const [storyCapture, setStoryCapture] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(() => readRoute().page === 'edit');
   const [issueToReveal, setIssueToReveal] = useState(null);
   const [smallScreen, setSmallScreen] = useState(() => window.innerWidth <= 900);
@@ -804,7 +806,7 @@ function Studio({ repository, projectRepository }) {
               <Button id="studio-toggle-settings" variant="quiet" icon={settingsOpen ? 'back' : undefined} onClick={() => setSettingsOpen(value => !value)} aria-expanded={settingsOpen} aria-controls="studio-product-settings">{settingsOpen ? 'Back to product' : 'Edit settings'}</Button>
             </div>
             <div className="studio-editor-layout" data-editing={settingsOpen}>
-              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} visible={!smallScreen || !settingsOpen} onEdit={() => navigate({page:'edit', section:'parts'})}/>
+              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} onViewer={setModelViewer} visible={!smallScreen || !settingsOpen} editLabel={editSection === 'presentation' ? 'Edit story' : 'Edit details'} onCapture={editSection === 'presentation' && smallScreen ? storyCapture?.capture : undefined} onCaptureDone={() => { setStoryCapture(null); setSettingsOpen(true); }} onEdit={() => { setStoryCapture(null); if (editSection === 'presentation') setSettingsOpen(true); else navigate({page:'edit', section:'parts'}); }}/>
               <div className="studio-editor-body" id="studio-product-settings" hidden={!settingsOpen}>
                 <fieldset
                   className="studio-editor-fields"
@@ -824,7 +826,7 @@ function Studio({ repository, projectRepository }) {
                     />
                   )}
                   {editSection === "presentation" && (
-                    <PresentationFields draft={draft} change={change} />
+                    <PresentationFields draft={draft} change={change} viewer={modelViewer} onOpenModel={() => { setStoryCapture(null); setSettingsOpen(false); }} onRequestCapture={smallScreen ? capture => { setStoryCapture({capture}); setSettingsOpen(false); } : undefined} />
                   )}
                   {editSection === "inquiry" && (
                     <InquiryFields draft={draft} change={change} />

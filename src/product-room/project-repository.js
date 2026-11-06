@@ -17,6 +17,7 @@ const integer = value => Number.isSafeInteger(value) && value >= 0;
 const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const unique = records => new Set(records.map(record => record.id)).size === records.length;
 const inquiryRuleSnapshot = inquiry => Object.hasOwn(inquiry, 'inquiryRulesVersion') ? { inquiryRulesVersion: inquiry.inquiryRulesVersion } : {};
+const inquiryItemsSnapshot = inquiry => Object.hasOwn(inquiry, 'requestItems') ? { requestItems: cloneProjectValue(inquiry.requestItems) } : {};
 const validOpenItems = items => array(items) && items.every(item => nonempty(item.id) && nonempty(item.label) && nonempty(item.owner) && nonempty(item.status));
 const validateInspectionRecord = (project, record) => {
   if (!project?.context.drawing && (project?.context.inspection || record.context?.inspection) && !sameProjectValue(record.context, project?.context)) throw new Error('A saved record changed its inquiry view.');
@@ -43,8 +44,12 @@ export function parseProjectStore(raw) {
     for (const project of store.projects) {
       if (!nonempty(project.id) || !integer(project.revision) || project.revision < 1 || !date(project.createdAt) || !date(project.updatedAt)) throw new Error();
       if (!project.inquiry || !nonempty(project.inquiry.id) || !nonempty(project.inquiry.reviewToken) || !date(project.inquiry.createdAt)) throw new Error();
-      const normalizedInquiry = normalizeInquiryDraft({ id: project.inquiry.id, revision: 1, ...inquiryRuleSnapshot(project.inquiry), context: project.context, values: project.inquiry.values, requirements: project.inquiry.requirements });
-      if (Object.keys(inquiryErrors(normalizedInquiry)).length || !sameProjectValue(inquiryRuleSnapshot(normalizedInquiry), inquiryRuleSnapshot(project.inquiry)) || !sameProjectValue(normalizedInquiry.context, project.context) || !sameProjectValue(normalizedInquiry.values, project.inquiry.values) || !sameProjectValue(normalizedInquiry.requirements, project.inquiry.requirements)) throw new Error();
+      const normalizedInquiry = normalizeInquiryDraft({ id: project.inquiry.id, revision: 1, ...inquiryRuleSnapshot(project.inquiry), ...inquiryItemsSnapshot(project.inquiry), context: project.context, values: project.inquiry.values, requirements: project.inquiry.requirements });
+      if (Object.keys(inquiryErrors(normalizedInquiry)).length || !sameProjectValue(inquiryRuleSnapshot(normalizedInquiry), inquiryRuleSnapshot(project.inquiry)) || !sameProjectValue(inquiryItemsSnapshot(normalizedInquiry), inquiryItemsSnapshot(project.inquiry)) || !sameProjectValue(normalizedInquiry.context, project.context) || !sameProjectValue(normalizedInquiry.values, project.inquiry.values) || !sameProjectValue(normalizedInquiry.requirements, project.inquiry.requirements)) throw new Error();
+      if (Object.hasOwn(project.inquiry, 'requestItems')) {
+        const reviewed = JSON.parse(project.inquiry.reviewToken);
+        if (reviewed.kind !== 'inquiry' || !sameProjectValue(reviewed.draft?.requestItems, project.inquiry.requestItems)) throw new Error();
+      }
       validateProjectDrawingHistory(project);
       for (const key of ['quotes', 'changes', 'replies', 'nextSteps', 'messages']) if (!array(project[key]) || !unique(project[key])) throw new Error();
       for (const [index, quote] of project.quotes.entries()) {
@@ -218,6 +223,7 @@ export function createDemoProjectRepository(options = {}) {
   }
   const api = {
     mode: 'demo',
+    supportsRequestItems: true,
     async proposeDrawingRevision(projectId,input) {
       const release=await drawingRelease(input),{store}=read(),project=findProject(store,projectId);assertCommercial(project);
       return proposeProjectDrawingRevision(project,input,release,store.quoteDrafts.find(draft=>draft.projectId===projectId));
@@ -353,7 +359,7 @@ export function createDemoProjectRepository(options = {}) {
         const createdAt = now();
         const project = {
           id: makeId('PRJ'), revision: 1, context: cloneProjectValue(saved.context),
-          inquiry: { id: makeId('RFQ'), ...inquiryRuleSnapshot(saved), values: cloneProjectValue(saved.values), requirements: cloneProjectValue(saved.requirements), createdAt, reviewToken: review.token },
+          inquiry: { id: makeId('RFQ'), ...inquiryRuleSnapshot(saved), ...inquiryItemsSnapshot(saved), values: cloneProjectValue(saved.values), requirements: cloneProjectValue(saved.requirements), createdAt, reviewToken: review.token },
           quotes: [], changes: [], replies: [], nextSteps: [], messages: [], createdAt, updatedAt: createdAt
         };
         store.projects.push(project); store.drafts = store.drafts.filter(item => item.id !== saved.id); return project;

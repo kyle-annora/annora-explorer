@@ -1,6 +1,7 @@
 import { DEFAULT_INQUIRY_PROFILE, normalizeInquiryProfile } from '../product-room/inquiry-profile.js';
 import { STUDIO_PRODUCT_ID, STUDIO_MODEL, STUDIO_PARTS, STUDIO_ASSETS } from './seed.js';
 import { copyStudioValue, canonicalStudioValue, sameStudioValue, profileVersion } from './value.js';
+import { copyProductStory, validateProductStory } from '../product-room/story.js';
 
 export { copyStudioValue, sameStudioValue };
 export class StudioError extends Error {
@@ -50,12 +51,13 @@ export function normalizeStudioDraft(input) {
   return {
     id: text(input.id), revision: input.revision, productId: input.productId, modelRevision: input.modelRevision,
     content, inquiryProfile: { id: 'kinetic-inquiry', version: profileVersion(fields), fields },
-    presentation: { defaultRenderStyle: input.presentation.defaultRenderStyle },
+    presentation: { defaultRenderStyle: input.presentation.defaultRenderStyle,
+      ...(input.presentation.story === undefined ? {} : { story: copyProductStory(input.presentation.story) }) },
     updatedAt: input.updatedAt || null,
   };
 }
 
-export function validateStudioDraft(input) {
+export function validateStudioDraft(input, { historicalStory = false } = {}) {
   const issues = [];
   if (!object(input)) return [{ path: 'draft', section: 'release', message: 'The product draft is missing.', severity: 'error' }];
   if (input.productId !== STUDIO_PRODUCT_ID) issue(issues, 'productId', 'This Studio demonstration supports the crank-slider product.');
@@ -133,12 +135,18 @@ export function validateStudioDraft(input) {
   catch { issue(issues, 'inquiryProfile', 'Check inquiry labels, help text and field settings. Keep application and quantity enabled with their default requirement rules. Quantity is optional for application review.'); }
   if (input.inquiryProfile?.id !== DEFAULT_INQUIRY_PROFILE.id) issue(issues, 'inquiryProfile.id', 'Use the prepared mechanism inquiry profile.');
   if (!object(input.presentation) || !['engineering', 'linework', 'flat'].includes(input.presentation.defaultRenderStyle)) issue(issues, 'presentation.defaultRenderStyle', 'Choose an available display mode.');
+  // History retains its exact source IDs and camera revision, even when that model
+  // is no longer deployed. New drafts and publication still use the live catalog.
+  issues.push(...validateProductStory(input.presentation?.story, {
+    model: historicalStory ? { id: STUDIO_PRODUCT_ID, revision: input.modelRevision } : STUDIO_MODEL,
+    parts: STUDIO_PARTS, historical: historicalStory,
+  }));
   return issues;
 }
 
-export function validateRelease(release) {
+export function validateRelease(release, options) {
   if (!object(release)) return [{ path: 'release', section: 'release', message: 'A release record is required.', severity: 'error' }];
-  const issues = validateStudioDraft(release);
+  const issues = validateStudioDraft(release, options);
   if (!text(release.id) || release.id.length > 160) issue(issues, 'id', 'A release needs a stable identity.');
   if (!integer(release.version) || (release.source !== 'preview' && release.version < 1)) issue(issues, 'version', 'A release needs a valid version.');
   if (!date(release.createdAt)) issue(issues, 'createdAt', 'A release needs a recorded creation date.');
@@ -262,6 +270,20 @@ export function studioChanges(before, after) {
     },
   });
   add('Default rendering', before?.presentation?.defaultRenderStyle, after?.presentation?.defaultRenderStyle, styleName);
+  const oldStory = before?.presentation?.story, newStory = after?.presentation?.story;
+  add('Product story title', oldStory?.title, newStory?.title);
+  collection(oldStory?.steps, newStory?.steps, {
+    kind: 'Story step', orderLabel: 'Story step order',
+    describe: step => summary([step.title, step.caption, step.kind === 'chapter' ? `Prepared action: ${step.chapterId}` : 'Captured view']),
+    compare(a, b) {
+      const name = b.title || a.title || 'Story step';
+      add(`${name} · Title`, a.title, b.title);
+      add(`${name} · Explanation`, a.caption, b.caption);
+      add(`${name} · Part`, a.nodeId, b.nodeId, value => partName(value, right));
+      add(`${name} · Action`, [a.kind, a.tourId, a.chapterId], [b.kind, b.tourId, b.chapterId], value => value[0] === 'chapter' ? `Prepared action: ${value[2]}` : 'Held inspection');
+      if (!sameStudioValue(a.inspection, b.inspection)) rows.push({ label: `${name} · Saved camera`, before: a.inspection ? 'Previous captured view' : 'No captured view', after: b.inspection ? 'New captured view — check buyer preview' : 'Prepared action camera', changed: true });
+    },
+  });
   if (before?.modelRevision !== after?.modelRevision) rows.push({ label: 'Prepared model version', before: 'Previous model reference', after: 'Changed model reference — review required', changed: true });
   return rows;
 }

@@ -108,3 +108,21 @@ test('restoring a continuous tour starts paused before any frame or status is pu
   assert.ok(statuses.length > 0); assert.ok(statuses.every(status => status === 'paused'));
   tour.dispose();
 });
+
+test('host playback suppresses duplicate native controls and leaves keyboard focus with the host', async t => {
+  const { tour, scene, elements, document } = setup(t, async () => {});
+  scene.cancelBenchmark = () => {}; scene.invalidate = () => {};
+  tour.apply = () => {};
+  let focus = 0;
+  elements.get('tour-play').focus = () => { focus++; };
+  elements.get('tour-start').focus = () => { focus++; };
+  assert.equal(await tour.start({ controls: 'host' }), true);
+  assert.equal(elements.get('tour-panel').hidden, true); assert.equal(document.body.dataset.tourControls, 'host');
+  tour.frame = { annotations: [] }; tour.updateAnnotations();
+  assert.equal(elements.get('tour-annotations').hidden, true); assert.equal(focus, 0);
+  await tour.exit({ restore: false });
+  assert.equal(focus, 0); assert.equal(tour.controlSurface, 'explorer'); assert.equal(document.body.dataset.tourControls, undefined);
+  tour.frame = null;
+  assert.equal(await tour.start(), true); assert.equal(elements.get('tour-panel').hidden, false); assert.equal(focus, 1);
+  tour.dispose(); assert.equal(document.body.dataset.tourControls, undefined);
+});

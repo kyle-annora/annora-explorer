@@ -38,7 +38,7 @@ export function parseStudioStore(raw) {
           || release.productId !== STUDIO_PRODUCT_ID || !nonempty(release.modelRevision)
           || !release.content || !release.inquiryProfile || !release.presentation) throw new Error();
       const historical = release.modelRevision !== BUNDLED_RELEASE.modelRevision;
-      const invalid = errors(validateRelease(release)).filter(issue => !historical || !(
+      const invalid = errors(validateRelease(release, { historicalStory: historical })).filter(issue => !historical || !(
         issue.path === 'modelRevision' || issue.path.endsWith('.nodeId') ||
         /^content\.questions\.\d+\.target$/.test(issue.path) ||
         /^content\.documents\.\d+\.(assetId|assetRevision)$/.test(issue.path)

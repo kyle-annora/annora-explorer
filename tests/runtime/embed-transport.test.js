@@ -27,6 +27,13 @@ test('embedding requires an explicit exact HTTP(S) parent origin',()=>{
   assert.equal(configuredParentOrigin({search:'?embed=1&parentOrigin=https%3A%2F%2Fhost.test'}),'https://host.test');
   for(const search of ['?parentOrigin=https://host.test','?embed=1&parentOrigin=*','?embed=1&parentOrigin=https://host.test/path','?embed=1&parentOrigin=null'])assert.equal(configuredParentOrigin({search}),null);
 });
+test('host control ownership uses the same exact-origin command bridge',async()=>{
+  const wire=transport(),runtime=controller();const stop=createEmbedBridge({controller:runtime,parentOrigin:'https://host.test',window:wire.child});
+  const client=createExplorerClient({iframe:wire.iframe,origin:'https://explorer.test',window:wire.host});await client.ready;
+  await client.request('setTourControls',{controls:'explorer'});
+  assert.equal(runtime.calls.at(-1).method,'setTourControls');assert.deepEqual(runtime.calls.at(-1).params,{controls:'explorer'});
+  client.close();stop();
+});
 test('bridge rejects wrong origin, source, protocol and malformed nonce',()=>{
   const wire=transport(),runtime=controller();const dispose=createEmbedBridge({controller:runtime,parentOrigin:'https://host.test',window:wire.child});
   wire.send(hello('a'),{origin:'https://attacker.test'});wire.send(hello('a'),{source:{}});wire.send({...hello('a'),protocolVersion:'old'});wire.send(hello('bad nonce'));

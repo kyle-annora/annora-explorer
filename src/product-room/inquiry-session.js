@@ -2,10 +2,19 @@ import {
   ProjectError, cloneProjectValue, normalizeProjectContext, projectContextKey,
   reviewInquiry, sameProjectValue,
 } from './project-domain.js';
+import { normalizeRequestItems } from './request-items.js';
+
+function requireRequestItemSupport(repository, draft) {
+  if (draft?.requestItems?.length && repository.supportsRequestItems !== true)
+    throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store does not support independently referenced requests. Keep the reviewed references until a compatible project store is available.');
+}
 
 /** The same persistence/review boundary is used by page and embedded inquiries. */
 export async function prepareInquirySubmission({ repository, draft, saveDraft = value => repository.saveDraft(value) }) {
+  requireRequestItemSupport(repository, draft);
   const saved = await saveDraft(draft);
+  if (Object.hasOwn(draft || {}, 'requestItems') && !sameProjectValue(saved?.requestItems, normalizeRequestItems(draft.requestItems, draft.context)))
+    throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store did not preserve the request list. Keep the original references and use a compatible project store before continuing.');
   const standard = reviewInquiry(saved);
   if (!repository.prepareInquiryReview) return { draft: saved, review: standard };
   // A client may prepare its existing brief/review record here. The packet must
@@ -17,19 +26,23 @@ export async function prepareInquirySubmission({ repository, draft, saveDraft = 
   return { draft: saved, review: cloneProjectValue(review) };
 }
 
-export function confirmInquirySubmission({ repository, review }) {
-  return repository.submitInquiry(review);
+export async function confirmInquirySubmission({ repository, review }) {
+  requireRequestItemSupport(repository, review?.draft);
+  const project = await repository.submitInquiry(review);
+  if (Object.hasOwn(review?.draft || {}, 'requestItems') && !sameProjectValue(project?.inquiry?.requestItems, review.draft.requestItems))
+    throw new ProjectError('INVALID_CONFIRMATION', 'The project response did not preserve every referenced request. Confirmation could not be verified; keep this reviewed inquiry and check the project store.');
+  return project;
 }
 
 const copy = cloneProjectValue;
 const errorValue = error => ({ code: error?.code || 'INQUIRY_ERROR', message: error?.message || 'Your request could not be saved. Your input is still here. Please try again.', fields: copy(error?.fields || {}) });
-const editableValue = draft => draft && ({ context: draft.context, values: draft.values, requirements: draft.requirements, inquiryRulesVersion: draft.inquiryRulesVersion || null });
-const emptyDraft = draft => draft.revision === 0 && !draft.requirements.length && !Object.entries(draft.values).some(([key, value]) => !['intent', 'quoteScope'].includes(key) && String(value).trim());
+const editableValue = draft => draft && ({ context: draft.context, values: draft.values, requirements: draft.requirements, requestItems: draft.requestItems || null, inquiryRulesVersion: draft.inquiryRulesVersion || null });
+const emptyDraft = draft => draft.revision === 0 && !draft.requirements.length && !draft.requestItems?.length && !Object.entries(draft.values).some(([key, value]) => !['intent', 'quoteScope'].includes(key) && String(value).trim());
 
 /** One draft session, independent of routes, DOM, viewer internals and transport. */
 export function createInquirySession({ repository, autosaveDelay = 500, schedule = setTimeout, cancel = clearTimeout } = {}) {
   if (!repository?.getDraft || !repository?.saveDraft || !repository?.submitInquiry) throw new TypeError('An inquiry needs a project repository.');
-  let state = { draft: null, review: null, project: null, stage: 'details', loading: false, pending: '', saving: false, dirty: false, error: null, notice: '' };
+  let state = { draft: null, review: null, project: null, stage: 'details', loading: false, pending: '', saving: false, dirty: false, error: null, notice: '', supportsRequestItems: repository.supportsRequestItems === true };
   let savedDraft = null, timer = null, saveQueue = Promise.resolve(), activeAction = null, loadingOperation = null, generation = 0, leaving = 0, disposed = false;
   const listeners = new Set();
   const assertActive = () => { if (disposed) throw new ProjectError('DISPOSED', 'This inquiry has been closed.'); };
@@ -47,6 +60,10 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
     if (!state.draft || state.loading || state.pending || leaving) throw new ProjectError('BUSY_STATE', 'Wait for the current inquiry action to finish.');
     if (state.stage !== 'details') throw new ProjectError('STALE_REVIEW', 'Choose Edit details before changing this reviewed inquiry.');
   }
+  function editableRequestItems() {
+    editable();
+    if (!state.supportsRequestItems) throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store does not support independently referenced requests.');
+  }
   function queueSave() {
     clearTimer();
     const operation = saveQueue.catch(() => {}).then(async () => {
@@ -56,6 +73,8 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
       publish({ saving: true });
       try {
         const saved = await repository.saveDraft(source);
+        if (Object.hasOwn(source, 'requestItems') && !sameProjectValue(saved?.requestItems, normalizeRequestItems(source.requestItems, source.context)))
+          throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store did not preserve the request list. Your original references are still here; use a compatible project store before continuing.');
         if (!disposed && turn === generation && state.draft?.id === saved.id) {
           const editedDuringSave = !sameProjectValue(editableValue(state.draft), editableValue(source));
           savedDraft = copy(saved);
@@ -108,6 +127,29 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
     publish({ draft: { ...current, context: copy(next), requirements, values: scopeCleared ? { ...current.values, quoteScope: 'discuss' } : current.values }, review: null,
       notice: scopeCleared ? 'View updated. Choose the requested scope again for this component.' : requirements.length !== current.requirements.length ? 'View updated. Confirm the stroke requirement again for this component.' : 'Current view attached. Your entered details are unchanged.' });
   }
+  async function persistRequestItems(change, notice) {
+    // Save earlier typing first. A failed structural edit rolls back only that
+    // edit, never a previously entered application or another request.
+    await queueSave();
+    assertActive();
+    const before = copy(state.draft);
+    const requestItems = normalizeRequestItems(await change(copy(before.requestItems || [])), before.context);
+    assertActive();
+    publish({ draft: { ...before, requestItems }, review: null, error: null, notice: '' });
+    try {
+      await queueSave();
+      publish({ notice });
+      return copy(state.draft.requestItems);
+    } catch (error) {
+      publish({ draft: before, review: null, notice: 'The request list was not changed. Your previously saved details are still here.' });
+      throw error;
+    }
+  }
+  function requestItem(id) {
+    const item = (state.draft?.requestItems || state.project?.inquiry?.requestItems || []).find(value => value.id === id);
+    if (!item) throw new ProjectError('NOT_FOUND', 'This referenced request is no longer available.');
+    return item;
+  }
   function openDraft(draft, incoming, { suggestedIntent, suggestedScope } = {}) {
     savedDraft = draft.revision ? copy(draft) : null;
     if (emptyDraft(draft)) {
@@ -155,6 +197,51 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
     },
     updateRequirements(requirements) {
       editable(); publish({ draft: { ...state.draft, requirements: copy(requirements) }, review: null, error: null }); scheduleSave();
+    },
+    addRequestItem({ context, capture, purpose = 'question', notes = '' } = {}) {
+      editableRequestItems();
+      return run('add-request', async () => {
+        const reference = normalizeProjectContext(capture ? await capture() : context || api.getContext());
+        const id = `REQ-${globalThis.crypto.randomUUID()}`;
+        const items = await persistRequestItems(items => [...items, { id, purpose, notes, context: reference }], 'Reference added. Describe what you want to ask, change or review.');
+        return copy(items.find(item => item.id === id));
+      });
+    },
+    updateRequestItem(id, { purpose, notes } = {}) {
+      editableRequestItems();
+      return run('update-request', async () => {
+        requestItem(id);
+        const items = await persistRequestItems(items => items.map(item => item.id !== id ? item : {
+          ...item, ...(purpose !== undefined ? { purpose } : {}), ...(notes !== undefined ? { notes } : {}),
+        }), 'Referenced request saved.');
+        return copy(items.find(item => item.id === id));
+      });
+    },
+    editRequestItem(id, { purpose, notes } = {}) {
+      editableRequestItems();
+      requestItem(id);
+      const requestItems = state.draft.requestItems.map(item => item.id !== id ? item : {
+        ...item, ...(purpose !== undefined ? { purpose } : {}), ...(notes !== undefined ? { notes } : {}),
+      });
+      normalizeRequestItems(requestItems, state.draft.context);
+      // Like ordinary form values, text remains local while typing, then joins
+      // the same queued save/leave/review boundary. Save failures keep the input.
+      publish({ draft: { ...state.draft, requestItems }, review: null, error: null, notice: '' });
+      scheduleSave();
+    },
+    removeRequestItem(id) {
+      editableRequestItems();
+      return run('remove-request', async () => {
+        requestItem(id);
+        return persistRequestItems(items => items.filter(item => item.id !== id), 'Reference removed. Your other requests are unchanged.');
+      });
+    },
+    getRequestItemContext(id) {
+      assertActive();
+      return copy(requestItem(id).context);
+    },
+    restoreRequestItem(id, restore) {
+      return run('restore-request', async () => { await queueSave(); return restore(api.getRequestItemContext(id)); });
     },
     edit() {
       assertActive();
@@ -219,7 +306,7 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
       return run('capture', async () => { const context = await capture(); applyContext(context); await queueSave(); return api.getContext(); });
     },
     restore(restore) {
-      return run('restore', () => restore(api.getContext()));
+      return run('restore', async () => { await queueSave(); return restore(api.getContext()); });
     },
     getContext() {
       assertActive();

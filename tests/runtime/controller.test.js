@@ -46,7 +46,7 @@ function fixture({ operation = true, ready = true, enabled = {} } = {}) {
   const tourData = TOUR_CATALOG[model.id], player = new TourPlayer(tourData);
   const tour = {
     tour: tourData, player, active: false, pending: false,
-    async start({ paused = false } = {}) { this.active = true; player.start(); if (paused) player.pause('ready'); return true; }, pause(reason) { player.pause(reason); }, resume() { player.resume(); },
+    async start({ paused = false, controls = 'explorer' } = {}) { this.controlSurface = controls; this.active = true; player.start(); if (paused) player.pause('ready'); return true; }, setControls(controls) { this.controlSurface = controls; }, pause(reason) { player.pause(reason); }, resume() { player.resume(); },
     jump(action, value, chapterId) { player.seek(action === 'chapter' ? tourData.chapters[value].start + tourData.chapters[value].previewAt : value, { chapterIndex: chapterId ? tourData.chapters.findIndex(chapter => chapter.id === chapterId) : undefined }); },
     interact() { calls.push(['takeover']); player.pause('takeover'); },
     async exit() { this.active = false; player.stop(); }, cancelPending() { this.pending = false; calls.push(['cancel-tour']); },
@@ -428,6 +428,40 @@ test('inspection capture detects changes during preview and declines external pr
   assert.equal((await f.command('captureInspection')).payload.error.code, 'UNSUPPORTED_ACTION');
 });
 
+test('inspection capture tolerates only camera round-trip noise and retains the rendered coordinates', async () => {
+  const f = fixture(), view = camera();
+  view.target[2] = .22715848577453307;
+  f.scene.captureCameraView = () => structuredClone(view);
+  f.scene.captureInspectionPreview = async () => {
+    view.target[2] = .22715848577453304;
+    view.position[0] += 4 * Number.EPSILON;
+    return { dataUrl: 'data:image/jpeg;base64,/9j/AA==', width: 480, height: 320 };
+  };
+  const result = await f.command('captureInspection');
+  assert.equal(result.payload.status, 'completed');
+  assert.deepEqual(result.payload.result.inspection.view.camera, view);
+  assert.equal(result.payload.result.previewStatus, 'captured');
+});
+
+test('inspection preview still rejects camera motion, projection, part, pose and model changes', async () => {
+  for (const change of [
+    (f, view) => { view.target[2] += 1e-6; },
+    (f, view) => { view.position[0] += 1e-6; },
+    (f, view) => { view.projection.offsetX += Number.EPSILON * 64; },
+    (f, view) => { view.viewport.width += 1; },
+    f => { f.scene.selectedId = 'part'; },
+    f => { f.scene.mode = 'explode'; f.scene.fraction = .1; },
+    f => { f.model.revision = 'sha256:another-revision'; },
+  ]) {
+    const f = fixture(), view = camera();
+    f.scene.captureCameraView = () => structuredClone(view);
+    f.scene.captureInspectionPreview = async () => { change(f, view); return null; };
+    const result = await f.command('captureInspection');
+    assert.equal(result.payload.status, 'failed');
+    assert.equal(result.payload.error.code, 'BUSY_STATE');
+  }
+});
+
 test('an unreadable preview is explicit while the source reference remains usable', async () => {
   const f = fixture(); f.scene.captureInspectionPreview = async () => { throw new Error('Canvas unavailable'); };
   const { inspection, previewStatus } = (await f.command('captureInspection')).payload.result;
@@ -442,4 +476,22 @@ test('tour inspection validation rejects stale chapter and camera before changin
     assert.equal((await f.command('restoreInspection', { inspection: invalid })).payload.status, 'failed');
     assert.equal(f.calls.length, before); assert.equal(f.tour.active, true); assert.equal(f.tour.player.state().status, 'paused');
   }
+});
+
+test('host tour controls are opt-in, validated and restore native controls for saved inspections', async () => {
+  const f = fixture();
+  f.scene.applyTourFrame = () => {}; f.scene.leaveTour = () => {};
+  assert.equal((await f.command('startTour', { tourId: f.tour.tour.id, controls: 'hidden' })).payload.error.code, 'INVALID_ARGUMENT');
+  assert.equal(f.tour.active, false);
+  await f.command('startTour', { tourId: f.tour.tour.id });
+  assert.equal(f.controller.getState().tour.controls, 'explorer');
+  await f.command('pauseTour');
+  const before = f.tour.player.state();
+  await f.command('setTourControls', { controls: 'host' });
+  assert.equal(f.controller.getState().tour.controls, 'host');
+  assert.equal(f.tour.player.state().time, before.time); assert.equal(f.tour.player.state().status, before.status);
+  const { inspection } = (await f.command('captureInspection')).payload.result;
+  const restored = await f.command('restoreInspection', { inspection });
+  assert.equal(restored.payload.status, 'completed', JSON.stringify(restored.payload));
+  assert.equal(f.controller.getState().tour.controls, 'explorer');
 });

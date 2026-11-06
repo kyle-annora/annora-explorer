@@ -26,7 +26,7 @@ export class GuidedTour {
       if (event.matches) this.apply();
       // Returning to normal motion never starts playback without an explicit action.
     });
-    this.active = false; this.pending = false; this.generation = 0; this.captionKey = ''; this.annotationKey = '';
+    this.active = false; this.pending = false; this.controlSurface = 'explorer'; this.generation = 0; this.captionKey = ''; this.annotationKey = '';
     $('tour-duration').textContent = entry?.label ?? (this.stepwise ? `${this.tour.chapters.length} short steps` : `${this.tour.duration} sec`);
     write($('tour-start').querySelector('span'), 'Play presentation');
     $('tour-start').disabled = false;
@@ -151,7 +151,8 @@ export class GuidedTour {
     if (this.active && !this.scene.disposed) { this.scene.pausePresentation(); this.scene.leaveTour(); }
     this.active = false; this.player.stop();
     document.body.classList.remove('tour-active');
-    for (const key of ['tourStatus', 'tourReason', 'tourTime', 'tourPlayback']) delete document.body.dataset[key];
+    for (const key of ['tourStatus', 'tourReason', 'tourTime', 'tourPlayback', 'tourControls']) delete document.body.dataset[key];
+    this.controlSurface = 'explorer';
     $('tour-panel').hidden = true; $('tour-chapters').hidden = true;
     $('tour-chapters-toggle').setAttribute('aria-expanded', 'false');
     $('tour-annotations').replaceChildren();
@@ -168,7 +169,17 @@ export class GuidedTour {
     return true;
   }
 
-  async start({ signal, paused = false } = {}) {
+  setControls(controls = 'explorer') {
+    this.controlSurface = controls;
+    document.body.dataset.tourControls = controls;
+    $('tour-panel').hidden = !this.active || controls === 'host';
+    if (controls === 'host') { $('tour-annotations').hidden = true; $('tour-annotations').replaceChildren(); this.annotationKey = ''; }
+    else if (this.active && this.frame) { this.updateUI(); this.updateAnnotations(); }
+    this.syncLayout?.();
+    if (this.active) { this.scene.refitLayout(); this.scene.invalidate(); }
+  }
+
+  async start({ signal, paused = false, controls = 'explorer' } = {}) {
     if (this.disposed || this.active || this.pending || !this.scene.ready) return;
     const generation = ++this.generation;
     this.pendingAbort = new AbortController();
@@ -180,9 +191,9 @@ export class GuidedTour {
       if (this.disposed || generation !== this.generation) return false;
       this.snapshot = this.scene.capturePresentation(); this.navigation = this.captureNavigation();
       this.closeOverlays(); this.scene.cancelBenchmark(); this.scene.pausePresentation();
-      this.active = true; document.body.dataset.tourPlayback = this.stepwise ? 'steps' : 'continuous'; document.body.classList.add('tour-active'); $('tour-panel').hidden = false;
+      this.active = true; document.body.dataset.tourPlayback = this.stepwise ? 'steps' : 'continuous'; document.body.classList.add('tour-active'); this.setControls(controls);
       document.querySelector('.stage-tools').inert = true; document.querySelector('.detail-panel').inert = true;
-      this.syncLayout?.(); this.player.setVisibility(document.hidden); this.player.start(); if (this.stepwise || paused) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); $('tour-play').focus({ preventScroll: true });
+      this.syncLayout?.(); this.player.setVisibility(document.hidden); this.player.start(); if (this.stepwise || paused) this.player.pause('ready'); this.apply(); this.scene.refitLayout(); this.scene.invalidate(); if (controls !== 'host') $('tour-play').focus({ preventScroll: true });
       return true;
     } catch (error) {
       if (this.disposed || generation !== this.generation || signal?.aborted || error?.name === 'AbortError') return false;
@@ -222,9 +233,10 @@ export class GuidedTour {
   async exit({ restore = true, signal } = {}) {
     if (this.disposed) return false;
     if (!this.active) { this.cancelPending(); return false; }
+    const hostedControls = this.controlSurface === 'host';
     this.closeChapters(); this.closeOverlays();
     const generation = ++this.generation; this.pendingAbort?.abort(); this.pendingAbort = new AbortController(); this.pending = true; $('tour-start').disabled = true; this.active = false; this.player.stop(); this.scene.pausePresentation(); this.scene.leaveTour();
-    document.body.classList.remove('tour-active'); delete document.body.dataset.tourStatus; delete document.body.dataset.tourReason; delete document.body.dataset.tourPlayback;
+    document.body.classList.remove('tour-active'); delete document.body.dataset.tourStatus; delete document.body.dataset.tourReason; delete document.body.dataset.tourPlayback; delete document.body.dataset.tourControls; this.controlSurface = 'explorer';
     $('tour-panel').hidden = true; $('tour-annotations').replaceChildren(); this.annotationKey = '';
     document.querySelector('.stage-tools').inert = false; document.querySelector('.detail-panel').inert = false;
     this.syncLayout?.();
@@ -235,7 +247,7 @@ export class GuidedTour {
         this.restoreNavigation(this.navigation);
       }
       if (this.disposed || generation !== this.generation) return false;
-      this.syncScene(); this.scene.refitLayout(); $('tour-start').focus({ preventScroll: true });
+      this.syncScene(); this.scene.refitLayout(); if (!hostedControls) $('tour-start').focus({ preventScroll: true });
       return true;
     } catch (error) {
       if (this.disposed || generation !== this.generation || signal?.aborted || error?.name === 'AbortError') return false;
@@ -330,6 +342,7 @@ export class GuidedTour {
   }
   updateAnnotations() {
     if (this.disposed || !this.active || !this.frame) return;
+    if (this.controlSurface === 'host') { $('tour-annotations').hidden = true; this.annotationKey = ''; return; }
     if ($('tour-annotations').hidden) { this.annotationKey = ''; return; }
     const annotations = this.frame.annotations || [], key = JSON.stringify([innerWidth, annotations]);
     if (key !== this.annotationKey) {

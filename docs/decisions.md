@@ -28,12 +28,16 @@ visual and functional evidence, rather than gradually drifting across projects.
 | D-21 | Hosts reuse one inquiry surface while retaining their own repositories | Ordinary, drawing, preview and walkthrough records remain in their established namespaces; navigation awaits the active editor's save boundary |
 | D-22 | Presenter actions finish the visible review or receipt before suggesting a role switch | Continue demo cannot bypass confirmation, conflict recovery or the inquiry receipt |
 | D-23 | Drawing requests retain source, association and overview identities independently | Viewing another detail never adopts it; source B needs explicit review and adoption while older records keep A |
+| D-24 | An inquiry may collect independently referenced questions | Each item owns its purpose, note and exact context; browsing never replaces an attached item; one complete final review confirms the collection |
+| D-25 | Seller-authored explanations reuse prepared actions and the existing player | Studio may arrange held inspections and approved short actions; draft preview and reviewed release remain distinct |
+| D-26 | Product growth follows a phased program | The six approved extensions and two reuse foundations have separate acceptance and delivery states; no backend or real-sharing claim is implied |
 
 The first scope and reference lock for D-17–D-20 are recorded in
 [In-context inquiry](embedded-inquiry.md).
 The continuing scope and acceptance gates are in the
 [Explorer-to-quotation program](explorer-to-quote-program.md), with the shared
 [host integration contract](embedded-inquiry-integration.md).
+The November 6 expansion is tracked in [the product program](product-expansion-program.md).
 
 ## Skill structure
 

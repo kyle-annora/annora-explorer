@@ -4,6 +4,7 @@ import { normalizeInquiryProfile } from './inquiry-profile.js';
 import { validHistoricalRoomSnapshot } from './release-snapshot.js';
 import { drawingVersionKey, recordContext, drawingVersionLabel } from './drawing-context.js';
 import { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity } from './inquiry-rules.js';
+import { normalizeRequestItems, requestItemErrors } from './request-items.js';
 export { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity, inquiryIntentLabel, inquiryQuantityLabel } from './inquiry-rules.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
@@ -101,7 +102,11 @@ export function normalizeInquiryDraft(input) {
   });
   if (new Set(requirements.map(item => item.id)).size !== requirements.length) throw new ProjectError('VALIDATION', 'Each requirement needs a unique identity.');
   if (Object.values(values).some(value => value.length > 4000)) throw new ProjectError('VALIDATION', 'Keep individual fields within 4,000 characters.');
-  return { id: text(input.id), revision: input.revision, ...(inquiryRulesVersion !== undefined ? { inquiryRulesVersion } : {}), context: normalizeProjectContext(input.context), values, requirements, updatedAt: input.updatedAt || null };
+  const context = normalizeProjectContext(input.context);
+  // Keep legacy records byte-shape compatible; an explicit list is additive and
+  // is never inferred from the currently highlighted component.
+  const requestItems = Object.hasOwn(input, 'requestItems') ? { requestItems: normalizeRequestItems(input.requestItems, context) } : {};
+  return { id: text(input.id), revision: input.revision, ...(inquiryRulesVersion !== undefined ? { inquiryRulesVersion } : {}), context, values, requirements, ...requestItems, updatedAt: input.updatedAt || null };
 }
 
 export function inquiryErrors(draft) {
@@ -118,7 +123,7 @@ export function inquiryErrors(draft) {
   if (values.stroke && (!/^\d+(\.\d+)?$/.test(values.stroke) || +values.stroke <= 0 || +values.stroke > 100000)) fields.stroke = 'Enter a positive stroke in millimeters, or leave it open.';
   if (values.load.length > 200) fields.load = 'Keep the load detail within 200 characters.';
   if (requirements.some(item => !item.confirmed)) fields.requirements = 'Confirm each attached requirement, or remove it from the inquiry.';
-  return fields;
+  return { ...fields, ...requestItemErrors(draft.requestItems) };
 }
 
 // Review seals detect accidental edits, not authorization. A real host must validate server-side.

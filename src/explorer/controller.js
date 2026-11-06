@@ -8,14 +8,14 @@ const STYLES = ['engineering', 'linework', 'flat'];
 const QUALITIES = ['balanced', 'performance', 'quality'];
 const SPEEDS = [.25, .5, 1];
 const QUERIES = new Set(['getState', 'getCapabilities', 'getNode', 'getChildren', 'getTour', 'captureView', 'captureInspection']);
-const TOUR_COMMANDS = new Set(['startTour', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter', 'exitTour']);
+const TOUR_COMMANDS = new Set(['startTour', 'pauseTour', 'resumeTour', 'seekTour', 'goToTourChapter', 'exitTour', 'setTourControls']);
 const ERROR_CODES = new Set(['NOT_READY', 'UNKNOWN_NODE', 'UNKNOWN_TOUR', 'UNKNOWN_CHAPTER', 'UNSUPPORTED_ACTION', 'INVALID_ARGUMENT', 'INVALID_REQUEST', 'BUSY_STATE', 'ASSET_LOAD_FAILED', 'INCOMPATIBLE_VIEW', 'PROTOCOL_MISMATCH', 'SESSION_MISMATCH', 'DISPOSED']);
 const PARAMETERS = {
   getState: [], getCapabilities: [], getNode: ['nodeId'], getChildren: ['nodeId'], getTour: ['tourId'],
   select: ['nodeId'], focus: ['nodeId'], frame: ['nodeId', 'view'], isolate: ['nodeId'],
   setRenderStyle: ['style'], setDisplayOptions: ['options'], setMode: ['mode'], setExplosion: ['progress', 'transition'], pauseExplosion: [], resumeExplosion: [], replayExplosion: [],
   playOperation: [], replayOperation: [], pauseOperation: [], seekOperation: ['progress'], setOperationSpeed: ['speed'], setFollowCamera: ['enabled'],
-  startTour: ['tourId'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'],
+  startTour: ['tourId', 'controls'], pauseTour: [], resumeTour: [], seekTour: ['seconds', 'chapterId'], goToTourChapter: ['chapterId'], exitTour: ['restore'], setTourControls: ['controls'],
   setTheme: ['themeId', 'accent'], setQuality: ['profile'], captureView: [], restoreView: ['bookmark'], captureInspection: [], restoreInspection: ['inspection'], cancel: ['requestId'], dispose: [],
 };
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
@@ -27,6 +27,19 @@ const finite = value => typeof value === 'number' && Number.isFinite(value);
 const fraction = value => finite(value) && value >= 0 && value <= 1;
 const vector = value => Array.isArray(value) && value.length === 3 && value.every(finite);
 const canonical = value => JSON.stringify(value, (_, item) => plain(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+function sameCapturedInspection(before, after) {
+  const kind = before.view ? 'view' : 'tour';
+  if (!after[kind]) return false;
+  const adjusted = copy(after), a = before[kind].camera, b = adjusted[kind].camera;
+  // A settled OrbitControls update can round-trip a coordinate by a few ULPs
+  // while the preview frame is drawn. Ignore only that numeric noise; model,
+  // part, pose, projection and viewport must still match exactly.
+  for (const key of ['position', 'target']) {
+    if (!a[key].every((value, index) => Math.abs(value - b[key][index]) <= 32 * Number.EPSILON * Math.max(1, Math.abs(value), Math.abs(b[key][index])))) return false;
+    b[key] = a[key];
+  }
+  return canonical(before) === canonical(adjusted);
+}
 function jsonValue(value, depth = 0) {
   if (depth > 24) return false;
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;
@@ -106,7 +119,7 @@ export class ExplorerController {
       navigation: { selectedId: available ? scene.selectedId : null, scopeId: available ? scene.scopeId : null, isolated: available ? Boolean(scene.isolated) : null },
       presentation: { mode: available ? scene.mode : null, renderStyle: available ? scene.renderStyle || 'engineering' : null, explosion: available ? scene.fraction || 0 : null, explosionTarget: available ? scene.explosionTarget || 0 : null, separation: available ? scene.getSeparationState?.() || null : null, transitioning: available ? this.transitioning() : null },
       operation: { available: Boolean(available && operation.available && this.getCapabilities().operation.enabled), clipId: this.getCapabilities().operation.clips[0] || null, status: !available || !operation.available ? 'unavailable' : operation.playing ? 'playing' : operation.progress >= 1 ? 'completed' : 'paused', progress: available && operation.available ? operation.progress : null, duration: available && operation.available ? operation.duration ?? null : null, sourceDuration: available && operation.available ? operation.sourceDuration ?? null : null, speed: available && operation.available ? operation.speed : null, followCamera: Boolean(available && operation.followCamera) },
-      tour: { active: Boolean(tour?.active), tourId: tour?.tour?.id || null, playback: tour?.tour?.playback || 'continuous', status: tour?.pending ? 'preparing' : tour?.active ? transport.status : 'idle', time: transport?.time || 0, duration: tour?.tour?.duration || 0, chapterId: tour?.active ? transport?.chapter?.id || null : null, reason: tour?.active ? transport.reason : null },
+      tour: { active: Boolean(tour?.active), tourId: tour?.tour?.id || null, controls: tour?.controlSurface || 'explorer', playback: tour?.tour?.playback || 'continuous', status: tour?.pending ? 'preparing' : tour?.active ? transport.status : 'idle', time: transport?.time || 0, duration: tour?.tour?.duration || 0, chapterId: tour?.active ? transport?.chapter?.id || null : null, reason: tour?.active ? transport.reason : null },
       appearance: { display: { ...DISPLAY_DEFAULTS, ...scene?.displayOptions }, theme: this.port.getTheme?.() || { id: 'ember', revision: '1' }, quality: scene?.quality || 'balanced', effectiveQuality: scene?.effectiveQuality || 'balanced' },
       environment: this.environment, busy: activity,
     });
@@ -304,8 +317,10 @@ export class ExplorerController {
       }
       if (method === 'goToTourChapter') check(tour.tour.chapters.some(chapter => chapter.id === params.chapterId), 'The chapter is not present in this tour.', 'UNKNOWN_CHAPTER');
       if (method === 'exitTour') check(params.restore === undefined || typeof params.restore === 'boolean', 'restore must be a boolean.');
+      if (method === 'setTourControls' || method === 'startTour' && params.controls !== undefined) check(['host', 'explorer'].includes(params.controls), 'Choose host or explorer tour controls.');
       return async record => {
-        if (method === 'startTour') { const started = await tour.start({ signal: record.abort.signal }); if (!record.abort.signal.aborted) check(started !== false && tour.active, 'The tour could not be prepared.', 'ASSET_LOAD_FAILED'); }
+        if (method === 'startTour') { const started = await tour.start({ signal: record.abort.signal, controls: params.controls || 'explorer' }); if (!record.abort.signal.aborted) check(started !== false && tour.active, 'The tour could not be prepared.', 'ASSET_LOAD_FAILED'); }
+        if (method === 'setTourControls') tour.setControls(params.controls);
         if (method === 'pauseTour') tour.pause('user');
         if (method === 'resumeTour') tour.resume();
         if (method === 'seekTour') tour.jump('seek', params.seconds, params.chapterId);
@@ -364,6 +379,7 @@ export class ExplorerController {
           if (record.abort.signal.aborted) return;
           check(started !== false && tour.active, 'The saved inspection tour could not be prepared.', 'ASSET_LOAD_FAILED');
         }
+        tour.setControls('explorer');
         tour.jump('seek', saved.time, saved.chapterId);
         scene.setDisplayOptions(saved.displayOptions);
         // The source time owns narration; the saved source pose and camera own
@@ -428,8 +444,9 @@ export class ExplorerController {
     let preview;
     try { preview = await this.scene.captureInspectionPreview?.({ signal: record.abort.signal }); }
     catch (error) { if (record.abort.signal.aborted) throw error; }
-    check(canonical(source) === canonical(normalizeInspectionReference(this.inspectionSource(), { model: this.identity })), 'The inspection changed while its preview was being captured. Try again.', 'BUSY_STATE');
-    const inspection = normalizeInspectionReference({ ...source, ...(preview ? { preview } : {}) }, { model: this.identity });
+    const renderedSource = normalizeInspectionReference(this.inspectionSource(), { model: this.identity });
+    check(sameCapturedInspection(source, renderedSource), 'The inspection changed while its preview was being captured. Try again.', 'BUSY_STATE');
+    const inspection = normalizeInspectionReference({ ...renderedSource, ...(preview ? { preview } : {}) }, { model: this.identity });
     return { inspection, previewStatus: preview ? 'captured' : 'unavailable' };
   }
   validateBookmark(value) {

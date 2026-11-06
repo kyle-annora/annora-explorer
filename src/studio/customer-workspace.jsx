@@ -1049,7 +1049,7 @@ export function CustomerWorkspace({
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
-                        <InquiryDetails project={project} />
+                        <InquiryDetails project={project} buyerHref={buyerHref} />
                         {renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy), onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage("Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}
                         <ActionGroup align="start">
                           <Button

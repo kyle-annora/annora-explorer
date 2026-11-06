@@ -1,6 +1,7 @@
 import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
 import { InspectionReference } from "./inspection-reference.jsx";
+import { RequestItemsSummary } from "./request-items-view.jsx";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -276,6 +277,7 @@ function InquiryDocument({ draft, onExplore }) {
           ))}
         </dl>
       </Section>
+      <RequestItemsSummary items={draft.requestItems} onOpen={onExplore} />
       <Section title="Confirmed customer inputs">
         {draft.requirements?.filter((r) => r.confirmed).length ? (
           <ul className="pw-requirements">

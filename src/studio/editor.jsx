@@ -15,6 +15,7 @@ import { STUDIO_PRODUCT_ID, STUDIO_PARTS, STUDIO_ASSETS } from "./seed.js";
 import { Check } from "./ui.jsx";
 import { partOptions } from "./navigation.js";
 import crankImage from "../product-room/assets/crank.png";
+import { StoryEditor } from './story-editor.jsx';
 
 function PartViewer({ onSelection, onClose, selectedLabel, onEdit }) {
   const mount = useRef(null),
@@ -523,7 +524,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
   );
 }
 
-export function PresentationFields({ draft, change }) {
+export function PresentationFields({ draft, change, viewer, onOpenModel, onRequestCapture }) {
   const questions = draft.content.questions;
   const model = MODEL_CATALOG[STUDIO_PRODUCT_ID];
   const chapters = model.tour?.chapters || [];
@@ -574,6 +575,7 @@ export function PresentationFields({ draft, change }) {
           }
         />
       </Section>
+      <StoryEditor draft={draft} change={change} viewer={viewer} onOpenModel={onOpenModel} onRequestCapture={onRequestCapture}/>
       <Section
         className="studio-separated"
         title="Questions that lead into 3D"

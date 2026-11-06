@@ -323,6 +323,7 @@ function viewportInsets(){
     if (panel) return mobileLayout.matches ? {left:12,right:12,top,bottom:Math.max(12,height-panel.top+12)} : {left:12,right:Math.max(12,width-panel.left+12),top,bottom:100};
   }
   if(guidedTour?.active){
+    if (guidedTour.controlSurface === 'host') return {left:12,right:12,top:Math.max(header?.bottom||0,heading?.bottom||0)+12,bottom:12};
     const transport=rect('.tour-transport'),copy=rect('#tour-copy');
     const bottom=height-(mobileLayout.matches&&!shortLandscape.matches?Math.min(copy?.top||height,transport?.top||height):(transport?.top||height))+12;
     return shortLandscape.matches?{left:240,right:12,top:(header?.bottom||0)+8,bottom}:{left:12,right:12,top:Math.max(header?.bottom||0,heading?.bottom||0)+12,bottom};

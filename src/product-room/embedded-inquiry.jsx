@@ -6,6 +6,7 @@ import { inquiryField } from './inquiry-profile.js';
 import { createInquirySession } from './inquiry-session.js';
 import { prepareSampleInquiry } from './inquiry-sample.js';
 import { InquiryReference } from './inquiry-reference.jsx';
+import { RequestItemsEditor, RequestItemsSummary } from './request-items-view.jsx';
 import { normalizeInquiryPresentation, inquiryFieldVisible, inquiryPresentationError } from './inquiry-presentation.js';
 import { createDemoProjectRepository } from './project-repository.js';
 import './embedded-inquiry.css';
@@ -89,8 +90,10 @@ class ClientReview extends React.Component {
   render() {
     if (this.state.unavailable) return <div className="ei-message ei-error" role="alert">The complete review could not be displayed. Your draft is unchanged. Choose Edit details and try reviewing again.</div>;
     const { review, draft, presentation } = this.props;
-    if (!presentation.renderReview) return <Review draft={draft} presentation={presentation} />;
-    return <CustomReview render={presentation.renderReview} review={review} draft={draft} />;
+    return <>
+      <RequestItemsSummary items={draft.requestItems} />
+      {presentation.renderReview ? <CustomReview render={presentation.renderReview} review={review} draft={draft} /> : <Review draft={draft} presentation={presentation} />}
+    </>;
   }
 }
 
@@ -156,7 +159,9 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
       {state.notice && <p className="ei-message" role="status">{state.notice}</p>}
       {state.loading ? <p className="ei-loading" role="status">{labels.loadingLabel}</p> : <>
         {context && <InquiryReference context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restore : undefined} session={session} />}
+        {state.draft && state.stage === 'details' && <RequestItemsEditor state={state} session={session} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restoreItem : undefined} />}
         {state.draft && (state.stage === 'review' ? <ClientReview key={state.review?.token} review={state.review} draft={state.review?.draft || state.draft} presentation={presentation} onUnavailable={controls.reviewUnavailable} /> : <DraftFields state={state} session={session} formId={formId} disabled={busy} presentation={presentation} onReview={controls.review} />)}
+        {state.stage === 'confirmed' && state.project && <RequestItemsSummary items={state.project.inquiry.requestItems} onOpen={callbacks.onRestore ? (context, item) => swallow(controls.restoreItem(item.id)) : undefined} />}
         {state.stage === 'confirmed' && state.project && <div className="ei-receipt"><span className="ei-receipt-mark"><Glyph name="check" /></span><h3>{labels.receiptTitle}</h3><p>{labels.receiptDescription}</p><dl className="ei-facts"><div><dt>Project</dt><dd>{state.project.id}</dd></div><div><dt>Purpose</dt><dd>{inquiryIntentLabel(state.project.inquiry.values)}</dd></div></dl><p className="ei-hint">{labels.receiptNote}</p>{callbacks.allowAnother && <Button variant="secondary" disabled={busy} pending={state.pending === 'new'} pendingLabel="Attaching current view…" onClick={() => swallow(session.startAnother({ capture: callbacks.onCapture, suggestedIntent:presentation.fixedIntent || 'quotation' }))}>{labels.startAnotherButton}</Button>}</div>}
       </>}
     </div>
@@ -223,6 +228,10 @@ export async function mountEmbeddedInquiry(element, { repository = createDemoPro
       await session.restore(onRestore);
       // The compact screen is for the model after a successful restore. Its
       // nonmodal sheet never makes the viewer inert or traps keyboard focus.
+      if (win.matchMedia('(max-width: 760px)').matches) await controls.minimize();
+    },
+    async restoreItem(id) {
+      await session.restoreRequestItem(id, onRestore);
       if (win.matchMedia('(max-width: 760px)').matches) await controls.minimize();
     },
     async openProject() {

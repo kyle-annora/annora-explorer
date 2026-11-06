@@ -19,6 +19,7 @@ import {
 import { recordContext } from "../product-room/drawing-revision.js";
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import { InspectionReference } from "../product-room/inspection-reference.jsx";
+import { RequestItemsSummary } from "../product-room/request-items-view.jsx";
 import crankImage from "../product-room/assets/crank.png";
 
 export const money = (value) =>
@@ -198,7 +199,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
     </div>
   );
 }
-export function InquiryDetails({ project }) {
+export function InquiryDetails({ project, buyerHref = buyerURL }) {
   const { values, requirements } = project.inquiry;
   const fields = [
     ["Company", values.company, "company"],
@@ -238,6 +239,13 @@ export function InquiryDetails({ project }) {
           <p className="customer-preserve">{values.notes}</p>
         </div>
       )}
+      <RequestItemsSummary items={project.inquiry.requestItems} hrefFor={item => {
+        const url = new URL(buyerHref({ ...project, context: item.context }, true));
+        url.searchParams.set("project", project.id);
+        url.searchParams.set("requestItem", item.id);
+        if (item.context.drawing) url.searchParams.set("view", "drawings");
+        return url.href;
+      }} />
       {requirements?.length > 0 && (
         <div className="customer-document-section">
           <h3>Confirmed requirements</h3>

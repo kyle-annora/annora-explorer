@@ -6,7 +6,8 @@ import { createRequestFlow } from './request.js';
 import { createStudioRepository } from '../studio/repository.js';
 import { readBuyerRoute, buyerRouteHash, projectReturnURL } from './navigation.js';
 import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughRepository, withWalkthroughSession, walkthroughStorageKey } from '../walkthrough/session.js';
-import { BUNDLED_RELEASE, resolveStudioContent } from '../studio/seed.js';
+import { BUNDLED_RELEASE, STUDIO_PARTS, resolveStudioContent } from '../studio/seed.js';
+import { createProductStoryPlayer } from './story-player.js';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
 import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
 import { createExplorationHandoff, readExplorationHandoff } from './exploration-handoff.js';
@@ -30,10 +31,11 @@ async function boot() {
   const walkthroughRepository = walkthrough ? createWalkthroughRepository(walkthrough) : null;
   const customerRepository = walkthroughRepository || createDemoProjectRepository();
   const referenceProjectId = initialRoute.view === 'explore' && initialRoute.projectId || parameters.get('project');
-  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('walkthrough'),params.get('handoff'),params.get('inspection')]);
-  let referenceProject = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
+  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('requestItem'),params.get('walkthrough'),params.get('handoff'),params.get('inspection')]);
+  let referenceProject = null, referenceContext = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
+    if (parameters.has('requestItem') && !referenceProjectId) throw new Error('A saved detail needs its customer project. Open the reference from the project again.');
     if (hasWalkthroughRequest(parameters) && !walkthrough) throw new Error('This demonstration link is invalid. Return to the walkthrough to open a separate sample session.');
     if (parameters.has('handoff')) {
       if (referenceProjectId || parameters.has('studioPreview') || parameters.has('release') || walkthrough)
@@ -59,7 +61,11 @@ async function boot() {
     if (referenceProjectId) {
       if (parameters.has('studioPreview') || parameters.has('release')) throw new Error('This link mixes a customer project with another product version. Open the 3D reference from the project again.');
       referenceProject = await customerRepository.getProject(referenceProjectId);
-      const context = referenceProject.context, model = MODEL_CATALOG[context.modelId];
+      const requestItemId = parameters.get('requestItem');
+      const requestItem = requestItemId ? referenceProject.inquiry?.requestItems?.find(item => item.id === requestItemId) : null;
+      if (requestItemId && !requestItem) throw new Error('This requested detail is not in the saved inquiry. Return to the project and open its reference again.');
+      referenceContext = requestItem?.context || referenceProject.context;
+      const context = referenceContext, model = MODEL_CATALOG[context.modelId];
       if (context.productId !== 'kinetic-01') throw new Error('The customer-project reference is available for the prepared crank product only. The original project has not been changed.');
       if (!model || model.revision !== context.modelRevision) throw new Error('The exact model revision saved with this project is not included in this deployment. Your original inquiry and quotations remain available in My projects.');
       parameters.set('project', referenceProject.id);
@@ -115,11 +121,15 @@ async function boot() {
   const previewRepository = releaseState.preview ? createPreviewProjectRepository() : undefined;
   const versionBanner = document.createElement('aside'); versionBanner.id = 'room-version-banner'; versionBanner.className = 'room-version-banner';
   document.querySelector('.room-header').after(versionBanner);
+  const storyMount = document.createElement('section'); storyMount.className = 'room-story-host'; storyMount.hidden = true; storyMount.setAttribute('aria-label', 'Product story'); versionBanner.after(storyMount);
+  let storyPlayer = null, storyRelease = null;
   const hostSize = new ResizeObserver(() => {
-    document.body.style.setProperty('--room-host-chrome', `${versionBanner.offsetHeight + $('room-part-information').offsetHeight}px`);
+    const storyRail = !storyMount.hidden && storyMount.querySelector('.room-story-bar')?.dataset.expanded === 'true'
+      && matchMedia('(orientation: landscape) and (max-height: 500px) and (min-width: 640px)').matches;
+    document.body.style.setProperty('--room-host-chrome', `${versionBanner.offsetHeight + $('room-part-information').offsetHeight + (storyRail ? 0 : storyMount.offsetHeight)}px`);
     updateInquiryLayout();
   });
-  hostSize.observe(versionBanner); hostSize.observe($('room-part-information'));
+  hostSize.observe(versionBanner); hostSize.observe($('room-part-information')); hostSize.observe(storyMount);
   hostSize.observe(document.querySelector('.room-header'));
   if (document.querySelector('.walkthrough-strip')) hostSize.observe(document.querySelector('.walkthrough-strip'));
   const configuredRooms = Object.keys(rooms).filter(id => MODEL_CATALOG[id]);
@@ -151,6 +161,7 @@ async function boot() {
       if (state.lifecycle === 'ready') renderSelectedPart(state);
       if (state.lifecycle === 'loading') $('room-loading').hidden = false;
       walkthroughViewer?.sync();
+      storyPlayer?.update(state);
     },
     onReady({state}) {
       if ((releaseState.preview || releaseState.pinned) && state.model.id !== productId) {
@@ -357,6 +368,7 @@ async function boot() {
     const desiredModel = workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
     if (configuredRooms.includes(desiredModel) && productId !== desiredModel) { productId = desiredModel; renderContent(); }
     page = [...pages,...workspacePages].includes(next) ? next : 'explore';
+    storyMount.hidden = page !== 'explore' || !storyPlayer;
     if (page !== 'inquiry') inquiryHost.suspend();
     walkthroughViewer?.sync();
     currentRoute = {...route,view:page};
@@ -409,6 +421,21 @@ async function boot() {
   function renderContent() {
     const room = rooms[productId]; $('room-product').value = productId;
     const release = releaseByProduct[productId];
+    if (storyRelease !== release?.id) {
+      storyPlayer?.dispose(); storyPlayer = null; storyRelease = release?.id || null;
+      if (release?.presentation?.story) {
+        try {
+          storyPlayer = createProductStoryPlayer({ mount: storyMount, viewer, story: release.presentation.story, model: MODEL_CATALOG[productId], parts: STUDIO_PARTS,
+            onError: error => notice(error.message),
+            onDiscuss: async step => {
+              if (step?.nodeId) await viewer.request('select', { nodeId: step.nodeId });
+              await showPage('inquiry', { focus: true });
+            },
+          });
+        } catch (error) { notice(error.message); }
+      }
+    }
+    storyMount.hidden = page !== 'explore' || !storyPlayer;
     versionBanner.hidden = !release || walkthrough && !referenceProject && !releaseWarning && !parameters.has('studioPreview') && !parameters.has('release') || release.source === 'bundled' && !releaseState.preview && !releaseState.pinned && !releaseWarning;
     if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : savedInquiryContext ? 'Saved inquiry reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject || savedInquiryContext ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
     renderSelectedPart(viewer.state);
@@ -555,7 +582,7 @@ async function boot() {
         location.reload(); return;
       }
       const id = nextURL.searchParams.get('model');
-      if (route.view === 'explore' && referenceProject) await showSavedContext(referenceProject.context,{record:false});
+      if (route.view === 'explore' && referenceProject) await showSavedContext(referenceContext,{record:false});
       else if (route.view === 'explore' && restoredContext) await showSavedContext(restoredContext,{record:false});
       else if (route.view === 'explore' && route.target) await showTarget(route.target,id,{record:false});
       else if (route.view === 'explore' && id === productId) await openExplore({record:false,allowStandalone:false});
@@ -564,13 +591,13 @@ async function boot() {
   });
   document.addEventListener('visibilitychange',()=> { if (document.hidden) void viewer.pause().catch(()=>{}); });
   window.addEventListener('resize',updateInquiryLayout);
-  window.addEventListener('pagehide',event=> { if (!event.persisted) { walkthroughViewer?.dispose(); hostSize.disconnect(); flow.dispose(); workspace?.dispose(); void inquiryHost.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
+  window.addEventListener('pagehide',event=> { if (!event.persisted) { storyPlayer?.dispose(); walkthroughViewer?.dispose(); hostSize.disconnect(); flow.dispose(); workspace?.dispose(); void inquiryHost.dispose(); void viewer.dispose(); } else void viewer.pause().catch(()=>{}); });
   if (walkthrough && !releaseState.preview) {
     walkthroughProject = (await walkthroughRepository.listProjects())[0] || null;
     window.addEventListener('annora:walkthrough-change',()=> { void walkthroughRepository.listProjects().then(items=> { walkthroughProject=items[0] || null; renderContent(); }).catch(error=>notice(error.message)); });
   }
   renderContent(); const route = readRoute();
-  if (route.view === 'explore' && referenceProject) void showSavedContext(referenceProject.context,{record:false});
+  if (route.view === 'explore' && referenceProject) void showSavedContext(referenceContext,{record:false});
   else if (route.view === 'explore' && restoredContext) void showSavedContext(restoredContext,{record:false});
   else if (route.view === 'explore' && handoffContext) void showSavedContext(handoffContext,{record:false});
   else if (route.view === 'explore' && route.target) void showTarget(route.target,productId,{record:false}).catch(error=>notice(error.message));
