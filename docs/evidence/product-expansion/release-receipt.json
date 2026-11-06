@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "recordedAt": "2026-11-06T11:08:41.403710+00:00",
+  "repository": "https://github.com/kyle-annora/annora-explorer",
+  "sourceCommit": "7edc54958d0f6290f0316eb8d063e495094fc040",
+  "scope": [
+    "contextual request items",
+    "prepared crank story authoring"
+  ],
+  "verification": {
+    "testsPassed": 781,
+    "testsSkipped": 1,
+    "verify": "passed",
+    "inquiryBuild": "passed",
+    "requestItemBrowserCases": 4,
+    "storyViewports": [
+      "1440x900",
+      "390x844",
+      "320x780",
+      "844x390"
+    ],
+    "legacyWalkthroughViewports": [
+      "1440x900",
+      "390x844",
+      "320x780"
+    ],
+    "physicalDevicePerformance": "not measured"
+  },
+  "publication": {
+    "workflowRun": 42207554904,
+    "workflowURL": "https://github.com/kyle-annora/annora-explorer/actions/runs/42207554904",
+    "site": "https://kyle-annora.github.io/annora-explorer/",
+    "status": "published_and_target_verified",
+    "targetVerified": true,
+    "attempts": [
+      {
+        "attempt": 1,
+        "result": "deployment timeout",
+        "build": "success",
+        "lastPagesState": "syncing_files",
+        "cancelledByAction": true
+      },
+      {
+        "attempt": 2,
+        "result": "deployment timeout",
+        "build": "success reused",
+        "lastPagesState": "empty",
+        "cancelledByAction": true
+      },
+      {
+        "run": 42207554904,
+        "attempt": 1,
+        "result": "success",
+        "build": "success",
+        "sourceCommit": "605d903b3563a42fff414b7e20d2dc51ff518dad"
+      }
+    ],
+    "previousWorkflowRun": 42204497615,
+    "previousWorkflowURL": "https://github.com/kyle-annora/annora-explorer/actions/runs/42204497615",
+    "pagesStatus": "succeed"
+  },
+  "boundaries": [
+    "No backend or external submission",
+    "No MK America client deployment",
+    "Later approved roadmap phases remain planned"
+  ],
+  "preservedUnrelatedPaths": [
+    "README.md",
+    "docs/open-duck-showcase-plan.md",
+    "docs/pilot/"
+  ],
+  "deployedCommit": "605d903b3563a42fff414b7e20d2dc51ff518dad",
+  "targetProof": {
+    "checkedAt": "2026-11-06T11:07:07.761241+00:00",
+    "deployedCommit": "605d903b3563a42fff414b7e20d2dc51ff518dad",
+    "routes": [
+      {
+        "route": "",
+        "status": 200,
+        "scripts": [
+          "./assets/explorer-CwOrKrNl.js"
+        ],
+        "localScripts": [
+          "./assets/explorer-CwOrKrNl.js"
+        ],
+        "match": true,
+        "entries": [
+          {
+            "asset": "./assets/explorer-CwOrKrNl.js",
+            "status": 200,
+            "bytes": 93044
+          }
+        ]
+      },
+      {
+        "route": "studio/",
+        "status": 200,
+        "scripts": [
+          "../assets/studio-CSAgR-tj.js"
+        ],
+        "localScripts": [
+          "../assets/studio-CSAgR-tj.js"
+        ],
+        "match": true,
+        "entries": [
+          {
+            "asset": "../assets/studio-CSAgR-tj.js",
+            "status": 200,
+            "bytes": 158183
+          }
+        ]
+      },
+      {
+        "route": "product-room/",
+        "status": 200,
+        "scripts": [
+          "../assets/room-BjDn0-4_.js"
+        ],
+        "localScripts": [
+          "../assets/room-BjDn0-4_.js"
+        ],
+        "match": true,
+        "entries": [
+          {
+            "asset": "../assets/room-BjDn0-4_.js",
+            "status": 200,
+            "bytes": 44429
+          }
+        ]
+      }
+    ]
+  },
+  "liveVerification": {
+    "requestItems": {
+      "base": "https://kyle-annora.github.io/annora-explorer/",
+      "browser": "Chrome browser automation; mobile emulation",
+      "result": [
+        {
+          "name": "model-1440",
+          "passed": true,
+          "requestIds": [
+            "REQ-3211e023-e02b-4b4b-850e-0cf39e2d8dce",
+            "REQ-0955e50a-5fcc-4823-bb21-77387d755f93"
+          ],
+          "first": "kinetic-node-044",
+          "second": "rod",
+          "errors": []
+        },
+        {
+          "name": "model-390",
+          "passed": true,
+          "requestIds": [
+            "REQ-0ad2499b-beef-48ad-9756-39254c91f462",
+            "REQ-20ed2fbe-9de5-4fe0-9cd6-131b34c19b06"
+          ],
+          "first": "kinetic-node-044",
+          "second": "rod",
+          "errors": []
+        },
+        {
+          "name": "drawing-1440",
+          "passed": true,
+          "requestIds": [
+            "REQ-194b8299-4613-499e-b85c-a715eb624a5e",
+            "REQ-65e81dc4-449f-4cf3-a3c9-975ae77c54a4"
+          ],
+          "first": "shaft-bore",
+          "second": "cross-bore",
+          "errors": []
+        },
+        {
+          "name": "drawing-390",
+          "passed": true,
+          "requestIds": [
+            "REQ-36680a4b-9274-4ce0-acff-95e2a28c3565",
+            "REQ-80b552ee-e870-4b90-b546-7f5fc7af9c76"
+          ],
+          "first": "shaft-bore",
+          "second": "cross-bore",
+          "errors": []
+        }
+      ]
+    },
+    "story": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "authored-two-steps",
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/#edit/presentation",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        },
+        {
+          "name": "buyer-preview",
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/#preview?id=ROOM-PREVIEW-69d72bef-ebcd-491b-9e50-de781e5ca8a0",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        },
+        {
+          "name": "release-review",
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/#release",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        },
+        {
+          "name": "published-locally",
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/#release?id=ROOM-DEMO-a60b387c-abaf-4886-a5d9-90833c7f0bd9",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        },
+        {
+          "name": "released-story",
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=kinetic-01#explore",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        },
+        {
+          "name": "story-to-inquiry",
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=kinetic-01#inquiry",
+          "layout": {
+            "width": 390,
+            "height": 844,
+            "overflow": false
+          }
+        }
+      ],
+      "errors": [],
+      "release": "ROOM-DEMO-a60b387c-abaf-4886-a5d9-90833c7f0bd9"
+    }
+  }
+}

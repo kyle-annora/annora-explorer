@@ -75,13 +75,22 @@ retain their controls. Short landscape puts the story beside the model.
 Visual evidence: [request review on phone](evidence/product-expansion/request-review-mobile.png)
 and [authored story on desktop](evidence/product-expansion/authored-story-desktop.png).
 
-Publication is pending a successful GitHub Pages run and target verification.
-The implementation commit is `7edc54958d0f6290f0316eb8d063e495094fc040`.
-On November 6, [deployment run 42204497615](https://github.com/kyle-annora/annora-explorer/actions/runs/42204497615)
-passed its build and verification, but both deployment attempts reached the
-Pages synchronization timeout. The public Studio still served its previous
-bundle when checked. A new documentation commit triggers one fresh deployment;
-this is a retry, not evidence of a resolved cause or a successful release.
+Published and verified on November 6, 2026. The implementation commit is
+`7edc54958d0f6290f0316eb8d063e495094fc040`; the deployed source commit is
+`605d903b3563a42fff414b7e20d2dc51ff518dad` (the same application code plus a
+publication-status note). [Deployment run 42207554904](https://github.com/kyle-annora/annora-explorer/actions/runs/42207554904)
+completed successfully, and the Pages deployment API returned `succeed`.
+
+The public Explorer, Studio and Product Room entry assets match the verified
+compiled candidate. On the live site, all four contextual-request cases passed
+(crank and SK08, desktop and phone). The phone story sequence also passed:
+author, reorder, capture, preview, review, publish locally, play and start an
+inquiry with the exact part and product release. These checks reported no page
+errors or horizontal overflow. See the [release receipt](evidence/product-expansion/release-receipt.json).
+
+The preceding [run 42204497615](https://github.com/kyle-annora/annora-explorer/actions/runs/42204497615)
+passed its build but timed out twice in Pages synchronization. The fresh-commit
+retry succeeded; the underlying cause of the earlier timeout remains unconfirmed.
 The local evidence directory is `work/product-expansion/`; it contains retained
 failed probes as well as the corrected acceptance runs, so failed intermediate
 test assumptions are not mistaken for final product failures.
