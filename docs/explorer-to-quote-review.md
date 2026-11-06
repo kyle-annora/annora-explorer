@@ -15,8 +15,8 @@ Review routes:
 - [SK08 drawing workspace](https://kyle-annora.github.io/annora-explorer/drawing-preview/?product=sk08&view=drawings)
 - [Connecting-rod drawing workspace](https://kyle-annora.github.io/annora-explorer/drawing-preview/?product=linkrods&view=drawings)
 
-These are target routes. Publication is confirmed only by the release checkpoint
-and target receipt, not by the presence of a link in this document.
+Published source: `f9f71b9d8deff34839b6df0437063d25f79ded54`.
+[GitHub Pages deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/42176190544) succeeded. The target verification matched 35 served resources to the compiled build; the receipt is `work/explorer-to-quote/release/release.json`.
 
 ## Evidence recorded so far
 
@@ -30,8 +30,7 @@ and target receipt, not by the presence of a link in this document.
 | Source A→B | Actual B PDF imported; seven mappings manually confirmed; reviewed publication and project adoption; v2 retains B while inquiry and v1 retain A |
 | Drawing mobile | Both products at 390 px, 320 px and 844×390; short-landscape legend overlap fixed and ordinary clicks retested |
 
-Compiled-subpath and public verification are recorded in the program's progress
-checkpoint when complete. Browser emulation is not physical-device qualification.
+Compiled-subpath verification passed for the desktop, 390 px, 320 px and short-landscape cases described above. Public verification passed for complete desktop/mobile Room and walkthrough journeys, plus SK08 source A→B on desktop and inquiry→v2 on mobile. Evidence and hashes are linked from the [progress record](explorer-to-quote-progress.md). Browser emulation is not physical-device qualification.
 
 ## Issues and preserved retests
 

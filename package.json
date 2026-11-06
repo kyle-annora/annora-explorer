@@ -7,6 +7,7 @@
     "prepare:project": "node scripts/configure.mjs",
     "dev": "npm run prepare:project && vite --host 127.0.0.1 --port 8095",
     "build": "npm run prepare:project && vite build",
+    "build:inquiry": "vite build --config vite.inquiry.config.js",
     "preview": "vite preview --host 127.0.0.1 --port 8095",
     "test": "npm run prepare:project && node --test tests/*.test.mjs tests/runtime/*.test.js",
     "check": "node scripts/check-project.mjs && node scripts/check-drawings.mjs",

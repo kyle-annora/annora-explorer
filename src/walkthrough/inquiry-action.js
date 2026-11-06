@@ -7,7 +7,7 @@ export function inquiryWalkthroughAction({ state, panel }) {
   if (state.stage === 'confirmed') return {
     id: 'inquiry-project', note: 'Open the saved project to continue the buyer and seller conversation.', run: () => panel.openProject(),
   };
-  if (['CONFLICT', 'STALE_REVIEW', 'RELOAD_FAILED', 'DRAFT_UNAVAILABLE'].includes(state.errorCode)) return {
+  if (['CONFLICT', 'STALE_REVIEW', 'RELOAD_FAILED', 'DRAFT_UNAVAILABLE', 'REVIEW_UNAVAILABLE'].includes(state.errorCode)) return {
     id: 'inquiry-recovery', disabled: true, note: 'Keep your entries or explicitly load the saved draft in the inquiry panel.', run: () => {},
   };
   if (!state.hasDraft) return { id: 'inquiry-loading', disabled: true, run: () => {} };

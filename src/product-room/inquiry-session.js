@@ -6,7 +6,15 @@ import {
 /** The same persistence/review boundary is used by page and embedded inquiries. */
 export async function prepareInquirySubmission({ repository, draft, saveDraft = value => repository.saveDraft(value) }) {
   const saved = await saveDraft(draft);
-  return { draft: saved, review: reviewInquiry(saved) };
+  const standard = reviewInquiry(saved);
+  if (!repository.prepareInquiryReview) return { draft: saved, review: standard };
+  // A client may prepare its existing brief/review record here. The packet must
+  // retain the exact saved draft the customer is about to review; confirmation
+  // later forwards this same packet without preparing another hidden review.
+  const review = await repository.prepareInquiryReview(cloneProjectValue(saved));
+  if (!review || typeof review.token !== 'string' || !review.token.trim() || !sameProjectValue(review.draft, saved))
+    throw new ProjectError('INVALID_REVIEW', 'The prepared review does not match this saved draft. Your details are still here; review them again.');
+  return { draft: saved, review: cloneProjectValue(review) };
 }
 
 export function confirmInquirySubmission({ repository, review }) {

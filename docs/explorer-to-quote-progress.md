@@ -5,31 +5,29 @@ Plan: [delivery program](explorer-to-quote-program.md).
 ## Current checkpoint
 
 - Program authorized and active: November 5, 2026.
-- Current published baseline: `00948c889737b95e6ca4acecf4f6e59f34b15692`.
-- This checkpoint: Stages 1 and 2 implemented and locally verified; publication
-  is pending the target receipt. No new public release is claimed yet.
-- Next executable unit: publish the verified candidate, then EQ-301/302's isolated
-  customer integration preparation. The continuing goal remains active.
+- Current published milestone: `f9f71b9d8deff34839b6df0437063d25f79ded54`.
+- Stages 1 and 2 are published and verified on GitHub Pages. [Deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/42176190544) succeeded; 35 served resources match the compiled candidate.
+- Next executable unit: EQ-301/302, an isolated customer integration. The continuing goal remains active.
 
 | Stage | Status | Evidence / next action |
 | --- | --- | --- |
 | 0. Baseline and delivery plan | Complete | Existing release receipt and acceptance linked in the program; runtime/source audits started |
-| 1. Continuous demonstration | Implemented; release pending | Full Room and walkthrough journeys pass; receipt/navigation issue fixed |
-| 2. Drawing entry | Implemented; release pending | Eight compiled product/viewport cases pass, including manual source A→B→v2 |
+| 1. Continuous demonstration | Published and verified | Full Room and walkthrough journeys pass; receipt/navigation issue fixed |
+| 2. Drawing entry | Published and verified | Eight compiled product/viewport cases pass, including manual source A→B→v2 |
 | 3. Customer reuse | Source and architecture audited; implementation pending | Keep MK in its own candidate; reuse an asset-free inquiry bundle and its existing brief repository |
 
 ## Task ledger
 
 | Task | Status | Required evidence |
 | --- | --- | --- |
-| EQ-101 | Verified locally | Room floating panel + exact release + one canvas |
-| EQ-102 | Verified locally | Entry convergence + guarded navigation + recovery |
-| EQ-103 | Verified locally | Continue demo + buyer/seller review gates |
-| EQ-104 | Release pending | Full journey and guide ready; target verification remains |
-| EQ-201 | Verified locally | Same drawing repository and in-place inquiry |
-| EQ-202 | Verified locally | Detail capture/restore and review identity |
-| EQ-203 | Verified locally | A/B, manual review and immutable old history |
-| EQ-204 | Release pending | Host contract and original-PDF route ready |
+| EQ-101 | Verified and published | Room floating panel + exact release + one canvas |
+| EQ-102 | Verified and published | Entry convergence + guarded navigation + recovery |
+| EQ-103 | Verified and published | Continue demo + buyer/seller review gates |
+| EQ-104 | Verified and published | Complete desktop/mobile public journey and release receipt |
+| EQ-201 | Verified and published | Same drawing repository and in-place inquiry |
+| EQ-202 | Verified and published | Detail capture/restore and review identity |
+| EQ-203 | Verified and published | A/B, manual review and immutable old history |
+| EQ-204 | Verified and published | Public drawing flows, original PDF and host contract |
 | EQ-301 | Audited; refresh before candidate | MK current sources may advance independently |
 | EQ-302 | Pending | Configuration-based customer integration |
 | EQ-303 | Pending | Fictional customer journey, desktop/mobile |
@@ -66,6 +64,10 @@ Plan: [delivery program](explorer-to-quote-program.md).
 Paths above are relative to `work/explorer-to-quote/`. Original failures remain
 preserved; the acceptance review distinguishes application defects from runner
 selectors that needed to use the actual visible mobile close/resume controls.
+
+- `release/release.json`: published revision, successful deployment, 35 target hashes and evidence digests.
+- `stage-1/live/summary.json`: desktop and 390 px complete public journeys, including eight explicit confirmations.
+- `stage-2/LIVE-TARGETED-QA.json`: two public cases, 30 checkpoints, including actual source B import and immutable A history.
 
 ## Stage 3 implementation boundary
 
