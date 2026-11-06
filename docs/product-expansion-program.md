@@ -4,6 +4,11 @@ Approved November 6, 2026. This records the user's acceptance of six product
 extensions and two reuse foundations. Approval of the roadmap is not evidence
 that every phase has shipped. Preserve the current Explorer and commercial flows.
 
+The [detailed scope and execution pack](product-expansion/README.md) expands this
+approved direction into bounded user flows, work packages, agent ownership and
+evaluation gates. Its execution breakdown is proposed for review; the status
+table below remains the capability ledger.
+
 ## Outcome
 
 A seller prepares an explanation from existing product assets. A buyer collects

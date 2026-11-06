@@ -38,9 +38,12 @@ The first authoring release covers product copy/facts, part/document links,
 existing presentation entry points, inquiry prompts and release review. Extend
 model readiness, materials and short-story authoring after this workflow is reviewed.
 
-A Story Composer is now approved and in implementation. It can select a component and camera, bind an approved 2–3 second
-action, supply a short explanation and preview its held endpoint. Its output
-should be the existing model/tour package, not a second animation runtime.
+A first [story editor](studio-story-authoring.md) is published for the prepared
+crank. It selects a component and camera, binds an approved 2–3 second action,
+supplies a short explanation and previews the held endpoint. Its released story
+uses the existing controller/player; it is not a second animation runtime.
+Prepared-product generalization and linked technical-view steps are proposed in
+the [detailed expansion scope](product-expansion/scope.md).
 AI assistance may propose copy or views grounded in supplied material; engineering
 relationships and motion require review. Measure preparation effort on another
 customer product before deciding which authoring tasks to automate.
@@ -54,6 +57,9 @@ customer product before deciding which authoring tasks to automate.
 5. Plan durable sharing and the first real customer pilot with future Annora services.
 
 The [program](product-expansion-program.md) owns the detailed acceptance and status.
+The [execution plan](product-expansion/execution.md) defines proposed work packages,
+dependencies and agent ownership; its [evaluation plan](product-expansion/evaluation.md)
+defines evidence for the remaining scope.
 The existing buyer/seller loop and three integration stages are already delivered;
 new work extends them rather than reimplementing their state or renderer.
 
