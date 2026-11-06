@@ -158,12 +158,14 @@ test('incomplete per-change explanations survive save/reload and final issue val
   const issuedProject=await repo.issueQuote(reviewQuote(project,draft));assert.equal(issuedProject.quotes.length,2);assert.equal(issuedProject.messages.at(-1).body,draft.replyDraft.body);
 });
 
-test('legacy amount-only quote lines copy into editable drafts with stable comparison identities',async()=>{
+test('legacy amount-only quotes stay intact and new drafts require explicit line quantities',async()=>{
   const {repo,storage}=setup(),project=await repo.createSampleInquiry(context);await repo.createSampleQuote(project.id);
   const store=JSON.parse(storage.getItem(PROJECT_STORAGE_KEY));for(const item of store.projects[0].quotes[0].lineItems){delete item.quantity;delete item.unitPrice;}
-  storage.setItem(PROJECT_STORAGE_KEY,JSON.stringify(store));const draft=await repo.getQuoteDraft(project.id);
-  assert.equal(draft.values.lineItems[0].quantity,'1');assert.equal(draft.values.lineItems[0].unitPrice,'3700');assert.equal(draft.values.lineItems[2].unitPrice,'');
-  assert.deepEqual(quoteDraftErrors(draft),{});
+  storage.setItem(PROJECT_STORAGE_KEY,JSON.stringify(store));const before=storage.getItem(PROJECT_STORAGE_KEY),draft=await repo.getQuoteDraft(project.id);
+  assert.equal(draft.values.lineItems[0].quantity,'');assert.equal(draft.values.lineItems[0].unitPrice,'');assert.equal(draft.values.lineItems[2].unitPrice,'');
+  assert.ok(quoteDraftErrors(draft)['lineItems.0.quantity']);
+  assert.equal(storage.getItem(PROJECT_STORAGE_KEY),before);
+  assert.deepEqual((await repo.getProject(project.id)).quotes,store.projects[0].quotes);
 });
 
 test('a new buyer change safely retargets a restored quote draft without overwriting input',async()=>{

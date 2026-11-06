@@ -29,6 +29,7 @@ export function createInquiryEntry({ navigation, label = 'Request a quote', onRe
   sync();
   return {
     setReady(value) { ready = value; sync(); },
+    setLabel(value) { label = value; sync(); },
     showError,
     dispose() { abort.abort(); button.remove(); message.remove(); delete doc.body.dataset.quoteEntry; },
   };

@@ -1,4 +1,5 @@
 /** Shared inquiry presentation contract. Commercial rules remain in project-domain. */
+import { inquiryRequiresQuantity } from './inquiry-rules.js';
 const definitions = [
   ['application', 'Application', 'Describe the task, installation or process.', ''],
   ['quantity', 'Quantity', '', 'units'],
@@ -33,5 +34,6 @@ export function normalizeInquiryProfile(profile) {
   return { id: profile.id.trim(), version: profile.version.trim(), fields };
 }
 
-export const inquiryFields = context => context?.inquiryProfile?.fields || DEFAULT_INQUIRY_PROFILE.fields;
-export const inquiryField = (context, id) => inquiryFields(context).find(field => field.id === id) || DEFAULT_INQUIRY_PROFILE.fields.find(field => field.id === id);
+export const inquiryFields = (context, values) => (context?.inquiryProfile?.fields || DEFAULT_INQUIRY_PROFILE.fields)
+  .map(field => field.id === 'quantity' ? { ...field, required: inquiryRequiresQuantity(values) } : field);
+export const inquiryField = (context, id, values) => inquiryFields(context, values).find(field => field.id === id) || DEFAULT_INQUIRY_PROFILE.fields.find(field => field.id === id);

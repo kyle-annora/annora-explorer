@@ -8,7 +8,7 @@ import {
   Section,
   Status,
 } from "../product-room/ui/components.jsx";
-import { compareQuotes, quoteScopeLabel } from "../product-room/project-domain.js";
+import { compareQuotes, quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel } from "../product-room/project-domain.js";
 import { inquiryField } from "../product-room/inquiry-profile.js";
 import { STUDIO_ASSETS } from "./seed.js";
 import { date, readRoute } from "./navigation.js";
@@ -204,7 +204,7 @@ export function InquiryDetails({ project }) {
     ["Company", values.company, "company"],
     ["Contact", values.name, "name"],
     ["Email", values.email, "email"],
-    ["Quantity", values.quantity, "quantity"],
+    ["Quantity", inquiryQuantityLabel(values), "quantity"],
     [
       "Requested timing",
       values.targetWeeks ? `${values.targetWeeks} weeks` : "",
@@ -223,6 +223,7 @@ export function InquiryDetails({ project }) {
         <p>{values.application}</p>
       </div>
       <dl className="customer-facts">
+        <div><dt>Inquiry intent</dt><dd>{inquiryIntentLabel(values)}</dd></div>
         <div><dt>Requested quote scope</dt><dd>{quoteScopeLabel(values, project.context)}</dd></div>
         {fields.map(([label, value]) => (
           <div key={label}>

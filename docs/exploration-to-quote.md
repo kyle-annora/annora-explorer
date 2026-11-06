@@ -15,14 +15,16 @@ Product Room and Studio. It keeps the current visual language and rendering.
 Start at [the crank demonstration](https://kyle-annora.github.io/annora-explorer/?model=kinetic-01&presentation=1).
 
 1. Watch or pause a chapter, or enter Explore and select a component.
-2. Choose **Request a quote**. The current view is attached, with a small preview
-   when capture is available. Playback pauses before capture.
-3. Describe the application and choose the requested scope: **Whole product**,
+2. Choose **Request a quote**, **Ask about this component**, or **Discuss this
+   application**. The same floating inquiry opens beside the model. The current
+   view is attached, with a small preview when available. Playback pauses first.
+3. Choose quotation or application review. A consultation may leave quantity
+   unknown. Describe the application and choose the requested scope: **Whole product**,
    **Selected component**, or **Help define scope**. Looking at a component does
    not automatically ask the manufacturer to quote it.
 4. Choose **Review inquiry**, check the details and reference, then explicitly
    confirm the fictional inquiry.
-5. Choose **View as seller**. Studio shows the confirmed application, scope and
+5. From the receipt, choose **Open project**, then **View as seller**. Studio shows the confirmed application, scope and
    saved reference. **Reopen saved view** restores the referenced model version,
    camera, component and source pose; return takes the seller back to the project.
 6. Prepare a quotation, review it, and issue the demo version. In the buyer view,
@@ -37,14 +39,18 @@ catalog does not automatically promise a supported inquiry or seller workflow.
 
 | Decision | Customer benefit | Boundary |
 | --- | --- | --- |
-| One visible quote entry in Demo and Explore | Start a request from the point of understanding | Only enabled commercial products |
+| Contextual entries share one saved request | Start from the selected part, chapter or header | Only enabled commercial products |
 | Compact real preview plus a reopen action | Identify what was being discussed | Missing preview never substitutes a fabricated image |
 | Explicit quote scope | Separate the viewed part from the requested offer | Historic inquiries without scope remain unspecified |
 | Existing two-step inquiry | Requirements, then review and confirm | No submission merely by completing the form |
 | Preserve the saved draft on return | Continue work without losing the original reference | Adopting a new reference is an explicit action |
 | Seller reopens the same view | Reduce ambiguity during scope review | Version mismatch fails visibly rather than opening another revision |
 
-Top-level Explore also follows the draft's saved reference after Overview or
+The panel can be minimized while exploring; **Continue request** resumes it.
+Changing the live selection leaves the attached reference intact. See the
+[embedded-inquiry decisions](embedded-inquiry.md) for the current pilot scope.
+
+In Product Room, top-level Explore also follows the draft's saved reference after Overview or
 Specs, and protects pending input. Temporary capture links are removed when
 navigating to a durable saved project. Failed handoffs leave a retry path and
 unlock the form.
@@ -117,5 +123,6 @@ can claim this experience.
 | Mobile | Usable at 320px and 390px; no horizontal overflow or duplicate large preview |
 | Existing experiences | Explorer modes, drawings and model switching continue to work |
 
-See [delivery verification](exploration-to-quote-review.md) for the candidate's
-recorded results and publication evidence.
+See [embedded inquiry verification](embedded-inquiry-review.md) for the current
+candidate. The [earlier handoff verification](exploration-to-quote-review.md)
+remains available as historical evidence.

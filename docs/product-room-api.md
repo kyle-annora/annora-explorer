@@ -39,6 +39,21 @@ Legacy `createSampleQuote(id)` and `simulateReply(id, changeId)` remain fixture
 compatibility methods. The buyer interface no longer uses them to manufacture a
 supplier response. They are not production APIs.
 
+New inquiry drafts carry `values.intent`: `quotation` (default) or
+`application-review`. Quotation requires a whole quantity from 1 to 100,000.
+Application review may keep quantity as the empty string, meaning unknown;
+any supplied quantity obeys the same integer limits. Both paths retain the
+application, reference, editable review and explicit confirmation boundaries.
+`inquiryFields(context, values)` and `inquiryField(context, id, values)` return
+effective required flags without modifying the saved presentation profile.
+
+New drafts, sealed reviews and submitted inquiries pin
+`inquiryRulesVersion: 'inquiry-intent-v1'` separately from `inquiryProfileVersion`.
+Older profiles and Room releases remain valid and unchanged. Historical records
+without intent or a rule version retain those omissions; quantity remains required
+for their existing review path. Choosing an intent on an older draft explicitly
+adopts v1 on save. Unsupported rule versions are rejected without rewriting data.
+
 ## Seller methods
 
 Pure review helpers are exported from `seller-domain.js`.
@@ -63,6 +78,11 @@ quantity, scope, proposed lead time, newline-separated assumptions/exclusions,
 validity and line items (`id`, `label`, quantity and unit-price numeric strings).
 Blank unit price means unknown. `quoteDraftErrors` validates the issuing boundary;
 `quoteDraftPreview` derives a customer-facing quote. Totals are not editable.
+Unknown inquiry quantity stays blank in a seller draft and `null` in its preview.
+Issuing requires an explicit valid whole quantity and valid quantities for every
+line. The sample-quote helper also rejects an unknown inquiry quantity. Missing
+quantities on historical amount-only quote lines are not converted to one unit:
+the issued history stays intact, while a new draft requires explicit line values.
 
 Reply values contain `kind` (`reply`, `clarification`, `change-response`), `body`,
 optional `changeId`, and resolutions. Each resolution has a topic (`quantity`,
@@ -121,6 +141,30 @@ must not silently overwrite another tab's saved draft.
 Expected errors include `VALIDATION`, `STALE_REVIEW`, `CONFLICT`, `NOT_FOUND`,
 `UNSUPPORTED_PRODUCT`, `STORAGE_UNAVAILABLE` and `STORAGE_CORRUPT`, with a human
 message and optional field errors.
+
+## Embedded inquiry host
+
+The repository-local `mountEmbeddedInquiry(element, options)` returns a handle
+with `open`, `getContext`, `beforeLeave`, `minimize` and `dispose`. Options accept
+the same asynchronous project repository plus `onCapture`, `onRestore`,
+`onProject` and `onState` callbacks. `open({context, suggestedIntent,
+suggestedScope, opener})` resumes a matching saved draft. Suggestions apply only
+to a new draft; the DOM focus-return target never enters the data model.
+
+`onCapture()` returns a complete `ProductContext`; `onRestore(context)` restores
+its validated inspection. Capture occurs on entry or explicit reference update,
+never on hover or every selection. `onProject(project)` is the host's navigation
+boundary. `beforeLeave()` flushes pending saves and returns false on failure.
+
+`createInquirySession` owns the headless panel lifecycle. Both panel and page
+use `prepareInquirySubmission` and `confirmInquirySubmission` at the same
+repository review/confirmation boundary. Loading a newer conflicting draft and
+starting another inquiry after a receipt are explicit actions. The product
+release, rules version and reviewed packet stay separate from transient UI state.
+
+This local composition is not a published cross-viewer SDK. An external viewer
+still needs verified identity/capture/restore adapters; the existing Annora JSON
+controller remains the only supported renderer boundary.
 
 ## Production adapter responsibilities
 

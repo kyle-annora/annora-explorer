@@ -17,7 +17,7 @@ import { createTimelineNavigation } from './timeline-navigation.js';
 import { createViewerNavigation } from './ui/viewer-navigation.js';
 import { createInquiryEntry } from './ui/inquiry-entry.js';
 import commerce from '../../content/commerce.json';
-import { createExplorationHandoff, readExplorationHandoff } from '../product-room/exploration-handoff.js';
+import { readExplorationHandoff } from '../product-room/exploration-handoff.js';
 import { createReferenceWorkspace } from './ui/reference-workspace.js';
 import { canUseReferenceWorkspace, referenceChapterForNode } from './ui/reference-context.js';
 import { getPresentationAssets, presentationMediaPath } from './presentation-assets.js';
@@ -68,7 +68,7 @@ const controller = new ExplorerController({ model, port: {
   getTheme: () => ({ id: clientTheme.id, revision: clientTheme.accent }),
   setTheme: (id,accent) => chooseTheme(resolveTheme(id,accent)), sync: () => { if (explorer?.ready && !shellAbort.signal.aborted) syncPresentationUI(); },
   focus: () => { closeTree(); },
-  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); inquiryEntry?.dispose(); viewerNavigation?.dispose(); referenceWorkspace?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
+  dispose: () => { shellAbort.abort(); contextualInspection?.cancel(); treeAbort.abort(); overlayObserver?.disconnect(); cancelAnimationFrame(overlayFrame); cancelAnimationFrame(layoutFrame); cancelAnimationFrame(appearanceFrame); orbital?.dispose(); timeline?.dispose(); inquiryEntry?.dispose(); inquiryPanel?.dispose(); inquiryMount?.remove(); viewerNavigation?.dispose(); referenceWorkspace?.dispose(); guidedTour?.dispose(); explorer?.dispose(); },
 } });
 function command(method, params = {}) {
   return controller.request({ requestId: `shell-${++requestSequence}`, method, params }).then(event => {
@@ -90,9 +90,10 @@ $('breadcrumbs').replaceChildren(textNode('span',model.title));
 $('selection-title').textContent=model.title;
 $('model-select').replaceChildren(...Object.values(MODEL_CATALOG).map(item=>{const option=textNode('option',item.shortTitle);option.value=item.id;return option;}));
 $('model-select').value=model.id;
-function changeModel(id) {
+async function changeModel(id) {
   const nextModel = MODEL_CATALOG[id];
   if (!nextModel || id === model.id) return;
+  if (inquiryPanel && !await inquiryPanel.beforeLeave()) { $('model-select').value=model.id; return; }
   contextualInspection?.cancel();
   const url = new URL(location.href);
   url.searchParams.set('model', id);
@@ -162,8 +163,9 @@ async function inquiryCommand(method, args = {}) {
   if (event.payload.status !== 'completed') throw Object.assign(new Error(event.payload.error?.message || 'The 3D reference could not be prepared.'), { code: event.payload.error?.code });
   return event.payload.result;
 }
-let restoredInquiryContext = null;
-async function openCommercialInquiry() {
+let restoredInquiryContext = null, inquiryPanel, inquiryMount, inquiryOpening;
+let inquiryPanelState = {open:false, expanded:false};
+async function captureCommercialContext() {
   const state = await inquiryCommand('getState');
   if (state.tour?.active && state.tour.status === 'playing') await inquiryCommand('pauseTour');
   if (state.operation?.status === 'playing') await inquiryCommand('pauseOperation');
@@ -177,12 +179,13 @@ async function openCommercialInquiry() {
     }
   }
   if (shellAbort.signal.aborted) return;
+  $('status-message').textContent = '3D reference attached. Your view is saved with the request.';
   const inspection = captured.inspection, selected = inspection.view?.selectedId || inspection.tour?.selectedId;
   let context = { productId:commercialProduct.productId, productTitle:model.title, modelId:model.id, modelRevision:model.revision, inspection };
   // A returned inquiry keeps its reviewed product content even if Studio has
   // published a newer release while the buyer was looking at the model.
-  if (restoredInquiryContext) {
-    const saved = restoredInquiryContext;
+  if (inquiryPanel?.getContext() || restoredInquiryContext) {
+    const saved = inquiryPanel?.getContext() || restoredInquiryContext;
     if (saved.modelId === model.id && saved.modelRevision === model.revision && saved.roomReleaseId) {
       const {part,chapter,inspection:previousInspection,...release} = saved;
       context = {...release,inspection};
@@ -197,12 +200,80 @@ async function openCommercialInquiry() {
     const chapter = tour.chapters.find(item => item.id === inspection.tour.chapterId);
     if (chapter) context.chapter = {id:chapter.id,title:chapter.label || chapter.title || chapter.id,tourId:tour.id};
   }
-  const token = createExplorationHandoff(context);
-  const url = new URL('./product-room/',location.href);
-  url.searchParams.set('model',model.id); url.searchParams.set('handoff',token); url.hash='inquiry';
-  location.assign(url);
+  const { attachInquiryRelease } = await import('../product-room/explorer-inquiry-context.js');
+  return attachInquiryRelease(context);
 }
-if (topLevelViewer && commercialProduct && viewerNavigation) inquiryEntry = createInquiryEntry({navigation:viewerNavigation,label:commercialProduct.label,onRequest:openCommercialInquiry});
+function syncInquiryOccupancy(state) {
+  const changed = inquiryPanelState.expanded !== state.expanded;
+  inquiryPanelState = state;
+  document.body.dataset.inquiryExpanded = String(Boolean(state.open && state.expanded));
+  document.body.dataset.inquiryOpen = String(Boolean(state.open));
+  inquiryEntry?.setLabel(state.stage === 'confirmed' ? 'View inquiry' : state.hasDraft ? 'Continue request' : commercialProduct.label);
+  if (changed && state.open && state.expanded) {
+    closeTree(); closeDisplay(); closeTheme(); closePath(); closePerformance();
+  }
+  if (changed) {
+    // Reflow once when the panel opens or closes. Typing and autosaving never
+    // refit the model, and the inquiry's captured view remains immutable.
+    explorer?.resize();
+  }
+}
+async function ensureInquiryPanel() {
+  if (inquiryPanel) return inquiryPanel;
+  const { mountEmbeddedInquiry } = await import('../product-room/embedded-inquiry.jsx');
+  if (shellAbort.signal.aborted) return null;
+  inquiryMount = document.createElement('div');
+  inquiryMount.id = 'embedded-inquiry-root'; document.body.append(inquiryMount);
+  inquiryPanel = await mountEmbeddedInquiry(inquiryMount, {
+    onCapture: captureCommercialContext,
+    async onRestore(context) {
+      if (!context.inspection) throw new Error('This request has no saved 3D view.');
+      await inquiryCommand('restoreInspection', {inspection:context.inspection});
+      const url = new URL(location.href);
+      if (context.inspection.tour) url.searchParams.set('presentation','1');
+      else url.searchParams.delete('presentation');
+      history.replaceState(null,'',url); await timeline?.sync();
+    },
+    onProject(project) {
+      const url = new URL('./product-room/', location.href);
+      url.searchParams.set('model',model.id); url.hash = 'project&project=' + encodeURIComponent(project.id);
+      location.assign(url);
+    },
+    onState: syncInquiryOccupancy,
+  });
+  return inquiryPanel;
+}
+async function openCommercialInquiry(entry = 'header', opener = $('viewer-request-quote')) {
+  if (inquiryOpening) return inquiryOpening;
+  inquiryOpening = (async () => {
+    const panel = await ensureInquiryPanel();
+    if (!panel || shellAbort.signal.aborted) return;
+    // Re-entering never silently replaces the existing draft's pinned view.
+    const context = panel.getContext() || await captureCommercialContext();
+    if (!context || shellAbort.signal.aborted) return;
+    await panel.open({context, opener, suggestedIntent:entry === 'header' ? 'quotation' : 'application-review'});
+  })().finally(() => { inquiryOpening = null; });
+  return inquiryOpening;
+}
+function contextualInquiryButton(id, label, target, entry) {
+  const button = textNode('button',label); button.type='button'; button.id=id;
+  button.className='contextual-inquiry-button'; target.append(button);
+  listen(button,'click',async () => {
+    if (button.disabled) return;
+    button.disabled=true; button.setAttribute('aria-busy','true');
+    try { await openCommercialInquiry(entry, button); }
+    catch (error) { inquiryEntry?.showError(error); }
+    finally { button.disabled=false; button.removeAttribute('aria-busy'); }
+  });
+  return button;
+}
+let componentInquiryButton;
+if (topLevelViewer && commercialProduct && viewerNavigation) {
+  inquiryEntry = createInquiryEntry({navigation:viewerNavigation,label:commercialProduct.label,onRequest:() => openCommercialInquiry()});
+  componentInquiryButton = contextualInquiryButton('component-inquiry','Ask about this component',document.querySelector('.detail-panel'),'component');
+  componentInquiryButton.hidden=true;
+  contextualInquiryButton('chapter-inquiry','Discuss this application', $('tour-copy'),'chapter');
+}
 
 async function restoreIncomingInspection() {
   try {
@@ -246,6 +317,11 @@ function viewportInsets(){
   const width=$('scene').clientWidth,height=$('scene').clientHeight;
   const rect=selector=>{const node=document.querySelector(selector);return node&&!node.hidden&&node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'?node.getBoundingClientRect():null;};
   const header=rect('.app-header'),heading=rect('.stage-heading');
+  if (inquiryPanelState.open && inquiryPanelState.expanded) {
+    const panel=rect('#embedded-inquiry-root > *');
+    const top=Math.max(header?.bottom||0,heading?.bottom||0)+12;
+    if (panel) return mobileLayout.matches ? {left:12,right:12,top,bottom:Math.max(12,height-panel.top+12)} : {left:12,right:Math.max(12,width-panel.left+12),top,bottom:100};
+  }
   if(guidedTour?.active){
     const transport=rect('.tour-transport'),copy=rect('#tour-copy');
     const bottom=height-(mobileLayout.matches&&!shortLandscape.matches?Math.min(copy?.top||height,transport?.top||height):(transport?.top||height))+12;
@@ -418,6 +494,7 @@ function renderDetails(){
     $('back-scope').setAttribute('aria-label', `Back to ${backTarget.title}`);
     $('back-scope').title = `Back to ${backTarget.title}`;
   }
+  if (componentInquiryButton) componentInquiryButton.hidden=selected.id===model.rootId;
   $('selection-title').textContent=selected.title;$('selection-description').textContent=mode==='operate'&&selected.id===model.rootId&&operationState?.stage?operationState.stage.description:selected.id===model.rootId?(model.presentationPolicy?.root?.description||selected.description):selected.description;$('selection-badge').textContent=state.kind;
   const context=$('selection-context');context.hidden=state.within&&!navigation.isolated;context.textContent=navigation.isolated&&selected.id===navigation.scopeId?'Isolated · Surrounding parts hidden.':state.context;context.dataset.outside=String(!state.within);
   $('selection-meta').replaceChildren();for(const[label,value]of inspectionFacts(state,model))$('selection-meta').append(textNode('dt',label),textNode('dd',value));
@@ -460,6 +537,8 @@ listen($('toggle-tree'),'click',()=>{
 });
 for(const id of ['close-tree','tree-backdrop'])listen($(id),'click',()=>{closeTree();lastFocus?.focus();});
 listen(document,'keydown',event=>{
+  if (event.defaultPrevented || inquiryMount?.contains(event.target)) return;
+  if (event.key === 'Escape' && inquiryPanelState.open && inquiryPanelState.expanded) { event.preventDefault(); inquiryPanel?.minimize(); return; }
   if (orbital?.active) return;
   if(event.key==='Escape'){
     if(!$('path-panel').hidden){event.preventDefault();closePath(true);return;}

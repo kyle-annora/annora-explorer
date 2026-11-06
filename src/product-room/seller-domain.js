@@ -1,4 +1,4 @@
-import { ProjectError, cloneProjectValue, normalizeProjectContext, sameProjectValue } from './project-domain.js';
+import { ProjectError, cloneProjectValue, normalizeProjectContext, sameProjectValue, validInquiryQuantity } from './project-domain.js';
 import { pendingProjectChange, pendingClarification, changeTopics, changeIsResolved } from './project-state.js';
 export { pendingProjectChange, pendingClarification, changeIsResolved, sellerProjectStatus, changeTopics } from './project-state.js';
 
@@ -18,6 +18,11 @@ export const quoteProductTitle = project => text(project?.context?.productTitle)
 const requireProject = project => {
   if (!project?.id || !Number.isSafeInteger(project.revision)) throw new ProjectError('VALIDATION', 'Open a saved customer project first.');
 };
+const editableQuoteLine = (item, index) => {
+  const knownQuantity = Number.isFinite(item.quantity) && item.quantity > 0;
+  const unitPrice = item.unitPrice ?? (item.unitPrice === undefined && knownQuantity && Number.isFinite(item.amount) ? item.amount / item.quantity : null);
+  return { id: item.id || `line-${index+1}`, label: item.label, quantity: knownQuantity ? String(item.quantity) : '', unitPrice: unitPrice === null ? '' : String(unitPrice) };
+};
 export function createQuoteDraft(project, id) {
   requireProject(project);
   const quote = project.quotes.at(-1), pending = pendingProjectChange(project);
@@ -34,7 +39,7 @@ export function createQuoteDraft(project, id) {
       assumptions: quote?.assumptions.join('\n') || 'Application suitability, load and mounting require engineering review.\nFictional demonstration only; not a manufacturer offer.',
       exclusions: (quote?.exclusions || ['Freight, tax and application-specific engineering remain unpriced.']).join('\n'),
       validity: quote?.validity || 'To be agreed',
-      lineItems: quote ? quote.lineItems.map((item,index) => ({ id: item.id || `line-${index+1}`, label: item.label, quantity: String(item.quantity ?? 1), unitPrice: item.unitPrice === null || (item.unitPrice === undefined && item.amount === null) ? '' : String(item.unitPrice ?? (item.amount / (item.quantity || 1))) }))
+      lineItems: quote ? quote.lineItems.map(editableQuoteLine)
         : [{ id: 'assembly', label: `${quoteProductTitle(project)} — illustrative allowance`, quantity: project.inquiry.values.quantity, unitPrice: '' },
           { id: 'setup', label: 'Setup allowance', quantity: '1', unitPrice: '' },
           { id: 'freight', label: 'Freight and applicable tax', quantity: '1', unitPrice: '' }]
@@ -63,7 +68,7 @@ export function normalizeQuoteDraft(input) {
 }
 export function quoteDraftErrors(input) {
   const {values} = normalizeQuoteDraft(input), fields = {};
-  if (!/^\d+$/.test(values.quantity) || +values.quantity < 1 || +values.quantity > 100000) fields.quantity = 'Enter a whole quantity from 1 to 100,000.';
+  if (!validInquiryQuantity(values.quantity)) fields.quantity = 'Enter a whole quantity from 1 to 100,000 before issuing a quotation.';
   if (!values.scope) fields.scope = 'Describe what this quotation includes.';
   if (!values.proposedLeadTime) fields.proposedLeadTime = 'State the proposed lead time, or say it remains to be confirmed.';
   if (!values.lineItems.length) fields.lineItems = 'Add at least one line item.';
@@ -89,7 +94,7 @@ export function quoteDraftPreview(input, project) {
   const resolvedQuestions = new Set((project.messages || []).flatMap(message => message.resolutions?.some(item => item.topic === 'notes' && item.status !== 'needs-info') ? [project.changes.find(item => item.id === message.changeId)?.values.notes] : []));
   const openItems = existingOpenItems.filter(item => !item.id.startsWith('unpriced-') && !resolvedQuestions.has(item.label));
   for (const item of lineItems.filter(item => item.amount === null)) if (!openItems.some(existing => existing.label === item.label)) openItems.push({id:`unpriced-${item.id}`,label:item.label,owner:'Sales / customer',status:'Unpriced'});
-  return { ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,draft))} : {}),version:project.quotes.length+1,quantity:+values.quantity,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
+  return { ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,draft))} : {}),version:project.quotes.length+1,quantity:validInquiryQuantity(values.quantity) ? +values.quantity : null,unitPrice:lineItems[0]?.unitPrice ?? null,currency:'USD',lineItems,
     subtotal:cents(lineItems.reduce((sum,item) => sum+(item.amount ?? 0),0)),total:null,requestedWeeks:requestedWeeks ? +requestedWeeks : null,
     proposedLeadTime:values.proposedLeadTime,scope:values.scope,assumptions:lines(values.assumptions),exclusions:lines(values.exclusions),validity:values.validity,
     openItems,

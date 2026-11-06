@@ -1,6 +1,6 @@
 import {
   ProjectError, cloneProjectValue, createInquiryDraft, normalizeInquiryDraft,
-  projectContextKey, sameProjectValue, inquiryErrors, assertReview, reviewInquiry, reviewRevision, reviewNextStep
+  projectContextKey, sameProjectValue, inquiryErrors, assertReview, reviewInquiry, reviewRevision, reviewNextStep, validInquiryQuantity
 } from './project-domain.js';
 import { projectDrawingContext, recordContext } from './drawing-context.js';
 import { proposeProjectDrawingRevision, reviewProjectDrawingRevision, validateProjectDrawingHistory, validateRecordDrawingContext, projectContextAtRevision } from './drawing-revision.js';
@@ -16,6 +16,7 @@ const nonempty = value => typeof value === 'string' && value.length > 0;
 const integer = value => Number.isSafeInteger(value) && value >= 0;
 const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const unique = records => new Set(records.map(record => record.id)).size === records.length;
+const inquiryRuleSnapshot = inquiry => Object.hasOwn(inquiry, 'inquiryRulesVersion') ? { inquiryRulesVersion: inquiry.inquiryRulesVersion } : {};
 const validOpenItems = items => array(items) && items.every(item => nonempty(item.id) && nonempty(item.label) && nonempty(item.owner) && nonempty(item.status));
 const validateInspectionRecord = (project, record) => {
   if (!project?.context.drawing && (project?.context.inspection || record.context?.inspection) && !sameProjectValue(record.context, project?.context)) throw new Error('A saved record changed its inquiry view.');
@@ -42,8 +43,8 @@ export function parseProjectStore(raw) {
     for (const project of store.projects) {
       if (!nonempty(project.id) || !integer(project.revision) || project.revision < 1 || !date(project.createdAt) || !date(project.updatedAt)) throw new Error();
       if (!project.inquiry || !nonempty(project.inquiry.id) || !nonempty(project.inquiry.reviewToken) || !date(project.inquiry.createdAt)) throw new Error();
-      const normalizedInquiry = normalizeInquiryDraft({ id: project.inquiry.id, revision: 1, context: project.context, values: project.inquiry.values, requirements: project.inquiry.requirements });
-      if (Object.keys(inquiryErrors(normalizedInquiry)).length || !sameProjectValue(normalizedInquiry.context, project.context) || !sameProjectValue(normalizedInquiry.values, project.inquiry.values) || !sameProjectValue(normalizedInquiry.requirements, project.inquiry.requirements)) throw new Error();
+      const normalizedInquiry = normalizeInquiryDraft({ id: project.inquiry.id, revision: 1, ...inquiryRuleSnapshot(project.inquiry), context: project.context, values: project.inquiry.values, requirements: project.inquiry.requirements });
+      if (Object.keys(inquiryErrors(normalizedInquiry)).length || !sameProjectValue(inquiryRuleSnapshot(normalizedInquiry), inquiryRuleSnapshot(project.inquiry)) || !sameProjectValue(normalizedInquiry.context, project.context) || !sameProjectValue(normalizedInquiry.values, project.inquiry.values) || !sameProjectValue(normalizedInquiry.requirements, project.inquiry.requirements)) throw new Error();
       validateProjectDrawingHistory(project);
       for (const key of ['quotes', 'changes', 'replies', 'nextSteps', 'messages']) if (!array(project[key]) || !unique(project[key])) throw new Error();
       for (const [index, quote] of project.quotes.entries()) {
@@ -320,7 +321,7 @@ export function createDemoProjectRepository(options = {}) {
         if (existing) return sellerProjection(store,existing);
         const createdAt = now(), draft = createInquiryDraft(context,makeId('DRAFT'));
         draft.revision = 1; draft.values = sampleInquiryValues(context); draft.updatedAt = createdAt;
-        const review = reviewInquiry(draft), project = {id:makeId('PRJ'),revision:1,context:draft.context,inquiry:{id:makeId('RFQ'),values:draft.values,requirements:draft.requirements,createdAt,reviewToken:review.token},quotes:[],changes:[],replies:[],nextSteps:[],messages:[],createdAt,updatedAt:createdAt,demoSeed:'seller-inbox'};
+        const review = reviewInquiry(draft), project = {id:makeId('PRJ'),revision:1,context:draft.context,inquiry:{id:makeId('RFQ'),...inquiryRuleSnapshot(draft),values:draft.values,requirements:draft.requirements,createdAt,reviewToken:review.token},quotes:[],changes:[],replies:[],nextSteps:[],messages:[],createdAt,updatedAt:createdAt,demoSeed:'seller-inbox'};
         assertCommercial(project); store.projects.push(project); return sellerProjection(store,project);
       });
     },
@@ -352,7 +353,7 @@ export function createDemoProjectRepository(options = {}) {
         const createdAt = now();
         const project = {
           id: makeId('PRJ'), revision: 1, context: cloneProjectValue(saved.context),
-          inquiry: { id: makeId('RFQ'), values: cloneProjectValue(saved.values), requirements: cloneProjectValue(saved.requirements), createdAt, reviewToken: review.token },
+          inquiry: { id: makeId('RFQ'), ...inquiryRuleSnapshot(saved), values: cloneProjectValue(saved.values), requirements: cloneProjectValue(saved.requirements), createdAt, reviewToken: review.token },
           quotes: [], changes: [], replies: [], nextSteps: [], messages: [], createdAt, updatedAt: createdAt
         };
         store.projects.push(project); store.drafts = store.drafts.filter(item => item.id !== saved.id); return project;
@@ -362,6 +363,7 @@ export function createDemoProjectRepository(options = {}) {
       return change(store => {
         const project = findProject(store, projectId); assertSample(project);
         if (project.quotes.length) return project;
+        if (!validInquiryQuantity(project.inquiry.values.quantity)) throw new ProjectError('VALIDATION', 'Quantity is unknown. Prepare a seller quotation with an explicit quantity before issuing it.', { quantity: 'Confirm a whole quantity from 1 to 100,000.' });
         const createdAt = now();
         if (store.quoteDrafts.some(item => item.projectId === project.id)) throw new ProjectError('CONFLICT','A seller quotation draft is already in progress. Open Studio to review it.');
         const quote = sampleQuote({ id: makeId('QT'), version: 1, createdAt, values: project.inquiry.values });

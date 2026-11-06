@@ -130,7 +130,7 @@ export function validateStudioDraft(input) {
     if (!Array.isArray(part.documentIds) || new Set(part.documentIds).size !== part.documentIds.length || part.documentIds.some(id => !documentIds.has(id))) issue(issues, `${path}.documentIds`, 'Every linked document must exist in this product document list.');
   }
   try { normalizeInquiryProfile(input.inquiryProfile); }
-  catch { issue(issues, 'inquiryProfile', 'Check inquiry labels, help text and field settings. Application and quantity must remain enabled and required.'); }
+  catch { issue(issues, 'inquiryProfile', 'Check inquiry labels, help text and field settings. Keep application and quantity enabled with their default requirement rules. Quantity is optional for application review.'); }
   if (input.inquiryProfile?.id !== DEFAULT_INQUIRY_PROFILE.id) issue(issues, 'inquiryProfile.id', 'Use the prepared mechanism inquiry profile.');
   if (!object(input.presentation) || !['engineering', 'linework', 'flat'].includes(input.presentation.defaultRenderStyle)) issue(issues, 'presentation.defaultRenderStyle', 'Choose an available display mode.');
   return issues;

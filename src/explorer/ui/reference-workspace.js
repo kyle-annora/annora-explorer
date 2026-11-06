@@ -82,7 +82,7 @@ export function createReferenceWorkspace({ main, guide, assets, freeAdapter, bef
   window.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || view === '3d') return;
     // Existing menus/dialogs keep first refusal; Escape steps out one layer.
-    if(document.querySelector('dialog[open],#orbit-menu[open],#theme-panel:not([hidden]),#perf-panel:not([hidden]),#display-panel:not([hidden]),#path-panel:not([hidden])'))return;
+    if(document.querySelector('dialog[open],.ei-panel[role="dialog"],#orbit-menu[open],#theme-panel:not([hidden]),#perf-panel:not([hidden]),#display-panel:not([hidden]),#path-panel:not([hidden])'))return;
     event.preventDefault(); event.stopImmediatePropagation(); setView('3d', { focus: true });
   }, { capture: true, signal: abort.signal });
   sync();

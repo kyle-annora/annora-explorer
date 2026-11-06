@@ -46,7 +46,7 @@ import "./customer-workspace.css";
 import { recordContext, projectDrawingContext } from "../product-room/drawing-revision.js";
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import { InspectionReference } from "../product-room/inspection-reference.jsx";
-import { quoteScopeLabel } from "../product-room/project-domain.js";
+import { quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel } from "../product-room/project-domain.js";
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const nextStep = (p) =>
@@ -865,6 +865,7 @@ export function CustomerWorkspace({
                       <div>
                         <h2>{customerName(p)}</h2>
                         <p>{p.context.productTitle}</p>
+                        <p>{inquiryIntentLabel(p.inquiry.values)} · {inquiryQuantityLabel(p.inquiry.values)}</p>
                         <span className="customer-id">{p.id}</span>
                       </div>
                       <div>

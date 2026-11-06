@@ -676,7 +676,7 @@ export function InquiryFields({ draft, change }) {
                     <strong>{field.label}</strong>
                     <small>
                       {locked
-                        ? "Required core field"
+                        ? field.id === "quantity" ? "Required for quotations" : "Required core field"
                         : field.enabled
                           ? "Optional field"
                           : "Hidden from new inquiries"}
@@ -692,7 +692,7 @@ export function InquiryFields({ draft, change }) {
                           : "pending"
                     }
                   >
-                    {locked ? "Required" : field.enabled ? "Enabled" : "Hidden"}
+                    {locked ? field.id === "quantity" ? "Conditional" : "Required" : field.enabled ? "Enabled" : "Hidden"}
                   </Status>
                 </summary>
                 <div className="studio-inquiry-field-editor">
@@ -710,8 +710,8 @@ export function InquiryFields({ draft, change }) {
                   </div>
                   {locked ? (
                     <p className="studio-muted studio-small">
-                      Application and quantity remain required so the request
-                      has a useful starting point.
+                      Application stays required. Quotations need a quantity;
+                      application reviews may leave it unknown.
                     </p>
                   ) : (
                     <Check

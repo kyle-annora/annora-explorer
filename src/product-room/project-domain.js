@@ -3,6 +3,8 @@ import { requestContext } from './request-state.js';
 import { normalizeInquiryProfile } from './inquiry-profile.js';
 import { validHistoricalRoomSnapshot } from './release-snapshot.js';
 import { drawingVersionKey, recordContext, drawingVersionLabel } from './drawing-context.js';
+import { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity } from './inquiry-rules.js';
+export { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity, inquiryIntentLabel, inquiryQuantityLabel } from './inquiry-rules.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
 export class ProjectError extends Error {
@@ -65,13 +67,22 @@ export function normalizeProjectContext(input) {
 }
 
 export function createInquiryDraft(context, draftId = id()) {
-  return { id: draftId, revision: 0, context: normalizeProjectContext(context), values: { ...blankValues(), quoteScope: 'discuss' }, requirements: [], updatedAt: null };
+  return { id: draftId, revision: 0, inquiryRulesVersion: INQUIRY_RULES_VERSION, context: normalizeProjectContext(context), values: { ...blankValues(), intent: 'quotation', quoteScope: 'discuss' }, requirements: [], updatedAt: null };
 }
 
 /** Normalization is intentionally separate from final review: incomplete drafts can be saved. */
 export function normalizeInquiryDraft(input) {
   if (!input || !text(input.id) || !Number.isSafeInteger(input.revision) || input.revision < 0) throw new ProjectError('VALIDATION', 'This draft has no valid identity or revision.');
   const values = Object.fromEntries(fieldNames.map(key => [key, text(input.values?.[key])]));
+  if (input.values?.quantity !== undefined && typeof input.values.quantity !== 'string') throw new ProjectError('VALIDATION', 'Quantity must be a whole number or left unknown.', { quantity: 'Enter a whole quantity from 1 to 100,000.' });
+  if (Object.hasOwn(input.values || {}, 'intent')) {
+    values.intent = text(input.values.intent);
+    if (!INQUIRY_INTENTS.some(item => item.value === values.intent)) throw new ProjectError('VALIDATION', 'Choose an inquiry intent.', { intent: 'Choose quotation or application review.' });
+  }
+  // Choosing an intent on an older draft explicitly adopts these rules. Merely
+  // opening historical records never assigns an intent or a rule version.
+  const inquiryRulesVersion = input.inquiryRulesVersion ?? (values.intent ? INQUIRY_RULES_VERSION : undefined);
+  if (inquiryRulesVersion !== undefined && inquiryRulesVersion !== INQUIRY_RULES_VERSION) throw new ProjectError('VALIDATION', 'This inquiry uses an unsupported rule version.');
   // Older inquiries keep their original shape. A viewed part never supplies scope.
   if (Object.hasOwn(input.values || {}, 'quoteScope')) {
     values.quoteScope = text(input.values.quoteScope);
@@ -90,7 +101,7 @@ export function normalizeInquiryDraft(input) {
   });
   if (new Set(requirements.map(item => item.id)).size !== requirements.length) throw new ProjectError('VALIDATION', 'Each requirement needs a unique identity.');
   if (Object.values(values).some(value => value.length > 4000)) throw new ProjectError('VALIDATION', 'Keep individual fields within 4,000 characters.');
-  return { id: text(input.id), revision: input.revision, context: normalizeProjectContext(input.context), values, requirements, updatedAt: input.updatedAt || null };
+  return { id: text(input.id), revision: input.revision, ...(inquiryRulesVersion !== undefined ? { inquiryRulesVersion } : {}), context: normalizeProjectContext(input.context), values, requirements, updatedAt: input.updatedAt || null };
 }
 
 export function inquiryErrors(draft) {
@@ -98,7 +109,7 @@ export function inquiryErrors(draft) {
   if (values.quoteScope === 'part' && !draft.context.part) fields.quoteScope = 'Attach a component reference or choose another scope.';
   if (!values.application) fields.application = 'Describe the application or question to review.';
   else if (values.application.length > 2000) fields.application = 'Keep the application within 2,000 characters.';
-  if (!/^\d+$/.test(values.quantity) || +values.quantity < 1 || +values.quantity > 100000) fields.quantity = 'Enter a whole quantity from 1 to 100,000.';
+  if ((inquiryRequiresQuantity(values) || values.quantity) && !validInquiryQuantity(values.quantity)) fields.quantity = 'Enter a whole quantity from 1 to 100,000.';
   if (values.targetWeeks && (!/^\d+$/.test(values.targetWeeks) || +values.targetWeeks < 1 || +values.targetWeeks > 104)) fields.targetWeeks = 'Enter 1–104 weeks, or leave it open.';
   if (values.email && (values.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))) fields.email = 'Enter a valid email, or leave it blank for this demo.';
   if (values.name.length > 120) fields.name = 'Keep the name within 120 characters.';

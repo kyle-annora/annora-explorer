@@ -28,6 +28,12 @@ model, document and form references remain pinned to the inquiry's original
 snapshot. Open the contextual Product Room to inspect the part in the existing
 Explorer. The project queue and quotation editor do not start a WebGL viewer.
 
+The inquiry identifies whether the customer requested a quotation or application
+review and consultation. An application review can arrive with quantity unknown.
+Keep that uncertainty visible and ask for clarification when needed. Preparing a
+quotation requires the seller to enter a valid quantity before issue; opening a
+draft does not substitute one unit or change the customer's original request.
+
 ## Quotation boundary
 
 1. Prepare a seller draft: scope, quantities, line items, proposed lead time,

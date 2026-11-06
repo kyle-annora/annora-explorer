@@ -9,6 +9,9 @@ It is not a published Annora registry or a complete Studio implementation.
 | --- | --- |
 | `src/product-room/ui/tokens.css` | Scoped semantic colors, typography and geometry |
 | `src/product-room/ui/components.css` | Shared interaction states and responsive presentation |
+| `src/product-room/inquiry-session.js` | Headless draft, save, review, confirmation and explicit recovery lifecycle |
+| `src/product-room/embedded-inquiry.jsx` | Floating inquiry presentation and host callbacks; scoped focus and scroll |
+| `src/product-room/embedded-inquiry.css` | In-context panel layout using the viewer's light/dark tokens |
 | `src/product-room/ui/components.jsx` | React presentation primitives and reusable patterns |
 | `src/product-room/ui/catalog.jsx` | Isolated fixed-state samples and a live recovery demonstration |
 | `src/product-room/project-workspace.jsx` | Customer project composition and transient view state |

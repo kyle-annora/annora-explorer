@@ -13,7 +13,10 @@ import {
   sameProjectValue,
   QUOTE_SCOPES,
   quoteScopeLabel,
+  INQUIRY_INTENTS,
+  inquiryIntentLabel,
 } from "./project-domain.js";
+import { prepareInquirySubmission, confirmInquirySubmission } from "./inquiry-session.js";
 import { inquiryField, inquiryFields } from "./inquiry-profile.js";
 import { sampleInquiryValues } from "./project-fixtures.js";
 import {
@@ -73,8 +76,8 @@ const fieldLabels = {
   name: "Name",
   email: "Email",
 };
-function ConfiguredInquiryField({ context, ...props }) {
-  const field = inquiryField(context, props.name);
+function ConfiguredInquiryField({ context, values, ...props }) {
+  const field = inquiryField(context, props.name, values);
   if (!field?.enabled) return null;
   return <Field {...props} label={field.label} hint={field.hint || undefined}
     unit={field.unit || undefined} required={field.required} optional={!field.required} />;
@@ -258,6 +261,7 @@ function InquiryDocument({ draft, onExplore }) {
       <Section title={`${inquiryField(draft.context, "application").label} & requirements`}>
         <p className="pw-application">{values.application}</p>
         <dl className="pw-facts">
+          <div><dt>Purpose</dt><dd>{inquiryIntentLabel(values)}</dd></div>
           <div><dt>Requested quote scope</dt><dd>{quoteScopeLabel(values, draft.context)}</dd></div>
           {["quantity", "targetWeeks", "stroke", "load"].filter(key => inquiryField(draft.context, key)?.enabled || values[key]).map((key) => (
             <div key={key}>
@@ -938,8 +942,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         setDraft({ ...current, values, requirements });
         setNotice("Fictional sample details fill empty fields. Review the complete request before confirming.");
       }
-      const saved = await persistDraft();
-      const packet = reviewInquiry(saved);
+      const { draft: saved, review: packet } = await prepareInquirySubmission({ repository, draft: draftRef.current, saveDraft: persistDraft });
       setDraft(saved);
       setReview(packet);
       setStage("review");
@@ -948,7 +951,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   }
   function confirmInquiry() {
     return run("confirm", async () => {
-      const saved = await repository.submitInquiry(review);
+      const saved = await confirmInquirySubmission({ repository, review });
       if (draftRef.current?.id === review.draft.id) {
         setSaveState("");
         draftRef.current = null;
@@ -1219,7 +1222,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         onClick={() => {
                           setDraft((current) => ({
                             ...current,
-                            values: { ...current.values, ...Object.fromEntries(Object.entries(sampleInquiryValues(current.context)).map(([key, value]) => [key, inquiryField(current.context, key)?.enabled ? value : ""])) },
+                            values: { ...current.values, ...Object.fromEntries(Object.entries(sampleInquiryValues(current.context)).map(([key, value]) => [key, inquiryField(current.context, key)?.enabled ? value : ""])), intent: current.values.intent || "quotation" },
                             requirements: [],
                           }));
                           setNotice(
@@ -1232,6 +1235,9 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                       </Button>
                     }
                   >
+                    <Field label="I want to" name="intent" value={draft.values.intent || ""}
+                      options={[...(draft.values.intent ? [] : [["", "Not specified"]]), ...INQUIRY_INTENTS.map(item => [item.value, item.label])]}
+                      onChange={event => updateDraft("intent", event.target.value)} error={errors.intent} />
                     <Field
                       label="Requested quote scope"
                       name="quoteScope"
@@ -1259,6 +1265,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                     <div className="pw-field-grid">
                       <ConfiguredInquiryField
                       context={draft.context}
+                        values={draft.values}
                         label="Quantity"
                         name="quantity"
                         required

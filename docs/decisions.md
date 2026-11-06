@@ -21,6 +21,13 @@ visual and functional evidence, rather than gradually drifting across projects.
 | D-14 | Public control is JSON and revision-scoped | Hosts do not mutate Three.js objects or embedded DOM |
 | D-15 | Reuse is configuration plus prepared packages | A new model must work without adding runtime ID switches |
 | D-16 | Customer content stays outside the public starter | Source history, assets and documentation are explicitly allowlisted |
+| D-17 | Inquiry can begin beside the selected 3D context | Component, chapter and header entries share a floating intake and the existing project repository |
+| D-18 | Request intent determines relevant questions | Quotation requires quantity; application review may leave it unknown; every branch retains editable review and explicit confirmation |
+| D-19 | Live exploration and attached inquiry context are separate | Changing selection cannot silently change the request; explicit reference replacement invalidates review |
+| D-20 | Product Room follows the request; Studio handles seller work | Saving an in-Explorer inquiry preserves one project identity and its historical versions |
+
+The first scope and reference lock for D-17–D-20 are recorded in
+[In-context inquiry](embedded-inquiry.md).
 
 ## Skill structure
 
