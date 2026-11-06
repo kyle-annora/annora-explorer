@@ -179,7 +179,7 @@ async function captureCommercialContext() {
     }
   }
   if (shellAbort.signal.aborted) return;
-  $('status-message').textContent = '3D reference attached. Your view is saved with the request.';
+  $('status-message').textContent = '3D view prepared. Check the attached reference in your inquiry.';
   const inspection = captured.inspection, selected = inspection.view?.selectedId || inspection.tour?.selectedId;
   let context = { productId:commercialProduct.productId, productTitle:model.title, modelId:model.id, modelRevision:model.revision, inspection };
   // A returned inquiry keeps its reviewed product content even if Studio has
