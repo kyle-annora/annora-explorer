@@ -235,6 +235,7 @@ export function createDemoProjectRepository(options = {}) {
   }
   const api = {
     mode: 'demo',
+    evidenceScope: Object.freeze({schemaVersion:1, namespace:key, storage:'browser-local'}),
     supportsRequestItems: true,
     ...createFollowUpRepositoryMethods({ read, change, findProject, now, makeId }),
     ...createOptionScopeRepositoryMethods({ read, change, findProject, now, makeId }),

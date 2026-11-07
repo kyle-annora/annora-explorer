@@ -1,3 +1,4 @@
+import { projectEvidenceController } from "./evidence-host.js";
 import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
 import { InspectionReference } from "./inspection-reference.jsx";
@@ -362,7 +363,7 @@ function ProjectProgress({ project }) {
     </ol>
   );
 }
-function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycle }) {
+function Workspace({ route, repository, navigate, onExplore: openReference, sellerURL, lifecycle }) {
   const isPreview = repository.mode === "preview";
   const inquiryOnly = repository.capabilities?.inquiryOnly === true;
   const [projects, setProjects] = useState([]),
@@ -406,9 +407,17 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   const [questionDirty, setQuestionDirty] = useState(false);
   const [questionBusy, setQuestionBusy] = useState(false);
   const [optionStage,setOptionStage] = useState("saved"), [showOptionRecords,setShowOptionRecords] = useState(false);
+  function observeQuotation(id) {
+    const opened = project?.quotes.find(item => item.id === id);
+    if (opened) void projectEvidenceController(repository).observe(project, {type:"quotation.opened", role:"buyer", context:recordContext(project, opened), record:{kind:"quotation", id:opened.id, quoteVersion:opened.version}});
+  }
+  function onExplore(context) {
+    if (project) void projectEvidenceController(repository).observe(project, {type:"reference.requested", role:"buyer", context, record:{kind:"reference", id:context.part?.id || project.inquiry.id}});
+    return openReference(context);
+  }
   const setStage = value => { setStageState(value); updateBuyerLocation({stage:value}); };
-  const setTab = value => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before changing the project view."),true); return; } if (optionDirty) { report(new Error("Confirm or cancel your preference before changing the project view."),true); return; } setTabState(value); updateBuyerLocation({tab:value}); };
-  const setQuoteId = value => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before switching quotation versions."),true); return; } setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
+  const setTab = (value, {observe = false} = {}) => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before changing the project view."),true); return; } if (optionDirty) { report(new Error("Confirm or cancel your preference before changing the project view."),true); return; } if (observe && value === "quotation" && tab !== value) observeQuotation(quoteId || project?.quotes.at(-1)?.id); setTabState(value); updateBuyerLocation({tab:value}); };
+  const setQuoteId = (value, {observe = false} = {}) => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before switching quotation versions."),true); return; } if (observe && value !== quoteId) observeQuotation(value); setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
   const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined,messageId:value === 'message' ? pendingClarification(project)?.id : undefined}); };
   const setModeStage = value => { setModeStageState(value); updateBuyerLocation({stage:value}); };
   const setAllComparisonFields = value => {
@@ -1927,7 +1936,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         {!inquiryOnly && <div hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords} className="pw-project-navigation">
           <label className="pw-view-choice">
             <span>Project view</span>
-            <select value={tab} onChange={event => setTab(event.target.value)} aria-controls="pw-project-content">
+            <select value={tab} onChange={event => setTab(event.target.value, {observe:true})} aria-controls="pw-project-content">
               <option value="inquiry">Saved inquiry</option>
               <option value="quotation">Quotation</option>
               <option value="activity">Conversation</option>
@@ -1936,7 +1945,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
           {tab === "quotation" && quote && <VersionSelector
             versions={project.quotes}
             value={quote.id}
-            onChange={id => { setQuoteId(id); setAllComparisonFields(false); setError(null); }}
+            onChange={id => { setQuoteId(id, {observe:true}); setAllComparisonFields(false); setError(null); }}
           />}
         </div>}
         <div role="region" id="pw-project-content" hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords}

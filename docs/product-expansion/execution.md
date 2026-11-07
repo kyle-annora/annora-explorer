@@ -1,6 +1,6 @@
 # Execution, harness and agent plan
 
-Revision 5 · Execution plan with W31 delivery status. Feature IDs refer
+Revision 6 · Execution plan with W32 candidate status. Feature IDs refer
 to [scope](scope.md); candidate acceptance and publication require separate evidence.
 
 ## 1. Delivery strategy
@@ -27,7 +27,7 @@ service ownership can change the schedule independently of agent count.
 | W21 | F4b request-to-quote scope mapping, explicit preference adoption and v1/v2 comparison | W20 | M–L / metadata lost during draft/quote copying | Published; local and live desktop/mobile QA passed. Requested versus offered scope is reviewed before separate issue; prior snapshots remain unchanged. See [handoff](../option-scope.md). |
 | W30 | F6a question-level events, replies, blocker policy and buyer/seller work list | W00, W21 scope-link contract | L / existing singular pending-question policy | Published; compiled desktop/mobile/compact and live desktop/mobile checks passed. Independent questions, reviewed resolution, frozen v1/v2 evidence and ordinary-project compatibility. See [review](../questions-review.md). |
 | W31 | F5 impact report, per-question/scope working references and explicit drawing/overview A→B decisions | W10, W21, W30; existing drawing revision flow | L / false matches and accidental history adoption | Implemented and verified for SK08 questions and quotation request scope: independently retained A/adopted B, stale-review and save recovery, immutable v1. See [delivery review](../drawing-impact-review.md) and its publication receipt. Broader presentation/follow-up impact remains deferred. |
-| W32 | F6b bounded events and small evidence view in existing workspace | W10, W30; event definitions from W00 | S–M / counting observations as business outcomes | Reproducible demo counts, no sensitive payloads or blocked user actions |
+| W32 | F6b bounded events and small evidence view in existing workspace | W10, W30; event definitions from W00 | S–M / counting observations as business outcomes | Implemented: saved-record projection, separate 200-event local observation stream, explicit fixture/presenter/ordinary-local provenance. See [review](../project-evidence-review.md) for acceptance/publication; story and pre-submission inquiry observations remain deferred. |
 | W40 | F2a registry, F2b technical-view steps and prepared-product readiness report | W00; existing story/drawing contracts | L / crank assumptions spread across hosts | Second prepared product uses supported story/drawing steps without renderer forks |
 | W41 | A intake/mapping/export workbench and independent fresh public-product qualification | W40 | M–L / asset preparation effort | Independent operator follows English workflow and produces a reproducible package |
 | W50 | B versioned integration artifacts, conformance runner, independent public viewer and upgrade rehearsal | W00 contract spike; freeze F1/F3/F4/F6 payloads before final qualification | M–L / viewer and repository capability mismatch | A separate host uses declared functions and safely rejects unsupported ones |

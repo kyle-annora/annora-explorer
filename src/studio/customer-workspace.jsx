@@ -1,3 +1,5 @@
+import { ProjectEvidencePanel } from "./project-evidence-panel.jsx";
+import { projectEvidenceController } from "../product-room/evidence-host.js";
 import { QuoteScopeEditor } from "./quote-scope-editor.jsx";
 import { assertImpactScopeRoundTrip, assertDrawingImpactRepository } from "../product-room/impact-repository.js";
 import { assertOptionScopeRoundTrip, assertOptionScopeRepository } from "../product-room/option-scope-repository.js";
@@ -171,11 +173,17 @@ export function CustomerWorkspace({
     hydratedView.current = routeHash(next);
     onGo(next, replace);
   }
-  function setTab(value) {
+  function observeQuotation(id) {
+    const opened = project?.quotes.find(item => item.id === id);
+    if (opened) void projectEvidenceController(repository).observe(project, {type:"quotation.opened", role:"seller", context:recordContext(project, opened), record:{kind:"quotation", id:opened.id, quoteVersion:opened.version}});
+  }
+  function setTab(value, {observe = false} = {}) {
+    if (observe && value === "quotation" && tab !== value) observeQuotation(quote?.id);
     setTabState(value);
     moveView({ tab: value, mode: "detail" });
   }
-  function setQuoteId(value) {
+  function setQuoteId(value, {observe = false} = {}) {
+    if (observe && value !== quote?.id) observeQuotation(value);
     setQuoteIdState(value);
     moveView({ quote: value });
   }
@@ -1101,6 +1109,7 @@ export function CustomerWorkspace({
                   )}
                 </ActionGroup>
               </div>
+              <ProjectEvidencePanel key={project.id} repository={repository} project={project} />
               <div className="customer-project-layout">
                 <div className="customer-project-main">
                   <div className="customer-project-toolbar">
@@ -1108,7 +1117,7 @@ export function CustomerWorkspace({
                       <span>Project view</span>
                       <select aria-label="Customer project section" value={tab} onChange={event => {
                         const next = event.target.value;
-                        localGo(() => setTab(next));
+                        localGo(() => setTab(next, {observe:true}));
                       }}>
                         <option value="inquiry">Customer inquiry</option>
                         <option value="quotation">Quotation{project.quotes.length ? ` · ${project.quotes.length} ${project.quotes.length === 1 ? "version" : "versions"}` : ""}</option>
@@ -1119,7 +1128,7 @@ export function CustomerWorkspace({
                       <VersionSelector
                         versions={project.quotes}
                         value={quote.id}
-                        onChange={setQuoteId}
+                        onChange={value => setQuoteId(value, {observe:true})}
                       />
                       {!primaryIsDraft && <Button
                         variant="secondary"
@@ -1146,6 +1155,7 @@ export function CustomerWorkspace({
                             onConfirmResolution={packet => confirmQuestionAction('confirmQuestionResolution', packet)}
                             onConfirmReopen={packet => confirmQuestionAction('confirmQuestionReopen', packet)}
                             onExplore={(context, requestItem) => localGo(() => {
+                              void projectEvidenceController(repository).observe(project, {type:"reference.requested", role:"seller", context, record:{kind:"reference", id:requestItem.id}});
                               const url = new URL(buyerHref({ ...project, context }, true));
                               url.searchParams.set('project', project.id);
                               url.searchParams.set('requestItem', requestItem.id);

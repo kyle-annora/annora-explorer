@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T03:36:12.148998+00:00",
+  "classification": "public-fictional-example",
+  "baselineSourceCommit": "4072374098de5cc967a90bef0f645eb03e9bb4fa",
+  "baselineDeployedCommit": "94dc0de9417512e22f0a141823ffa3c188d3bf8f",
+  "workPackage": "W32",
+  "checks": {
+    "verify": {
+      "tests": 905,
+      "pass": 904,
+      "fail": 0,
+      "skipped": 1,
+      "existingConditionalSkip": true,
+      "assetsAndProductionBuild": "passed",
+      "log": "work/product-expansion/W32/verify-final.log"
+    },
+    "newFocusedTests": 25,
+    "inquiryBuild": "passed",
+    "compiledJourneys": [
+      {
+        "base": "http://127.0.0.1:8159/annora-explorer/",
+        "width": 390,
+        "height": 844,
+        "checkpoints": [
+          "buyer-comparison",
+          "preference-guided-handoff-review",
+          "buyer-question-motion-detail-review",
+          "buyer-question-mounting-detail-review",
+          "buyer-two-independent-questions",
+          "seller-confirmed-inquiry-and-questions",
+          "seller-one-resolved-one-open",
+          "unresolved-question-blocks-quotation",
+          "seller-clarification-waits-on-buyer",
+          "buyer-clarification-reply",
+          "seller-explicit-question-adoption",
+          "seller-scope-ready",
+          "quotation-v1-review",
+          "buyer-reopened-question-preserves-v1",
+          "seller-v2-reviews-new-evidence",
+          "quotation-v2-review",
+          "buyer-v1-v2-comparison",
+          "buyer-preserved-v1",
+          "buyer-v2",
+          "seller-v2-persisted-facts",
+          "reload-does-not-create-actions",
+          "buyer-question-motion-detail-review",
+          "business-confirmation-survives-observation-failure",
+          "unknown-observation-history-is-not-zero",
+          "observation-history-restored"
+        ],
+        "browserErrors": [],
+        "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+        "quoteIds": [
+          "QT-DEMO-BAFC4749",
+          "QT-DEMO-D4AE765E"
+        ],
+        "preferenceIds": [
+          "PREFERENCE-DEMO-56AFA86E"
+        ],
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true,
+        "evidenceSavedActions": 16,
+        "confirmedInquiries": 1,
+        "issuedQuotations": 2,
+        "questionCount": 3,
+        "observationProvenance": "demo",
+        "reloadDidNotDuplicate": true,
+        "observationFailureDidNotBlockBusiness": true,
+        "unknownHistoryPreserved": true,
+        "localArtifact": "work/product-expansion/W32/compiled-390/result.json"
+      },
+      {
+        "base": "http://127.0.0.1:8159/annora-explorer/",
+        "width": 320,
+        "height": 844,
+        "checkpoints": [
+          "buyer-comparison",
+          "preference-guided-handoff-review",
+          "buyer-question-motion-detail-review",
+          "buyer-question-mounting-detail-review",
+          "buyer-two-independent-questions",
+          "seller-confirmed-inquiry-and-questions",
+          "seller-one-resolved-one-open",
+          "unresolved-question-blocks-quotation",
+          "seller-clarification-waits-on-buyer",
+          "buyer-clarification-reply",
+          "seller-explicit-question-adoption",
+          "seller-scope-ready",
+          "quotation-v1-review",
+          "buyer-reopened-question-preserves-v1",
+          "seller-v2-reviews-new-evidence",
+          "quotation-v2-review",
+          "buyer-v1-v2-comparison",
+          "buyer-preserved-v1",
+          "buyer-v2",
+          "seller-v2-persisted-facts",
+          "reload-does-not-create-actions",
+          "buyer-question-motion-detail-review",
+          "business-confirmation-survives-observation-failure",
+          "unknown-observation-history-is-not-zero",
+          "observation-history-restored"
+        ],
+        "browserErrors": [],
+        "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+        "quoteIds": [
+          "QT-DEMO-79038A75",
+          "QT-DEMO-96E356CC"
+        ],
+        "preferenceIds": [
+          "PREFERENCE-DEMO-92C725F3"
+        ],
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true,
+        "evidenceSavedActions": 16,
+        "confirmedInquiries": 1,
+        "issuedQuotations": 2,
+        "questionCount": 3,
+        "observationProvenance": "demo",
+        "reloadDidNotDuplicate": true,
+        "observationFailureDidNotBlockBusiness": true,
+        "unknownHistoryPreserved": true,
+        "localArtifact": "work/product-expansion/W32/compiled-320/result.json"
+      }
+    ],
+    "impactRegression": {
+      "base": "http://127.0.0.1:8159/annora-explorer/",
+      "width": 1280,
+      "height": 960,
+      "checkpoints": [
+        "buyer-A-original",
+        "seller-four-affected-records",
+        "inspect-original-A",
+        "inspect-candidate-B",
+        "seller-human-review-A-B",
+        "seller-reviewed-working-references",
+        "seller-draft-exact-reference-scope",
+        "seller-v2-quotation-review",
+        "seller-issued-v2",
+        "buyer-A-B-quote-comparison",
+        "buyer-v1-keeps-A",
+        "buyer-v2-mixed-references",
+        "buyer-v2-exact-B-drawing",
+        "buyer-reviewed-B-in-3D",
+        "reload-preserves-A-B-history"
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-IMPACT-EXAMPLE-002",
+      "quoteIds": [
+        "QT-IMPACT-EXAMPLE-017",
+        "QT-DEMO-B40D18A1"
+      ],
+      "affectedRecords": 4,
+      "retainedA": 2,
+      "adoptedB": 2,
+      "unaffectedNonDrawingRequests": 1,
+      "originalInquiryUnchanged": true,
+      "originalQuestionsUnchanged": true,
+      "quoteV1Unchanged": true,
+      "ordinaryNamespaceUnchanged": true,
+      "localArtifact": "work/product-expansion/W32/regression-impact-1280/result.json"
+    },
+    "priorWalkthrough": {
+      "base": "http://127.0.0.1:8159/annora-explorer/",
+      "timestamp": "2026-11-07T03:34:38.427Z",
+      "results": [
+        {
+          "profile": "desktop",
+          "success": true,
+          "sessionId": "WT-2505ae7a-4694-48ff-9c58-b5128a4d9cb1",
+          "projectId": "PRJ-DEMO-1BA301A9",
+          "screenshots": 21,
+          "confirmations": 8
+        },
+        {
+          "profile": "mobile",
+          "success": true,
+          "sessionId": "WT-0ff5ccec-bef1-415f-8661-5e9328e9a888",
+          "projectId": "PRJ-DEMO-21F7D7E8",
+          "screenshots": 21,
+          "confirmations": 8
+        },
+        {
+          "profile": "compact",
+          "success": true,
+          "sessionId": "WT-589801db-c104-4c59-9ed9-4a8fb5902b54",
+          "projectId": "PRJ-DEMO-8CE0ADA9",
+          "screenshots": 21,
+          "confirmations": 8
+        }
+      ]
+    },
+    "visualChecks": [
+      {
+        "width": 1280,
+        "browserErrors": [],
+        "horizontalOverflow": false,
+        "minimumDisclosureHeight": 44
+      },
+      {
+        "width": 390,
+        "browserErrors": [],
+        "horizontalOverflow": false,
+        "minimumDisclosureHeight": 44
+      },
+      {
+        "width": 320,
+        "browserErrors": [],
+        "horizontalOverflow": false,
+        "minimumDisclosureHeight": 44
+      }
+    ],
+    "designDetector": [],
+    "explorerFilesChanged": []
+  },
+  "limits": [
+    "Fictional browser-local records; no backend, accounts, messages or production telemetry.",
+    "Ordinary local use, seeded demos and presenter namespaces are distinguished; none establishes real customers.",
+    "Optional observations cover explicit quotation selection and saved-reference requests; navigation may interrupt best-effort collection.",
+    "Session/traffic denominators remain unknown; no conversion, revenue or comprehension claim.",
+    "Responsive Chrome emulation, not representative customer hardware benchmarks."
+  ],
+  "publication": {
+    "status": "awaiting-deployment",
+    "receipt": "release-receipt.json"
+  }
+}

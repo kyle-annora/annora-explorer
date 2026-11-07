@@ -32,7 +32,7 @@ candidate, fixture, route, viewport, expected/observed and evidence path.
 | W20/W21 | F4-01–06, F1-01–04 | Missing scope metadata is rejected by adapter; unknown amount remains unknown |
 | W30 | F6-01–06, F1-04 | Wrong question/reply target rejected; legacy serialized project still works |
 | W31 | F5-01–06 | Verified on SK08: independent A/B question/scope refs; stale project/draft/source rejection; failure recovery; 320px touch; original inquiry/questions/v1 unchanged. See [evidence](../evidence/drawing-impact/acceptance.json). |
-| W32 | F6-07–10 | Persistence failure never emits a confirmed business event; evidence failure never blocks inquiry |
+| W32 | F6-07–10 | Saved-record projection and optional observation boundaries are implemented. Retry, failed save, unknown schema, safe envelope, namespace provenance and responsive journeys are recorded in the [project activity review](../project-evidence-review.md); publication has its own receipt. |
 | W40 | F2-01–06 | No fabricated drawing/action; unsupported host capability is visible |
 | W41 | A-01–06 | New source produces a new package; independent operator needs no undocumented edits |
 | W50 | B-01–06, F1-03 | Independent host has no Annora scene/controller import; upgrade/rollback retains old records |
