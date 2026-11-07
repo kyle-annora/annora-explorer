@@ -1,7 +1,6 @@
-# Project activity — candidate review
+# Project activity — delivery review
 
-W32 · November 6, 2026 · Candidate implementation. Publication and full acceptance
-are not claimed in this document until a separate release receipt confirms them.
+W32 · November 6, 2026 · Published and verified on GitHub Pages. The [release receipt](evidence/project-activity/release-receipt.json) identifies the exact source, deployment and public checks.
 
 Studio now has a compact **Project activity** disclosure inside each customer
 project. It presents saved business actions and a separate optional record of
@@ -19,8 +18,7 @@ sample records, not newly observed customers.
 - [Crank seller project](https://kyle-annora.github.io/annora-explorer/studio/?optionDemo=crank-options-v1)
 - [Crank buyer project](https://kyle-annora.github.io/annora-explorer/product-room/?optionDemo=crank-options-v1)
 
-These are intended review routes. Check the release receipt before treating the
-public URLs as this candidate's published version.
+These routes use the verified published version. Open **Project activity** in the seller project to review this increment.
 
 1. Open the SK08 seller project and expand **Project activity**. The compact
    summary shows available saved actions, issued quotations and resolved
@@ -67,6 +65,7 @@ observations cannot mutate a project or block its workflow.
 
 F6-07–10 passed in focused tests and compiled journeys. The [acceptance record](evidence/project-activity/acceptance.json) preserves the checks; publication is separate.
 
+- Public GitHub Pages: desktop 1280px and mobile 390px each passed 25 checkpoints, including failed observation writes and unreadable-history recovery. Public Studio and Product Room entry hashes matched the compiled build.
 - Required verification: 905 tests, 904 passed, one existing conditional skip, no failures; asset validation, production and bounded inquiry builds passed.
 - Compiled crank journeys: 25 checkpoints each at 390px and 320px, including optional-storage failure and unknown-schema preservation.
 - Compiled SK08 A→B: 15 checkpoints at 1280px, preserving original questions, inquiry and v1.

@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 4 · November 6, 2026 · W32 project activity candidate added; publication is recorded separately in its release receipt.
+Planning revision 4 · November 6, 2026 · W32 project activity published and verified; publication is recorded in its release receipt.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -61,7 +61,7 @@ The W31 delivery is documented in the [drawing impact review](../drawing-impact-
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Published W31: SK08 per-question and request-scope impact, reviewed A/B working references, pinned quotation snapshots | Follow-up/presentation impact and real customer source qualification remain deferred |
-| F6 · Action workspace and evidence | Published W30 question workflow; W32 adds read-only saved actions and separate bounded local observations | Representative customer evidence and supported host instrumentation remain deferred |
+| F6 · Action workspace and evidence | Published W30 question workflow and W32 read-only saved actions and separate bounded local observations | Representative customer evidence and supported host instrumentation remain deferred |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 

@@ -1,6 +1,6 @@
 # Project activity and bounded local evidence
 
-W32 contract · November 6, 2026 · Candidate implementation; see the
+W32 contract · November 6, 2026 · Published implementation; see the
 [review and verification record](project-evidence-review.md) for delivery status.
 
 Studio's existing customer project gains a collapsed **Project activity** area.

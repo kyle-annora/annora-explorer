@@ -223,7 +223,8 @@
     "Responsive Chrome emulation, not representative customer hardware benchmarks."
   ],
   "publication": {
-    "status": "awaiting-deployment",
+    "status": "published-and-verified",
+    "sourceCommit": "167a8ee3ed82959c2e809e64e62d108e782155b2",
     "receipt": "release-receipt.json"
   }
 }

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T03:41:07.623273+00:00",
+  "classification": "public-fictional-example",
+  "status": "published-and-verified",
+  "sourceCommit": "167a8ee3ed82959c2e809e64e62d108e782155b2",
+  "previousApplicationCommit": "4072374098de5cc967a90bef0f645eb03e9bb4fa",
+  "previousDeployedCommit": "94dc0de9417512e22f0a141823ffa3c188d3bf8f",
+  "deployment": {
+    "provider": "GitHub Pages",
+    "workflowRunId": 42334815598,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42334815598",
+    "conclusion": "success",
+    "deploymentId": 7616065047,
+    "created_at": "2026-11-07T03:38:16Z",
+    "environment_url": "https://kyle-annora.github.io/annora-explorer/",
+    "log_url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42334815598/job/128289479323",
+    "state": "success",
+    "updated_at": "2026-11-07T03:38:16Z"
+  },
+  "routes": {
+    "sk08Seller": "https://kyle-annora.github.io/annora-explorer/studio/?impactDemo=sk08-a-b-v1",
+    "crankSeller": "https://kyle-annora.github.io/annora-explorer/studio/?optionDemo=crank-options-v1",
+    "crankBuyer": "https://kyle-annora.github.io/annora-explorer/product-room/?optionDemo=crank-options-v1"
+  },
+  "publicAssetVerification": {
+    "verifiedAt": "2026-11-07T03:39:07.473Z",
+    "records": [
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/product-room/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/room-N6aKjDgF.js",
+        "sha256": "0bc6f976bd7b4395a18daa978783a7df88b9333381f81e32cea461d78e5694bf",
+        "status": "matched"
+      },
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/studio/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/studio-CMdksokN.js",
+        "sha256": "db081a8b424e28696f60d033f5e8868093578c1145937a43cd793cc50a9a0e4e",
+        "status": "matched"
+      }
+    ]
+  },
+  "localAcceptance": "acceptance.json",
+  "liveJourneys": [
+    {
+      "base": "https://kyle-annora.github.io/annora-explorer/",
+      "width": 1280,
+      "height": 960,
+      "checkpoints": [
+        "buyer-comparison",
+        "preference-guided-handoff-review",
+        "buyer-question-motion-detail-review",
+        "buyer-question-mounting-detail-review",
+        "buyer-two-independent-questions",
+        "seller-confirmed-inquiry-and-questions",
+        "seller-one-resolved-one-open",
+        "unresolved-question-blocks-quotation",
+        "seller-clarification-waits-on-buyer",
+        "buyer-clarification-reply",
+        "seller-explicit-question-adoption",
+        "seller-scope-ready",
+        "quotation-v1-review",
+        "buyer-reopened-question-preserves-v1",
+        "seller-v2-reviews-new-evidence",
+        "quotation-v2-review",
+        "buyer-v1-v2-comparison",
+        "buyer-preserved-v1",
+        "buyer-v2",
+        "seller-v2-persisted-facts",
+        "reload-does-not-create-actions",
+        "buyer-question-motion-detail-review",
+        "business-confirmation-survives-observation-failure",
+        "unknown-observation-history-is-not-zero",
+        "observation-history-restored"
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+      "quoteIds": [
+        "QT-DEMO-1E5FC00A",
+        "QT-DEMO-16272027"
+      ],
+      "preferenceIds": [
+        "PREFERENCE-DEMO-AEA32EB9"
+      ],
+      "ordinaryNamespaceUnchanged": true,
+      "originalInquiryUnchanged": true,
+      "quoteV1Unchanged": true,
+      "evidenceSavedActions": 16,
+      "confirmedInquiries": 1,
+      "issuedQuotations": 2,
+      "questionCount": 3,
+      "observationProvenance": "demo",
+      "reloadDidNotDuplicate": true,
+      "observationFailureDidNotBlockBusiness": true,
+      "unknownHistoryPreserved": true,
+      "status": "passed",
+      "horizontalOverflow": false,
+      "localArtifact": "work/product-expansion/W32/live-1280/result.json"
+    },
+    {
+      "base": "https://kyle-annora.github.io/annora-explorer/",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        "buyer-comparison",
+        "preference-guided-handoff-review",
+        "buyer-question-motion-detail-review",
+        "buyer-question-mounting-detail-review",
+        "buyer-two-independent-questions",
+        "seller-confirmed-inquiry-and-questions",
+        "seller-one-resolved-one-open",
+        "unresolved-question-blocks-quotation",
+        "seller-clarification-waits-on-buyer",
+        "buyer-clarification-reply",
+        "seller-explicit-question-adoption",
+        "seller-scope-ready",
+        "quotation-v1-review",
+        "buyer-reopened-question-preserves-v1",
+        "seller-v2-reviews-new-evidence",
+        "quotation-v2-review",
+        "buyer-v1-v2-comparison",
+        "buyer-preserved-v1",
+        "buyer-v2",
+        "seller-v2-persisted-facts",
+        "reload-does-not-create-actions",
+        "buyer-question-motion-detail-review",
+        "business-confirmation-survives-observation-failure",
+        "unknown-observation-history-is-not-zero",
+        "observation-history-restored"
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+      "quoteIds": [
+        "QT-DEMO-91EAFB9B",
+        "QT-DEMO-CA638CAA"
+      ],
+      "preferenceIds": [
+        "PREFERENCE-DEMO-97013125"
+      ],
+      "ordinaryNamespaceUnchanged": true,
+      "originalInquiryUnchanged": true,
+      "quoteV1Unchanged": true,
+      "evidenceSavedActions": 16,
+      "confirmedInquiries": 1,
+      "issuedQuotations": 2,
+      "questionCount": 3,
+      "observationProvenance": "demo",
+      "reloadDidNotDuplicate": true,
+      "observationFailureDidNotBlockBusiness": true,
+      "unknownHistoryPreserved": true,
+      "status": "passed",
+      "horizontalOverflow": false,
+      "localArtifact": "work/product-expansion/W32/live-390/result.json"
+    }
+  ],
+  "preserved": [
+    "Explorer renderer, controls and motion",
+    "Original inquiry and exact source versions",
+    "Existing independent question and quotation confirmation gates",
+    "Issued quotation v1/v2 snapshots",
+    "Ordinary customer project storage"
+  ],
+  "limits": [
+    "Fictional browser-local records; no backend, real customer metrics or external telemetry.",
+    "Optional view observations are incomplete and cannot establish conversion or comprehension.",
+    "Pre-navigation reference observations may be interrupted by page unload.",
+    "Responsive Chrome emulation; not physical-device performance measurements.",
+    "Later receipt-only commits do not change the deployed application."
+  ]
+}
