@@ -1,6 +1,10 @@
 # Inquiry, revision and confirmation layout
 
-Status: candidate verified; publication pending. The release receipt records the actual deployed revision.
+Status: published and verified.
+
+Application revision: `16c83189158af90cd69465ca07d175c63d555707`.
+See the [release receipt](evidence/request-layout/release-receipt.json).
+This documentation-only follow-up does not redeploy the application.
 
 ## Review route
 
@@ -110,15 +114,19 @@ identical. The design detector reported no findings.
 Public screenshot review caught a circular font alias in the floating surface.
 The correction restores the canonical font stack; 12 focused checkpoints across
 four viewports confirm 22 px desktop and 21 px phone task headings, along with
-review, confirmation and real pointer access. Public qualification is repeated
+review, confirmation and real pointer access. Public qualification was repeated
 against the corrective deployment.
 
 [Acceptance evidence](evidence/request-layout/acceptance.json) records the suites
-and their limits. Public-target identity and browser results are recorded after
-GitHub deployment.
+and their limits. The final public deployment passed another 46 full-journey checkpoints and
+16 explicit confirmations on desktop and phone, including the corrected heading
+typography. See [public browser evidence](evidence/request-layout/public-browser.json).
+The publication audit verified 61 runtime assets, 72 model assets and 567
+protected source files. The integration package matches the reviewed archive.
 
 ## Review captures
 
+- [Floating review on desktop](evidence/request-layout/desktop-floating-review.png)
 - [Floating inquiry on mobile](evidence/request-layout/mobile-floating-inquiry.png)
 - [Requested changes and source quotation](evidence/request-layout/desktop-change-review.png)
 - [Buyer next-step review](evidence/request-layout/mobile-next-step-review.png)

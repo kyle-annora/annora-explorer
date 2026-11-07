@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "status": "published-and-verified",
+  "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+  "baselineRevision": "3f7bb13eebae9ce3d2fe1ce4ecfd1a9fadf9de8c",
+  "priorPublishedRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+  "checkedAt": "2026-11-07T11:31:44.641Z",
+  "baseUrl": "https://kyle-annora.github.io/annora-explorer/",
+  "workflow": {
+    "id": 42368397839,
+    "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42368397839",
+    "jobs": [
+      {
+        "id": 128391257043,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-07T11:29:45Z",
+        "completedAt": "2026-11-07T11:30:54Z",
+        "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42368397839/job/128391257043"
+      },
+      {
+        "id": 128391523603,
+        "name": "deploy",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-07T11:30:58Z",
+        "completedAt": "2026-11-07T11:31:13Z",
+        "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42368397839/job/128391523603"
+      }
+    ]
+  },
+  "deployment": {
+    "id": 7620567143,
+    "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+    "state": "success",
+    "completedAt": "2026-11-07T11:31:13Z",
+    "environmentUrl": "https://kyle-annora.github.io/annora-explorer/",
+    "logUrl": "https://github.com/kyle-annora/annora-explorer/actions/runs/42368397839/job/128391523603"
+  },
+  "checks": {
+    "status": "passed",
+    "workflowSuccessAtExactRevision": true,
+    "deploymentSuccessAtExactRevision": true,
+    "pageAssetSetsMatchReviewedBuild": true,
+    "generatedRuntimeAssetsMatchReviewedBuild": true,
+    "protectedSourceUnchanged": true,
+    "newSourceFilesWithinApprovedScope": true,
+    "modelAssetsUnchanged": true,
+    "independentViewerAndPayloadsUnchanged": true,
+    "integrationPackageVerified": true,
+    "historicalArchive010Unchanged": true,
+    "artifactsChecked": 143,
+    "runtimeAssetsChecked": 61,
+    "modelAssetsChecked": 72,
+    "protectedSourcePathsChecked": 567,
+    "sourceChanges": [],
+    "sourceAdditions": [
+      "src/product-room/project-conversation-presentation.css"
+    ],
+    "unexpectedSourceAdditions": [],
+    "runtimeDifferences": [],
+    "modelDifferences": [],
+    "externalDifferences": [],
+    "errors": []
+  },
+  "pages": [
+    {
+      "path": "index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "product-room/index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "studio/index.html",
+      "exactHtml": false,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "integrations/existing-viewer/index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    }
+  ],
+  "independentViewerComparison": {
+    "protectedViewerSourcePaths": [
+      "examples/existing-viewer/DESIGN.md",
+      "examples/existing-viewer/VIEWER.md",
+      "examples/existing-viewer/app.js",
+      "examples/existing-viewer/index.html",
+      "examples/existing-viewer/package.json",
+      "examples/existing-viewer/public/MODEL-LICENSE.txt",
+      "examples/existing-viewer/public/fixture.json",
+      "examples/existing-viewer/style.css",
+      "examples/existing-viewer/viewer-state.js",
+      "examples/existing-viewer/viewer.js",
+      "examples/existing-viewer/vite.config.js"
+    ],
+    "originalViewerDependencies": [
+      "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js"
+    ],
+    "priorOriginalViewerDependencies": [
+      "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js"
+    ],
+    "originalViewerDependencySetUnchanged": true,
+    "unchangedPayloadPaths": [
+      "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js",
+      "integrations/existing-viewer/fixture.json",
+      "integrations/existing-viewer/model.glb",
+      "integrations/existing-viewer/MODEL-LICENSE.txt"
+    ],
+    "differences": [],
+    "priorParentBundlePaths": [
+      "integrations/existing-viewer/assets/index-BagY9jEi.css",
+      "integrations/existing-viewer/assets/index-CR4WqjXl.js"
+    ],
+    "currentParentBundlePaths": [
+      "integrations/existing-viewer/assets/index-BhuV23HP.js",
+      "integrations/existing-viewer/assets/index-DdLKzoNi.css"
+    ],
+    "explanation": "The composed parent bundle includes the updated inquiry presentation and may change. Independent viewer source, its Three.js viewer chunk, fixture, model and license remain protected; the complete live parent bundle must match the reviewed local build."
+  },
+  "integrationPackage": {
+    "release": {
+      "package": {
+        "name": "@annora/integration-kit",
+        "version": "0.2.0"
+      },
+      "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+      "sourceTreeSha256": "503742e2075a7b97523f3c81a64916c40f99fd71ea57c95ecff71f23b051ab09",
+      "file": "annora-integration-kit-0.2.0.tgz",
+      "sha256": "20108730c62ecb0739a672dacb88f58b3e2cf30e9a8b44ad6b6db6b9cc904f03",
+      "bytes": 106741,
+      "installation": "npm install ./annora-integration-kit-0.2.0.tgz react@19.3.1 react-dom@19.3.1",
+      "assetsIncluded": false
+    },
+    "sourceRevisionMatches": true,
+    "releaseMatchesArchive": true,
+    "releaseMatchesManifest": true,
+    "sourceTreeMatchesBaseline": false,
+    "sourceTreeMatchesReviewedBuild": true,
+    "changedFilesFromReviewedBuild": [],
+    "onlyRevisionDifferenceFromReviewedBuild": true
+  },
+  "evidence": {
+    "candidate": "acceptance.json",
+    "publicBrowser": "public-browser.json",
+    "localHttpAudit": "work/request-layout/release/receipt.json",
+    "localProtectedSourceAudit": "work/request-layout/release/protected-source-verification.json",
+    "priorAttempt": "work/request-layout/release/prior-attempt-9d180e5/"
+  },
+  "limitations": [
+    "HTTP/source/byte verification only; browser acceptance is a separate receipt.",
+    "Explorer renderer and model source are checked against baseline; generated shared chunks can change with the inquiry import graph and are compared to the reviewed local build.",
+    "The integration package source tree and parent inquiry bundle are expected to change in this release; their live bytes must match the reviewed local build, with only packaged sourceRevision differences allowed.",
+    "HTML link order may differ only when the document, sorted link tags and resolved dependency asset sets match."
+  ],
+  "verifiedAt": "2026-11-07T11:32:27.171Z",
+  "publicBrowser": {
+    "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+    "status": "passed",
+    "checkpoints": 46,
+    "explicitConfirmations": 16,
+    "profiles": [
+      "desktop1280x900",
+      "mobile390x844"
+    ]
+  },
+  "reviewLinks": {
+    "walkthrough": "https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent&new=1",
+    "review": "https://github.com/kyle-annora/annora-explorer/blob/main/docs/request-layout-review.md"
+  }
+}

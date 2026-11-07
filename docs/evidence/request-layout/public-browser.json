@@ -1,0 +1,39 @@
+{
+  "status": "published-browser-accepted",
+  "sourceRevision": "16c83189158af90cd69465ca07d175c63d555707",
+  "verifiedAt": "2026-11-07T11:32:27.171Z",
+  "fullJourney": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "timestamp": "2026-11-07T11:32:27.171Z",
+    "results": [
+      {
+        "profile": "desktop",
+        "status": "passed",
+        "sessionId": "WTI-ed13b926-0471-443c-85ef-cb17e7846382",
+        "projectId": "PRJ-DEMO-65754503",
+        "checkpoints": 23,
+        "confirmations": 8
+      },
+      {
+        "profile": "mobile",
+        "status": "passed",
+        "sessionId": "WTI-78c0dd03-be1e-4746-8bb2-f18c98463f55",
+        "projectId": "PRJ-DEMO-04EB3BDF",
+        "checkpoints": 23,
+        "confirmations": 8
+      }
+    ]
+  },
+  "checkpoints": 46,
+  "explicitConfirmations": 16,
+  "checks": [
+    "One guide primary, with separate review and explicit confirmation.",
+    "Resolved floating task typography and keyboard-operable reference disclosures.",
+    "Exact saved views, quotation v1 history and v2 comparison.",
+    "Save failure recovery, reload, return navigation and isolated project storage."
+  ],
+  "limits": [
+    "Chromium desktop and touch emulation; not physical-device benchmarking.",
+    "Fictional browser-local records; no backend or external message delivery."
+  ]
+}
