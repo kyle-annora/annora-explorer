@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "workUnit": "W50",
-  "status": "implemented-and-locally-qualified",
+  "status": "published-and-verified",
   "baselineCommit": "0fc6e61ff5832309feb17f8113451bd5d3cbc774",
   "recordedAt": "2026-11-07T06:17:35.937614+00:00",
   "package": {
@@ -87,7 +87,9 @@
     "First kit release; reinstall is not cross-version migration evidence."
   ],
   "publication": {
-    "status": "pending",
-    "receipt": "release-receipt.json"
+    "status": "published-and-verified",
+    "receipt": "release-receipt.json",
+    "publicBrowserCheckpoints": 22,
+    "publicArtifactConformanceChecks": 14
   }
 }

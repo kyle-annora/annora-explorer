@@ -1,9 +1,123 @@
 {
   "schemaVersion": 1,
   "workUnit": "W50",
-  "status": "publication-pending",
+  "status": "published-and-verified",
+  "verifiedAt": "2026-11-07T06:23:39.409189+00:00",
   "repository": "https://github.com/kyle-annora/annora-explorer",
-  "target": "https://kyle-annora.github.io/annora-explorer/integrations/existing-viewer/",
+  "applicationCommit": "7a82541cf17c8cba0431e85977e08b27c535e7bb",
+  "baselineCommit": "0fc6e61ff5832309feb17f8113451bd5d3cbc774",
+  "workflow": {
+    "id": 42346422673,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42346422673",
+    "build": "success",
+    "deploy": "success"
+  },
+  "deployment": {
+    "id": 7617560300,
+    "environment": "github-pages",
+    "state": "success",
+    "statusCreatedAt": "2026-11-07T06:20:11Z"
+  },
+  "reviewLinks": {
+    "example": "https://kyle-annora.github.io/annora-explorer/integrations/existing-viewer/",
+    "github": "https://github.com/kyle-annora/annora-explorer",
+    "guide": "https://github.com/kyle-annora/annora-explorer/blob/main/docs/integration-kit.md",
+    "package": "https://kyle-annora.github.io/annora-explorer/integration-kit/annora-integration-kit-0.1.0.tgz"
+  },
+  "publicArtifact": {
+    "package": {
+      "name": "@annora/integration-kit",
+      "version": "0.1.0"
+    },
+    "sourceRevision": "7a82541cf17c8cba0431e85977e08b27c535e7bb",
+    "sourceTreeSha256": "d9d2d0a45934f2482da5674b70cb037916be3e66effb217d13dde1e2f74bb237",
+    "file": "annora-integration-kit-0.1.0.tgz",
+    "sha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2",
+    "bytes": 87315,
+    "installation": "npm install ./annora-integration-kit-0.1.0.tgz react@19.3.1 react-dom@19.3.1",
+    "assetsIncluded": false
+  },
+  "exactPublicAssetMatches": [
+    {
+      "path": "integrations/existing-viewer/index.html",
+      "bytes": 3045,
+      "sha256": "02a09accabb0027f8e015b7419bfe1c6fa6de641fd19a124267e7db6f5390d8c"
+    },
+    {
+      "path": "integrations/existing-viewer/fixture.json",
+      "bytes": 33032,
+      "sha256": "d2581804ca682f3f81bd6e364b286d89db070793e41dab1b23f8a98564f72bac"
+    },
+    {
+      "path": "integrations/existing-viewer/model.glb",
+      "bytes": 2574332,
+      "sha256": "5356cb1e7dcf85874c1f2152795b7011f43f01c2bfc899a5fa75a198687204ad"
+    },
+    {
+      "path": "integrations/existing-viewer/MODEL-LICENSE.txt",
+      "bytes": 1072,
+      "sha256": "8f694d23cac4bad2c9f97c5b21f20a891c018445594edc179a39555c17c79728"
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-Lx3g5kbK.js",
+      "bytes": 437380,
+      "sha256": "b2f6a47ac68a89c42b122b3d5a6d49f16d6fab2ad4fb648fd6f0f744ea615d20"
+    },
+    {
+      "path": "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js",
+      "bytes": 593047,
+      "sha256": "0e6a3e36d63fae31c20c3a3da0c88a5281c4f31c30731710b574243cb089b6f8"
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-DYJI2Iwr.css",
+      "bytes": 33539,
+      "sha256": "e30383e061584a7fd9da6858c398b720f510436383556232db5125b73d580a85"
+    }
+  ],
+  "publicPackageQualification": {
+    "freshHostBuild": "passed",
+    "installedArtifactChecks": 14,
+    "sameVersionReinstall": "passed",
+    "sha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2"
+  },
+  "liveBrowserChecks": [
+    {
+      "viewport": [
+        1280,
+        900
+      ],
+      "checkpoints": 11,
+      "pageErrors": [],
+      "failedRequests": [],
+      "idleFramesOver400ms": 0,
+      "existingStoreSentinelUnchanged": true,
+      "actualBackForwardCache": false
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "checkpoints": 11,
+      "pageErrors": [],
+      "failedRequests": [],
+      "idleFramesOver400ms": 0,
+      "existingStoreSentinelUnchanged": true,
+      "actualBackForwardCache": false
+    }
+  ],
   "evaluation": "evaluation.json",
-  "note": "Source and local qualification are separate from actual target publication. This receipt will be replaced with verified target evidence after deployment."
+  "preservation": {
+    "existingExplorerRuntime": "unchanged",
+    "existingModelsAndConfiguration": "unchanged",
+    "existingProjectNamespaces": "unchanged",
+    "backend": "none",
+    "data": "fictional and browser-local"
+  },
+  "limitations": [
+    "One independently implemented Three.js adapter qualified; other viewers need their own adapters.",
+    "Mobile browser emulation; no physical-device or ordinary-PC benchmark.",
+    "Actual Back passed; genuine bfcache restoration did not occur. Retained-page behavior tested synthetically.",
+    "First release; same-version reinstall is not cross-version production migration."
+  ]
 }

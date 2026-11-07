@@ -1,6 +1,6 @@
 # W50 — Existing viewer to reviewed inquiry
 
-The integration kit makes the product-to-inquiry boundary independently installable. A customer's viewer can keep its rendering, camera and selection logic; Annora attaches those references to a reviewed request. Source implementation and compiled qualification are complete. The exact deployed source and public artifact are recorded in the [release receipt](evidence/integration-kit/release-receipt.json); a local build is not publication evidence.
+The integration kit makes the product-to-inquiry boundary independently installable. A customer's viewer can keep its rendering, camera and selection logic; Annora attaches those references to a reviewed request. Published and verified on November 6, 2026 (Pacific), application commit `7a82541cf17c8cba0431e85977e08b27c535e7bb`. The exact deployed source and public artifact are recorded in the [release receipt](evidence/integration-kit/release-receipt.json); a local build is not publication evidence.
 
 ## Review path
 
@@ -32,6 +32,8 @@ Start from the [integration guide](integration-kit.md), [API contract](integrati
 - Independent visual finish review: mobile selector clipping and token mismatches corrected. The inherited shared inquiry and Explorer visual system remain unchanged.
 
 These are automated/local-browser results, not customer acceptance. Real Chrome Back navigation passed; genuine bfcache restoration did not occur in the test environment, so the retained-page branch was tested synthetically. Mobile tests use browser emulation, not physical phones. No ordinary-PC hardware performance claim is made.
+
+The public target passed a further **22 browser checkpoints** on desktop/mobile. All seven example assets match the qualified build. The publicly downloaded tarball was hash-verified, installed into a fresh external host, rebuilt and passed all 14 artifact checks again.
 
 ## Preservation and limits
 
