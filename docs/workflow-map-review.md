@@ -1,6 +1,12 @@
 # Visual workflow guide
 
-Status: candidate qualified. Publication is recorded separately after target verification.
+Status: published and verified.
+
+[Open the shareable workflow guide](https://kyle-annora.github.io/annora-explorer/workflows/).
+
+Deployed application: `d759fad96d7baef4e6d1de6eba526c4faf198d73`. See the
+[release receipt](evidence/workflow-map/release-receipt.json) for workflow, target
+and browser verification. This documentation-only follow-up does not redeploy the app.
 
 ## Intended use
 
@@ -60,3 +66,18 @@ commercial walkthrough (23 checkpoints and eight explicit confirmations). The
 project verification passed 1,002 tests with one existing conditional skip.
 Printing retains the demo scope and restores disclosure states afterward.
 See [acceptance evidence](evidence/workflow-map/acceptance.json).
+
+## Published verification
+
+The live page passed all 100 browser checks. Its walkthrough entry passed nine
+additional checks, opening a fresh independent-viewer session with one visible
+Continue demo action and no business records created. Fourteen live captures
+match the reviewed local captures exactly.
+
+Public verification checked 64 artifacts. All 59 existing runtime, entry and
+fixture artifacts compared against the previous published application are
+byte-identical. The integration-kit 0.2.0 release records the new source revision;
+its packaged source is verified separately. The 0.1.0 archive remains unchanged.
+
+Mobile checks use Chromium viewport and touch emulation, not physical-device
+performance measurements. The page adds no backend or customer data.

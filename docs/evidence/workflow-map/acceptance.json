@@ -1,5 +1,5 @@
 {
-  "status": "candidate-qualified",
+  "status": "published-and-verified",
   "scope": "Standalone English workflow guide; no existing commercial or Explorer source changes",
   "browser": {
     "passed": 100,
@@ -43,5 +43,37 @@
     ],
     "at": "2026-11-07T10:08:02.988Z"
   },
-  "publication": "not-yet-verified"
+  "publication": {
+    "status": "published-and-verified",
+    "url": "https://kyle-annora.github.io/annora-explorer/workflows/",
+    "applicationSourceRevision": "d759fad96d7baef4e6d1de6eba526c4faf198d73",
+    "workflow": {
+      "id": 42362723453,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42362723453"
+    },
+    "deployment": {
+      "id": 7619756677,
+      "state": "success",
+      "completedAt": "2026-11-07T10:10:38Z",
+      "environmentUrl": "https://kyle-annora.github.io/annora-explorer/"
+    },
+    "targetVerifiedAt": "2026-11-07T10:11:19.411Z",
+    "liveBrowserCompletedAt": "2026-11-07T10:11:28.067Z",
+    "walkthroughLinkCompletedAt": "2026-11-07T10:12:18.462Z"
+  },
+  "liveBrowser": {
+    "passed": 100,
+    "failed": 0,
+    "errors": [],
+    "projectStorageWrites": 0,
+    "walkthroughLinkChecks": {
+      "passed": 9,
+      "failed": 0,
+      "opensFreshSession": true,
+      "businessRecordsCreated": 0
+    },
+    "pixelIdenticalScreenshots": 14
+  }
 }

@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "status": "published-and-verified",
+  "url": "https://kyle-annora.github.io/annora-explorer/workflows/",
+  "applicationSourceRevision": "d759fad96d7baef4e6d1de6eba526c4faf198d73",
+  "workflow": {
+    "id": 42362723453,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42362723453"
+  },
+  "deployment": {
+    "id": 7619756677,
+    "state": "success",
+    "completedAt": "2026-11-07T10:10:38Z",
+    "environmentUrl": "https://kyle-annora.github.io/annora-explorer/"
+  },
+  "targetVerifiedAt": "2026-11-07T10:11:19.411Z",
+  "liveBrowserCompletedAt": "2026-11-07T10:11:28.067Z",
+  "walkthroughLinkCompletedAt": "2026-11-07T10:12:18.462Z",
+  "priorPublishedApplicationRevision": "a7eb763290ed78cb6afab73ba01ff01c47fdb320",
+  "verification": {
+    "localBrowser": {
+      "passed": 100,
+      "failed": 0,
+      "viewports": [
+        "1440x1000",
+        "1280x900",
+        "390x844",
+        "320x740",
+        "844x390"
+      ],
+      "zoom": "200% equivalent CSS reflow",
+      "physicalDeviceTesting": false,
+      "errors": [],
+      "projectStorageWrites": 0
+    },
+    "liveBrowser": {
+      "passed": 100,
+      "failed": 0,
+      "errors": [],
+      "projectStorageWrites": 0,
+      "walkthroughLinkChecks": {
+        "passed": 9,
+        "failed": 0,
+        "opensFreshSession": true,
+        "businessRecordsCreated": 0
+      },
+      "pixelIdenticalScreenshots": 14
+    },
+    "existingCommercialFlow": {
+      "workflow": "W60 independent viewer to quotation v2 and next-step acknowledgement",
+      "viewport": "390x844",
+      "checkpoints": 23,
+      "confirmations": 8,
+      "status": "passed"
+    },
+    "projectChecks": {
+      "total": 1003,
+      "passed": 1002,
+      "failed": 0,
+      "existingSkipped": 1
+    },
+    "publicTarget": {
+      "status": "passed",
+      "artifactsChecked": 64,
+      "exactLocalMatches": 61,
+      "existingArtifactsComparedToBaseline": 59,
+      "exactBaselineMatches": 59,
+      "runtimeDifferences": [],
+      "existingRuntimeDifferencesFromBaseline": [],
+      "knownPriorHtmlVariants": [
+        {
+          "path": "studio/index.html",
+          "evidence": "docs/evidence/integration-walkthrough/release-receipt.json",
+          "explanation": "Exact hashes match the previously recorded W60 HTML link-order variant; document and link set also match."
+        }
+      ],
+      "historicalArchive010Unchanged": true,
+      "integrationPackageVerified": true,
+      "unexpectedSourceChanges": []
+    },
+    "print": {
+      "status": "passed",
+      "checks": [
+        "Print includes all expanded steps and branches",
+        "Demo limitations remain visible in print",
+        "Screen disclosure state restored after print"
+      ],
+      "at": "2026-11-07T10:08:02.988Z"
+    },
+    "visualReview": {
+      "disposition": "ship",
+      "scope": "Supplied desktop/mobile/expanded captures and code",
+      "knownDetectorWarning": "Inherited Helvetica typography; retained approved Annora design"
+    }
+  },
+  "integrationPackage": {
+    "release": {
+      "package": {
+        "name": "@annora/integration-kit",
+        "version": "0.2.0"
+      },
+      "sourceRevision": "d759fad96d7baef4e6d1de6eba526c4faf198d73",
+      "sourceTreeSha256": "492c886720740aac8d55377b92c1ebf1a68f999a6e4d3673e5856bd370527742",
+      "file": "annora-integration-kit-0.2.0.tgz",
+      "sha256": "4333531b160b1bbf9ef57921dc2aa67ef47b5102255315b4e4dce6335dd5a5fe",
+      "bytes": 105017,
+      "installation": "npm install ./annora-integration-kit-0.2.0.tgz react@19.3.1 react-dom@19.3.1",
+      "assetsIncluded": false
+    },
+    "localComparison": "Only the packaged sourceRevision differs from the precommit local build. All other packaged bytes match. The previous 0.1.0 archive is unchanged."
+  },
+  "evidence": {
+    "acceptance": "acceptance.json",
+    "screenshots": [
+      "desktop.png",
+      "mobile.png",
+      "branch-mobile.png"
+    ],
+    "reproducibleBrowserReview": "../../../scripts/review/workflow-map/browser.mjs",
+    "reproducibleTargetReview": "../../../scripts/review/workflow-map/target.mjs",
+    "localDetailedReports": [
+      "work/workflow-map/live-browser/report.json",
+      "work/workflow-map/live-browser/live-walkthrough-link-smoke.json",
+      "work/workflow-map/live-browser/local-live-screenshot-comparison.json",
+      "work/workflow-map/public-target.json"
+    ]
+  },
+  "limitations": [
+    "Mobile behavior checked with Chromium touch/viewport emulation; no physical-device or hardware-performance qualification claimed.",
+    "The page documents fictional browser-local demo workflows. It adds no backend, real account, message delivery or order processing.",
+    "This receipt is a documentation-only follow-up. The deployed application remains the applicationSourceRevision above."
+  ]
+}

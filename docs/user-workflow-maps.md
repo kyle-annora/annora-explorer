@@ -2,6 +2,8 @@
 
 Review edition · November 7, 2026
 
+[Open the visual workflow guide](https://kyle-annora.github.io/annora-explorer/workflows/).
+
 Annora connects product understanding to a specific inquiry, a reviewed quotation
 and an agreed next step. The same project carries the selected part, saved view
 and applicable document versions between buyer and seller.
