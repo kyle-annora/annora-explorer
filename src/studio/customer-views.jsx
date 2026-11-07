@@ -31,6 +31,8 @@ export const money = (value) =>
       }).format(value);
 export function buyerURL(project, explore = false) {
   const url = new URL("../product-room/", location.href);
+  const example = new URLSearchParams(location.search).get('followUpDemo');
+  if (example) url.searchParams.set('followUpDemo', example);
   url.searchParams.set("model", project.context.modelId);
   if (explore) {
     url.searchParams.set("returnRole", "seller");

@@ -33,6 +33,8 @@ import { StudioModelStage } from "./model-stage.jsx";
 import crankImage from "../product-room/assets/crank.png";
 import "./styles.css";
 import { CustomerWorkspace } from "./customer-workspace.jsx";
+import { FollowUpWorkspace } from "./follow-up-workspace.jsx";
+import { loadFollowUpDemo, FOLLOW_UP_DEMO_KEY } from "../product-room/follow-up-demo.js";
 import { createDemoProjectRepository } from "../product-room/project-repository.js";
 import {
   readWalkthroughSession,
@@ -633,7 +635,9 @@ function Studio({ repository, projectRepository }) {
             renderDrawingRevision={({ key, ...props }) => <ProjectDrawingRevision key={key} {...props} packages={editableDrawingPackages} releasesRepository={drawingPackages} staticReleases={DRAWING_RELEASES} resolveEntry={resolveDrawingEntry} repository={drawingProjects} hrefFor={context => drawingBuyerHref({ id: props.project.id, context }, true)} />}
           />
         )}
-        {customerScreen && !drawingCustomer && (
+        {customerScreen && !drawingCustomer && route.mode === 'follow-up' ? (
+          <FollowUpWorkspace repository={projectRepository} projectId={route.id} guardRef={customerGuard} onNavigate={navigate} onGo={go} />
+        ) : customerScreen && !drawingCustomer && (
           <CustomerWorkspace
             repository={projectRepository}
             productRepository={repository}
@@ -1142,8 +1146,14 @@ if (mount) {
         </a>
       </div>,
     );
-  } else
-    createStudio(
+  } else if (new URLSearchParams(location.search).has('followUpDemo')) {
+    void loadFollowUpDemo().then(example => {
+      if (!location.hash) history.replaceState({}, '', `#project?id=${encodeURIComponent(example.projectId)}&mode=follow-up`);
+      createStudio(mount, { projectRepository: example.repository, repository: createStudioRepository({ key: `${FOLLOW_UP_DEMO_KEY}.studio` }) });
+    }).catch(error => {
+      createRoot(mount).render(<div className="room-ui studio-loading"><h1>Follow-up example unavailable</h1><p>{error.message}</p><a className="ar-button" href="./">Open Studio</a></div>);
+    });
+  } else createStudio(
       mount,
       session
         ? {

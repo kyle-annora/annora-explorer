@@ -2,13 +2,14 @@
 const tabs = new Set(['inquiry', 'quotation', 'activity']);
 const modes = new Set(['revision', 'next', 'message']);
 export function readBuyerRoute(hash = globalThis.location?.hash || '') {
-  const [view, ...parts] = hash.replace(/^#/, '').split('&');
+  const [view, ...parts] = String(hash || '').replace(/^#/, '').split('&');
   const query = new URLSearchParams(parts.join('&'));
   const target = query.get('part') ? {kind:'part',nodeId:query.get('part')} : query.get('chapter') && query.get('tour') ? {kind:'chapter',chapterId:query.get('chapter'),tourId:query.get('tour')} : undefined;
   return {view:view || 'explore', projectId:query.get('project') || undefined,
     ...(target ? {target} : {}),
     ...(tabs.has(query.get('tab')) ? {tab:query.get('tab')} : {}),
     ...(query.get('quote') ? {quoteId:query.get('quote')} : {}),
+    ...(query.get('message') ? {messageId:query.get('message')} : {}),
     ...(modes.has(query.get('mode')) ? {mode:query.get('mode')} : {}),
     ...(query.get('stage') === 'review' ? {stage:'review'} : {}),
     ...(query.get('compare') === 'all' ? {compare:'all'} : {}),
@@ -24,6 +25,7 @@ export function buyerRouteHash(route) {
   if (route.view === 'project') {
     if(tabs.has(route.tab))query.set('tab',route.tab);
     if(route.quoteId)query.set('quote',route.quoteId);
+    if(route.mode === 'message' && route.messageId)query.set('message',route.messageId);
     if(modes.has(route.mode))query.set('mode',route.mode);
     if(route.compare === 'all')query.set('compare','all');
   }
@@ -40,6 +42,8 @@ export function updateBuyerLocation(patch, {replace = false} = {}) {
 export function projectReturnURL({base, projectId, role = 'buyer', returnView, session} = {}) {
   const seller = role === 'seller';
   const url = new URL(seller ? '../studio/' : '../product-room/',base);
+  const example = new URL(base).searchParams.get('followUpDemo');
+  if (example) url.searchParams.set('followUpDemo',example);
   if (session) url.searchParams.set('walkthrough',session);
   if (seller) {
     const [path,query=''] = String(returnView || '').replace(/^#/,'').split('?');

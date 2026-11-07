@@ -1,0 +1,55 @@
+.room-follow-up .room-story-controls .room-button { min-height: 44px; }
+.room-follow-up .room-story-controls .room-story-icon { width: 44px; }
+.room-follow-up-caption { white-space: pre-line; overflow-wrap: anywhere; }
+.room-follow-up-utility { grid-column: 1 / -1; display: flex; gap: 12px; align-items: flex-start; border-top: 1px solid var(--aw-border); padding-top: 3px; }
+.room-follow-up-utility > .room-button { flex: none; }
+.room-follow-up-agenda { flex: 1; min-width: 0; }
+.room-follow-up-agenda summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--aw-muted); width: fit-content; }
+.room-follow-up-agenda summary::before { content: ''; width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(-45deg); transition: transform 120ms ease; }
+.room-follow-up-agenda[open] summary::before { transform: rotate(45deg); }
+.room-follow-up-agenda summary:focus-visible { outline: 2px solid var(--aw-ink); outline-offset: 3px; }
+.room-follow-up-agenda ol { list-style: none; margin: 0; padding: 0 0 8px; max-height: min(32svh, 300px); overflow: auto; overscroll-behavior: contain; }
+.room-follow-up-agenda li { border-top: 1px solid var(--aw-border); padding: 8px 0; }
+.room-follow-up-agenda-row { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.room-follow-up-agenda-row strong { font-size: 13px; display: block; overflow-wrap: anywhere; }
+.room-follow-up-agenda-row small, .room-follow-up-reference { display: block; font-size: 12px; color: var(--aw-muted); margin-top: 4px; }
+.room-follow-up-agenda p { margin: 4px 0 8px; font-size: 13px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; max-width: 80ch; }
+.room-follow-up-target { grid-column: 1 / -1; font-size: 13px; margin: 0; color: var(--aw-muted); }
+.room-follow-up-retry { justify-self: start; font-size: 13px; min-height: 44px; }
+.room-follow-up .room-story-exit:hover, .room-follow-up-agenda summary:hover { color: var(--aw-ink); }
+@media (max-width: 800px) {
+  .room-follow-up.room-story-bar[data-expanded=false] { grid-template-columns: minmax(0,1fr); }
+  .room-follow-up.room-story-bar[data-expanded=false] .room-follow-up-caption { display: block; }
+  .room-follow-up-utility { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 6px; align-items: start; }
+  .room-follow-up-agenda[open] { grid-column: 1 / -1; }
+  .room-follow-up-agenda-row { gap: 8px; }
+  .room-follow-up .room-story-controls { gap: 4px; }
+  .room-follow-up .room-story-controls .room-button-primary { flex: 1; }
+}
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) {
+  body:has(.room-story-host:not([hidden]) .room-follow-up) { --room-story-rail: min(320px,40vw); }
+  body:has(.room-story-host:not([hidden]) .room-follow-up) .room-story-host {
+    position: absolute; left: 0; top: calc(var(--header) + var(--room-host-chrome));
+    width: var(--room-story-rail); height: calc(100svh - var(--header) - var(--room-host-chrome));
+    overflow: auto; border-bottom: 0; border-right: 1px solid var(--aw-border);
+  }
+  body:has(.room-story-host:not([hidden]) .room-follow-up) .room-explore {
+    min-height: 0; width: calc(100% - var(--room-story-rail)); margin-left: var(--room-story-rail);
+  }
+  .room-follow-up.room-story-bar { display: block; padding: 8px 12px; }
+  .room-follow-up .room-story-controls { margin-top: 8px; }
+  .room-follow-up-utility { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 4px; margin-top: 8px; }
+  .room-follow-up-agenda[open] { grid-column: 1 / -1; }
+  .room-follow-up .room-story-intro p { font-size: 12px; }
+  .room-follow-up .room-story-heading { gap: 6px; }
+  .room-follow-up .room-story-intro strong { font-size: 14px; }
+  .room-follow-up .room-story-controls { gap: 4px; }
+  .room-follow-up-agenda ol { max-height: 180px; }
+  .room-follow-up .room-story-controls .room-button-primary { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .room-follow-up-agenda summary::before { transition: none; } }
+@media (max-width: 800px) {
+  .room-follow-up.room-story-bar[data-expanded=false] .room-follow-up-agenda p { display: block; }
+}
+
+.room-follow-up-original { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; color: var(--aw-ink); text-underline-offset: 3px; }

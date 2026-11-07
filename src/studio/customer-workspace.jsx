@@ -966,6 +966,10 @@ export function CustomerWorkspace({
                   </p>
                 </div>
                 <ActionGroup>
+                  {repository.supportsFollowUps && project.context.modelId === 'kinetic-01' && <Button
+                    variant="secondary" disabled={Boolean(busy) || drawingEditing}
+                    onClick={() => onNavigate({ page: 'project', id: project.id, mode: 'follow-up', tab })}
+                  >Prepare follow-up</Button>}
                   {acknowledgement ? (
                     <Button
                       onClick={openAcknowledgement}

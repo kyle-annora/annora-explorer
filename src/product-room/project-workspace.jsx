@@ -49,6 +49,8 @@ import { registerWalkthroughAction } from "../walkthrough/actions.js";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 const contextualURL = input => {
   const url = new URL(input,location.href), session = readWalkthroughSession();
+  const example = new URLSearchParams(location.search).get('followUpDemo');
+  if (example) url.searchParams.set('followUpDemo',example);
   return session ? withWalkthroughSession(url,session).href : url.href;
 };
 const money = (value) =>
@@ -394,7 +396,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   const setStage = value => { setStageState(value); updateBuyerLocation({stage:value}); };
   const setTab = value => { setTabState(value); updateBuyerLocation({tab:value}); };
   const setQuoteId = value => { setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
-  const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined}); };
+  const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined,messageId:value === 'message' ? pendingClarification(project)?.id : undefined}); };
   const setModeStage = value => { setModeStageState(value); updateBuyerLocation({stage:value}); };
   const setAllComparisonFields = value => {
     const next = typeof value === 'function' ? value(allComparisonFields) : value;
@@ -668,15 +670,16 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             throw new Error(
               "This project is not available in this browser. Return to My projects to choose a saved project.",
             );
+          if (route.quoteId && !next.quotes.some(item => item.id === route.quoteId)) throw new Error('The exact quotation in this link is unavailable. Return to the project to choose a saved version.');
           setProject(next);
           const selectedQuote = next.quotes.find(item => item.id === route.quoteId) || next.quotes.at(-1);
           setQuoteIdState(selectedQuote?.id || null);
           setTabState(inquiryOnly ? "inquiry" : route.tab || (pendingClarification(next) || pendingProjectChange(next) ? "activity" : next.quotes.length ? "quotation" : "inquiry"));
           setAllComparisonFieldsState(route.compare === 'all');
           const snapshot = history.state?.annoraBuyerDraft;
-          const resumable = snapshot?.projectId === next.id && snapshot?.mode === route.mode && (route.mode === 'message' || snapshot?.quoteId === selectedQuote?.id);
+          const resumable = snapshot?.projectId === next.id && snapshot?.mode === route.mode && (route.mode === 'message' ? snapshot?.replyValues?.replyTo === pendingClarification(next)?.id : snapshot?.quoteId === selectedQuote?.id);
           const requestedMode = route.mode;
-          const availableMode = requestedMode === 'message' ? !!pendingClarification(next) : ['revision','next'].includes(requestedMode) && selectedQuote?.id === next.quotes.at(-1)?.id && !pendingProjectChange(next) && !pendingClarification(next) && (requestedMode !== 'next' || !next.nextSteps.some(item => item.quoteId === selectedQuote?.id));
+          const availableMode = requestedMode === 'message' ? !!pendingClarification(next) && (!route.messageId || pendingClarification(next).id === route.messageId) : ['revision','next'].includes(requestedMode) && selectedQuote?.id === next.quotes.at(-1)?.id && !pendingProjectChange(next) && !pendingClarification(next) && (requestedMode !== 'next' || !next.nextSteps.some(item => item.quoteId === selectedQuote?.id));
           if (requestedMode && availableMode) {
             const changes = resumable ? snapshot.changeValues : {quantity:String(selectedQuote?.quantity || ''),targetWeeks:String(selectedQuote?.requestedWeeks || ''),notes:''};
             const nextStep = resumable ? snapshot.nextValues : {intent:'discussion',message:''};

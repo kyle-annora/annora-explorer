@@ -90,7 +90,7 @@ export function IssueList({ issues, onEdit, draft }) {
   );
 }
 
-export function UnsavedDialog({ open, pending, onKeep, onDiscard, onSave }) {
+export function UnsavedDialog({ open, pending, onKeep, onDiscard, onSave, title = 'Keep your product edits?', description = 'Save this draft before leaving, or discard the edits from this session. The current Product Room will stay unchanged.' }) {
   const ref = useRef(null);
   useEffect(() => {
     if (open && !ref.current.open) ref.current.showModal();
@@ -107,11 +107,8 @@ export function UnsavedDialog({ open, pending, onKeep, onDiscard, onSave }) {
       aria-labelledby="studio-unsaved-title"
     >
       <p className="ar-eyebrow">UNSAVED CHANGES</p>
-      <h2 id="studio-unsaved-title">Keep your product edits?</h2>
-      <p>
-        Save this draft before leaving, or discard the edits from this session.
-        The current Product Room will stay unchanged.
-      </p>
+      <h2 id="studio-unsaved-title">{title}</h2>
+      <p>{description}</p>
       <ActionGroup>
         <Button variant="quiet" onClick={onKeep} disabled={pending}>
           Keep editing

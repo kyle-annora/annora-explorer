@@ -5,6 +5,8 @@ import {
 import { projectDrawingContext, recordContext } from './drawing-context.js';
 import { proposeProjectDrawingRevision, reviewProjectDrawingRevision, validateProjectDrawingHistory, validateRecordDrawingContext, projectContextAtRevision } from './drawing-revision.js';
 import { SAMPLE_PRODUCT_ID, sampleQuote, sampleSupplierReply, sampleInquiryValues } from './project-fixtures.js';
+import { validateFollowUpStore } from './follow-up-domain.js';
+import { createFollowUpRepositoryMethods } from './follow-up-repository.js';
 
 import { createQuoteDraft, normalizeQuoteDraft, quoteDraftPreview, reviewQuote, reviewReply, reviewCustomerReply, reviewAcknowledgement, pendingProjectChange, pendingClarification } from './seller-domain.js';
 
@@ -116,6 +118,7 @@ export function parseProjectStore(raw) {
       if (!project || draft.revision < 1 || !date(draft.updatedAt) || !sameProjectValue(normalized,{...draft,replyDraft:draft.replyDraft ?? null}) || draft.projectRevision > project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null) || (draft.changeId !== null && !project.changes.some(item => item.id === draft.changeId && item.quoteId === draft.previousQuoteId))) throw new Error();
     }
     if (new Set(store.quoteDrafts.map(item => item.projectId)).size !== store.quoteDrafts.length) throw new Error();
+    validateFollowUpStore(store);
     return store;
   } catch {
     throw new ProjectError('STORAGE_CORRUPT', 'Saved project data could not be read. It has not been changed. Use a different browser profile for a fresh demo, or recover the stored data before continuing.');
@@ -224,6 +227,7 @@ export function createDemoProjectRepository(options = {}) {
   const api = {
     mode: 'demo',
     supportsRequestItems: true,
+    ...createFollowUpRepositoryMethods({ read, change, findProject, now, makeId }),
     async proposeDrawingRevision(projectId,input) {
       const release=await drawingRelease(input),{store}=read(),project=findProject(store,projectId);assertCommercial(project);
       return proposeProjectDrawingRevision(project,input,release,store.quoteDrafts.find(draft=>draft.projectId===projectId));

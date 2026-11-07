@@ -29,6 +29,7 @@ export const customerModes = [
   "reply-review",
   "ack",
   "ack-review",
+  "follow-up",
 ];
 export const readRoute = (hash = location.hash) => {
   const [path, query = ""] = hash.replace(/^#/, "").split("?");

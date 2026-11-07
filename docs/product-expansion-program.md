@@ -97,5 +97,7 @@ runtime baseline `d99f6b9a77d059906a8f17041df8d1b78ddd1971`.
 Phase 1 implementation, boundaries and candidate checks are recorded in the
 [delivery review](product-expansion-review.md). Detailed contracts are in
 [contextual requests](contextual-request-items.md) and
-[Studio story authoring](studio-story-authoring.md). Later phases remain approved
-planned work, not completed or published capabilities.
+[Studio story authoring](studio-story-authoring.md). The first subsequent work
+package, W00/W10 customer follow-up, is tracked in its [delivery review](customer-follow-up-review.md)
+and [contract](customer-follow-up.md). Other expansion work packages remain planned;
+their status must not be inferred from this candidate or its public example.
