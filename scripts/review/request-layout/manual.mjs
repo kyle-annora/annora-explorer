@@ -41,6 +41,9 @@ async function run(profile) {
     assert.equal(await page.locator('.ar-project-primary:visible').count(),1,`${name}: native primary remains available`);
     assert.equal(await page.locator('.pw-progress:visible,.ei-progress:visible').count(),0,`${name}: no redundant stepper`);
     assert.equal(await page.locator('.ar-project-task h1:visible,.ei-task h2:visible').count(),1,`${name}: one task title`);
+    const typography=await page.locator('.ar-project-task h1:visible,.ei-task h2:visible').evaluate(el=>{const s=getComputedStyle(el);return{fontSize:Number.parseFloat(s.fontSize),fontWeight:s.fontWeight,fontFamily:s.fontFamily,workspaceFont:s.getPropertyValue('--aw-font').trim(),roomFont:s.getPropertyValue('--ar-font').trim()};});
+    assert.ok(typography.fontSize>=20,`${name}: task title retains heading hierarchy`);
+    if(floating){assert.equal(typography.fontSize,profile.width<=760?21:22,`${name}: floating heading uses its designed font size`);assert.ok(typography.workspaceFont&&typography.roomFont,`${name}: font aliases resolve without a cycle`);}
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,`${name}: no horizontal overflow`);
     if(recordVersion) assert.match(await page.locator('.ar-project-context').getAttribute('data-record-label'),new RegExp(`v${recordVersion}\\b`),`${name}: exact quotation reference`);
     await primary().scrollIntoViewIfNeeded();
@@ -49,7 +52,7 @@ async function run(profile) {
     if(floating)await page.locator('.ei-scroll').evaluate(el=>{el.scrollTop=0;});else await page.evaluate(()=>scrollTo(0,0));
     await page.screenshot({path:path.join(dir,`${name}.png`),animations:'disabled'});
     if(!floating)await page.screenshot({path:path.join(dir,`${name}-full.png`),animations:'disabled',fullPage:true});
-    checkpoints.push({name,url:page.url(),recordVersion,control});console.log(`${profile.name}: ${name}`);
+    checkpoints.push({name,url:page.url(),recordVersion,control,typography});console.log(`${profile.name}: ${name}`);
   }
   async function seed(data,url) {
     await page.goto(new URL('product-room/?model=kinetic-01#projects',base).href,{waitUntil:'domcontentloaded'});
@@ -58,6 +61,7 @@ async function run(profile) {
     await page.locator('.ar-project-context').waitFor();
   }
   try {
+    if(process.env.FLOATING_ONLY !== '1') {
     // Product Room opens its floating host; the original full-page form remains
     // exposed by the drawing host with its own properly versioned repository.
     await page.goto(new URL('drawing-preview/?product=sk08&detail=shaft-bore&view=drawings#inquiry',base).href,{waitUntil:'domcontentloaded'});
@@ -124,7 +128,9 @@ async function run(profile) {
       const confirmed=JSON.stringify((await store()).projects[0]);await page.reload({waitUntil:'domcontentloaded'});await page.locator('.ar-project-context').waitFor();
       assert.equal(JSON.stringify((await store()).projects[0]),confirmed,'Final reload preserves confirmation');
     }
-
+    }
+    }
+    if(process.env.NATIVE_ONLY !== '1') {
     await page.goto(new URL('integrations/existing-viewer/',base).href,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.annoraExampleDiagnostics?.().state.ready,null,{timeout:90000});
     await page.locator('#part').selectOption('kinetic-node-001');await click(page.locator('#inquire-part'));

@@ -116,6 +116,32 @@
         }
       ],
       "timestamp": "2026-11-07T11:21:40.107Z"
+    },
+    "floatingTypography": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "checkpoints": 3
+        }
+      ],
+      "timestamp": "2026-11-07T11:28:34.741Z"
     }
   },
   "designReview": {
@@ -127,7 +153,8 @@
       "Use Button icon slots to keep icons beside labels.",
       "Keep 44 px window control targets.",
       "Clear stale field validation when sample values replace invalid input; preserve non-field errors.",
-      "Preserve contiguous headings in the final conversation."
+      "Preserve contiguous headings in the final conversation.",
+      "Remove a circular font alias found in public screenshot review; computed floating task titles now resolve to 22 px desktop and 21 px mobile."
     ]
   },
   "captures": [

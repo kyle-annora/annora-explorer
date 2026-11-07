@@ -107,6 +107,12 @@ A separate source review preserved the distinct question-review action when it
 is not the guide's action. Eight default-reference rendering fixtures remain
 identical. The design detector reported no findings.
 
+Public screenshot review caught a circular font alias in the floating surface.
+The correction restores the canonical font stack; 12 focused checkpoints across
+four viewports confirm 22 px desktop and 21 px phone task headings, along with
+review, confirmation and real pointer access. Public qualification is repeated
+against the corrective deployment.
+
 [Acceptance evidence](evidence/request-layout/acceptance.json) records the suites
 and their limits. Public-target identity and browser results are recorded after
 GitHub deployment.

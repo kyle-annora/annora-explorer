@@ -19,7 +19,7 @@
   --aw-surface: var(--ar-surface);
   --aw-subtle: var(--ar-subtle);
   --aw-radius: 4px;
-  --aw-font: var(--ar-font);
+  /* Typography inherits --aw-font; --ar-font already aliases it. */
 }
 :root[data-appearance=dark] .embedded-inquiry-host .room-ui {
   --ar-error: #ffb6a5;

@@ -10,6 +10,8 @@ export async function requestLayoutCheckpoint(page, name) {
   assert.equal(await root.locator('.ar-project-primary:visible').count(), 0, `${name}: guided primary is not duplicated`);
   assert.equal(await root.locator('.pw-progress:visible, .ei-progress:visible').count(), 0, `${name}: no competing stepper`);
   assert.equal(await root.locator('.ei-task h2:visible, .ar-project-task h1:visible').count(), 1, `${name}: one current task`);
+  const taskSize = await root.locator('.ei-task h2:visible, .ar-project-task h1:visible').evaluate(el => Number.parseFloat(getComputedStyle(el).fontSize));
+  assert.ok(taskSize >= 20, `${name}: current task keeps its heading hierarchy`);
   const details = root.locator('.ar-project-details:visible');
   // Error and stage changes deliberately focus their heading on the next frame.
   // Let that app-owned focus settle before exercising a fresh keyboard action.
@@ -36,5 +38,5 @@ export async function requestLayoutCheckpoint(page, name) {
   assert.equal(await records(), initial, `${name}: reading references cannot change confirmed records`);
   if (await panel.count()) await panel.locator('.ei-scroll').evaluate(el => { el.scrollTop = 0; });
   else await page.evaluate(() => scrollTo(0, 0));
-  return { oneContext: true, oneTask: true, noDuplicatePrimary: true, noCompetingStepper: true, keyboardReference: true };
+  return { oneContext: true, oneTask: true, taskFontSize: taskSize, noDuplicatePrimary: true, noCompetingStepper: true, keyboardReference: true };
 }

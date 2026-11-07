@@ -40,6 +40,12 @@ The full-page inquiry is exercised through the SK08 drawing host. Product Room's
 inquiry route correctly uses the shared floating surface. Set `NATIVE_ONLY=1`
 for a bounded recheck of validation, sample replacement, review, edit and
 confirmation; it also verifies the exact drawing reference remains unchanged.
+Set `FLOATING_ONLY=1` for a bounded floating fill, review and receipt check. This
+records computed typography and requires both font aliases to resolve, preserving
+the 22 px desktop and 21 px phone task heading.
+
+Floating checks also assert resolved font tokens and 22 px desktop / 21 px mobile
+task headings, so an invalid font shorthand cannot pass as structurally present.
 
 Results and screenshots go to `OUT`. Chromium viewport and touch emulation do
 not establish physical-phone or ordinary-computer performance.
