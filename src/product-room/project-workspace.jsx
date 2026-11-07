@@ -46,6 +46,7 @@ import {
   VersionSelector,
   Comparison,
 } from "./ui/components.jsx";
+import { ProjectContextBar, ProjectTaskHeader, ProjectDetails, ProjectActionBar } from "./ui/project-frame.jsx";
 import "./project-workspace.css";
 import "./workspace-presentation.css";
 import { updateBuyerLocation } from "./navigation.js";
@@ -406,7 +407,7 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
   const [optionDirty, setOptionDirty] = useState(false);
   const [questionDirty, setQuestionDirty] = useState(false);
   const [questionBusy, setQuestionBusy] = useState(false);
-  const [optionStage,setOptionStage] = useState("saved"), [showOptionRecords,setShowOptionRecords] = useState(false);
+  const [,setOptionStage] = useState("saved");
   function observeQuotation(id) {
     const opened = project?.quotes.find(item => item.id === id);
     if (opened) void projectEvidenceController(repository).observe(project, {type:"quotation.opened", role:"buyer", context:recordContext(project, opened), record:{kind:"quotation", id:opened.id, quoteVersion:opened.version}});
@@ -448,9 +449,9 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
     requestAnimationFrame(() => {
       heading.current?.focus({ preventScroll: true });
       const container = heading.current?.closest('.room-workspace');
-      const top = container?.querySelector('.pw-topline') || container;
+      const top = container?.querySelector('.ar-project-context, .pw-topline') || container;
       if (top) {
-        const headerBottom = document.querySelector('[data-workspace-header], .room-header')?.getBoundingClientRect().bottom || 0;
+        const headerBottom = Math.max(0, ...Array.from(document.querySelectorAll('[data-workspace-header], .room-header, .walkthrough-strip'), element => element.getBoundingClientRect().bottom));
         window.scrollTo({top:Math.max(0,window.scrollY + top.getBoundingClientRect().top - headerBottom - 12),behavior:'instant'});
       }
     });
@@ -1595,13 +1596,16 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
     if (mode === "message") {
       const isReview = modeStage === "review";
       const source = project.messages?.find(item => item.id === replyValues.replyTo);
-      return <div className="room-ui room-workspace">
-        <div className="pw-topline"><Button variant="quiet" onClick={closeMode} disabled={!!pending}>← Back to project</Button><span>{project.id}</span></div>
-        {header("REPLY TO THE SELLER",isReview ? "Review your reply." : "Add the missing detail.",isReview ? "This reply stays with the seller’s question and your project." : "Your quotation stays unchanged when you send a clarification.")}
-        <ol className="pw-progress pw-inquiry-progress" aria-label="Reply steps">
+      return <div className="room-ui room-workspace pw-review-task">
+        <ProjectContextBar project={project} context={recordContext(project, question)} role="buyer" recordLabel="Reply to seller"
+          back={<Button variant="quiet" onClick={closeMode} disabled={!!pending}>← Back to project</Button>} />
+        <ProjectTaskHeader headingRef={heading} title={isReview ? "Review your reply." : "Add the missing detail."}
+          description={isReview ? "This reply stays with the seller’s question and your project." : "Your quotation stays unchanged when you send a clarification."}
+          status={<Status>{isReview ? "Review & confirm" : "Your reply"}</Status>} />
+        {repository.mode !== "walkthrough" && <ol className="pw-progress pw-inquiry-progress" aria-label="Reply steps">
           <li className={isReview ? "is-complete" : "is-current"} aria-current={!isReview ? "step" : undefined}><span>{isReview ? "✓" : "01"}</span>Your reply</li>
           <li className={isReview ? "is-current" : ""} aria-current={isReview ? "step" : undefined}><span>02</span>Review & confirm</li>
-        </ol>
+        </ol>}
         {feedback}
         <div className="pw-layout"><div className="pw-main-column">
           <Section title="The seller asked"><p className="pw-preserve pw-message">{source?.body || "The original question is unavailable. Return to the project to refresh."}</p></Section>
@@ -1613,12 +1617,14 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               <Field label="Your reply" required textarea rows={5} maxLength={4000} value={replyValues.body} disabled={!!pending || leaving}
                 onChange={event=>{setReplyValues({...replyValues,body:event.target.value});setErrors({});}} error={errors.body} hint="Answer the question or explain what still needs to be discussed." />}
           </form>
-        </div><aside className="pw-sidebar"><ContextSummary context={recordContext(project, mode === "message" ? question : quote)} compact /></aside></div>
-        <div className="pw-bottom-actions"><ActionGroup>
-          {isReview ? <><Button variant="secondary" disabled={!!pending} onClick={()=>setModeStage("details")}>Edit reply</Button>
-            <Button disabled={!!pending || updateAvailable} pending={pending==="send-reply"} onClick={confirmRequest}>Confirm demo reply <span aria-hidden="true">→</span></Button></> :
-            <><Button variant="quiet" disabled={!!pending} onClick={closeMode}>Cancel</Button><Button type="submit" form="pw-reply-form" disabled={!!pending || updateAvailable} pending={pending==="review-reply"}>Review reply <span aria-hidden="true">→</span></Button></>}
-        </ActionGroup></div>
+        </div><aside className="pw-sidebar"><ContextSummary context={recordContext(project, mode === "message" ? question : quote)} onExplore={onExplore} compact /></aside></div>
+        <ProjectActionBar primary={isReview
+          ? <Button disabled={!!pending || updateAvailable} pending={pending === "send-reply"} onClick={confirmRequest}>Confirm demo reply <span aria-hidden="true">→</span></Button>
+          : <Button type="submit" form="pw-reply-form" disabled={!!pending || updateAvailable} pending={pending === "review-reply"}>Review reply <span aria-hidden="true">→</span></Button>}
+          note={isReview ? "Confirm only after checking the reply above. Your quotation remains unchanged." : undefined}>
+          {isReview ? <Button variant="secondary" disabled={!!pending} onClick={() => setModeStage("details")}>Edit reply</Button>
+            : <Button variant="quiet" disabled={!!pending} onClick={closeMode}>Cancel</Button>}
+        </ProjectActionBar>
         {demo}
       </div>;
     }
@@ -1626,41 +1632,22 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
       const isRevision = mode === "revision",
         isReview = modeStage === "review";
       return (
-        <div className="room-ui room-workspace">
-          <div className="pw-topline">
-            <Button
-              variant="quiet"
-              onClick={closeMode}
-            >
-              ← Back to quotation
-            </Button>
-            <span>
-              {project.id} · v{quote.version}
-            </span>
-          </div>
-          {header(
-            isRevision ? "QUOTE CHANGE REQUEST" : "CONTINUE THE CONVERSATION",
-            isReview
-              ? "Review your message."
-              : isRevision
-                ? "What would you like to change?"
-                : "Choose the next step.",
-            isReview
-              ? `This request will stay linked to quotation v${quote.version}.`
-              : "This message stays in this session until you review and confirm it.",
-          )}
+        <div className="room-ui room-workspace pw-review-task">
+          <ProjectContextBar project={project} context={projectContext} role="buyer" recordLabel={`Quotation v${quote.version}`}
+            back={<Button variant="quiet" onClick={closeMode}>← Back to quotation</Button>} />
+          <ProjectTaskHeader headingRef={heading}
+            title={isReview ? "Review your message." : isRevision ? "What would you like to change?" : "Choose the next step."}
+            description={isReview ? `This request will stay linked to quotation v${quote.version}.` : "This message stays in this session until you review and confirm it."}
+            status={<Status>{isReview ? "Review & confirm" : "Your request"}</Status>} />
           {feedback}
-          <ol
-            className="pw-progress pw-inquiry-progress"
-            aria-label="Request steps"
-          >
-            <li className={isReview ? "is-complete" : "is-current"}>
+          {repository.mode !== "walkthrough" && <ol className="pw-progress pw-inquiry-progress" aria-label="Request steps">
+            <li className={isReview ? "is-complete" : "is-current"} aria-current={!isReview ? "step" : undefined}>
               <span>{isReview ? "✓" : "01"}</span>Your request
             </li>
-            <li className={isReview ? "is-current" : ""}>
+            <li className={isReview ? "is-current" : ""} aria-current={isReview ? "step" : undefined}>
               <span>02</span>Review & confirm
             </li>
-          </ol>
+          </ol>}
           <div className="pw-layout">
             <div className="pw-main-column">
               <form
@@ -1712,7 +1699,7 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
                             : "Request engineering review"}
                         </p>
                       )}
-                      <p className="pw-eyebrow">YOUR MESSAGE</p>
+                      <h3 className="pw-message-label">Your message</h3>
                       <p className="pw-preserve pw-message">
                         {isRevision ? changeValues.notes : nextValues.message}
                       </p>
@@ -1823,10 +1810,9 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               </form>
             </div>
             <aside className="pw-sidebar">
-              <ContextSummary context={recordContext(project, mode === "message" ? question : quote)} compact />
+              <ContextSummary context={recordContext(project, mode === "message" ? question : quote)} onExplore={onExplore} compact />
               <div className="pw-side-note">
-                <p className="pw-eyebrow">SOURCE QUOTATION</p>
-                <h2>Version {quote.version}</h2>
+                <h2>Source quotation v{quote.version}</h2>
                 <dl className="pw-side-facts">
                   <div>
                     <dt>Quantity</dt>
@@ -1845,95 +1831,52 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               </div>
             </aside>
           </div>
-          <div className="pw-bottom-actions">
-            <ActionGroup align="between">
-              {isReview ? (
-                <>
-                  <Button
-                    variant="secondary"
-                    disabled={!!pending}
-                    onClick={() => {
-                      setModeStage("details");
-                      setModeReview(null);
-                      revealHeading();
-                    }}
-                  >
-                    Edit request
-                  </Button>
-                  <Button
-                    disabled={!!pending || updateAvailable}
-                    pending={pending === "confirm-change"}
-                    pendingLabel="Saving request…"
-                    onClick={confirmRequest}
-                  >
-                    Confirm demo request <span aria-hidden="true">→</span>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="quiet" onClick={closeMode}>
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    form="pw-change-form"
-                    disabled={!!pending || updateAvailable}
-                    pending={pending === "review-change"}
-                  >
-                    Review request <span aria-hidden="true">→</span>
-                  </Button>
-                </>
-              )}
-            </ActionGroup>
-          </div>
+          <ProjectActionBar primary={isReview
+            ? <Button disabled={!!pending || updateAvailable} pending={pending === "confirm-change"} pendingLabel="Saving request…" onClick={confirmRequest}>Confirm demo request <span aria-hidden="true">→</span></Button>
+            : <Button type="submit" form="pw-change-form" disabled={!!pending || updateAvailable} pending={pending === "review-change"}>Review request <span aria-hidden="true">→</span></Button>}
+            note={isReview ? "Confirm the details above. This requests a review; it does not accept the quotation or place an order." : undefined}>
+            {isReview ? <Button variant="secondary" disabled={!!pending} onClick={() => { setModeStage("details"); setModeReview(null); revealHeading(); }}>Edit request</Button>
+              : <Button variant="quiet" onClick={closeMode}>Cancel</Button>}
+          </ProjectActionBar>
           {demo}
         </div>
       );
     }
+    const viewingQuote = tab === "quotation" && quote;
+    const visibleContext = viewingQuote ? projectContext : recordContext(project, project.inquiry);
+    const taskTitle = tab === "quotation"
+      ? !quote ? "Your quotation." : !isLatest ? "An earlier quotation." : `Review quotation v${quote.version}.`
+      : tab === "activity" ? "Project conversation." : "Your saved inquiry.";
+    const taskDescription = viewingQuote
+      ? !isLatest ? `Version ${quote.version} is preserved. Open the latest quotation to request changes or a next step.`
+        : question ? question.body
+        : waitingChange ? `Your changes to v${quote.version} are under review. The seller can reply or issue a revised quotation.`
+        : currentNextStep ? nextStepConfirmation?.body || "Your next-step request is awaiting seller confirmation."
+        : previousQuote ? `Review what changed from v${previousQuote.version}, then continue the conversation.`
+        : "Review the proposed scope, then request a change or choose the next step."
+      : tab === "activity" ? "Questions, changes and confirmations stay with their original quotation and product references."
+      : inquiryOnly ? "Your confirmed question and exact drawing reference stay together."
+      : projectStatus(project).next;
+    const quotationPrimary = !viewingQuote ? null : !isLatest ? (
+      <Button onClick={() => { setQuoteId(latestQuote.id); setError(null); }}>Open latest quotation <span aria-hidden="true">→</span></Button>
+    ) : waitingChange || question ? (
+      <Button onClick={() => question ? openReply() : setTab("activity")}>{question ? "Reply to question" : "View conversation"} <span aria-hidden="true">→</span></Button>
+    ) : currentNextStep ? (
+      <Button variant="secondary" onClick={() => setTab("activity")}>View conversation <span aria-hidden="true">→</span></Button>
+    ) : (
+      <Button onClick={() => openMode("next")}>Choose next step <span aria-hidden="true">→</span></Button>
+    );
     return (
-      <div className="room-ui room-workspace">
-        <div className="pw-topline">
-          <Button
-            variant="quiet"
-            onClick={() => goto({ view: "projects", context: project.context })}
-          >
-            ← My projects
-          </Button>
-          <span>{project.id}</span>
-        </div>
-        {header(
-          "YOUR PROJECT",
-          project.context.productTitle,
-          project.inquiry.values.application,
-          <Status tone={status.tone}>{status.label}</Status>,
-        )}
-        {!inquiryOnly && <ProjectProgress project={project} />}
-        <div className="pw-shared-status"><p><strong>{inquiryOnly ? "Inquiry saved" : projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{inquiryOnly ? "Your confirmed question and exact drawing reference stay together in this preview." : projectStatus(project).next}</span></p>{sellerLink}</div>
-        {feedback}
-        {project.approvedOptionSet && <fieldset className="pw-guarded-section" disabled={questionDirty || questionBusy}><OptionComparison key={project.id} project={project} onDirtyChange={setOptionDirty} onStageChange={setOptionStage} onExplore={onExplore}
-          onConfirmPreference={async review => {
-            if (busy.current) throw new Error('Another project action is still saving. Please try confirming again.');
-            let failure, completed = false;
-            await run("confirm-preference", async () => {
-              try {
-                const next = await repository.confirmOptionPreference(review,{confirmed:true});
-                assertOptionPreferenceRoundTrip(review,next);
-                completed = true;
-                setProject(next); setOptionDirty(false); setUpdateAvailable(false);
-                setNotice("Preference confirmed. The seller can now review it against the quotation scope.");
-              } catch (error) { failure=error; throw error; }
-            });
-            if (failure) throw failure;
-            if (!completed) throw new Error('Your preference was not saved. Please confirm again.');
-          }} /></fieldset>}
-        {!inquiryOnly && repository.supportsQuestions && project.inquiry.requestItems?.length > 0 && <ProjectQuestions key={`questions:${project.id}`} project={project} role="buyer" disabled={optionDirty || !!pending} onDirtyChange={setQuestionDirty} onBusyChange={setQuestionBusy}
-          initialQuestionId={questionSelection(project.id)} onQuestionChange={id => questionSelection(project.id,id)} onExplore={onExplore}
-          onConfirmQuestion={packet => confirmQuestionAction("confirmQuestion",packet)}
-          onConfirmReply={packet => confirmQuestionAction("confirmQuestionReply",packet)}
-          onConfirmResolution={packet => confirmQuestionAction("confirmQuestionResolution",packet)}
-          onConfirmReopen={packet => confirmQuestionAction("confirmQuestionReopen",packet)} />}
-        {project.approvedOptionSet && optionStage !== 'saved' && <Button variant="quiet" aria-expanded={showOptionRecords} onClick={() => setShowOptionRecords(value=>!value)}>{showOptionRecords ? 'Hide saved inquiry and quotation history' : 'Show saved inquiry and quotation history'}</Button>}
-        {!inquiryOnly && <div hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords} className="pw-project-navigation">
+      <div className="room-ui room-workspace pw-project-detail">
+        <ProjectContextBar project={project} context={visibleContext} role="buyer"
+          recordLabel={viewingQuote ? `Quotation v${quote.version}` : tab === "activity" ? "Conversation" : "Saved inquiry"}
+          back={<Button variant="quiet" onClick={() => goto({ view: "projects", context: project.context })}>← My projects</Button>}
+          actions={<><Button variant="secondary" disabled={questionDirty || questionBusy || optionDirty || !!pending} onClick={() => onExplore(visibleContext)}>
+            {visibleContext.inspection || visibleContext.viewerReference ? "Reopen saved view" : visibleContext.drawing ? "View selected detail" : "View in 3D"} <span aria-hidden="true">↗</span>
+          </Button>{sellerLink}</>} />
+        <ProjectTaskHeader headingRef={heading} title={taskTitle} description={taskDescription}
+          status={<Status tone={viewingQuote && !isLatest ? "neutral" : status.tone}>{viewingQuote && !isLatest ? `Preserved v${quote.version}` : status.label}</Status>} />
+        {!inquiryOnly && <div className="pw-project-navigation">
           <label className="pw-view-choice">
             <span>Project view</span>
             <select value={tab} onChange={event => setTab(event.target.value, {observe:true})} aria-controls="pw-project-content">
@@ -1948,7 +1891,9 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
             onChange={id => { setQuoteId(id, {observe:true}); setAllComparisonFields(false); setError(null); }}
           />}
         </div>}
-        <div role="region" id="pw-project-content" hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords}
+        {!inquiryOnly && repository.mode !== "walkthrough" && <ProjectDetails title="Project progress"><ProjectProgress project={project} /></ProjectDetails>}
+        {feedback}
+        <div role="region" id="pw-project-content"
           aria-label={inquiryOnly || tab === "inquiry" ? "Saved inquiry" : tab === "quotation" ? "Quotation" : "Conversation"}>
           {tab === "inquiry" && (
             <div className="pw-layout">
@@ -1967,16 +1912,15 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               </div>
               <aside className="pw-sidebar">
                 <div className="pw-side-note">
-                  <p className="pw-eyebrow">{question ? "YOUR REPLY NEEDED" : "NEXT STEP"}</p>
                   <h2>{inquiryOnly ? "Return to the detail." : question ? "A question from the seller." : project.quotes.length ? "Your quotation is ready." : "Awaiting a quotation."}</h2>
                   <p>{inquiryOnly ? "Reopen the selected part and drawing region with the same revision. This preview stores the inquiry in this browser; it does not send it to a seller." : question ? question.body : project.quotes.length ? "Review the proposed scope and continue the same project." : "Your confirmed inquiry is available in the seller workspace. A quotation appears here after the seller reviews and issues it."}</p>
                   {inquiryOnly && <Button variant="secondary" onClick={() => onExplore(project.context)}>View selected detail <span aria-hidden="true">↗</span></Button>}
-                  {question ? <Button onClick={openReply}>Reply to question <span aria-hidden="true">→</span></Button>
-                    : project.quotes.length > 0 && <Button onClick={() => setTab("quotation")}>Review quotation <span aria-hidden="true">→</span></Button>}
                 </div>
               </aside>
             </div>
           )}
+          {tab === "inquiry" && !inquiryOnly && (question || project.quotes.length > 0) && <ProjectActionBar
+            primary={question ? <Button onClick={openReply}>Reply to question <span aria-hidden="true">→</span></Button> : <Button onClick={() => setTab("quotation")}>Review quotation <span aria-hidden="true">→</span></Button>} />}
           {tab === "quotation" &&
             (!quote ? (
               <EmptyState
@@ -1987,88 +1931,9 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               </EmptyState>
             ) : (
               <>
-                <div className="pw-quote-toolbar">
-                  <Evidence kind="sample">
-                    {quote.source === "sample" ? "Legacy sample quotation · not an offer" : "Seller-issued demo quotation · not an offer"}
-                  </Evidence>
-                </div>
-                    <section className="pw-next-action" aria-label="Quotation next action">
-                      <div className="pw-next-copy">
-                      <p className="pw-eyebrow">
-                        {!isLatest
-                          ? "PRESERVED VERSION"
-                          : question ? "YOUR REPLY NEEDED" : waitingChange
-                            ? "CHANGE REQUEST SAVED"
-                            : currentNextStep ? "NEXT STEP" : "YOUR NEXT MOVE"}
-                      </p>
-                      <h2>
-                        {!isLatest
-                          ? "An earlier quotation."
-                          : waitingChange || question
-                            ? question ? "A question needs your reply." : "Your changes are under review."
-                            : currentNextStep ? nextStepConfirmation ? "Your next step is confirmed." : "Awaiting seller confirmation." : "Move the conversation forward."}
-                      </h2>
-                      <p>
-                        {!isLatest
-                          ? `Version ${quote.version} remains available as a fixed record. Use the latest quotation to request a change or next step.`
-                          : waitingChange || question
-                            ? question ? question.body : `Your request is linked to v${quote.version}. The seller can reply, clarify details, or issue a revised quotation.`
-                            : currentNextStep ? nextStepConfirmation?.body || "The seller can review your request and confirm the next discussion or engineering review." : "Request a revision, or ask for a discussion or engineering review. You will confirm before recording either request."}
-                      </p>
-                      </div>
-                      <div className="pw-next-controls">
-                      {!isLatest ? (
-                        <Button
-                          onClick={() => {
-                            setQuoteId(latestQuote.id);
-                            setError(null);
-                          }}
-                        >
-                          Open latest quotation{" "}
-                          <span aria-hidden="true">→</span>
-                        </Button>
-                      ) : waitingChange || question ? (
-                        <>
-                          <Button onClick={() => question ? openReply() : setTab("activity")}>
-                            {question ? "Reply to question" : "View conversation"} <span aria-hidden="true">→</span>
-                          </Button>
-                        </>
-                      ) : currentNextStep ? (
-                        <><Button variant="secondary" onClick={() => setTab("activity")}>View conversation <span aria-hidden="true">→</span></Button>
-                        <Button variant="quiet" onClick={() => openMode("revision")}>Request a change</Button></>
-                      ) : (
-                        <>
-                          <Button onClick={() => openMode("next")}>
-                            Choose next step <span aria-hidden="true">→</span>
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => openMode("revision")}
-                          >
-                            Request a change
-                          </Button>
-                        </>
-                      )}
-                      <Evidence kind="review">
-                        No order or acceptance is created
-                      </Evidence>
-                    </div>
-                    </section>
                 <div className="pw-layout">
                   <div className="pw-main-column">
                     <article className="pw-quote-document">
-                      <div className="pw-quote-title">
-                        <div>
-                          <p className="pw-eyebrow">
-                            QUOTATION / VERSION {quote.version}
-                          </p>
-                          <h2>{project.context.productTitle}</h2>
-                        </div>
-                        <p>
-                          {quote.id}
-                          <span>{date(quote.createdAt)}</span>
-                        </p>
-                      </div>
                       {previousQuote && (
                         <Section
                           title={`What changed from v${previousQuote.version}`}
@@ -2095,6 +1960,11 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
                           )}
                         </Section>
                       )}
+                      <div className="pw-quote-title">
+                        <h2>Full quotation</h2>
+                        <p>{quote.id}<span>Issued {date(quote.createdAt)}</span></p>
+                      </div>
+                      <p className="pw-quote-source">{quote.source === "sample" ? "Legacy sample quotation · not an offer" : "Seller-issued demo quotation · not an offer"}</p>
                       <p className="pw-application">{quote.scope}</p>
                       <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} impactScope={quote.impactScope} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
                       <div className="pw-price-list">
@@ -2132,6 +2002,7 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
                         Freight, taxes and unpriced engineering work remain
                         open. Unknown costs are not included as zero.
                       </p>
+                      <ProjectDetails title="Timing, assumptions & terms" meta={quote.proposedLeadTime} className="pw-quote-terms">
                       <Section title="Timing & scope">
                         <dl className="pw-facts">
                           <div>
@@ -2156,6 +2027,7 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
                       </Section>
                       {!!quote.exclusions?.length && <Section title="Not included"><ul className="pw-bullets">{quote.exclusions.map((item,index)=><li key={index}>{item}</li>)}</ul></Section>}
                       {quote.validity && <Section title="Quotation validity"><p className="pw-preserve">{quote.validity}</p></Section>}
+                      </ProjectDetails>
                       <Section
                         title="Open items"
                         description="Clear ownership for what still needs to be resolved."
@@ -2180,12 +2052,17 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
                     </InquiryReference>
                     {currentNextStep && (
                       <div className="pw-next-receipt">
-                        <p className="pw-eyebrow">YOUR REQUEST</p>
+                        <h3>Your next-step request</h3>
                         <p>{currentNextStep.message}</p>
                       </div>
                     )}
                   </aside>
                 </div>
+                <ProjectActionBar className="pw-quotation-actions" primary={quotationPrimary}
+                  note={isLatest ? "Review and confirm before saving a request. No order or acceptance is created." : `This is preserved quotation v${quote.version}. Its scope and references remain unchanged.`}>
+                  {isLatest && !waitingChange && !question && <Button variant="secondary" onClick={() => openMode("revision")}>Request a change</Button>}
+                  {repository.mode === "walkthrough" && isLatest && !waitingChange && !question && !currentNextStep && <Button variant="quiet" onClick={() => openMode("next")}>Choose next step</Button>}
+                </ProjectActionBar>
               </>
             ))}
           {tab === "activity" && (
@@ -2196,6 +2073,30 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
               onExplore={onExplore}
             />
           )}
+        </div>
+        <div className="pw-project-support">
+        {project.approvedOptionSet && <fieldset className="pw-guarded-section" disabled={questionDirty || questionBusy}><OptionComparison key={project.id} project={project} onDirtyChange={setOptionDirty} onStageChange={setOptionStage} onExplore={onExplore}
+          onConfirmPreference={async review => {
+            if (busy.current) throw new Error('Another project action is still saving. Please try confirming again.');
+            let failure, completed = false;
+            await run("confirm-preference", async () => {
+              try {
+                const next = await repository.confirmOptionPreference(review,{confirmed:true});
+                assertOptionPreferenceRoundTrip(review,next);
+                completed = true;
+                setProject(next); setOptionDirty(false); setUpdateAvailable(false);
+                setNotice("Preference confirmed. The seller can now review it against the quotation scope.");
+              } catch (error) { failure=error; throw error; }
+            });
+            if (failure) throw failure;
+            if (!completed) throw new Error('Your preference was not saved. Please confirm again.');
+          }} /></fieldset>}
+        {!inquiryOnly && repository.supportsQuestions && project.inquiry.requestItems?.length > 0 && <ProjectQuestions key={`questions:${project.id}`} project={project} role="buyer" disabled={optionDirty || !!pending} onDirtyChange={setQuestionDirty} onBusyChange={setQuestionBusy}
+          initialQuestionId={questionSelection(project.id)} onQuestionChange={id => questionSelection(project.id,id)} onExplore={onExplore}
+          onConfirmQuestion={packet => confirmQuestionAction("confirmQuestion",packet)}
+          onConfirmReply={packet => confirmQuestionAction("confirmQuestionReply",packet)}
+          onConfirmResolution={packet => confirmQuestionAction("confirmQuestionResolution",packet)}
+          onConfirmReopen={packet => confirmQuestionAction("confirmQuestionReopen",packet)} />}
         </div>
         {demo}
       </div>

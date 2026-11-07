@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "status": "candidate-accepted",
+  "recordedAt": "2026-11-07T10:49:11.882363+00:00",
+  "scope": "Commercial workspace presentation: seller inquiry review, seller quotation review, buyer quotation and version comparison.",
+  "candidate": {
+    "base": "http://127.0.0.1:8190/annora-explorer/",
+    "evidenceDirectory": "work/commercial-layout/candidate-v3",
+    "publication": "Pending exact deployed commit verification; this record is local candidate evidence."
+  },
+  "baseline": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "evidenceDirectory": "work/commercial-layout/baseline",
+    "summary": "work/commercial-layout/baseline/summary.json",
+    "visualNotes": "work/commercial-layout/baseline/visual-notes.json",
+    "profiles": [
+      "desktop 1280x900",
+      "mobile 390x844"
+    ],
+    "result": "46 checkpoints and 16 explicit confirmations passed on the unchanged public release. Supplemental fresh seller-inquiry captures also preserved."
+  },
+  "suites": [
+    {
+      "name": "w60",
+      "script": "scripts/review/integration-walkthrough/browser-journey.mjs",
+      "status": "passed",
+      "profiles": [
+        {
+          "profile": {
+            "name": "desktop",
+            "width": 1280,
+            "height": 900
+          },
+          "status": "passed",
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/w60/desktop/result.json",
+          "idleFramesOver400ms": 0
+        },
+        {
+          "profile": {
+            "name": "mobile",
+            "width": 390,
+            "height": 844,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/w60/mobile/result.json",
+          "idleFramesOver400ms": 0
+        },
+        {
+          "profile": {
+            "name": "compact",
+            "width": 320,
+            "height": 740,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/w60/compact/result.json",
+          "idleFramesOver400ms": 0
+        },
+        {
+          "profile": {
+            "name": "landscape",
+            "width": 844,
+            "height": 390,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/w60/landscape/result.json",
+          "idleFramesOver400ms": 0
+        }
+      ],
+      "summary": "work/commercial-layout/candidate-v3/w60/summary.json"
+    },
+    {
+      "name": "navigation",
+      "script": "scripts/review/integration-walkthrough/navigation-branches.mjs",
+      "status": "passed",
+      "profiles": [
+        {
+          "profile": {
+            "name": "desktop",
+            "width": 1280,
+            "height": 900
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/navigation/desktop/result.json"
+        },
+        {
+          "profile": {
+            "name": "compact",
+            "width": 320,
+            "height": 740,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/navigation/compact/result.json"
+        }
+      ],
+      "summary": "work/commercial-layout/candidate-v3/navigation/summary.json"
+    },
+    {
+      "name": "focused",
+      "script": "scripts/review/commercial-layout/browser.mjs",
+      "status": "passed",
+      "profiles": [
+        {
+          "profile": {
+            "name": "desktop",
+            "width": 1280,
+            "height": 900
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/focused/desktop/result.json"
+        },
+        {
+          "profile": {
+            "name": "zoom200",
+            "width": 640,
+            "height": 450,
+            "deviceScaleFactor": 2,
+            "note": "200%-equivalent layout viewport from 1280x900; browser-native zoom is not available in headless Chromium."
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/focused/zoom200/result.json"
+        },
+        {
+          "profile": {
+            "name": "mobile",
+            "width": 390,
+            "height": 844,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/focused/mobile/result.json"
+        },
+        {
+          "profile": {
+            "name": "compact",
+            "width": 320,
+            "height": 740,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/focused/compact/result.json"
+        },
+        {
+          "profile": {
+            "name": "landscape",
+            "width": 844,
+            "height": 390,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "status": "passed",
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/candidate-v3/focused/landscape/result.json"
+        }
+      ],
+      "summary": "work/commercial-layout/candidate-v3/focused/summary.json"
+    }
+  ],
+  "totalRecordedCheckpoints": 162,
+  "businessConfirmationCoverage": "The unchanged W60 authority verifies 8 explicit confirmations per profile, 32 total across four profiles. Focused tests additionally check that ordinary manual issue remains explicit.",
+  "verifiedBehaviors": [
+    "One current-project bar and one task heading in targeted views.",
+    "One Continue demo or Confirm & continue action; duplicate native primary hidden only in guided mode.",
+    "Ordinary seller prepare/review/issue and buyer next-step controls remain available without walkthrough chrome.",
+    "Quotation comparisons retain paired labeled v1/v2 values at desktop, 390px, 320px,landscape and a 200%-equivalent layout viewport.",
+    "Native disclosure Enter/Space activation, retained keyboard focus, no project mutation while reading details.",
+    "Historical v1 remains selected after reload; original inquiry/context/v1 remain unchanged structured records.",
+    "Opening reply or next-step acknowledgement from selected v1 correctly follows actual v2 request context, including reload.",
+    "Saved independent-viewer part and camera reopen from seller review, buyer v1/v2 and historical v1, then return to exact role/record.",
+    "Review precedes every consequential confirmation; save failures, browser Back, minimize/resume and reload preserve data.",
+    "Missing viewer/buyer/seller project routes fail closed without replacing existing records.",
+    "No horizontal document overflow, no browser page errors, and no failed network requests in final acceptance runs."
+  ],
+  "sourceProtection": {
+    "method": "Existing W60 plants sentinel values in four unrelated browser-store namespaces and asserts exact byte preservation throughout the full route; all four profiles passed.",
+    "tests": [
+      "Explorer selection and exact external-viewer reference retained",
+      "inquiry immutable context retained",
+      "issued quotation v1 retained after v2 and messages",
+      "four unrelated browser namespaces unchanged"
+    ],
+    "implementationBoundary": "This work edits presentation components and display-state selection/scroll handling. No renderer, model geometry, repository schema, endpoint or saved-record format was changed by this QA agent.",
+    "data": "Fresh isolated Chromium profiles, generated fictional identities and quotations only; no user browser profile or real customer records."
+  },
+  "resolvedCandidateIssue": {
+    "issue": "Desktop and landscape buyer saved-view action could sit under the persistent walkthrough strip after task focus/scroll.",
+    "resolution": "Owner aligned reveal-heading scroll to current-project context and included visible host/guide chrome in offset.",
+    "verification": "Unmodified W60 center-hit checks now pass desktop and landscape saved-view actions and exact reference return."
+  },
+  "visualEvidence": [
+    {
+      "file": "docs/evidence/commercial-layout/desktop-seller-inquiry.png",
+      "source": "work/commercial-layout/candidate-v3/focused/desktop/01-seller-inquiry.png",
+      "sha256": "68e70c1464f93535f25e129762dd7f6cdbec2193b11acacc3584c85d5e81f615"
+    },
+    {
+      "file": "docs/evidence/commercial-layout/desktop-seller-review.png",
+      "source": "work/commercial-layout/candidate-v3/focused/desktop/04-seller-v2-review.png",
+      "sha256": "1b54f56268b2343904119d7fa415197f74dcf6c4b18620e4549051bb5d18ad0b"
+    },
+    {
+      "file": "docs/evidence/commercial-layout/mobile-buyer-comparison.png",
+      "source": "work/commercial-layout/candidate-v3/focused/mobile/05-buyer-v2-comparison.png",
+      "sha256": "f939bc802c7a61d6737a52cea3620794f93b3804e63af1de50ff52ac05bb1066"
+    },
+    {
+      "file": "docs/evidence/commercial-layout/desktop-buyer-comparison.png",
+      "source": "work/commercial-layout/candidate-v3/focused/desktop/05-buyer-v2-comparison.png",
+      "sha256": "a05b47491ede135900309889f924125f95478774b0e9a085e1cddadbe9b9ba3a"
+    }
+  ],
+  "limits": [
+    "Headless installed Chrome with fresh browser contexts; no Safari or physical-phone qualification.",
+    "Mobile uses Chromium viewport/touch emulation.",
+    "The 640 × 450 @2x desktop profile emulates a 200%-equivalent layout viewport from 1280 × 900; it is not browser-native zoom.",
+    "Idle-frame checks preserve existing viewer behavior; this is not an ordinary-computer hardware performance benchmark.",
+    "All data remains local demo data; no backend delivery, email, order or production authentication is exercised."
+  ],
+  "discardedSetupRuns": [
+    "candidate: initial manual test incorrectly moved session-bound external-viewer records into ordinary storage. Application correctly rejected that invalid reference. Replaced with native fixtures produced through existing repository APIs.",
+    "candidate-v2 focused: sequential fixture replacement changed only URL hash and reused stale SPA state. Revised test forces fresh navigation for each distinct fixture. Neither setup defect required product behavior changes."
+  ]
+}

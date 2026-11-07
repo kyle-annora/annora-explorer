@@ -29,6 +29,7 @@ import {
 } from "../product-room/seller-domain.js";
 import { contextForRelease } from "../product-room/release-content.js";
 import { copy, date, routeHash } from "./navigation.js";
+import { customerRecordContext } from "./customer-record-context.js";
 import { BUNDLED_RELEASE } from "./seed.js";
 import {
   readWalkthroughSession,
@@ -48,9 +49,8 @@ import {
   SmallLink,
 } from "./customer-views.jsx";
 import "./customer-workspace.css";
+import { ProjectContextBar, ProjectTaskHeader, ProjectActionBar } from "../product-room/ui/project-frame.jsx";
 import { recordContext, projectDrawingContext } from "../product-room/drawing-revision.js";
-import { DrawingReference } from "../product-room/drawing-reference.jsx";
-import { InspectionReference } from "../product-room/inspection-reference.jsx";
 import { quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel } from "../product-room/project-domain.js";
 import { ProjectQuestions } from "../product-room/project-questions.jsx";
 import { assertQuestionsRepository, assertQuestionRoundTrip, assertQuestionScopeRoundTrip } from "../product-room/question-repository.js";
@@ -815,6 +815,47 @@ export function CustomerWorkspace({
     if (draft && project) preview = quoteDraftPreview(draft, project);
   } catch {}
 
+  const { context: displayedContext, label: displayedRecordLabel } = customerRecordContext({
+    project, mode, tab, quote, draft, response, review,
+  });
+  const guardReferenceLink = (event) => {
+    if (dirtyRef.current || busyRef.current || drawingEditing) {
+      event.preventDefault();
+      const href = event.currentTarget.href;
+      localGo(() => location.assign(href));
+    }
+  };
+  const detailPrimary = !project ? null : status.questionId ? (
+    <Button
+      variant={status.owner === "Seller" ? undefined : "secondary"}
+      onClick={showQuestions}
+      disabled={Boolean(busy) || drawingEditing}
+      icon="arrow"
+    >
+      {status.owner === "Seller" ? "Review questions" : "View questions"}
+    </Button>
+  ) : acknowledgement ? (
+    <Button onClick={openAcknowledgement} disabled={Boolean(busy) || drawingEditing}>
+      Confirm next step
+    </Button>
+  ) : clarification ? (tab !== "conversation" &&
+    <Button variant="secondary" disabled={Boolean(busy) || drawingEditing} onClick={() => localGo(() => setTab("conversation"))}>
+      View conversation
+    </Button>
+  ) : change ? (
+    <Button onClick={() => openReply()} disabled={Boolean(busy) || drawingEditing}>
+      Respond to changes
+    </Button>
+  ) : waitingOnCustomer ? (tab !== nextDestination &&
+    <Button variant="secondary" disabled={Boolean(busy) || drawingEditing} onClick={() => localGo(() => setTab(nextDestination))}>
+      {status.label === "Next step confirmed" ? "View conversation" : "View quotation"}
+    </Button>
+  ) : (
+    <Button onClick={openDraft} pending={busy === "open-draft"} disabled={Boolean(busy) || drawingEditing} icon="arrow">
+      {project.quoteDraft ? "Continue quotation" : project.quotes.length ? "Revise quotation" : "Prepare quotation"}
+    </Button>
+  );
+
   return (
     <div className="customer-workspace" onClickCapture={event => {
       const link = event.target.closest?.('a[href]');
@@ -1009,108 +1050,29 @@ export function CustomerWorkspace({
         </div>
       ) : project ? (
         <>
-          <div className="customer-project-heading">
-            <div className="customer-heading-left">
-              <button
-                className="studio-back"
-                aria-label="Back to customer projects"
-                onClick={() => onNavigate({ page: "projects" })}
-              >
-                <Glyph name="back" />
-              </button>
-              <div>
-                <p className="studio-breadcrumb">
-                  Customer projects <span>/</span> {project.id}
-                </p>
-                <h1>{customerName(project)}</h1>
-                <p>{project.context.productTitle}</p>
-              </div>
-            </div>
-            <SmallLink
-              href={buyerHref(project)}
-              onClick={(event) => {
-                if (dirtyRef.current || busyRef.current) {
-                  event.preventDefault();
-                  localGo(() => location.assign(buyerHref(project)));
-                }
-              }}
-            >
-              View as buyer
-            </SmallLink>
+          <div className="customer-context-wrap">
+            <ProjectContextBar
+              project={project}
+              context={displayedContext}
+              role="seller"
+              recordLabel={displayedRecordLabel}
+              back={<button className="studio-back" aria-label="Back to customer projects" onClick={() => onNavigate({ page: "projects" })}><Glyph name="back" /></button>}
+              actions={<>
+                <SmallLink href={buyerHref({ ...project, context: displayedContext }, true)} onClick={guardReferenceLink}>
+                  {displayedContext.inspection || displayedContext.viewerReference ? "Reopen saved view" : displayedContext.drawing ? "View drawing detail" : "View in 3D"}
+                </SmallLink>
+                <SmallLink href={buyerHref(project)} onClick={guardReferenceLink}>View as buyer</SmallLink>
+              </>}
+            />
           </div>
           {mode === "detail" ? (
             <>
-              <div className="customer-next-action">
-                <div>
-                  <Status
-                    tone={status.filter === "attention" ? "active" : "neutral"}
-                  >
-                    {status.label}
-                  </Status>
-                  <p>
-                    <strong>{status.owner} to act</strong>
-                    <span>{status.next}</span>
-                  </p>
-                </div>
-                <ActionGroup>
-                  {repository.supportsFollowUps && project.context.modelId === 'kinetic-01' && <Button
-                    variant="secondary" disabled={Boolean(busy) || drawingEditing}
-                    onClick={() => onNavigate({ page: 'project', id: project.id, mode: 'follow-up', tab })}
-                  >Prepare follow-up</Button>}
-                  {repository.mode === 'impact-demo' && project.quoteDraft && tab !== 'inquiry' && <Button variant="secondary" disabled={Boolean(busy) || drawingEditing}
-                    onClick={() => localGo(() => { setTab('inquiry'); requestAnimationFrame(() => drawingSection.current?.scrollIntoView({ behavior: 'instant', block: 'start' })); })}>Review drawing impact</Button>}
-                  {status.questionId ? (
-                    <Button variant={status.owner === 'Seller' ? undefined : 'secondary'} onClick={showQuestions} disabled={Boolean(busy) || drawingEditing} icon="arrow">{status.owner === 'Seller' ? 'Review questions' : 'View questions'}</Button>
-                  ) : acknowledgement ? (
-                    <Button
-                      onClick={openAcknowledgement}
-                      disabled={Boolean(busy) || drawingEditing}
-                    >
-                      Confirm next step
-                    </Button>
-                  ) : clarification ? (tab !== "conversation" &&
-                    <Button
-                      variant="secondary"
-                      disabled={Boolean(busy) || drawingEditing}
-                      onClick={() => localGo(() => setTab("conversation"))}
-                    >
-                      View conversation
-                    </Button>
-                  ) : change ? (
-                    <Button
-                      onClick={() => openReply()}
-                      disabled={Boolean(busy) || drawingEditing}
-                    >
-                      Respond to changes
-                    </Button>
-                  ) : waitingOnCustomer ? (tab !== nextDestination &&
-                    <Button
-                      variant="secondary"
-                      disabled={Boolean(busy) || drawingEditing}
-                      onClick={() => localGo(() => setTab(nextDestination))}
-                    >
-                      {status.label === "Next step confirmed"
-                        ? "View conversation"
-                        : "View quotation"}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={openDraft}
-                      pending={busy === "open-draft"}
-                      disabled={Boolean(busy) || drawingEditing}
-                      icon="arrow"
-                    >
-                      {project.quoteDraft
-                        ? "Continue quotation"
-                        : project.quotes.length
-                          ? "Revise quotation"
-                          : "Prepare quotation"}
-                    </Button>
-                  )}
-                </ActionGroup>
-              </div>
-              <ProjectEvidencePanel key={project.id} repository={repository} project={project} />
               <div className="customer-project-layout">
+                <ProjectTaskHeader
+                  title={tab === "inquiry" ? "Review the customer inquiry" : tab === "quotation" ? quote ? `Quotation v${quote.version}` : "Prepare a quotation" : "Customer conversation"}
+                  description={`${customerName(project)} · ${status.next}`}
+                  status={<Status tone={status.filter === "attention" ? "active" : "neutral"}>{status.label}</Status>}
+                />
                 <div className="customer-project-main">
                   <div className="customer-project-toolbar">
                     <label className="customer-view-choice">
@@ -1130,21 +1092,12 @@ export function CustomerWorkspace({
                         value={quote.id}
                         onChange={value => setQuoteId(value, {observe:true})}
                       />
-                      {!primaryIsDraft && <Button
-                        variant="secondary"
-                        onClick={openDraft}
-                        disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
-                      >
-                        {project.quoteDraft ? "Continue draft" : "Prepare next version"}
-                      </Button>}
                     </>}
-                  </div>
-                  <div className="customer-project-reference">
-                    <ProductReference project={tab === "quotation" && quote ? { ...project, context: recordContext(project, quote) } : project} buyerHref={buyerHref} />
                   </div>
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
+                        <InquiryDetails project={project} buyerHref={buyerHref} />
                         {repository.mode === "impact-demo" && referenceReview}
                         {repository.supportsQuestions && <div ref={questionsSection}>
                           <ProjectQuestions key={`${project.id}:${questionEpoch}`} project={project} role="seller"
@@ -1163,17 +1116,7 @@ export function CustomerWorkspace({
                               location.assign(url.href);
                             })} />
                         </div>}
-                        <InquiryDetails project={project} buyerHref={buyerHref} />
                         {repository.mode !== "impact-demo" && referenceReview}
-                        <ActionGroup align="start">
-                          <Button
-                            variant="secondary"
-                            onClick={() => openReply("clarification")}
-                            disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
-                          >
-                            Ask for clarification
-                          </Button>
-                        </ActionGroup>
                       </>
                     )}
                     {tab === "quotation" &&
@@ -1185,7 +1128,6 @@ export function CustomerWorkspace({
                               Continue the draft when you are ready.
                             </Notice>
                           )}
-                          <DrawingReference context={recordContext(project, quote)} label={`Quotation v${quote.version} drawing`} href={buyerHref({ ...project, context: recordContext(project, quote) }, true)} />
                           <QuoteSummary
                             project={project}
                             quote={quote}
@@ -1209,66 +1151,38 @@ export function CustomerWorkspace({
                               : "Prepare a draft, review the complete quotation, then make it visible to the customer."
                           }
                         >
-                          {!primaryIsDraft && <Button
-                            onClick={openDraft}
-                            disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}
-                          >
-                            {project.quoteDraft
-                              ? "Continue quotation"
-                              : "Prepare quotation"}
-                          </Button>}
                         </EmptyState>
                       ))}
                     {tab === "conversation" && (
                       <>
-                        <ActionGroup align="start">
-                          {!change && <Button
-                            variant="secondary"
-                            onClick={() => openReply()}
-                            disabled={Boolean(busy) || drawingEditing}
-                          >
-                            Reply to customer
-                          </Button>}
-                          {change && !clarification && (
-                            <Button
-                              variant="quiet"
-                              onClick={openDraft}
-                              disabled={Boolean(busy) || drawingEditing}
-                            >
-                              Revise quotation
-                            </Button>
-                          )}
-                        </ActionGroup>
                         <Conversation project={project} buyerHref={buyerHref} />
                       </>
                     )}
                   </div>
+                  <ProjectActionBar primary={detailPrimary} note="Demo workspace · changes stay in this browser.">
+                    {walkthrough && React.isValidElement(detailPrimary) && React.cloneElement(detailPrimary, { variant: "secondary" })}
+                    {tab === "inquiry" && <Button variant="secondary" onClick={() => openReply("clarification")} disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}>Ask for clarification</Button>}
+                    {tab === "quotation" && quote && !primaryIsDraft && <Button variant="secondary" onClick={openDraft} disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}>{project.quoteDraft ? "Continue draft" : "Prepare next version"}</Button>}
+                    {tab === "conversation" && !change && <Button variant="secondary" onClick={() => openReply()} disabled={Boolean(busy) || drawingEditing}>Reply to customer</Button>}
+                    {tab === "conversation" && change && !clarification && <Button variant="secondary" onClick={openDraft} disabled={Boolean(busy) || drawingEditing}>Revise quotation</Button>}
+                    {repository.supportsFollowUps && project.context.modelId === "kinetic-01" && <Button variant="quiet" disabled={Boolean(busy) || drawingEditing} onClick={() => onNavigate({ page: "project", id: project.id, mode: "follow-up", tab })}>Prepare follow-up</Button>}
+                    {repository.mode === "impact-demo" && project.quoteDraft && tab !== "inquiry" && <Button variant="secondary" disabled={Boolean(busy) || drawingEditing} onClick={() => localGo(() => { setTab("inquiry"); requestAnimationFrame(() => drawingSection.current?.scrollIntoView({ behavior: "instant", block: "start" })); })}>Review drawing impact</Button>}
+                  </ProjectActionBar>
+                </div>
+                <div className="customer-supporting-details">
+                  <ProductReference project={{ ...project, context: displayedContext }} buyerHref={buyerHref} inspectionInDetails recordLabel={tab === "quotation" && quote ? `quotation v${quote.version}` : "inquiry"} />
+                  <ProjectEvidencePanel key={project.id} repository={repository} project={project} />
                 </div>
               </div>
             </>
           ) : mode === "edit" ? (
             <div className="customer-editor-page">
               {obsoleteDrawingDraft && <Notice title="This draft still references an earlier drawing">Review and explicitly replace this draft for the current drawing before saving or issuing it. Issued quotations remain unchanged.<Button variant="secondary" onClick={() => localGo(() => { closeEditor(); setTab("inquiry"); })}>Review project drawing</Button></Notice>}
-              <div className="customer-editor-heading">
-                <div>
-                  <p className="ar-eyebrow">
-                    SELLER DRAFT · NOT VISIBLE TO CUSTOMER
-                  </p>
-                  <h2>
-                    {project.quotes.length
-                      ? `Prepare version ${project.quotes.length + 1}`
-                      : "Prepare your quotation"}
-                  </h2>
-                </div>
-                <span className="studio-save-state">
-                  <i data-dirty={dirty || undefined} />
-                  {dirty
-                    ? "Unsaved edits"
-                    : draft.revision
-                      ? "Draft saved"
-                      : "New draft"}
-                </span>
-              </div>
+              <ProjectTaskHeader
+                title={`Prepare quotation v${project.quotes.length + 1}`}
+                description={`${customerName(project)} · Only issued versions are visible to the customer.`}
+                status={<Status>{dirty ? "Unsaved edits" : draft.revision ? "Draft saved" : "New draft"}</Status>}
+              />
               <fieldset
                 disabled={Boolean(busy) || drawingEditing}
                 className="customer-editor-fields"
@@ -1527,103 +1441,43 @@ export function CustomerWorkspace({
                   </Section>
                 )}
               </fieldset>
-              <div className="customer-editor-actions">
-                <Button
-                  variant="quiet"
-                  onClick={() => localGo(closeEditor)}
-                  disabled={Boolean(busy) || drawingEditing}
-                  icon="back"
-                >
-                  Back to project
-                </Button>
-                <ActionGroup>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      task("save", async () => {
-                        await saveCurrent();
-                        setMessage(
-                          "Quotation draft saved. The buyer view is unchanged.",
-                        );
-                      })
-                    }
-                    pending={busy === "save"}
-                    disabled={Boolean(busy) || drawingEditing}
-                  >
-                    Save draft
-                  </Button>
-                  <Button
-                    onClick={reviewCurrent}
-                    pending={busy === "review"}
-                    disabled={Boolean(busy) || responseMismatch || obsoleteDrawingDraft}
-                    icon="arrow"
-                  >
-                    Review quotation
-                  </Button>
-                </ActionGroup>
-              </div>
+              <ProjectActionBar
+                primary={<Button onClick={reviewCurrent} pending={busy === "review"} disabled={Boolean(busy) || responseMismatch || obsoleteDrawingDraft} icon="arrow">Review quotation</Button>}
+                note="Review the complete quotation before issuing it. Saving a draft does not change the buyer view."
+              >
+                <Button variant="quiet" onClick={() => localGo(closeEditor)} disabled={Boolean(busy) || drawingEditing} icon="back">Back to project</Button>
+                <Button variant="secondary" onClick={() => task("save", async () => {
+                  await saveCurrent();
+                  setMessage("Quotation draft saved. The buyer view is unchanged.");
+                })} pending={busy === "save"} disabled={Boolean(busy) || drawingEditing}>Save draft</Button>
+              </ProjectActionBar>
             </div>
           ) : mode === "quote-review" ? (
             <div className="customer-review-page">
-              <div className="customer-review-heading">
-                <p className="ar-eyebrow">REVIEW BEFORE ISSUE</p>
-                <h2>Check what the customer will receive.</h2>
-                <p>
-                  Version {project.quotes.length + 1} · {customerName(project)}
-                </p>
-              </div>
-              <DrawingReference context={recordContext(project, draft)} label="Drawing included in this quotation" href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
-              <InspectionReference context={recordContext(project, draft)} href={buyerHref({ ...project, context: recordContext(project, draft) }, true)} />
+              <ProjectTaskHeader
+                title={`Review quotation v${project.quotes.length + 1}`}
+                description={`Check the scope, pricing and terms for ${customerName(project)} before you issue this version.`}
+                status={<Status tone="active">Awaiting your confirmation</Status>}
+              />
               <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} comparisonExpanded productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
               {response && <ResponseSummary value={response} />}
-              <div className="customer-confirmation">
-                <Notice title="Ready to make this version visible?">
-                  Issuing saves this exact quotation in the buyer view in this
-                  browser. The previous version stays unchanged.
-                </Notice>
-                <ActionGroup align="between">
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setMode("edit");
-                      setReview(null);
-                    }}
-                    disabled={Boolean(busy) || drawingEditing}
-                    icon="back"
-                  >
-                    Back to editing
-                  </Button>
-                  <Button
-                    onClick={issue}
-                    pending={busy === "issue"}
-                    pendingLabel="Issuing…"
-                    disabled={Boolean(busy) || drawingEditing}
-                    icon="arrow"
-                  >
-                    Issue demo quotation
-                  </Button>
-                </ActionGroup>
+              <div className="customer-supporting-details">
+                <ProductReference project={{ ...project, context: displayedContext }} buyerHref={buyerHref} inspectionInDetails recordLabel={`quotation v${project.quotes.length + 1}`} />
               </div>
+              <ProjectActionBar
+                primary={<Button onClick={issue} pending={busy === "issue"} pendingLabel="Issuing…" disabled={Boolean(busy) || drawingEditing} icon="arrow">Issue demo quotation</Button>}
+                note="Confirming issues this exact version to the buyer in this demo. Previous quotations stay unchanged; no email or order is created."
+              >
+                <Button variant="secondary" onClick={() => { setMode("edit"); setReview(null); }} disabled={Boolean(busy) || drawingEditing} icon="back">Back to editing</Button>
+              </ProjectActionBar>
             </div>
           ) : (
             <div className="customer-message-page">
-              <div className="customer-review-heading">
-                <p className="ar-eyebrow">
-                  {mode.endsWith("review")
-                    ? "REVIEW YOUR RESPONSE"
-                    : "CUSTOMER CONVERSATION"}
-                </p>
-                <h2>
-                  {mode.startsWith("ack")
-                    ? "Confirm the next step."
-                    : mode === "reply-review"
-                      ? "Check your response."
-                      : "Reply to the customer."}
-                </h2>
-                <p>
-                  {customerName(project)} · {project.id}
-                </p>
-              </div>
+              <ProjectTaskHeader
+                title={mode.startsWith("ack") ? "Confirm the next step" : mode === "reply-review" ? "Review your response" : "Reply to the customer"}
+                description={customerName(project)}
+                status={<Status tone={mode.endsWith("review") ? "active" : "neutral"}>{mode.endsWith("review") ? "Awaiting your confirmation" : "Draft response"}</Status>}
+              />
               {mode === "reply" || mode === "ack" ? (
                 <>
                   <fieldset

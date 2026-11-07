@@ -17,6 +17,7 @@ import {
   readWalkthroughSession,
   withWalkthroughSession,
 } from "../walkthrough/session.js";
+import { ProjectDetails } from "../product-room/ui/project-frame.jsx";
 import { recordContext } from "../product-room/drawing-revision.js";
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import { InspectionReference } from "../product-room/inspection-reference.jsx";
@@ -83,25 +84,6 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
   if (!quote) return null;
   return (
     <div className="customer-quote-summary">
-      <div className="customer-quote-masthead">
-        <div>
-          <p className="ar-eyebrow">
-            QUOTATION{quote.version ? ` · VERSION ${quote.version}` : ""}
-          </p>
-          <h2>{productTitle}</h2>
-          <p>
-            {quote.source === "sample"
-              ? "Preserved sample quotation"
-              : "Seller-prepared demonstration quotation"}
-          </p>
-        </div>
-        <div className="customer-subtotal">
-          <span>Priced subtotal · USD</span>
-          <strong>{money(quote.subtotal)}</strong>
-          <small>Final total remains to confirm</small>
-        </div>
-      </div>
-      {drawing && <p className="customer-fine">Drawing reference: {drawing.title} · {drawing.revisionLabel || drawing.revision} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this project; dimensions remain to confirm.</p>}
       {showComparison && previous && (
         <details className="customer-disclosure customer-comparison" key={comparisonKey} open={comparisonExpanded || undefined}>
           <summary>Compare with version {previous.version}<span>{changedRows.length} changes</span></summary>
@@ -126,11 +108,18 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
           </div>
         </details>
       )}
-      <section className="customer-document-section">
-        <h3>Scope</h3>
-        {project && <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
-        <p className="customer-preserve">{quote.scope}</p>
-      </section>
+      <div className="customer-quote-masthead">
+        <section className="customer-quoted-scope" aria-label={`Quoted scope for ${productTitle}`}>
+          <h2>Quoted scope</h2>
+          <p className="customer-preserve">{quote.scope}</p>
+          {project && <p className="customer-fine">Requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
+        </section>
+        <div className="customer-subtotal">
+          <span>Priced subtotal · USD</span>
+          <strong>{money(quote.subtotal)}</strong>
+          <small>Final total remains to confirm</small>
+        </div>
+      </div>
       <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} impactScope={quote.impactScope} lineItems={quote.lineItems} project={project} />
       <section className="customer-document-section">
         <h3>Pricing</h3>
@@ -209,6 +198,9 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
           </ul>
         </details>
       )}
+      {drawing && <ProjectDetails title="Drawing reference" meta={drawing.revisionLabel || drawing.revision}>
+        <p className="customer-fine">{drawing.title} · {drawing.sheetTitle} · {drawing.regionLabel}{drawing.mappingRevision ? ` · ${drawing.mappingRevision}` : ""}. Preserved with this quotation; dimensions remain to confirm.</p>
+      </ProjectDetails>}
       <div className="customer-document-footer">
         <Evidence kind="sample">
           Fictional demonstration · this browser only
@@ -235,8 +227,8 @@ export function InquiryDetails({ project, buyerHref = buyerURL }) {
   ].filter(([, value, id]) => inquiryField(project.context, id)?.enabled || value);
   return (
     <Section
-      title="Customer inquiry"
-      description="The details confirmed by the customer. Original product references stay with this project."
+      title="Requested work"
+      description="The scope and requirements confirmed by the customer."
     >
       <div className="customer-application">
         <span className="customer-label">Application</span>
@@ -245,7 +237,7 @@ export function InquiryDetails({ project, buyerHref = buyerURL }) {
       <dl className="customer-facts">
         <div><dt>Inquiry intent</dt><dd>{inquiryIntentLabel(values)}</dd></div>
         <div><dt>Requested quote scope</dt><dd>{quoteScopeLabel(values, project.context)}</dd></div>
-        {fields.map(([label, value]) => (
+        {fields.filter(([, , id]) => !["company", "name", "email"].includes(id)).map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
             <dd>{value || "To discuss"}</dd>
@@ -285,13 +277,16 @@ export function InquiryDetails({ project, buyerHref = buyerURL }) {
           ))}
         </div>
       )}
-      <p className="customer-fine">
-        Inquiry {project.inquiry.id} · {date(project.inquiry.createdAt)}
-      </p>
+      <ProjectDetails title="Customer contact" meta={values.company || values.name}>
+        <dl className="customer-facts customer-contact-facts">
+          {fields.filter(([, , id]) => ["company", "name", "email"].includes(id)).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "To discuss"}</dd></div>)}
+        </dl>
+        <p className="customer-fine">Inquiry {project.inquiry.id} · {date(project.inquiry.createdAt)}</p>
+      </ProjectDetails>
     </Section>
   );
 }
-export function ProductReference({ project, buyerHref = buyerURL }) {
+export function ProductReference({ project, buyerHref = buyerURL, inspectionInDetails = false, recordLabel = "inquiry" }) {
   const context = project.context,
     snapshot = context.roomSnapshot;
   const docs = snapshot?.content.documents || [];
@@ -306,13 +301,15 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
   const visibleDocs = selectedDocs.length ? selectedDocs : docs;
   return (
     <>
-    <InspectionReference context={context} href={buyerHref(project, true)} />
+    {!inspectionInDetails && <InspectionReference context={context} href={buyerHref(project, true)} />}
     <details className="customer-reference">
       <summary>
         <span>Product reference<small>{context.part?.title || context.productTitle}{context.drawing ? ` · ${context.drawing.revisionLabel || context.drawing.revision}` : snapshot ? ` · Version ${snapshot.version}` : ""}</small></span>
         <Glyph name="document" />
       </summary>
       <div className="customer-reference-body">
+        {inspectionInDetails && <InspectionReference context={context} href={buyerHref(project, true)} />}
+        {context.drawing && <DrawingReference context={context} label="Saved drawing reference" href={buyerHref(project, true)} />}
         {!context.inspection && !context.viewerReference && !context.drawing && context.modelId === "kinetic-01" && <img
           src={crankImage}
           alt="Crank-slider mechanism"
@@ -373,8 +370,7 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
           </div>
         )}
         <p className="customer-fine">
-          Pinned to the inquiry. New product releases do not change this
-          reference.
+          Pinned to this {recordLabel}. New product releases do not change this reference.
         </p>
       </div>
     </details>
