@@ -36,6 +36,7 @@ import { CustomerWorkspace } from "./customer-workspace.jsx";
 import { FollowUpWorkspace } from "./follow-up-workspace.jsx";
 import { loadFollowUpDemo, FOLLOW_UP_DEMO_KEY } from "../product-room/follow-up-demo.js";
 import { loadOptionScopeDemo, OPTION_SCOPE_DEMO_KEY } from "../product-room/option-scope-demo.js";
+import { loadChangeImpactDemo, CHANGE_IMPACT_DEMO_KEY } from "../product-room/change-impact-demo.js";
 import { createDemoProjectRepository } from "../product-room/project-repository.js";
 import {
   readWalkthroughSession,
@@ -48,6 +49,7 @@ import { DrawingWorkspace } from "./drawing-workspace.jsx";
 import { DRAWING_CATALOG, DRAWING_RELEASES, resolveDrawingRelease, resolveDrawingEntry } from "../drawings/catalog.js";
 import { createDrawingRepository } from "./drawing-repository.js";
 import { ProjectDrawingRevision } from "./project-drawing-revision.jsx";
+import { ProjectChangeImpact } from "./project-change-impact.jsx";
 import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.js";
 import { createDrawingContext } from "../drawing-preview/context.js";
 import "./workspace-layout.css";
@@ -642,6 +644,7 @@ function Studio({ repository, projectRepository }) {
           <CustomerWorkspace
             repository={projectRepository}
             productRepository={repository}
+            renderDrawingRevision={projectRepository.mode === 'impact-demo' ? ({ key, ...props }) => <ProjectChangeImpact key={key} {...props} packages={editableDrawingPackages} releasesRepository={drawingPackages} staticReleases={DRAWING_RELEASES} resolveEntry={resolveDrawingEntry} repository={projectRepository} hrefFor={context => drawingBuyerHref({ id: props.project.id, context }, true)} /> : undefined}
             route={route}
             onNavigate={navigate}
             onGo={go}
@@ -1147,6 +1150,13 @@ if (mount) {
         </a>
       </div>,
     );
+  } else if (new URLSearchParams(location.search).has('impactDemo')) {
+    void loadChangeImpactDemo().then(example => {
+      if (!location.hash) history.replaceState({}, '', `#project?id=${encodeURIComponent(example.projectId)}&tab=inquiry`);
+      createStudio(mount, { projectRepository:example.repository, repository:createStudioRepository({key:`${CHANGE_IMPACT_DEMO_KEY}.studio`}) });
+    }).catch(error => {
+      createRoot(mount).render(<div className="room-ui studio-loading"><h1>Drawing-impact example unavailable</h1><p>{error.message}</p><a className="ar-button" href="./">Open Studio</a></div>);
+    });
   } else if (new URLSearchParams(location.search).has('optionDemo')) {
     void loadOptionScopeDemo().then(example => {
       if (!location.hash) history.replaceState({}, '', `#project?id=${encodeURIComponent(example.projectId)}&tab=inquiry`);

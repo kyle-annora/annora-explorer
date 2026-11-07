@@ -1,6 +1,6 @@
 # Execution, harness and agent plan
 
-Revision 4 · Execution plan with W20/W21 and W30 publication status. Feature IDs refer
+Revision 5 · Execution plan with W31 delivery status. Feature IDs refer
 to [scope](scope.md); candidate acceptance and publication require separate evidence.
 
 ## 1. Delivery strategy
@@ -26,7 +26,7 @@ service ownership can change the schedule independently of agent count.
 | W20 | F4a two prepared service packages, differences and reviewed preference events | W00 | M / unsupported configuration claims | Published; local and live desktop/mobile QA passed. Buyer can choose or remain undecided without changing the confirmed inquiry. See [handoff](../option-scope.md). |
 | W21 | F4b request-to-quote scope mapping, explicit preference adoption and v1/v2 comparison | W20 | M–L / metadata lost during draft/quote copying | Published; local and live desktop/mobile QA passed. Requested versus offered scope is reviewed before separate issue; prior snapshots remain unchanged. See [handoff](../option-scope.md). |
 | W30 | F6a question-level events, replies, blocker policy and buyer/seller work list | W00, W21 scope-link contract | L / existing singular pending-question policy | Published; compiled desktop/mobile/compact and live desktop/mobile checks passed. Independent questions, reviewed resolution, frozen v1/v2 evidence and ordinary-project compatibility. See [review](../questions-review.md). |
-| W31 | F5 impact report, per-question/scope working references and explicit drawing/overview A→B decisions | W10, W21, W30; existing drawing revision flow | L / false matches and accidental history adoption | A and B may coexist in working references; original inquiry, discussions and v1 keep A |
+| W31 | F5 impact report, per-question/scope working references and explicit drawing/overview A→B decisions | W10, W21, W30; existing drawing revision flow | L / false matches and accidental history adoption | Implemented and verified for SK08 questions and quotation request scope: independently retained A/adopted B, stale-review and save recovery, immutable v1. See [delivery review](../drawing-impact-review.md) and its publication receipt. Broader presentation/follow-up impact remains deferred. |
 | W32 | F6b bounded events and small evidence view in existing workspace | W10, W30; event definitions from W00 | S–M / counting observations as business outcomes | Reproducible demo counts, no sensitive payloads or blocked user actions |
 | W40 | F2a registry, F2b technical-view steps and prepared-product readiness report | W00; existing story/drawing contracts | L / crank assumptions spread across hosts | Second prepared product uses supported story/drawing steps without renderer forks |
 | W41 | A intake/mapping/export workbench and independent fresh public-product qualification | W40 | M–L / asset preparation effort | Independent operator follows English workflow and produces a reproducible package |

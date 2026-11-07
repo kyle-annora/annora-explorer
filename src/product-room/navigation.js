@@ -46,6 +46,8 @@ export function projectReturnURL({base, projectId, role = 'buyer', returnView, s
   if (example) url.searchParams.set('followUpDemo',example);
   const optionsExample = new URL(base).searchParams.get('optionDemo');
   if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
+  const impactExample = new URL(base).searchParams.get('impactDemo');
+  if (impactExample) url.searchParams.set('impactDemo',impactExample);
   if (session) url.searchParams.set('walkthrough',session);
   if (seller) {
     const [path,query=''] = String(returnView || '').replace(/^#/,'').split('?');

@@ -22,6 +22,7 @@ import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import { InspectionReference } from "../product-room/inspection-reference.jsx";
 import { RequestItemsSummary } from "../product-room/request-items-view.jsx";
 import crankImage from "../product-room/assets/crank.png";
+import { setProjectReferenceIdentity } from "../product-room/project-reference-navigation.js";
 
 export const money = (value) =>
   value === null || value === undefined
@@ -36,11 +37,14 @@ export function buyerURL(project, explore = false) {
   if (example) url.searchParams.set('followUpDemo', example);
   const optionsExample = new URL(location.href).searchParams.get('optionDemo');
   if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
+  const impactExample = new URL(location.href).searchParams.get('impactDemo');
+  if (impactExample) url.searchParams.set('impactDemo', impactExample);
   url.searchParams.set("model", project.context.modelId);
   if (explore) {
     url.searchParams.set("returnRole", "seller");
     url.searchParams.set("returnView", location.hash);
     url.hash = `explore&project=${encodeURIComponent(project.id)}`;
+    setProjectReferenceIdentity(url, project, project.context);
   } else {
     const route = readRoute();
     const query = new URLSearchParams({ project: project.id });
@@ -118,7 +122,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
         {project && <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
         <p className="customer-preserve">{quote.scope}</p>
       </section>
-      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} lineItems={quote.lineItems} project={project} />
+      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} impactScope={quote.impactScope} lineItems={quote.lineItems} project={project} />
       <section className="customer-document-section">
         <h3>Pricing</h3>
         <div className="customer-price-table">

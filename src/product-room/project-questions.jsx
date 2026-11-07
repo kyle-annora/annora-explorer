@@ -6,6 +6,9 @@ import { SCOPE_DISPOSITIONS } from './option-scope-domain.js';
 import { questionState, reviewQuestion, reviewQuestionReply, reviewQuestionResolution, reviewQuestionReopen } from './question-domain.js';
 import { projectQuestionSourceKey, projectQuestionSummary, questionActionLabels, questionQuoteLinks, questionTimeline } from './project-questions-model.js';
 import './project-questions.css';
+import { workingImpactReference } from './impact-domain.js';
+import { DrawingReference } from './drawing-reference.jsx';
+import './impact-scope-summary.css';
 
 const date = value => value && !Number.isNaN(new Date(value).getTime()) ? new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(value)) : '';
 const eventLabels = { opened: 'Question opened', answer: 'Answer', clarification: 'Clarification requested', 'buyer-reply': 'Reply', resolved: 'Marked resolved', reopened: 'Reopened' };
@@ -168,6 +171,7 @@ export function ProjectQuestions({ project, role = 'buyer', onConfirmQuestion, o
       const state = questionState(question), open = expanded === question.id, bodyId = `${prefix}-question-${index}`;
       const events = questionTimeline(question), replies = events.filter(event => ['answer', 'clarification', 'buyer-reply'].includes(event.kind)).length;
       const hasEditor = composer?.questionId === question.id, actionsDisabled = locked || dirty;
+      const workingReference = workingImpactReference(project, 'question', question.id);
       return <li key={question.id} data-project-question={question.id} data-state={state.status}>
         <button type="button" className="ar-question-toggle" aria-expanded={open} aria-controls={bodyId} disabled={locked || dirty} onClick={() => selectQuestion(open ? null : question.id)}>
           <span className="ar-question-number">{String(index + 1).padStart(2, '0')}</span>
@@ -178,6 +182,12 @@ export function ProjectQuestions({ project, role = 'buyer', onConfirmQuestion, o
         </button>
         {open && <div className="ar-question-body" id={bodyId}>
           <QuestionReference item={question.requestItem} onExplore={onExplore} disabled={actionsDisabled} />
+          {workingReference && <div className="ar-question-working-reference">
+            <strong>Reference for ongoing work</strong>
+            <p>{workingReference.reason} Original question history below remains on its saved reference.</p>
+            {workingReference.context ? <DrawingReference context={workingReference.context} label={workingReference.decision === 'retained' ? 'Earlier reference retained after review' : 'Seller-confirmed working reference'} compact />
+              : <p>This question is excluded from the new quotation scope; its original history is preserved.</p>}
+          </div>}
           <ol className="ar-question-thread" aria-label="Question history">{events.map(event => <li key={event.id} data-event-kind={event.kind}>
             <div><strong>{event.authorRole === 'seller' ? 'Seller' : 'Customer'} <span>· {eventLabels[event.kind] || 'Reply'}</span></strong><time dateTime={event.createdAt}>{date(event.createdAt)}</time></div>
             <p>{event.body}</p></li>)}</ol>

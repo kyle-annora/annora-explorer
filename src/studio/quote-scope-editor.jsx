@@ -4,14 +4,19 @@ import { adoptCurrentOptionPreference, SCOPE_DISPOSITIONS } from '../product-roo
 import { QuoteScopeReference, QuoteQuestionEvidence } from '../product-room/quote-scope-summary.jsx';
 import { quoteScopeChoice, quoteScopeRow, quoteScopeQuestions } from '../product-room/quote-scope-presentation.js';
 import { adoptCurrentQuestions, pendingBlockingQuestions, questionStatusLabel } from '../product-room/question-domain.js';
+import { ImpactScopeSummary } from '../product-room/impact-scope-summary.jsx';
+import { adoptCurrentImpact, createImpactScope } from '../product-room/impact-domain.js';
 import './quote-scope-editor.css';
 
 /** Editing remains inside the host quotation draft, including its existing save/review guards. */
-export function QuoteScopeEditor({ project, draft, onChange, errors = {}, disabled = false, onExplore, onQuestions }) {
+export function QuoteScopeEditor({ project, draft, onChange, errors = {}, disabled = false, onExplore, onQuestions, onImpact }) {
   const prefix = useId();
   const [expanded, setExpanded] = useState(null);
   const [reviewingPreference, setReviewingPreference] = useState(false);
   const [reviewingQuestions, setReviewingQuestions] = useState(false);
+  const [reviewingImpact, setReviewingImpact] = useState(false);
+  const currentImpact = project?.impactPolicy ? createImpactScope(project) : null;
+  const changedImpact = currentImpact && JSON.stringify(currentImpact) !== JSON.stringify(draft.impactScope);
   const selection = draft?.scopeSelection;
   const hasSelection = Boolean(selection?.entries?.length);
   const latest = project?.optionPreferences?.at(-1) || null;
@@ -24,13 +29,13 @@ export function QuoteScopeEditor({ project, draft, onChange, errors = {}, disabl
   const changedQuestions = JSON.stringify(currentQuestions) !== JSON.stringify(draftQuestions);
   const blockedQuestions = pendingBlockingQuestions(project);
   const firstInvalidId = selection?.entries?.find(entry => errors[`scopeSelection.entries.${entry.id}`] || quoteScopeQuestions(entry, draft?.questionScope).some(question => errors[`questionScope.${question.id}`]))?.id;
-  useEffect(() => { setExpanded(null); setReviewingPreference(false); setReviewingQuestions(false); }, [draft?.id]);
+  useEffect(() => { setExpanded(null); setReviewingPreference(false); setReviewingQuestions(false); setReviewingImpact(false); }, [draft?.id]);
   useEffect(() => { setReviewingPreference(false); }, [latest?.id, oldPreference?.id]);
   useEffect(() => { setReviewingQuestions(false); }, [JSON.stringify(currentQuestions), JSON.stringify(draftQuestions)]);
   useEffect(() => {
     if (firstInvalidId) setExpanded(firstInvalidId);
   }, [firstInvalidId]);
-  if (!hasSelection && !currentQuestions.length && !draftQuestions.length) return null;
+  if (!hasSelection && !currentQuestions.length && !draftQuestions.length && !currentImpact && !draft?.impactScope) return null;
   const candidate = { ...selection, optionSet: project.approvedOptionSet, preference: latest };
   const unresolved = selection?.entries?.filter(entry => entry.disposition === 'needs-clarification').length || 0;
   function updateEntry(id, values) {
@@ -59,6 +64,17 @@ export function QuoteScopeEditor({ project, draft, onChange, errors = {}, disabl
       <p className="studio-quote-scope-help">Confirming updates this draft only. Review the preference’s scope again; earlier quotations and the original inquiry stay unchanged.</p>
       <ActionGroup align="start"><Button variant="secondary" disabled={disabled} onClick={adopt}>Use this preference in draft</Button>
         <Button variant="quiet" disabled={disabled} onClick={() => setReviewingPreference(false)}>Keep reviewing draft</Button></ActionGroup>
+    </div>}
+    {(currentImpact || draft.impactScope) && <div className="studio-quote-impact">
+      <ImpactScopeSummary snapshot={draft.impactScope} lineItems={lines} onExplore={onExplore} title="Drawing references used by this draft" />
+      {changedImpact && <><p className="studio-quote-scope-attention">This project has newer confirmed drawing decisions. Review them before using this draft.</p>
+        {!reviewingImpact ? <Button variant="secondary" disabled={disabled} onClick={() => setReviewingImpact(true)}>Review latest drawing decisions</Button>
+          : <div className="studio-quote-scope-adoption"><ImpactScopeSummary snapshot={currentImpact} lineItems={lines} title="Confirmed decisions to use" />
+            <ActionGroup align="start"><Button variant="secondary" disabled={disabled} onClick={() => { onChange(adoptCurrentImpact(project, draft)); setReviewingImpact(false); }}>Use reviewed drawing decisions in draft</Button>
+              <Button variant="quiet" disabled={disabled} onClick={() => setReviewingImpact(false)}>Keep reviewing draft</Button></ActionGroup></div>}
+      </>}
+      {Object.entries(errors).filter(([key]) => key === 'impactScope' || key.startsWith('impactScope.')).map(([key, value]) => <p key={key} className="studio-quote-scope-error" role="alert">{value}</p>)}
+      {onImpact && <Button variant="quiet" disabled={disabled} onClick={onImpact}>Review project drawing impact</Button>}
     </div>}
     {errors.scopeSelection && <p className="studio-quote-scope-error" role="alert">{errors.scopeSelection}</p>}
     {(currentQuestions.length > 0 || draftQuestions.length > 0) && <div className="studio-quote-scope-question-summary">

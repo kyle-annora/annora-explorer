@@ -58,6 +58,8 @@ const contextualURL = input => {
   if (example) url.searchParams.set('followUpDemo',example);
   const optionsExample = new URL(location.href).searchParams.get('optionDemo');
   if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
+  const impactExample = new URL(location.href).searchParams.get('impactDemo');
+  if (impactExample) url.searchParams.set('impactDemo',impactExample);
   return session ? withWalkthroughSession(url,session).href : url.href;
 };
 const money = (value) =>
@@ -2085,7 +2087,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         </Section>
                       )}
                       <p className="pw-application">{quote.scope}</p>
-                      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
+                      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} impactScope={quote.impactScope} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
                       <div className="pw-price-list">
                         <div className="pw-price-row pw-price-labels">
                           <span>Proposed scope</span>

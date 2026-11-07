@@ -1,4 +1,5 @@
 import { QuoteScopeEditor } from "./quote-scope-editor.jsx";
+import { assertImpactScopeRoundTrip, assertDrawingImpactRepository } from "../product-room/impact-repository.js";
 import { assertOptionScopeRoundTrip, assertOptionScopeRepository } from "../product-room/option-scope-repository.js";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -77,7 +78,7 @@ export function CustomerWorkspace({
   renderDrawingRevision,
 }) {
   const [drawingEditing, setDrawingEditing] = useState(false), [drawingEpoch, setDrawingEpoch] = useState(0);
-  const drawingBusy = useRef(false);
+  const drawingBusy = useRef(false), drawingSection = useRef(null);
   const [questionEditing, setQuestionEditing] = useState(false), [questionEpoch, setQuestionEpoch] = useState(0);
   const questionBusy = useRef(false), questionsSection = useRef(null);
   const [projects, setProjects] = useState([]),
@@ -124,6 +125,7 @@ export function CustomerWorkspace({
     tab,
     quoteId,
     questionEditing,
+    drawingEditing,
   };
   const change = project ? pendingProjectChange(project) : null,
     clarification = project ? pendingClarification(project) : null,
@@ -140,6 +142,7 @@ export function CustomerWorkspace({
   const nextDestination = status?.label === "Next step confirmed" ? "conversation" : "quotation";
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
+  const referenceReview = project && <div ref={drawingSection}>{renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy) || questionEditing, onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage(repository.mode === 'impact-demo' ? "Drawing impact confirmed. The working draft now uses the reviewed references; earlier quotations and discussions retain their originals." : "Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}</div>;
   const walkthrough = readWalkthroughSession();
   const workKey = (id) =>
     `annora.seller.work.${repository.mode === "drawing-preview" ? "drawing-preview" : walkthrough || "default"}.${id}`;
@@ -211,6 +214,7 @@ export function CustomerWorkspace({
   async function restoreView(record, next) {
     if (record?.approvedOptionSet) assertOptionScopeRepository(repository);
     if (record?.questions?.length) assertQuestionsRepository(repository);
+    if (record?.impactPolicy) assertDrawingImpactRepository(repository);
     const turn = ++viewGeneration.current;
     hydratedView.current = routeHash(next);
     setTabState(next.tab || "inquiry");
@@ -425,7 +429,7 @@ export function CustomerWorkspace({
     };
     const unload = (event) => {
       if (
-        dirtyRef.current || questionBusy.current ||
+        dirtyRef.current || drawingBusy.current || questionBusy.current ||
         (busyRef.current && busyRef.current !== "loading")
       ) {
         event.preventDefault();
@@ -451,9 +455,9 @@ export function CustomerWorkspace({
           before.project.quoteDraft || null,
         );
         if (!projectChanged && !draftChanged) return;
-        if (before.questionEditing) {
-          // Thread editors retain their text and invalidate review when their
-          // source advances, so the customer reply remains available to inspect.
+        if (before.questionEditing || (before.drawingEditing && repository.supportsDrawingImpact)) {
+          // Context editors retain pending decisions and invalidate review when
+          // the project or quotation draft advances in another tab.
           setProject(fresh);
           setProjects(await repository.listSellerProjects());
           setStale(false);
@@ -506,6 +510,7 @@ export function CustomerWorkspace({
     });
     assertOptionScopeRoundTrip(current.draft,value);
     assertQuestionScopeRoundTrip(current.draft,value);
+    assertImpactScopeRoundTrip(current.draft,value);
     setDraft(value);
     setSaved(copy(value));
     setResponse(copy(value.replyDraft || null));
@@ -601,6 +606,7 @@ export function CustomerWorkspace({
       const result = await repository.issueQuote(review);
       assertOptionScopeRoundTrip(review.draft,result.quotes.at(-1));
       assertQuestionScopeRoundTrip(review.draft,result.quotes.at(-1));
+      assertImpactScopeRoundTrip(review.draft,result.quotes.at(-1));
       setProject(result);
       setProjects(await repository.listSellerProjects());
       setQuoteIdState(result.quotes.at(-1).id);
@@ -1043,6 +1049,8 @@ export function CustomerWorkspace({
                     variant="secondary" disabled={Boolean(busy) || drawingEditing}
                     onClick={() => onNavigate({ page: 'project', id: project.id, mode: 'follow-up', tab })}
                   >Prepare follow-up</Button>}
+                  {repository.mode === 'impact-demo' && project.quoteDraft && tab !== 'inquiry' && <Button variant="secondary" disabled={Boolean(busy) || drawingEditing}
+                    onClick={() => localGo(() => { setTab('inquiry'); requestAnimationFrame(() => drawingSection.current?.scrollIntoView({ behavior: 'instant', block: 'start' })); })}>Review drawing impact</Button>}
                   {status.questionId ? (
                     <Button variant={status.owner === 'Seller' ? undefined : 'secondary'} onClick={showQuestions} disabled={Boolean(busy) || drawingEditing} icon="arrow">{status.owner === 'Seller' ? 'Review questions' : 'View questions'}</Button>
                   ) : acknowledgement ? (
@@ -1128,6 +1136,7 @@ export function CustomerWorkspace({
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
+                        {repository.mode === "impact-demo" && referenceReview}
                         {repository.supportsQuestions && <div ref={questionsSection}>
                           <ProjectQuestions key={`${project.id}:${questionEpoch}`} project={project} role="seller"
                             initialQuestionId={selectedQuestionId()} onQuestionChange={rememberQuestion}
@@ -1145,7 +1154,7 @@ export function CustomerWorkspace({
                             })} />
                         </div>}
                         <InquiryDetails project={project} buyerHref={buyerHref} />
-                        {renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy) || questionEditing, onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage("Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}
+                        {repository.mode !== "impact-demo" && referenceReview}
                         <ActionGroup align="start">
                           <Button
                             variant="secondary"
@@ -1283,10 +1292,11 @@ export function CustomerWorkspace({
                 </Section>
                 <QuoteScopeEditor project={project} draft={draft} errors={errors} disabled={Boolean(busy) || drawingEditing}
                   onChange={next => { setDraft(next); setReview(null); setErrors({}); setMessage(""); }}
+                  onImpact={() => localGo(() => { closeEditor(); setTab('inquiry'); requestAnimationFrame(() => drawingSection.current?.scrollIntoView({ behavior: 'instant', block: 'start' })); })}
                   onQuestions={() => localGo(() => { closeEditor(); focusQuestions(); })}
                   onExplore={(context,entry) => localGo(() => {
                     const url=new URL(buyerHref({...project,context},true)); url.searchParams.set('project',project.id);
-                    if (entry.requestItemId) url.searchParams.set('requestItem',entry.requestItemId);
+                    if (entry.requestItemId && !url.searchParams.has('referenceQuote') && !url.searchParams.has('referenceReview')) url.searchParams.set('requestItem',entry.requestItemId);
                     if (context.drawing) url.searchParams.set('view','drawings');
                     location.assign(url.href);
                   })} />

@@ -239,6 +239,15 @@ export function compareQuotes(before, after, project) {
       rows.push([`question-${id}`,`Question · ${question.context.part?.title || 'Requested detail'} · ${question.body}`,describe(left.get(id)),describe(right.get(id)),!sameProjectValue(left.get(id),right.get(id))]);
     }
   }
+  if (before.impactScope || after.impactScope) {
+    const left=new Map((before.impactScope?.entries || []).map(entry=>[entry.id,entry]));
+    const right=new Map((after.impactScope?.entries || []).map(entry=>[entry.id,entry]));
+    const describe=(entry,quote,fallback)=>!entry ? `Original reference · ${describeDrawing(fallback)}` : `${entry.decision === 'omitted' ? 'Excluded from quoted scope' : `${entry.decision === 'retained' ? 'Original source retained' : 'Reviewed source adopted'} · ${describeDrawing(entry.context)}`}${entry.lineIds.length ? ' · '+entry.lineIds.map(id=>quote.lineItems.find(line=>line.id===id)?.label || id).join(', ') : ''} · ${entry.reason}`;
+    for (const id of new Set([...left.keys(),...right.keys()])) {
+      const entry=right.get(id)||left.get(id);
+      rows.push([`impact-${id}`,`${entry.kind==='question'?'Question reference':'Scope reference'} · ${entry.label}`,describe(left.get(id),before,entry.originalContext),describe(right.get(id),after,entry.originalContext),!sameProjectValue(left.get(id),right.get(id))]);
+    }
+  }
   return rows.map(([key, label, left, right, changed]) => ({ key, label, before: left, after: right, changed: changed ?? left !== right }));
 }
 

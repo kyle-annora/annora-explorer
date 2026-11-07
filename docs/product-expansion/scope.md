@@ -195,6 +195,11 @@ adapter dropping metadata fail explicitly. Existing commercial blockers still ap
 
 ## 6. F5 — Change-impact review
 
+**W31 delivered slice:** SK08 questions and quotation request scope now use reviewed
+per-record references; [API](../drawing-impact.md) and [review](../drawing-impact-review.md).
+The broader follow-up/presentation targets below remain planned. This slice uses
+the existing actual A/B document editions, not a CAD geometry change.
+
 **User outcome:** understand which work needs review after a source changes,
 without replacing the evidence underlying an earlier agreement.
 

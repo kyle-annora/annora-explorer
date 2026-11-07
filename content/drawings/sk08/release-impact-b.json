@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "kind": "annora-drawing-release",
+  "id": "DRAWING-RELEASE-SK08-IMPACT-B-2",
+  "productId": "sk08",
+  "version": 1,
+  "source": "bundled",
+  "draftId": "DRAWING-DRAFT-SK08-IMPACT-B-1",
+  "draftRevision": 1,
+  "modelId": "sk08",
+  "modelRevision": "sha256:c1f912af43ddac4ad27f2ff99c05ed1ffa3f8bc4e7057309eca6c1194912949a",
+  "sourceRevision": "annora-sk08-demo-b-1",
+  "mappingRevision": "mapping-dbf9afda7af58982",
+  "packageSnapshot": {
+    "schemaVersion": 2,
+    "id": "freecad-sk08-drawing",
+    "modelId": "sk08",
+    "title": "SK08 shaft support - source reference",
+    "number": "FC-SK08",
+    "revision": "annora-sk08-demo-b-1",
+    "revisionLabel": "Demo B · rearranged discussion sheet",
+    "manufacturerRevision": null,
+    "assetRevision": "04f6e6c716924bee1bebcf070108ec7106ec217fc6ea73a6b914f5727159361d",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "units": "mm",
+    "status": "unreviewed-reference",
+    "statusLabel": "Reference drawing - unreviewed",
+    "statusNote": "Fictional document edition B: page 1 preserves the original source; page 2 rearranges the same source views and adds a bore-inspection question. Geometry, fit, tolerances and engineering approval are unchanged or unprovided.",
+    "stepFile": "sk08.step",
+    "stepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+    "pdfFile": "demo-revision-b.pdf",
+    "originalPdfFile": "source.pdf",
+    "reviewFile": "source-review.json",
+    "modelRevision": "sha256:c1f912af43ddac4ad27f2ff99c05ed1ffa3f8bc4e7057309eca6c1194912949a",
+    "mappingRevision": "mapping-dbf9afda7af58982",
+    "pairing": {
+      "status": "human-confirmed",
+      "evidence": "Prepared public workflow fixture: the unchanged SK08 STEP/model source is paired with the same source PDF vectors. B is the existing fictional layout edition, not an engineering revision or manufacturer approval."
+    },
+    "assets": [
+      {
+        "id": "source-pdf",
+        "kind": "pdf",
+        "file": "source.pdf",
+        "sha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2"
+      },
+      {
+        "id": "reference-pdf",
+        "kind": "pdf",
+        "file": "demo-revision-b.pdf",
+        "sha256": "04f6e6c716924bee1bebcf070108ec7106ec217fc6ea73a6b914f5727159361d",
+        "sourceAssetId": "source-pdf"
+      },
+      {
+        "id": "source-step",
+        "kind": "step",
+        "file": "sk08.step",
+        "sha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5"
+      }
+    ],
+    "sheets": [
+      {
+        "id": "sheet-1",
+        "title": "Original source drawing",
+        "pdfPage": 1,
+        "viewBox": [
+          0,
+          0,
+          841.8898,
+          595.2756
+        ],
+        "regions": [
+          {
+            "id": "overview",
+            "label": "Support body overview",
+            "partId": "sk08-body",
+            "bounds": [
+              599,
+              110,
+              165,
+              180
+            ],
+            "mappingStatus": "confirmed",
+            "role": "overview",
+            "note": "One original solid, STEP #15. Isometric source view is marked NTS.",
+            "focusPoint": [
+              0.021,
+              0.0164,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0164,
+                0.007
+              ],
+              "direction": [
+                1.4,
+                1,
+                2.6
+              ],
+              "halfSize": [
+                0.021,
+                0.0164,
+                0.007
+              ]
+            }
+          },
+          {
+            "id": "shaft-bore",
+            "label": "Shaft bore",
+            "partId": "sk08-body",
+            "bounds": [
+              162,
+              386,
+              32,
+              30
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinder #427 has radius 4 mm and axis through (21, -14, 20) mm. This is a feature of the same body.",
+            "focusPoint": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.02,
+                0.007
+              ],
+              "direction": [
+                0,
+                0,
+                1
+              ],
+              "halfSize": [
+                0.01,
+                0.01,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 8 mm THRU, as printed"
+          },
+          {
+            "id": "mounting-holes",
+            "label": "Mounting holes",
+            "partId": "sk08-body",
+            "bounds": [
+              116,
+              155,
+              125,
+              46
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinders #1079 and #1109 identify the two base holes. No tolerance is supplied.",
+            "focusPoint": [
+              0.021,
+              0.003,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.003,
+                0.007
+              ],
+              "direction": [
+                0,
+                1,
+                0
+              ],
+              "halfSize": [
+                0.021,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "2 x diameter 5.5 mm THRU, as printed"
+          },
+          {
+            "id": "cross-bore",
+            "label": "Clamp cross-bore",
+            "partId": "sk08-body",
+            "bounds": [
+              376,
+              362,
+              43,
+              35
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinder #212 has radius 3.5 mm and axis through (12, -7, 27.8) mm. No bolt or clamp motion is present in this single-solid source.",
+            "focusPoint": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0278,
+                0.007
+              ],
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "halfSize": [
+                0.01,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 7 mm THRU, as printed"
+          }
+        ],
+        "assetId": "reference-pdf",
+        "format": "pdf",
+        "coordinateFrame": "page-top-left",
+        "rotation": 0
+      },
+      {
+        "id": "sheet-2",
+        "title": "Rearranged discussion details · Demo B",
+        "pdfPage": 2,
+        "viewBox": [
+          0,
+          0,
+          841.8898,
+          595.2756
+        ],
+        "regions": [
+          {
+            "id": "shaft-bore-detail",
+            "label": "Shaft bore · review requested",
+            "partId": "sk08-body",
+            "bounds": [
+              590.3233,
+              249.9349,
+              45.5442,
+              42.6977
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Repositioned vector crop of the same original source. Confirm this new document location for the quoted scope; no geometric change is implied.",
+            "focusPoint": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.02,
+                0.007
+              ],
+              "direction": [
+                0,
+                0,
+                1
+              ],
+              "halfSize": [
+                0.01,
+                0.01,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 8 mm THRU, as printed"
+          },
+          {
+            "id": "cross-bore-detail",
+            "label": "Clamp cross-bore · relocated view",
+            "partId": "sk08-body",
+            "bounds": [
+              161.4308,
+              214.0615,
+              67.4769,
+              54.9231
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Repositioned vector crop of the same original source. Confirm this new document location for the quoted scope; no geometric change is implied.",
+            "focusPoint": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0278,
+                0.007
+              ],
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "halfSize": [
+                0.01,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 7 mm THRU, as printed"
+          }
+        ],
+        "assetId": "reference-pdf",
+        "format": "pdf",
+        "coordinateFrame": "page-top-left",
+        "rotation": 0
+      }
+    ]
+  },
+  "partIds": [
+    "sk08-body"
+  ],
+  "createdAt": "2026-11-06T21:00:00.000Z",
+  "reviewToken": "drawing-review-20dfb9e0f1b81104",
+  "baseReleaseId": null,
+  "previousPackageSnapshot": {
+    "schemaVersion": 2,
+    "id": "freecad-sk08-drawing",
+    "modelId": "sk08",
+    "title": "SK08 shaft support - source reference",
+    "number": "FC-SK08",
+    "revision": "annora-sk08-demo-b-1",
+    "revisionLabel": "Demo B · rearranged discussion sheet",
+    "manufacturerRevision": null,
+    "assetRevision": "04f6e6c716924bee1bebcf070108ec7106ec217fc6ea73a6b914f5727159361d",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "units": "mm",
+    "status": "unreviewed-reference",
+    "statusLabel": "Reference drawing - unreviewed",
+    "statusNote": "Fictional document edition B: page 1 preserves the original source; page 2 rearranges the same source views and adds a bore-inspection question. Geometry, fit, tolerances and engineering approval are unchanged or unprovided.",
+    "stepFile": "sk08.step",
+    "stepSha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5",
+    "pdfFile": "demo-revision-b.pdf",
+    "originalPdfFile": "source.pdf",
+    "reviewFile": "source-review.json",
+    "modelRevision": "sha256:c1f912af43ddac4ad27f2ff99c05ed1ffa3f8bc4e7057309eca6c1194912949a",
+    "mappingRevision": "annora-sk08-demo-b-map-1",
+    "pairing": {
+      "status": "source-derived",
+      "evidence": "dw-examples commit c4c72a71c6440f0c824678660b59d0474f105e71 publishes this STEP and generated PDF together. STEP SHA-256 matches the FreeCAD-library file at f5ca01cdcaa2f69b9295a6382719c2d90628780c byte for byte. Display mesh is tessellated from that same STEP; reference page 2 reuses original PDF vectors."
+    },
+    "assets": [
+      {
+        "id": "source-pdf",
+        "kind": "pdf",
+        "file": "source.pdf",
+        "sha256": "db5468501a8a7c61b840db481786161313b0befbcbd31fe1c910054033a73ca2"
+      },
+      {
+        "id": "reference-pdf",
+        "kind": "pdf",
+        "file": "demo-revision-b.pdf",
+        "sha256": "04f6e6c716924bee1bebcf070108ec7106ec217fc6ea73a6b914f5727159361d",
+        "sourceAssetId": "source-pdf"
+      },
+      {
+        "id": "source-step",
+        "kind": "step",
+        "file": "sk08.step",
+        "sha256": "bb89218f5cd90ce713b08359d4d719f4297483039ef55d2abb33eb5af65d9cd5"
+      }
+    ],
+    "sheets": [
+      {
+        "id": "sheet-1",
+        "title": "Original source drawing",
+        "pdfPage": 1,
+        "viewBox": [
+          0,
+          0,
+          841.8898,
+          595.2756
+        ],
+        "regions": [
+          {
+            "id": "overview",
+            "label": "Support body overview",
+            "partId": "sk08-body",
+            "bounds": [
+              599,
+              110,
+              165,
+              180
+            ],
+            "mappingStatus": "confirmed",
+            "role": "overview",
+            "note": "One original solid, STEP #15. Isometric source view is marked NTS.",
+            "focusPoint": [
+              0.021,
+              0.0164,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0164,
+                0.007
+              ],
+              "direction": [
+                1.4,
+                1,
+                2.6
+              ],
+              "halfSize": [
+                0.021,
+                0.0164,
+                0.007
+              ]
+            }
+          },
+          {
+            "id": "shaft-bore",
+            "label": "Shaft bore",
+            "partId": "sk08-body",
+            "bounds": [
+              162,
+              386,
+              32,
+              30
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinder #427 has radius 4 mm and axis through (21, -14, 20) mm. This is a feature of the same body.",
+            "focusPoint": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.02,
+                0.007
+              ],
+              "direction": [
+                0,
+                0,
+                1
+              ],
+              "halfSize": [
+                0.01,
+                0.01,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 8 mm THRU, as printed"
+          },
+          {
+            "id": "mounting-holes",
+            "label": "Mounting holes",
+            "partId": "sk08-body",
+            "bounds": [
+              116,
+              155,
+              125,
+              46
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinders #1079 and #1109 identify the two base holes. No tolerance is supplied.",
+            "focusPoint": [
+              0.021,
+              0.003,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.003,
+                0.007
+              ],
+              "direction": [
+                0,
+                1,
+                0
+              ],
+              "halfSize": [
+                0.021,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "2 x diameter 5.5 mm THRU, as printed"
+          },
+          {
+            "id": "cross-bore",
+            "label": "Clamp cross-bore",
+            "partId": "sk08-body",
+            "bounds": [
+              376,
+              362,
+              43,
+              35
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Source cylinder #212 has radius 3.5 mm and axis through (12, -7, 27.8) mm. No bolt or clamp motion is present in this single-solid source.",
+            "focusPoint": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0278,
+                0.007
+              ],
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "halfSize": [
+                0.01,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 7 mm THRU, as printed"
+          }
+        ],
+        "assetId": "reference-pdf",
+        "format": "pdf",
+        "coordinateFrame": "page-top-left",
+        "rotation": 0
+      },
+      {
+        "id": "sheet-2",
+        "title": "Rearranged discussion details · Demo B",
+        "pdfPage": 2,
+        "viewBox": [
+          0,
+          0,
+          841.8898,
+          595.2756
+        ],
+        "regions": [
+          {
+            "id": "shaft-bore-detail",
+            "label": "Shaft bore · review requested",
+            "partId": "sk08-body",
+            "bounds": [
+              590.3233,
+              249.9349,
+              45.5442,
+              42.6977
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Repositioned vector crop of the same original source. Confirm this new document location for the quoted scope; no geometric change is implied.",
+            "focusPoint": [
+              0.021,
+              0.02,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.02,
+                0.007
+              ],
+              "direction": [
+                0,
+                0,
+                1
+              ],
+              "halfSize": [
+                0.01,
+                0.01,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 8 mm THRU, as printed"
+          },
+          {
+            "id": "cross-bore-detail",
+            "label": "Clamp cross-bore · relocated view",
+            "partId": "sk08-body",
+            "bounds": [
+              161.4308,
+              214.0615,
+              67.4769,
+              54.9231
+            ],
+            "mappingStatus": "confirmed",
+            "role": "feature",
+            "note": "Repositioned vector crop of the same original source. Confirm this new document location for the quoted scope; no geometric change is implied.",
+            "focusPoint": [
+              0.021,
+              0.0278,
+              0.007
+            ],
+            "camera": {
+              "target": [
+                0.021,
+                0.0278,
+                0.007
+              ],
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "halfSize": [
+                0.01,
+                0.008,
+                0.007
+              ]
+            },
+            "dimension": "Diameter 7 mm THRU, as printed"
+          }
+        ],
+        "assetId": "reference-pdf",
+        "format": "pdf",
+        "coordinateFrame": "page-top-left",
+        "rotation": 0
+      }
+    ]
+  },
+  "presentationSnapshot": null
+}

@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 2 · November 6, 2026 · W10, W20/W21 and W30 published; remaining work is planned.
+Planning revision 3 · November 6, 2026 · W31 SK08 drawing impact added; publication is recorded in its release receipt.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -12,6 +12,7 @@ production services or claim that planned features are implemented.
 | [Detailed scope](scope.md) | Current capability, proposed behavior, records, exclusions and acceptance for every feature |
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
+| [SK08 drawing impact review](../drawing-impact-review.md) | W31 per-question and quotation-scope A/B review, exact history and recovery |
 | [Independent questions review](../questions-review.md) | W30 component questions, reviewed resolution, quotation evidence and acceptance |
 | [Option comparison and scope review](../option-scope-review.md) | W20/W21 published journey, API, acceptance and release receipt |
 | [Customer follow-up review](../customer-follow-up-review.md) | W10 published project follow-up and exact next-action history |
@@ -46,11 +47,11 @@ retain their applicable validation.
 
 Original planning baseline: `443c40b7c0b514331755e5ba299773877b259edf`.
 The [first delivery receipt](../evidence/product-expansion/release-receipt.json)
-preserves that delivery's evidence. Current W30 application:
+preserves that delivery's evidence. Previous W30 application:
 `d4e8b79b2dfeabf53b5caefab99fe055e9fff4ec`; see its
 [release receipt](../evidence/questions/release-receipt.json).
 The [W20/W21 receipt](../evidence/option-scope/release-receipt.json) preserves its earlier release.
-This delivery does not change any MK America client artifact.
+The current W31 candidate and publication are documented in the [drawing impact review](../drawing-impact-review.md). This delivery does not change any MK America client artifact.
 
 | Area | Actual state | Next bounded extension |
 | --- | --- | --- |
@@ -58,8 +59,8 @@ This delivery does not change any MK America client artifact.
 | F2 · Story authoring | Published for the prepared crank: action/view steps, preview, reviewed local release | Product capability registry; linked technical-view steps where sources exist |
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
-| F5 · Change impact | Existing A/B drawing adoption and old-history retention | Explicit impact findings across questions, drafts and presentation references |
-| F6 · Action workspace and evidence | Published W30: independent component questions, reviewed replies/resolution and frozen quotation evidence | W31 change impact; W32 bounded interaction evidence |
+| F5 · Change impact | W31: SK08 per-question and request-scope impact, reviewed A/B working references, pinned quotation snapshots | Follow-up/presentation impact and real customer source qualification remain deferred |
+| F6 · Action workspace and evidence | Published W30: independent component questions, reviewed replies/resolution and frozen quotation evidence | W32 bounded interaction evidence |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 
@@ -76,7 +77,6 @@ This delivery does not change any MK America client artifact.
 5. Review and publish one coherent journey at a time. New feature breadth never
    substitutes for history, recovery, mobile and live-target evidence.
 
-W30 question-level follow-through is published and verified; see its delivery review above.
-The next proposed unit is W31 change-impact review in [the execution plan](execution.md).
-W30 is ready for user review before that next slice begins. Confirmed inquiries remain immutable; later
-packages remain separate reviewable deliveries.
+W31 now extends the question and quotation journey with SK08 source-impact review.
+See its review and release receipt before starting W32. Confirmed inquiries remain
+immutable; broader impact targets and later packages remain separate reviewable deliveries.

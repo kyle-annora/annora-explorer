@@ -5,6 +5,7 @@ import { requestItemTitle } from './request-items.js';
 import { quoteScopeChoice, quoteScopeReferenceFacts, quoteScopeRow, quoteScopeQuestions, quoteQuestionEventLabel } from './quote-scope-presentation.js';
 import { questionState, questionStatusLabel } from './question-domain.js';
 import './quote-scope-summary.css';
+import { ImpactScopeSummary } from './impact-scope-summary.jsx';
 
 export function QuoteScopeReference({ entry, selection, requestItems = [], children }) {
   const row = quoteScopeRow(entry, selection, requestItems);
@@ -48,7 +49,11 @@ export function QuoteQuestionEvidence({ question, label = 'Question evidence in 
 }
 
 /** Issued and review views use the quote's own scope snapshot, including its original preference. */
-export function QuoteScopeSummary({ selection, questionScope, lineItems = [], project, onExplore, title = 'How your requests are covered' }) {
+export function QuoteScopeSummary({ selection, questionScope, impactScope, lineItems = [], project, onExplore, title = 'How your requests are covered' }) {
+  return <><ImpactScopeSummary snapshot={impactScope} lineItems={lineItems} onExplore={onExplore} /><QuoteScopeDetails selection={selection} questionScope={questionScope} lineItems={lineItems} project={project} onExplore={onExplore} title={title} /></>;
+}
+
+function QuoteScopeDetails({ selection, questionScope, lineItems, project, onExplore, title }) {
   if (!selection?.entries?.length) return questionScope?.questions?.length ? <section className="ar-quote-scope-summary" aria-label="Questions linked to this quotation">
     <header className="ar-quote-scope-heading"><h3>Questions linked to this quotation</h3><p>The original details and reviewed question history used by this quotation.</p></header>
     {questionScope.questions.map(question => <div key={question.id}>

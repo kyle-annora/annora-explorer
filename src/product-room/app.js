@@ -14,10 +14,15 @@ import { validateProductStory } from './story.js';
 import { sameProjectValue } from './project-domain.js';
 import { loadFollowUpDemo } from './follow-up-demo.js';
 import { loadOptionScopeDemo } from './option-scope-demo.js';
+import { loadChangeImpactDemo } from './change-impact-demo.js';
+import sk08ReferencePDF from '../../content/drawings/sk08/reference.pdf?url';
+import sk08RevisionPDF from '../../content/drawings/sk08/demo-revision-b.pdf?url';
+import sk08TechnicalImage from '../../content/drawings/sk08/technical-iso.svg?url';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
 import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
 import { createExplorationHandoff, readExplorationHandoff } from './exploration-handoff.js';
 import { openWorkspaceReference } from './reference-navigation.js';
+import { hasProjectReferenceIdentity, readProjectReferenceContext, setProjectReferenceIdentity } from './project-reference-navigation.js';
 import { createDemoProjectRepository } from './project-repository.js';
 import { createRoomInquiryHost } from './inquiry-host.js';
 import crankImage from './assets/crank.png';
@@ -25,7 +30,7 @@ import apolloImage from './assets/apollo.png';
 
 const $ = id => document.getElementById(id);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const images = { 'kinetic-01': crankImage, apollo: apolloImage };
+const images = { 'kinetic-01': crankImage, apollo: apolloImage, sk08: sk08TechnicalImage };
 const pages = ['explore', 'overview', 'specs'];
 const workspacePages = ['projects', 'inquiry', 'project', 'components'];
 const readRoute = readBuyerRoute;
@@ -36,12 +41,22 @@ async function boot() {
   const walkthrough = readWalkthroughSession(parameters);
   const walkthroughRepository = walkthrough ? createWalkthroughRepository(walkthrough) : null;
   let customerRepository = walkthroughRepository || createDemoProjectRepository();
-  let optionDemo = null, followUpDemo = null, followUpRelease = null, followUpProgress = null;
+  let impactDemo = null, optionDemo = null, followUpDemo = null, followUpRelease = null, followUpProgress = null;
   let referenceProjectId = initialRoute.view === 'explore' && initialRoute.projectId || parameters.get('project');
-  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('requestItem'),params.get('walkthrough'),params.get('handoff'),params.get('inspection'),params.get('followUp'),params.get('followUpDemo'),params.get('optionDemo')]);
+  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('requestItem'),params.get('referenceQuote'),params.get('referenceReview'),params.get('referenceEntry'),params.get('walkthrough'),params.get('handoff'),params.get('inspection'),params.get('followUp'),params.get('followUpDemo'),params.get('optionDemo'),params.get('impactDemo')]);
   let referenceProject = null, referenceContext = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
+    impactDemo = await loadChangeImpactDemo(parameters);
+    if (impactDemo) {
+      customerRepository = impactDemo.repository;
+      if (!location.hash) {
+        initialRoute = {view:'project',projectId:impactDemo.projectId,tab:'inquiry'};
+        history.replaceState({},'',`${location.pathname}${location.search}${buyerRouteHash(initialRoute)}`);
+      }
+      if (initialRoute.projectId && initialRoute.projectId !== impactDemo.projectId) throw new Error('This drawing-impact link names another project. Open the original example link.');
+      referenceProjectId = impactDemo.projectId;
+    }
     optionDemo = await loadOptionScopeDemo(parameters);
     if (optionDemo) {
       customerRepository = optionDemo.repository;
@@ -80,6 +95,7 @@ async function boot() {
       if (issues.length) throw new Error(`The exact model or prepared action saved with this follow-up is unavailable. ${issues[0].message}`);
     }
     if (parameters.has('requestItem') && !referenceProjectId) throw new Error('A saved detail needs its customer project. Open the reference from the project again.');
+    if (hasProjectReferenceIdentity(parameters) && !referenceProjectId) throw new Error('A reviewed drawing needs its saved customer project. Open the reference from the quotation again.');
     if (hasWalkthroughRequest(parameters) && !walkthrough) throw new Error('This demonstration link is invalid. Return to the walkthrough to open a separate sample session.');
     if (parameters.has('handoff')) {
       if (referenceProjectId || parameters.has('studioPreview') || parameters.has('release') || walkthrough)
@@ -110,16 +126,20 @@ async function boot() {
       if (requestItemId && !requestItem) throw new Error('This requested detail is not in the saved inquiry. Return to the project and open its reference again.');
       if (followUpRelease && (!sameProjectValue(followUpRelease.context, referenceProject.context) || !followUpRelease.context.roomSnapshot))
         throw new Error('The exact product reference saved with this follow-up is unavailable. Your original inquiry and quotations remain unchanged.');
-      referenceContext = followUpRelease?.context || requestItem?.context || referenceProject.context;
+      referenceContext = readProjectReferenceContext(referenceProject, parameters) || followUpRelease?.context || requestItem?.context || referenceProject.context;
       const context = referenceContext, model = MODEL_CATALOG[context.modelId];
-      if (context.productId !== 'kinetic-01') throw new Error('The customer-project reference is available for the prepared crank product only. The original project has not been changed.');
+      if (context.productId !== 'kinetic-01' && !(impactDemo && context.productId === 'sk08')) throw new Error('The customer-project reference is available for the prepared crank product only. The original project has not been changed.');
       if (!model || model.revision !== context.modelRevision) throw new Error('The exact model revision saved with this project is not included in this deployment. Your original inquiry and quotations remain available in My projects.');
       parameters.set('project', referenceProject.id);
       parameters.set('model', context.modelId);
       if (context.roomSnapshot) releaseState = {release:context.roomSnapshot,preview:false,pinned:true};
       else { releaseState = {release:BUNDLED_RELEASE,preview:false,pinned:true}; releaseWarning = 'This earlier project did not record a product version. Showing the bundled product reference; the saved inquiry remains unchanged.'; }
     }
-    if (MODEL_CATALOG['kinetic-01']) {
+    if (impactDemo && referenceContext?.roomSnapshot) {
+      releaseByProduct['sk08'] = referenceContext.roomSnapshot;
+      const content = referenceContext.roomSnapshot.content, isB = referenceContext.drawing?.revision === 'annora-sk08-demo-b-1';
+      rooms['sk08'] = {...content,documents:content.documents.map(document => ({...document,url:isB ? sk08RevisionPDF : sk08ReferencePDF,fileName:isB ? 'sk08-discussion-b.pdf' : 'sk08-reference-a.pdf',date:'2026-11-01'}))};
+    } else if (MODEL_CATALOG['kinetic-01']) {
       try {
         if (!referenceProject && !savedInquiryContext) {
           const explicitVersion = parameters.has('studioPreview') || parameters.has('release');
@@ -193,7 +213,7 @@ async function boot() {
   }
   let productId = parameters.get('model');
   if (!configuredRooms.includes(productId)) productId = configuredRooms.includes(DEFAULT_ROOM_ID) ? DEFAULT_ROOM_ID : configuredRooms[0];
-  if (releaseState.preview || releaseState.pinned) { productId = 'kinetic-01'; $('room-product').disabled = true; }
+  if (releaseState.preview || releaseState.pinned) { productId = impactDemo ? 'sk08' : 'kinetic-01'; $('room-product').disabled = true; }
   let page = 'explore', navigation = 0, action = 0, loading = null, mountedModel = null, noticeTimer;
   let workspace, workspaceLoading, currentRoute = readRoute(), walkthroughProject = null, walkthroughViewer, retrySavedContext;
   let inquiryHost, inquiryState = null, inquiryRouting = 0;
@@ -284,7 +304,7 @@ async function boot() {
       handoffContext = null; restoredContext = null;
       if (referenceModel && referenceModel !== productId) savedInquiryContext = null;
     }
-    for (const key of ['studioPreview','release','project','handoff','inspection','returnRole','returnView','followUp','followUpDemo','optionDemo']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
+    for (const key of ['studioPreview','release','project','requestItem','referenceQuote','referenceReview','referenceEntry','handoff','inspection','returnRole','returnView','followUp','followUpDemo','optionDemo','impactDemo']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
     url.hash = buyerRouteHash({...currentRoute,view:page});
     history[replace ? 'replaceState' : 'pushState'](replace ? history.state : {}, '', url);
     window.dispatchEvent(new Event('annora:routechange'));
@@ -339,10 +359,11 @@ async function boot() {
       url.searchParams.set('returnRole','buyer');
       url.searchParams.set('returnView',location.hash);
       if (walkthrough) url.searchParams.set('walkthrough',walkthrough);
-      for (const key of ['followUpDemo','optionDemo']) if (parameters.has(key)) url.searchParams.set(key,parameters.get(key));
+      for (const key of ['followUpDemo','optionDemo','impactDemo']) if (parameters.has(key)) url.searchParams.set(key,parameters.get(key));
       const savedProject = await customerRepository.getProject(currentRoute.projectId);
       const item = savedProject.inquiry.requestItems?.find(item => sameProjectValue(item.context,context));
       if (item) url.searchParams.set('requestItem',item.id);
+      setProjectReferenceIdentity(url, savedProject, context);
       if (context.drawing) url.searchParams.set('view','drawings');
       url.hash = buyerRouteHash({view:'explore',projectId:currentRoute.projectId,...(context.part ? {target:{kind:'part',nodeId:context.part.id}} : {})});
       location[record ? 'assign' : 'replace'](url.href); return;
@@ -392,10 +413,11 @@ async function boot() {
     if (!workspaceLoading) workspaceLoading = import('./workspace-entry.jsx').then(({createWorkspace}) => {
       workspace = createWorkspace($('room-workspace'), {
         repository:previewRepository || customerRepository,
-        ...(followUpDemo || optionDemo ? {sellerURL:(project, target) => {
+        ...(followUpDemo || optionDemo || impactDemo ? {sellerURL:(project, target) => {
           const url = new URL('../studio/',location.href);
           if (followUpDemo) url.searchParams.set('followUpDemo',parameters.get('followUpDemo'));
           if (optionDemo) url.searchParams.set('optionDemo',parameters.get('optionDemo'));
+          if (impactDemo) url.searchParams.set('impactDemo',parameters.get('impactDemo'));
           const query = new URLSearchParams({id:project.id,tab:target.tab});
           if (target.quoteId) query.set('quote',target.quoteId);
           url.hash = `project?${query}`; return url.href;
@@ -432,13 +454,14 @@ async function boot() {
       return;
     }
     if (turn !== navigation) return;
-    if ((followUpRelease || referenceProject || optionDemo) && (next === 'inquiry' || next === 'project' && route.projectId !== (referenceProject?.id || followUpRelease?.projectId || optionDemo?.projectId))) {
+    if ((followUpRelease || referenceProject || optionDemo || impactDemo) && (next === 'inquiry' || next === 'project' && route.projectId !== (referenceProject?.id || followUpRelease?.projectId || optionDemo?.projectId || impactDemo?.projectId))) {
       // A deliberate new request or different project leaves the follow-up host;
       // it must not inherit its immutable project identity or sample namespace.
       const destination = new URL('../product-room/',location.href);
       if (walkthrough) destination.searchParams.set('walkthrough',walkthrough);
       if (followUpDemo && next === 'project' && route.projectId === followUpDemo.projectId) destination.searchParams.set('followUpDemo',parameters.get('followUpDemo'));
       if (optionDemo && next === 'project' && route.projectId === optionDemo.projectId) destination.searchParams.set('optionDemo',parameters.get('optionDemo'));
+      if (impactDemo && next === 'project' && route.projectId === impactDemo.projectId) destination.searchParams.set('impactDemo',parameters.get('impactDemo'));
       destination.hash = buyerRouteHash(route);
       location.assign(destination.href); return;
     }
@@ -448,7 +471,7 @@ async function boot() {
     }
     if (next !== 'explore') await viewer.pause().catch(()=>{});
     if (turn !== navigation) return;
-    const desiredModel = workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
+    const desiredModel = impactDemo ? 'sk08' : workspacePages.includes(next) && configuredRooms.includes('kinetic-01') ? 'kinetic-01' : modelId;
     if (configuredRooms.includes(desiredModel) && productId !== desiredModel) { productId = desiredModel; renderContent(); }
     page = [...pages,...workspacePages].includes(next) ? next : 'explore';
     if (followUpRelease) {
@@ -501,7 +524,7 @@ async function boot() {
       try {
         const host = await ensureWorkspace();
         if (turn !== navigation) return;
-        const productContext = baseContext(configuredRooms.includes('kinetic-01') ? 'kinetic-01' : productId);
+        const productContext = baseContext(impactDemo ? 'sk08' : configuredRooms.includes('kinetic-01') ? 'kinetic-01' : productId);
         const incoming = handoffContext || restoredContext;
         const incomingContext = page === 'inquiry' && incoming ? {...productContext,...incoming,productTitle:productContext.productTitle} : productContext;
         host.open({...currentRoute, context:route.context || incomingContext});
@@ -560,7 +583,7 @@ async function boot() {
     }
     storyMount.hidden = page !== 'explore' || !storyPlayer;
     versionBanner.hidden = !release || walkthrough && !referenceProject && !releaseWarning && !parameters.has('studioPreview') && !parameters.has('release') || release.source === 'bundled' && !releaseState.preview && !releaseState.pinned && !releaseWarning;
-    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? 'Saved project reference' : savedInquiryContext ? 'Saved inquiry reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject || savedInquiryContext ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
+    if (release) versionBanner.innerHTML = `<span><strong>${referenceProject ? hasProjectReferenceIdentity(parameters) ? 'Reviewed reference' : 'Saved project reference' : savedInquiryContext ? 'Saved inquiry reference' : releaseWarning ? 'Local product reference unavailable' : releaseState.preview ? 'Draft preview' : release.source === 'demo' ? `Demo product version ${release.version}` : 'Product reference'}</strong> · ${releaseWarning ? escape(releaseWarning) : referenceProject && hasProjectReferenceIdentity(parameters) ? `Kept with the reviewed drawing · ${escape(referenceContext.drawing.revisionLabel || referenceContext.drawing.revision)}.` : referenceProject || savedInquiryContext ? `Product version ${release.version} · Kept with the original inquiry.` : releaseState.preview ? 'Test inquiries stay in this preview and disappear when it closes.' : release.source === 'demo' ? 'Published in this browser only.' : 'Sample product information.'}</span><a href="${referenceProject ? escape(projectReturnURL({base:location.href,projectId:referenceProject.id,role:parameters.get('returnRole'),returnView:parameters.get('returnView'),session:walkthrough}).href) : walkthrough ? escape(withWalkthroughSession(new URL('../studio/',location.href),walkthrough).href) : '../studio/'}"${releaseState.preview ? ' target="_top"' : ''}>${referenceProject ? 'Back to customer project' : releaseState.preview ? 'Return to Studio' : 'Open Studio'} <span aria-hidden="true">↗</span></a>`;
     if (followUpRelease) {
       versionBanner.hidden = false;
       const caption = followUpDemo ? 'Fictional demonstration · Saved separately in this browser.' : 'Local follow-up · Saved in this browser only.';
