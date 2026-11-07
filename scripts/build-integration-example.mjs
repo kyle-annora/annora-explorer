@@ -24,7 +24,7 @@ execFileSync('npm',['run','build'],{cwd:example,stdio:'inherit'});
 const target=resolve(root,'dist/integrations/existing-viewer');
 await rm(target,{recursive:true,force:true});
 await cp(resolve(example,'dist'),target,{recursive:true});
-await mkdir(resolve(root,'dist/integration-kit'),{recursive:true});
+await cp(resolve(root,'releases/integration-kit'),resolve(root,'dist/integration-kit'),{recursive:true});
 const release=JSON.parse(await readFile(resolve(root,'dist-integration/release.json'),'utf8'));
 for(const name of [release.file,'release.json']) await copyFile(resolve(root,'dist-integration',name),resolve(root,'dist/integration-kit',name));
 console.log('Independent viewer built from the packed integration kit.');

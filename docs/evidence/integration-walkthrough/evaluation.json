@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "unit": "W60",
+  "status": "qualified",
+  "base": "http://127.0.0.1:8159/annora-explorer/",
+  "browser": "157.0.8103.38",
+  "timestamp": "2026-11-07T06:57:04.573Z",
+  "main": [
+    {
+      "profile": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      },
+      "sessionId": "WTI-66571c48-ba26-4c5f-85c3-c5f917b17347",
+      "projectId": "PRJ-DEMO-26D816B6",
+      "checkpoints": 23,
+      "confirmations": 8,
+      "idleFramesOver400ms": 0,
+      "pageErrors": 0,
+      "failedRequests": 0
+    },
+    {
+      "profile": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "sessionId": "WTI-f25a330c-7aae-471e-ba56-12706e9d55f8",
+      "projectId": "PRJ-DEMO-989CFDB0",
+      "checkpoints": 23,
+      "confirmations": 8,
+      "idleFramesOver400ms": 1,
+      "pageErrors": 0,
+      "failedRequests": 0
+    },
+    {
+      "profile": {
+        "name": "compact",
+        "width": 320,
+        "height": 740,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "sessionId": "WTI-e6849aa9-02d3-4fcc-8de4-76929fea7f51",
+      "projectId": "PRJ-DEMO-94F92F49",
+      "checkpoints": 23,
+      "confirmations": 8,
+      "idleFramesOver400ms": 0,
+      "pageErrors": 0,
+      "failedRequests": 0
+    },
+    {
+      "profile": {
+        "name": "landscape",
+        "width": 844,
+        "height": 390,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "sessionId": "WTI-1e972ead-038f-48b0-b129-fc1c19ec2a9b",
+      "projectId": "PRJ-DEMO-37F2FDAD",
+      "checkpoints": 23,
+      "confirmations": 8,
+      "idleFramesOver400ms": 0,
+      "pageErrors": 0,
+      "failedRequests": 0
+    }
+  ],
+  "navigationBranches": [
+    {
+      "profile": "desktop",
+      "status": "passed",
+      "checkpoints": 10
+    },
+    {
+      "profile": "compact",
+      "status": "passed",
+      "checkpoints": 10
+    }
+  ],
+  "limits": [
+    "Local compiled candidate; publication is a separate root-owned receipt.",
+    "Chrome desktop/touch emulation on this machine; no physical-device or ordinary-PC benchmark.",
+    "Fictional data and isolated synthetic namespace preconditions; no real backend traffic."
+  ],
+  "visualReview": [
+    "Compact inquiry keeps only top orange confirmation; native Edit details retained.",
+    "Mobile comparison keeps orange Continue and outlined native next-step action.",
+    "Guide chapter buttons receive real pointer input above the floating inquiry."
+  ],
+  "findingsResolved": [
+    "Guide dropdown was occluded by inquiry panel; WTI strip stacking corrected.",
+    "Duplicate filled inquiry and commercial CTAs were demoted in WTI guided mode.",
+    "Saved-draft chapter return, seller review reference return and invalid explicit IDs qualified."
+  ],
+  "unitTests": {
+    "total": 1003,
+    "passed": 1002,
+    "skipped": 1,
+    "failed": 0,
+    "note": "Existing conditional skip; full verify passed."
+  },
+  "regressions": {
+    "nativeCrank": {
+      "base": "http://127.0.0.1:8159/annora-explorer/",
+      "timestamp": "2026-11-07T06:58:57.950Z",
+      "results": [
+        {
+          "profile": "desktop",
+          "success": true,
+          "sessionId": "WT-898afab9-0157-4339-aa58-615ba75db41c",
+          "projectId": "PRJ-DEMO-A436A6B7",
+          "screenshots": 16,
+          "confirmations": 8
+        },
+        {
+          "profile": "mobile",
+          "success": true,
+          "sessionId": "WT-703e2aa9-ff4e-42ae-920e-5e3e4b264d3b",
+          "projectId": "PRJ-DEMO-026CAF2A",
+          "screenshots": 16,
+          "confirmations": 8
+        }
+      ]
+    },
+    "drawingAtoB": {
+      "width": 390,
+      "checks": [
+        "four dependent records only",
+        "prepared scope:request:shaft-bore-request",
+        "prepared scope:request:cross-bore-request",
+        "prepared question:QUESTION-IMPACT-EXAMPLE-004",
+        "prepared question:QUESTION-IMPACT-EXAMPLE-008",
+        "review before confirm",
+        "confirmed impact",
+        "draft exact reference summary",
+        "v2 review",
+        "issued reviewed v2",
+        "buyer frozen reference evidence",
+        "reload retains mixed A/B"
+      ],
+      "errors": [],
+      "projectId": "PRJ-IMPACT-EXAMPLE-002",
+      "impact": "IMPACT-DEMO-58027B2E"
+    },
+    "ordinaryIndependent": [
+      {
+        "status": "passed",
+        "base": "http://127.0.0.1:8159/annora-explorer/integrations/existing-viewer/",
+        "width": 1280,
+        "height": 900,
+        "checkpoints": [
+          {
+            "name": "independent-viewer-ready",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "details-selected-part-pinned",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "failed-save-retains-editor",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "review-before-confirmation",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "confirmed-local-inquiry",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "saved-project-and-version",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "exact-saved-camera-restored",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "reload-preserves-local-history",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "retained-page-still-interactive",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "real-back-navigation",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "unsupported-store-preserved-viewer-remains",
+            "width": 1280,
+            "height": 900,
+            "overflow": false,
+            "canvasCount": 1
+          }
+        ],
+        "projectId": "PRJ-DEMO-B77876FE",
+        "context": {
+          "productId": "kinetic-01",
+          "productTitle": "Crank-slider mechanism",
+          "modelId": "kinetic-01",
+          "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+          "productRevision": "independent-viewer-product-v1",
+          "part": {
+            "id": "kinetic-node-001",
+            "title": "Connecting rod"
+          },
+          "viewerReference": {
+            "version": "1",
+            "adapter": {
+              "id": "annora-example-three-viewer",
+              "version": "1",
+              "coordinateFrame": "source-meters-y-up-v1"
+            },
+            "product": {
+              "id": "kinetic-01",
+              "revision": "independent-viewer-product-v1"
+            },
+            "model": {
+              "id": "kinetic-01",
+              "revision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9"
+            },
+            "snapshot": {
+              "schemaVersion": 1,
+              "modelId": "kinetic-01",
+              "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+              "coordinateFrame": "source-meters-y-up-v1",
+              "selectedPartId": "kinetic-node-001",
+              "camera": {
+                "position": [
+                  0.06958771636721789,
+                  0.2538277439098422,
+                  0.17080621404433977
+                ],
+                "target": [
+                  -4.656612873077393e-10,
+                  0.10199999809265137,
+                  0
+                ],
+                "up": [
+                  0,
+                  1,
+                  0
+                ],
+                "projection": {
+                  "fov": 35,
+                  "zoom": 1,
+                  "near": 0.0001,
+                  "far": 20
+                }
+              }
+            }
+          }
+        },
+        "idleFramesOver400ms": 0,
+        "actualBackForwardCache": false,
+        "syntheticRetainedPagePassed": true,
+        "storageFailurePassed": true,
+        "pageErrors": [],
+        "failedRequests": [],
+        "existingStoreSentinelUnchanged": true,
+        "limitation": "Chrome emulation on this machine; not a physical-mobile or ordinary-PC benchmark."
+      },
+      {
+        "status": "passed",
+        "base": "http://127.0.0.1:8159/annora-explorer/integrations/existing-viewer/",
+        "width": 390,
+        "height": 844,
+        "checkpoints": [
+          {
+            "name": "independent-viewer-ready",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "details-selected-part-pinned",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "failed-save-retains-editor",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "review-before-confirmation",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "confirmed-local-inquiry",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "saved-project-and-version",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "exact-saved-camera-restored",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "reload-preserves-local-history",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "retained-page-still-interactive",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "real-back-navigation",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          },
+          {
+            "name": "unsupported-store-preserved-viewer-remains",
+            "width": 390,
+            "height": 844,
+            "overflow": false,
+            "canvasCount": 1
+          }
+        ],
+        "projectId": "PRJ-DEMO-3904B4DF",
+        "context": {
+          "productId": "kinetic-01",
+          "productTitle": "Crank-slider mechanism",
+          "modelId": "kinetic-01",
+          "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+          "productRevision": "independent-viewer-product-v1",
+          "part": {
+            "id": "kinetic-node-001",
+            "title": "Connecting rod"
+          },
+          "viewerReference": {
+            "version": "1",
+            "adapter": {
+              "id": "annora-example-three-viewer",
+              "version": "1",
+              "coordinateFrame": "source-meters-y-up-v1"
+            },
+            "product": {
+              "id": "kinetic-01",
+              "revision": "independent-viewer-product-v1"
+            },
+            "model": {
+              "id": "kinetic-01",
+              "revision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9"
+            },
+            "snapshot": {
+              "schemaVersion": 1,
+              "modelId": "kinetic-01",
+              "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+              "coordinateFrame": "source-meters-y-up-v1",
+              "selectedPartId": "kinetic-node-001",
+              "camera": {
+                "position": [
+                  0.11993871079652069,
+                  0.3636844590283211,
+                  0.29439501855262845
+                ],
+                "target": [
+                  -4.656612873077393e-10,
+                  0.10199999809265137,
+                  0
+                ],
+                "up": [
+                  0,
+                  1,
+                  0
+                ],
+                "projection": {
+                  "fov": 35,
+                  "zoom": 1,
+                  "near": 0.0001,
+                  "far": 20
+                }
+              }
+            }
+          }
+        },
+        "idleFramesOver400ms": 0,
+        "actualBackForwardCache": false,
+        "syntheticRetainedPagePassed": true,
+        "storageFailurePassed": true,
+        "pageErrors": [],
+        "failedRequests": [],
+        "existingStoreSentinelUnchanged": true,
+        "limitation": "Chrome emulation on this machine; not a physical-mobile or ordinary-PC benchmark."
+      }
+    ]
+  },
+  "artifact": {
+    "freshInstallBuild": "passed",
+    "conformance": [
+      {
+        "name": "inquiry-only host does not invent selection or capture",
+        "status": "passed"
+      },
+      {
+        "name": "unsupported drawing and story capture reject explicitly",
+        "status": "passed"
+      },
+      {
+        "name": "independent camera and part restore retain exact identities",
+        "status": "passed"
+      },
+      {
+        "name": "new capture supersedes stale completion",
+        "status": "passed"
+      },
+      {
+        "name": "timeout retries succeed without adopting late state",
+        "status": "passed"
+      },
+      {
+        "name": "disposal aborts active work and prevents subsequent capture",
+        "status": "passed"
+      },
+      {
+        "name": "external cancellation preserves a saved attachment",
+        "status": "passed"
+      },
+      {
+        "name": "declared adapter and saved-reference versions fail closed",
+        "status": "passed"
+      },
+      {
+        "name": "invalid JSON is rejected without coercion or truncation",
+        "status": "passed"
+      },
+      {
+        "name": "repository support cannot silently discard an external reference",
+        "status": "passed"
+      },
+      {
+        "name": "review, explicit confirmation and repeat confirmation preserve one project",
+        "status": "passed"
+      },
+      {
+        "name": "missing old model version does not substitute the current view",
+        "status": "passed"
+      },
+      {
+        "name": "unknown future reference leaves raw stored history unchanged",
+        "status": "passed"
+      },
+      {
+        "name": "same-version package reinstall reopens unchanged host-owned records",
+        "status": "passed"
+      },
+      {
+        "name": "0.1.0 confirmed inquiry upgrades to 0.2.0 without rewriting historical references",
+        "status": "passed"
+      }
+    ],
+    "oldArtifactSha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2"
+  },
+  "publication": {
+    "status": "pending",
+    "receipt": "release-receipt.json"
+  }
+}

@@ -8,10 +8,10 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
-const freshResult = JSON.parse(await readFile(process.env.FRESH_RESULT || join(root, 'work/product-expansion/W50/fresh-host/result.json'), 'utf8'));
+const freshResult = JSON.parse(await readFile(process.env.FRESH_RESULT || join(root, 'work/product-expansion/W60/fresh-host/result.json'), 'utf8'));
 assert.equal(freshResult.status, 'passed', 'Qualify the fresh artifact build first.');
 const host = process.env.FRESH_HOST || freshResult.host;
-const out = resolve(process.env.OUT || join(root, 'work/product-expansion/W50/artifact-conformance'));
+const out = resolve(process.env.OUT || join(root, 'work/product-expansion/W60/artifact-conformance'));
 await mkdir(out, { recursive: true });
 const packageRoot = join(host, 'node_modules/@annora/integration-kit');
 const metadata = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
@@ -157,15 +157,91 @@ await check('same-version package reinstall reopens unchanged host-owned records
   await rm(packageRoot, { recursive: true, force: true });
   const npm = await promisify(execFile)('npm', ['install', '--force', '--no-audit', '--no-fund', `@annora/integration-kit@file:${freshResult.artifact}`], { cwd: host, maxBuffer: 2 * 1024 * 1024 });
   await writeFile(join(out, 'reinstall.log'), npm.stdout + npm.stderr);
-  const runner = `import assert from 'node:assert/strict';\nimport {readFile,writeFile} from 'node:fs/promises';\nimport {createBrowserDemoRepository} from '@annora/integration-kit/demo-repository';\nconst f=JSON.parse(await readFile(process.argv[2],'utf8'));let raw=f.raw;\nconst repository=createBrowserDemoRepository({namespace:f.namespace,storage:{getItem:()=>raw,setItem:(_key,value)=>{raw=value;}},locks:null});\nassert.deepEqual(await repository.getProject(f.project.id),f.project);assert.equal(raw,f.raw);\nawait writeFile(process.argv[3],JSON.stringify({status:'passed',version:'0.1.0',storeUnchanged:true,projectId:f.project.id}));\n`;
+  const runner = `import assert from 'node:assert/strict';\nimport {readFile,writeFile} from 'node:fs/promises';\nimport {createBrowserDemoRepository} from '@annora/integration-kit/demo-repository';\nconst f=JSON.parse(await readFile(process.argv[2],'utf8'));let raw=f.raw;\nconst metadata=JSON.parse(await readFile(new URL('./node_modules/@annora/integration-kit/package.json',import.meta.url),'utf8'));assert.equal(metadata.version,process.argv[4]);\nconst repository=createBrowserDemoRepository({namespace:f.namespace,storage:{getItem:()=>raw,setItem:(_key,value)=>{raw=value;}},locks:null});\nassert.deepEqual(await repository.getProject(f.project.id),f.project);assert.equal(raw,f.raw);\nawait writeFile(process.argv[3],JSON.stringify({status:'passed',version:metadata.version,storeUnchanged:true,projectId:f.project.id}));\n`;
   const runnerPath = join(host, 'reinstall-check.mjs'), reportPath = join(out, 'reinstall-result.json');
   await writeFile(runnerPath, runner);
-  await promisify(execFile)(process.execPath, [runnerPath, fixturePath, reportPath], { cwd: host });
+  await promisify(execFile)(process.execPath, [runnerPath, fixturePath, reportPath, metadata.version], { cwd: host });
   return JSON.parse(await readFile(reportPath, 'utf8'));
+});
+
+await check('0.1.0 confirmed inquiry upgrades to 0.2.0 without rewriting historical references', async () => {
+  assert.equal(metadata.version, '0.2.0', 'This qualification targets the released 0.1.0 to 0.2.0 boundary.');
+  assert.equal(hash(await readFile(freshResult.artifact)), freshResult.artifactSha256, 'The current artifact changed; rerun the fresh-host qualification.');
+  const priorArtifact = resolve(root, 'releases/integration-kit/annora-integration-kit-0.1.0.tgz');
+  const priorArtifactSha256 = hash(await readFile(priorArtifact));
+  const upgradeBase = {...base, productId:'kinetic-01', productTitle:'Crank-slider mechanism', modelId:'kinetic-01'};
+  const priorHost = join(out, 'prior-0.1.0-host');
+  await mkdir(priorHost, {recursive:true});
+  await writeFile(join(priorHost, 'package.json'), JSON.stringify({name:'annora-prior-artifact-qualification',version:'1.0.0',private:true,type:'module',
+    dependencies:{'@annora/integration-kit':`file:${priorArtifact}`,...metadata.peerDependencies}}, null, 2) + '\n');
+  // Only the installed release may create this fixture. Repository source and
+  // hand-authored stored records would not prove backward compatibility.
+  const npm = await promisify(execFile)('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], {cwd:priorHost,maxBuffer:2*1024*1024});
+  await writeFile(join(out, 'prior-install.log'), npm.stdout + npm.stderr);
+  const fixturePath = join(out, 'upgrade-0.1.0-store.json');
+  const runner = `import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createIntegrationController,createInquirySession} from '@annora/integration-kit';
+import {createBrowserDemoRepository} from '@annora/integration-kit/demo-repository';
+const metadata=JSON.parse(await readFile(new URL('./node_modules/@annora/integration-kit/package.json',import.meta.url),'utf8'));
+assert.equal(metadata.version,'0.1.0');
+const base=${JSON.stringify(upgradeBase)},part=${JSON.stringify(selected)},snapshot=${JSON.stringify(camera)};
+const controller=createIntegrationController({context:base,adapter:{version:'1',id:'qualification-viewer',adapterVersion:'1',coordinateFrame:'source-meters-y-up-v1',
+ capabilities:${JSON.stringify(basicCapabilities)},capture:async()=>({part,snapshot}),restore:async()=>{}}});
+const context=await controller.captureContext(),data=new Map([['existing.customer.projects','unchanged-existing-customer-data']]);
+const storage={getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};
+let serial=0;const namespace='qualification.upgrade.projects.v1';
+const repository=createBrowserDemoRepository({namespace,storage,locks:null,now:()=> '2026-11-06T12:00:00.000Z',makeId:prefix=>prefix+'-prior-'+(++serial)});
+const session=createInquirySession({repository,schedule:()=>1,cancel:()=>{}});
+await session.open({context});session.updateValues({application:'Fictional request created by the released 0.1.0 package.',quantity:'4'});
+await assert.rejects(session.confirm(),{code:'STALE_REVIEW'});
+const review=await session.review();assert.equal((await repository.listProjects()).length,0);
+const project=await session.confirm();assert.deepEqual(review.draft.context,project.context);assert.deepEqual(await session.confirm(),project);
+assert.equal((await repository.listProjects()).length,1);assert.equal(project.context.viewerReference.version,'1');
+assert.equal(storage.getItem('existing.customer.projects'),'unchanged-existing-customer-data');
+await writeFile(process.argv[2],JSON.stringify({packageVersion:metadata.version,context,project,namespace,raw:storage.getItem(namespace)},null,2)+'\\n');
+session.dispose();controller.dispose();
+`;
+  const runnerPath = join(priorHost, 'create-prior-inquiry.mjs');
+  await writeFile(runnerPath, runner);
+  await promisify(execFile)(process.execPath, [runnerPath, fixturePath], {cwd:priorHost});
+  const fixture = JSON.parse(await readFile(fixturePath, 'utf8'));
+  assert.equal(fixture.packageVersion, '0.1.0');
+  const data = new Map([[fixture.namespace, fixture.raw], ['existing.customer.projects', 'unchanged-existing-customer-data']]);
+  const writes = [];
+  const storage = {getItem:key=>data.get(key)??null,setItem:(key,value)=>{writes.push(key);data.set(key,value);}};
+  const repository = createBrowserDemoRepository({namespace:fixture.namespace,storage,locks:null,
+    now:()=> '2026-11-06T13:00:00.000Z',makeId:prefix=>`${prefix}-upgrade-draft`});
+  assert.deepEqual(await repository.getProject(fixture.project.id), fixture.project);
+  assert.deepEqual(await repository.listProjects(), [fixture.project]);
+  assert.deepEqual(writes, []);assert.equal(storage.getItem(fixture.namespace), fixture.raw);
+  const restores = [], controller = kit.createIntegrationController({context:upgradeBase,adapter:adapter({restore:async snapshot=>restores.push(snapshot)})});
+  assert.deepEqual(await controller.restoreContext(fixture.context), fixture.context);
+  assert.deepEqual(restores, [camera]);controller.dispose();
+  const draft = await repository.getQuoteDraft(fixture.project.id);
+  assert.deepEqual(draft.context, fixture.context);
+  assert.deepEqual(writes, []);assert.equal(storage.getItem(fixture.namespace), fixture.raw);
+  draft.values.scope = 'Seller draft prepared in 0.2.0 against the original confirmed inquiry.';
+  const savedDraft = await repository.saveQuoteDraft(draft);
+  assert.deepEqual(savedDraft.context.viewerReference, fixture.context.viewerReference);
+  await assert.rejects(repository.issueQuote(savedDraft), {code:'STALE_REVIEW'});
+  assert.deepEqual(await repository.getProject(fixture.project.id), fixture.project, 'Saving a seller draft must not alter the original inquiry or issue a quotation.');
+  const after = JSON.parse(storage.getItem(fixture.namespace)), before = JSON.parse(fixture.raw);
+  assert.equal(after.schemaVersion, before.schemaVersion);
+  assert.equal(after.projects[0].context.viewerReference.version, '1');
+  assert.equal(after.quoteDrafts[0].context.viewerReference.version, '1');
+  assert.deepEqual(after.projects, before.projects);
+  assert.equal(storage.getItem('existing.customer.projects'), 'unchanged-existing-customer-data');
+  assert.equal(hash(await readFile(priorArtifact)), priorArtifactSha256, 'The previous release archive must remain immutable.');
+  assert.equal(hash(await readFile(freshResult.artifact)), freshResult.artifactSha256, 'The current artifact changed during qualification.');
+  return {fromVersion:fixture.packageVersion,toVersion:metadata.version,priorArtifactSha256,
+    projectId:fixture.project.id,referenceVersion:'1',storeSchemaVersion:before.schemaVersion,
+    originalStoreSha256:hash(fixture.raw),readOnlyStoreUnchanged:true,originalInquiryUnchanged:true,
+    exactReferenceRestored:true,newSellerDraftReferencePreserved:true,unreviewedIssueRejected:true,priorArchiveUnchanged:true};
 });
 
 const result = { package: { name: metadata.name, version: metadata.version, artifactSha256: freshResult.artifactSha256 }, host,
   status: checks.every(check => check.status === 'passed') ? 'passed' : 'failed', checks,
-  limits: ['Same-version reinstall; no previous integration-kit release exists.', 'No browser or physical-device performance claim.', 'No real backend delivery.'] };
+  limits: ['Upgrade qualification covers the released 0.1.0 inquiry and reference schema with 0.2.0; it is not a claim about arbitrary future versions.', 'No browser or physical-device performance claim.', 'No real backend delivery.'] };
 await writeFile(join(out, 'result.json'), JSON.stringify(result, null, 2) + '\n');
 if (result.status !== 'passed') process.exitCode = 1;

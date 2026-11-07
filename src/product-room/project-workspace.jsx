@@ -157,7 +157,7 @@ function ContextSummary({
     <div className={`pw-context ${compact ? "pw-context-compact" : ""}`}>
       {showInspection && <InspectionReference context={context} onOpen={onExplore} disabled={disabled} />}
       <div>
-        {!(context.inspection && showInspection) && <>
+        {!((context.inspection || context.viewerReference) && showInspection) && <>
           <p className="pw-eyebrow">PRODUCT CONTEXT</p>
           <strong>{context.productTitle || "Crank-slider mechanism"}</strong>
         </>}
@@ -200,7 +200,7 @@ function ContextSummary({
           </div>
         )}
       </div>
-      {onExplore && !context.inspection && (
+      {onExplore && !context.inspection && !context.viewerReference && (
         <Button
           variant="quiet"
           disabled={disabled}
@@ -215,7 +215,7 @@ function ContextSummary({
         </Button>
       )}
       <p className="pw-muted pw-release-reference">
-        {context.roomReleaseId ? (context.roomSnapshot?.source === "preview" ? "Draft product preview" : `Product version ${context.roomSnapshot?.version}`) : context.drawing ? "Exact model and drawing references saved." : "Earlier project · Product version not recorded."}
+        {context.roomReleaseId ? (context.roomSnapshot?.source === "preview" ? "Draft product preview" : `Product version ${context.roomSnapshot?.version}`) : context.viewerReference ? "Exact product, model and viewer references saved." : context.drawing ? "Exact model and drawing references saved." : "Earlier project · Product version not recorded."}
       </p>
       {context.roomSnapshot && (
         <details className="pw-release-evidence">
@@ -257,8 +257,8 @@ function InquiryReference({ context, children, onExplore, disabled = false, show
     {showInspection && <InspectionReference context={context} onOpen={onExplore} disabled={disabled} />}
     <button type="button" className="pw-reference-toggle" aria-expanded={expanded}
       aria-controls={contentId} onClick={() => setExpanded(value => !value)}>
-      <span>{!context.inspection && <small>Product reference</small>}<strong>{context.inspection ? "Reference details" : context.drawing?.regionLabel || context.part?.title || context.productTitle}</strong>
-        <small>{context.drawing ? `${context.drawing.title} · ${context.drawing.revisionLabel || context.drawing.revision}` : context.roomSnapshot ? `Product version ${context.roomSnapshot.version}` : context.modelRevision}</small></span>
+      <span>{!context.inspection && !context.viewerReference && <small>Product reference</small>}<strong>{context.inspection || context.viewerReference ? "Reference details" : context.drawing?.regionLabel || context.part?.title || context.productTitle}</strong>
+        <small>{context.drawing ? `${context.drawing.title} · ${context.drawing.revisionLabel || context.drawing.revision}` : context.roomSnapshot ? `Product version ${context.roomSnapshot.version}` : context.productRevision || context.modelRevision}</small></span>
       <span aria-hidden="true">{expanded ? "−" : "+"}</span>
     </button>
     <div id={contentId} className="pw-inquiry-reference-content">{children}</div>
@@ -269,7 +269,7 @@ function InquiryDocument({ draft, onExplore }) {
   const values = draft.values;
   return (
     <div className="pw-document">
-      {draft.context.inspection ? <InquiryReference context={draft.context} onExplore={onExplore}>
+      {draft.context.inspection || draft.context.viewerReference ? <InquiryReference context={draft.context} onExplore={onExplore}>
         <ContextSummary context={draft.context} showInspection={false} compact />
       </InquiryReference> : <ContextSummary context={draft.context} onExplore={onExplore} compact />}
       <Section title={`${inquiryField(draft.context, "application").label} & requirements`}>
@@ -845,7 +845,7 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
     draft &&
     route.context &&
     projectContextKey(draft.context) === projectContextKey(route.context) &&
-    ["part", "document", "chapter", "drawing", "inspection"].some(
+    ["part", "document", "chapter", "drawing", "inspection", "viewerReference"].some(
       (key) =>
         !sameProjectValue(draft.context[key], route.context[key]),
     );
@@ -1487,11 +1487,11 @@ function Workspace({ route, repository, navigate, onExplore: openReference, sell
             )}
           </div>
           <aside className="pw-sidebar">
-            <InquiryReference context={draft.context} disabled={Boolean(pending) || leaving} showInspection={!reviewed} showDisclosure={!(reviewed && draft.context.inspection)}
+            <InquiryReference context={draft.context} disabled={Boolean(pending) || leaving} showInspection={!reviewed} showDisclosure={!(reviewed && (draft.context.inspection || draft.context.viewerReference))}
               onExplore={reviewed ? undefined : async context => {
                 await run("leave", async () => { await persistDraft(); onExplore(context); });
               }}>
-            {!(reviewed && draft.context.inspection) && <ContextSummary
+            {!(reviewed && (draft.context.inspection || draft.context.viewerReference)) && <ContextSummary
               context={draft.context}
               showInspection={false}
               disabled={Boolean(pending) || leaving}

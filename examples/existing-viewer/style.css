@@ -82,3 +82,24 @@ h1 { font-size:30px; line-height:1.12; font-weight:500; letter-spacing:-.035em; 
 }
 @media(max-width:359px) { .wordmark { width:100%; } .host-header nav { margin:0; width:100%; justify-content:space-between; } :root { --embedded-inquiry-top:112px; } }
 @media(prefers-reduced-motion:reduce) { button { transition:none; } }
+
+/* The optional walkthrough shares the existing guide. Ordinary host layout is unchanged. */
+body[data-independent-walkthrough] { --embedded-inquiry-top:calc(var(--walkthrough-height) + 12px); }
+body[data-independent-walkthrough]:not([data-wt-navigation]) .host-header { display:none; }
+body[data-independent-walkthrough] .stage { height:calc(100svh - var(--walkthrough-height) - 80px); }
+body[data-independent-walkthrough] .intro { max-width:245px; }
+body[data-independent-walkthrough] .selection { width:260px; }
+body[data-independent-walkthrough] #inquire-part { display:none; }
+.return-project { position:absolute; top:148px; left:36px; display:inline-flex; align-items:center; min-height:44px; font-size:13px; }
+body[data-independent-walkthrough] .walkthrough-strip button:enabled:hover { background:#ff936f; }
+body[data-independent-walkthrough] .walkthrough-strip .wt-menu button:enabled:hover { background:#efefed; }
+@media(max-width:760px) {
+ body[data-independent-walkthrough] .selection { width:auto; bottom:30px; }
+ body[data-independent-walkthrough] .stage { min-height:540px; }
+ body[data-independent-walkthrough] .view-tools { bottom:145px; }
+ .return-project { left:20px; top:140px; }
+}
+
+body[data-independent-walkthrough] .ei-actions .ar-button[data-variant="primary"] { display:none; }
+
+body[data-reference-visit] :is(#request,#saved-open) { display:none; }

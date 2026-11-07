@@ -94,3 +94,24 @@ and [W40 review](w40-prepared-product-review.md).
   arbitrary commercial-viewer support remain outside this release.
 
 See [integration kit](integration-kit.md) and [W50 qualification](w50-integration-kit-review.md).
+
+## W60 — Present one complete independent-viewer conversation
+
+- Keep the customer's existing renderer. Presentation guidance selects a real
+  component and opens the shared inquiry; it does not invent motion capability.
+- Use three chapters: understand the product, get a quotation, resolve and move
+  forward. One Continue demo action guides the presenter. Each visible review
+  requires a separate Confirm & continue activation; no timed confirmation.
+- WTI sessions isolate this fictional case from native WT, ordinary customer,
+  Studio product and standalone example records. Existing stores are not migrated.
+- A saved reference resolves its exact inquiry/quotation identity, adapter,
+  product/model revision and camera. Invalid IDs never select a different project.
+- Seller reference visits keep their role and return to their original review.
+  Guide, Back, reload and minimized inquiry recovery are acceptance boundaries.
+- Optional kit walkthrough exports target Annora's same-origin static demo pages.
+  Production hosts continue to supply their own routes, storage and delivery API.
+- Preserve the published 0.1.0 artifact while adding 0.2.0. Qualify the installed
+  distribution, browser journeys and public deployment separately.
+
+See [W60 review](w60-integration-walkthrough-review.md) and
+[acceptance](w60-integration-walkthrough-acceptance.md).

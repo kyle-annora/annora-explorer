@@ -1,4 +1,5 @@
 import { pendingClarification, pendingProjectChange } from '../product-room/project-state.js';
+import { walkthroughViewer, withWalkthroughSession } from './session.js';
 
 export const WALKTHROUGH_CHAPTERS = [
   {id:1, title:'Understand the product', short:'Product'},
@@ -7,10 +8,10 @@ export const WALKTHROUGH_CHAPTERS = [
 ];
 
 /** Presentation guidance reads the case. It never submits or creates a record. */
-export function walkthroughFlow(project, {hasDraft = false} = {}) {
+export function walkthroughFlow(project, {hasDraft = false, viewer = 'explorer'} = {}) {
   if (!project) return {chapter:hasDraft ? 2 : 1, role:'buyer', state:hasDraft ? 'inquiry' : 'explore',
-    title:hasDraft ? 'Review a request grounded in the product.' : 'Start with the mechanism.',
-    note:hasDraft ? 'Use sample details for 20 assemblies. Review the request, then confirm it below.' : 'Run one short cycle. Select Connecting rod, then start an inquiry from that context.',
+    title:hasDraft ? 'Review a request grounded in the product.' : viewer === 'independent' ? 'Start in the customer’s existing viewer.' : 'Start with the mechanism.',
+    note:hasDraft ? 'Use sample details for 20 assemblies. Review the request, then confirm it below.' : viewer === 'independent' ? 'Select Connecting rod. Carry the selected part and this model version into a reviewed inquiry.' : 'Run one short cycle. Select Connecting rod, then start an inquiry from that context.',
     focus:hasDraft ? ['Review inquiry','Confirm demo inquiry'] : ['Request a quote','Inquire']};
   const quote = project.quotes.at(-1), question = pendingClarification(project), change = pendingProjectChange(project);
   if (question) return {chapter:3,role:'buyer',state:'question',title:'Answer the seller’s question.',note:'The reply stays with this project and its quotation. Review it before confirming.',focus:['Reply to question','Review reply','Confirm demo reply']};
@@ -26,9 +27,27 @@ export function walkthroughFlow(project, {hasDraft = false} = {}) {
   return {chapter:3,role:'buyer',state:'change',title:'Keep a change inside the same conversation.',note:'Request 30 assemblies and an earlier delivery using sample changes. Review and confirm the request.',focus:['Request a change','Review request','Confirm demo request']};
 }
 
+/** Resolve app entries without assuming the host is only one directory deep. */
+export function walkthroughRootURL(baseURL) {
+  const url = new URL(baseURL, globalThis.location?.href || 'http://localhost/');
+  url.search = ''; url.hash = '';
+  url.pathname = url.pathname.replace(/\/(?:integrations\/existing-viewer|walkthrough|product-room|studio)(?:\/(?:index\.html)?)?$/, '/');
+  if (url.pathname.endsWith('/index.html')) url.pathname = url.pathname.slice(0, -10);
+  if (!url.pathname.endsWith('/')) url.pathname += '/';
+  return url;
+}
+
+export function walkthroughViewerURL(baseURL, sessionId) {
+  const independent = walkthroughViewer(sessionId) === 'independent';
+  const url = withWalkthroughSession(new URL(independent ? 'integrations/existing-viewer/' : 'product-room/', walkthroughRootURL(baseURL)), sessionId);
+  if (!independent) { url.searchParams.set('model', 'kinetic-01'); url.hash = 'explore'; }
+  return url;
+}
+
 export function walkthroughDestination(flow, project, baseURL, sessionId) {
-  const url = new URL(flow.role==='seller' ? '../studio/' : '../product-room/', baseURL);
-  url.searchParams.set('walkthrough',sessionId);
+  if (!project && flow.role === 'buyer' && walkthroughViewer(sessionId) === 'independent')
+    return walkthroughViewerURL(baseURL, sessionId);
+  const url = withWalkthroughSession(new URL(flow.role==='seller' ? 'studio/' : 'product-room/', walkthroughRootURL(baseURL)),sessionId);
   if (flow.role==='buyer') url.searchParams.set('model','kinetic-01');
   if (!project) url.hash=flow.state==='inquiry' ? 'inquiry' : 'explore';
   else if (flow.role==='seller') {

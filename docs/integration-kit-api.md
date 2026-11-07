@@ -1,12 +1,13 @@
 # Integration kit API
 
-`@annora/integration-kit` **0.1.0** adds a viewer-independent inquiry boundary.
+`@annora/integration-kit` **0.2.0** retains the viewer-independent inquiry boundary
+introduced in 0.1.0 and adds an optional browser-local walkthrough entry.
 It does not replace the host's renderer, navigation, product catalog or project
 store. Adapter contract **`'1'`**, saved-view reference **`'1'`**, product revision
 and model revision are separate version identities.
 
-The package has an ES module entry, `./style.css`, and an explicitly optional
-`./demo-repository` entry. React and React DOM are external peers; install the
+The package has an ES module entry, `./style.css`, and explicitly optional
+`./demo-repository` and `./walkthrough` entries. React and React DOM are external peers; install the
 versions specified in the package manifest. The qualified host uses **19.3.1**.
 Three.js, PDF rendering, models and product documents belong to the host, not the
 kit. This release is a downloadable package, not an npm registry publication.
@@ -203,6 +204,67 @@ message without turning an unavailable historical source into an empty inquiry.
 Validation errors at the shared domain boundary can surface as `VALIDATION`;
 do not depend on an inner implementation exception to decide whether to save.
 
+## Optional static-browser walkthrough
+
+```js
+import {
+  readWalkthroughSession,
+  createWalkthroughRepository,
+  mountWalkthrough,
+  readExternalViewerReference,
+  externalViewerReturnURL,
+} from '@annora/integration-kit/walkthrough';
+```
+
+This subpath supports **Annora's static-browser local commercial-demo hosts**.
+It is not a production server or a general routing framework. The known
+same-origin layout contains `walkthrough/`, `integrations/existing-viewer/`,
+`product-room/` and `studio/`, beneath the same deployment root. Product Room
+and Studio UI are deployed separately and are not inside the package.
+
+The demo entry creates a `WTI-` session. The host must reject a malformed explicit
+session rather than falling back to an ordinary customer repository. Its storage
+is `annora.walkthrough.independent.projects.v1.<session>`. The older `WT-` native
+walkthrough and the ordinary independent example retain their own namespaces.
+The browser owns these records: there is no authentication, network delivery or
+cross-device persistence in this adapter.
+
+| Export | Demo-host contract |
+| --- | --- |
+| `readWalkthroughSession(search?)` | Returns one validated WT/WTI identifier, or `null` for absent, malformed or duplicated input |
+| `hasWalkthroughRequest(search?)` | Distinguishes an explicit but invalid session from an ordinary unscoped page |
+| `walkthroughViewer(sessionId)` | Returns `independent` for a valid WTI session or `explorer` for a valid WT session; invalid input throws |
+| `createWalkthroughRepository(sessionId, options?)` | Existing async project contract under a non-overridable session namespace; WTI inquiry records require an external viewer reference |
+| `walkthroughFlow(project, {hasDraft, viewer}?)` | Read-only presentation guidance derived from saved commercial state |
+| `walkthroughDestination(flow, project, baseURL, sessionId)` | Known buyer/seller destination preserving the session and project; returns a URL |
+| `walkthroughRootURL(baseURL)` | Resolves the common static deployment root, including a GitHub Pages repository prefix |
+| `walkthroughViewerURL(baseURL, sessionId)` | Opens the appropriate independent or native viewer entry; returns a URL |
+| `registerWalkthroughAction(owner, action)` | Registers the host's current named action and returns an unregister function; the host retains business validation and confirmation |
+| `inquiryWalkthroughAction({state, panel})` | Maps the embedded inquiry's current state to one prepare, review, confirm, resume or project action |
+| `mountWalkthrough(sessionId)` | Mounts the page-level presenter strip once in a browser document; intended for this static-page lifecycle, not repeated SPA mounting or server rendering |
+| `readExternalViewerReference(project, parameters)` | Resolves project/request-item/quotation evidence from URL record identities; returns the exact saved external context or throws |
+| `externalViewerReturnURL({base, sessionId, projectId, role, returnView})` | Builds an allowed buyer/seller return to the same project and session, preserving a valid quotation or review location |
+
+Import the shared `style.css` once. Register `buyer-viewer`, `buyer-workspace` or
+`seller-workspace` actions only for their active host. An action contains an `id`
+and a `run` function, with optional presentation fields such as `note`, `disabled`,
+`busy` and `confirmation`. Unregister it when the view is retired. Preparation
+and confirmation must be different actions: the presenter strip cannot supply
+consent or chain a newly opened review into submission. A stale action is not
+valid after navigation. The host handles `annora:walkthrough-navigate` to run its
+save/leave guard before accepting a destination.
+
+For a saved reference, the host loads the named project from its WTI repository,
+calls `readExternalViewerReference`, then passes that unchanged context to
+`controller.restoreContext`. The URL carries record IDs, never the camera JSON.
+The installed sample mapping only targets `annora-example-three-viewer` version 1,
+the crank product and its declared coordinate frame; it does not route arbitrary
+viewer adapters or allow model-supplied destination URLs. Missing quotations,
+conflicting identities, unavailable adapters and mismatched snapshots fail
+explicitly. Never substitute the current camera, a newer quotation or native
+Explorer state. A production host needs its own authorized reference resolver,
+installed-adapter registry, navigation and durable repository.
+
 ## Upgrade boundary
 
 Pin the package artifact, host application, viewer adapter and snapshot schema
@@ -211,7 +273,11 @@ and exact restore before deploying. Retain the previous application artifact for
 rollback. Unsupported versions must fail without clearing or normalizing away
 stored fields.
 
-Version 0.1.0 is the first kit release. Its qualification includes a fresh build,
-compatible same-version reinstall and unsupported-version preservation. Those
-checks do not claim a production migration from an earlier kit release. See
-[acceptance and limitations](integration-kit-acceptance.md).
+Version 0.1.0 was the first kit release. Its qualification covered a fresh build,
+compatible same-version reinstall and unsupported-version preservation. Version
+0.2.0 adds the optional subpath while retaining adapter contract 1 and external
+reference version 1. Existing stores are not migrated or cleared. Keep the
+0.1.0 tarball and its original receipt for rollback; the latest `release.json`
+belongs to the latest artifact. See [package acceptance](integration-kit-acceptance.md)
+and the [W60 candidate review](w60-integration-walkthrough-review.md) for the
+separate build, browser and public-release evidence.

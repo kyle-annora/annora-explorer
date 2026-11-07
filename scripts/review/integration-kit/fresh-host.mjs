@@ -10,9 +10,9 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const root = fileURLToPath(new URL('../../../', import.meta.url));
-const artifact = resolve(process.env.KIT_ARTIFACT || join(root, 'dist-integration/annora-integration-kit-0.1.0.tgz'));
+const artifact = resolve(process.env.KIT_ARTIFACT || join(root, 'dist-integration/annora-integration-kit-0.2.0.tgz'));
 const sourceHost = resolve(process.env.HOST_SOURCE || join(root, 'examples/existing-viewer'));
-const evidence = resolve(process.env.OUT || join(root, 'work/product-expansion/W50/fresh-host'));
+const evidence = resolve(process.env.OUT || join(root, 'work/product-expansion/W60/fresh-host'));
 const parent = await mkdtemp(join(tmpdir(), 'annora-kit-qualification-'));
 const host = join(parent, 'host');
 await mkdir(evidence, { recursive: true });
@@ -53,11 +53,11 @@ try {
   assert.ok(entries.every(path => !/(?:node_modules\/|\.(?:glb|gltf|bin|step|stp|pdf|png|jpg|webp|mp4)$)/i.test(path)), 'The kit must contain no model, PDF or media assets.');
   const metadata = JSON.parse(await command('tar', ['-xOzf', artifact, 'package/package.json'], parent));
   assert.equal(metadata.name, '@annora/integration-kit');
-  assert.equal(metadata.version, '0.1.0');
+  assert.equal(metadata.version, '0.2.0');
   assert.ok(metadata.peerDependencies?.react, 'React must be an explicit peer.');
   assert.ok(metadata.peerDependencies?.['react-dom'], 'React DOM must be an explicit peer.');
   assert.ok(!metadata.dependencies?.three && !metadata.dependencies?.['pdfjs-dist']);
-  assert.ok(metadata.exports?.['.'] && metadata.exports?.['./style.css'] && metadata.exports?.['./demo-repository']);
+  assert.ok(metadata.exports?.['.'] && metadata.exports?.['./style.css'] && metadata.exports?.['./demo-repository'] && metadata.exports?.['./walkthrough']);
   result.package = { name: metadata.name, version: metadata.version, peers: metadata.peerDependencies, exports: metadata.exports, entries };
   await cp(sourceHost, host, { recursive: true, filter: source => !relative(sourceHost, source).split('/').some(segment => ['node_modules', 'dist', '.git'].includes(segment)) });
   const packagePath = join(host, 'package.json');

@@ -9,7 +9,7 @@ import {
   Section,
   Status,
 } from "../product-room/ui/components.jsx";
-import { compareQuotes, quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel } from "../product-room/project-domain.js";
+import { compareQuotes, quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel, sameProjectValue } from "../product-room/project-domain.js";
 import { inquiryField } from "../product-room/inquiry-profile.js";
 import { STUDIO_ASSETS } from "./seed.js";
 import { date, readRoute } from "./navigation.js";
@@ -23,6 +23,7 @@ import { InspectionReference } from "../product-room/inspection-reference.jsx";
 import { RequestItemsSummary } from "../product-room/request-items-view.jsx";
 import crankImage from "../product-room/assets/crank.png";
 import { setProjectReferenceIdentity } from "../product-room/project-reference-navigation.js";
+import { externalViewerReferenceURL } from "../product-room/external-viewer-navigation.js";
 
 export const money = (value) =>
   value === null || value === undefined
@@ -32,6 +33,14 @@ export const money = (value) =>
         currency: "USD",
       }).format(value);
 export function buyerURL(project, explore = false) {
+  if (explore && project.context.viewerReference) {
+    const route = readRoute();
+    const requestedQuoteId = route.quote || (route.tab === 'quotation' ? project.quotes?.at(-1)?.id : undefined);
+    const requestedQuote = project.quotes?.find(item => item.id === requestedQuoteId);
+    const quoteId = !requestedQuote || sameProjectValue(recordContext(project,requestedQuote),project.context) ? requestedQuoteId : undefined;
+    return externalViewerReferenceURL({base:location.href,sessionId:readWalkthroughSession(),project,
+      context:project.context,role:'seller',returnView:location.hash,quoteId}).href;
+  }
   const url = new URL("../product-room/", location.href);
   const example = new URLSearchParams(location.search).get('followUpDemo');
   if (example) url.searchParams.set('followUpDemo', example);
@@ -304,7 +313,7 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
         <Glyph name="document" />
       </summary>
       <div className="customer-reference-body">
-        {!context.inspection && !context.drawing && context.modelId === "kinetic-01" && <img
+        {!context.inspection && !context.viewerReference && !context.drawing && context.modelId === "kinetic-01" && <img
           src={crankImage}
           alt="Crank-slider mechanism"
           width="240"
@@ -328,11 +337,11 @@ export function ProductReference({ project, buyerHref = buyerURL }) {
             <dd>
               {snapshot
                 ? `Version ${snapshot.version}`
-                : "Original project reference"}
+                : context.productRevision || "Original project reference"}
             </dd>
           </div>
         </dl>
-        {!context.inspection && <SmallLink href={buyerHref(project, true)}>{context.drawing ? "View selected drawing detail" : "View in 3D"}</SmallLink>}
+        {!context.inspection && !context.viewerReference && <SmallLink href={buyerHref(project, true)}>{context.drawing ? "View selected drawing detail" : "View in 3D"}</SmallLink>}
         {context.drawing && <>
           <p className="customer-fine">Pinned viewing context. Dimensions, tolerances and manufacturing suitability remain to confirm.</p>
           <details><summary>Exact drawing reference</summary>

@@ -11,3 +11,14 @@ Host-local values stay consistent with Annora's neutral and Ember palette: canva
 Mobile keeps the model above the selection controls. The request remains a resumable floating panel, with an explicit Keep exploring action. Every hover action has a touch and keyboard equivalent. Long IDs remain inside expandable version details.
 
 Unavailable drawings/story capabilities are explained in About this integration, not represented as working tabs. Loading blocks dependent actions. Save/read failures keep the current editor and show an actionable error. Fake data and browser-local persistence are labelled.
+
+## Independent walkthrough (0.2.0)
+
+The approved Annora three-chapter guide is the dominant presentation reference.
+One fixed Continue demo action owns the presentation; its label changes to
+Confirm & continue only at a visible review. The ordinary independent example
+keeps its header and quote controls. In the guided variant, the header is hidden
+until Guide exposes it, and native workspace actions become outlined secondary
+controls. The floating inquiry's duplicate primary is hidden only in this variant.
+Editing, save recovery and minimize remain available. Seller saved-view visits
+retain the Seller view label and return to the exact quotation review.

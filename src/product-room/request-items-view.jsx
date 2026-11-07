@@ -12,6 +12,7 @@ function ReferenceFacts({ context }) {
     {context.part && <div><dt>Component</dt><dd>{context.part.title}</dd></div>}
     <div><dt>Model version</dt><dd>{context.modelRevision}</dd></div>
     {context.roomSnapshot && <div><dt>Product version</dt><dd>{context.roomSnapshot.version}</dd></div>}
+    {context.viewerReference && <div><dt>Product version</dt><dd>{context.productRevision}</dd></div>}
     {context.chapter && <div><dt>Explanation</dt><dd>{context.chapter.title}</dd></div>}
     {context.document && <div><dt>Document</dt><dd>{context.document.title} · {context.document.revision}</dd></div>}
     {drawing && <>
@@ -29,7 +30,7 @@ function ReferenceDescription({ item }) {
   const { context } = item;
   return <small className="ar-request-origin">{context.drawing
     ? `${context.drawing.sheetTitle} · ${context.drawing.revisionLabel || context.drawing.revision}`
-    : context.inspection ? 'Saved 3D view' : context.part ? 'Component reference' : 'Product reference'}</small>;
+    : context.viewerReference ? 'Saved viewer reference' : context.inspection ? 'Saved 3D view' : context.part ? 'Component reference' : 'Product reference'}</small>;
 }
 
 /** Every listed item is displayed during confirmation, including custom host reviews. */

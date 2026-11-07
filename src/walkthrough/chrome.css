@@ -63,3 +63,10 @@ body[data-walkthrough] .room-workspace .pw-sidebar { top:calc(var(--header) + va
  .wt-error { padding-inline:10px;font-size:12px; }
 }
 @media(prefers-reduced-motion:reduce) { .walkthrough-strip * { scroll-behavior:auto!important; } }
+
+/* One visual lead action in the independent-viewer presentation. Native host
+   controls remain available for manual editing, with a quieter hierarchy. */
+body[data-walkthrough-viewer="independent"] .room-ui .ar-button[data-variant="primary"] { background:var(--ar-surface,#fff);color:var(--ar-text,#282b2d);border-color:var(--ar-border,#c9cbcc); }
+body[data-walkthrough-viewer="independent"] .room-ui .ar-button[data-variant="primary"]:hover:not(:disabled) { background:#ededea;color:#282b2d;border-color:#929697; }
+
+body[data-walkthrough-viewer="independent"] .walkthrough-strip { z-index:80; }

@@ -5,6 +5,17 @@ connects the existing Explorer, buyer Product Room and seller Studio through one
 fictional crank-slider project. Patrick and Wesley can use this single link in a
 customer conversation without an account or repository access.
 
+## Present through an existing customer viewer
+
+Use the [independent-viewer walkthrough](https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent)
+for the current customer call: keep their viewer, turn a selected part into a
+reviewed inquiry, then issue, revise and compare a quotation in the same project.
+The first click selects and frames Connecting rod; this host has no authored
+motion. The remaining commercial chapters follow the same review boundaries
+below. It uses a separate fictional session and leaves the native Explorer demo
+and existing projects unchanged. See the [W60 delivery record](w60-integration-walkthrough-review.md)
+for qualification and release status.
+
 ## Present the three chapters
 
 Use the fixed **Continue demo** button in the presentation strip. It prepares

@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [inquiryBuildBoundary(root)],
   build: {
     outDir: 'dist-integration/package', emptyOutDir: true, cssCodeSplit: false,
-    lib: { entry: { kit: 'src/integration-kit/entry.js', 'demo-repository': 'src/integration-kit/demo-repository.js' }, formats: ['es'], fileName: (_format, name) => `${name}.js`, cssFileName: 'style' },
+    lib: { entry: { kit: 'src/integration-kit/entry.js', 'demo-repository': 'src/integration-kit/demo-repository.js', walkthrough: 'src/integration-kit/walkthrough.js' }, formats: ['es'], fileName: (_format, name) => `${name}.js`, cssFileName: 'style' },
     rollupOptions: { external: id => /^(react|react-dom)(\/|$)/.test(id) },
   },
 });

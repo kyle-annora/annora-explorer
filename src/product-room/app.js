@@ -5,7 +5,8 @@ import { createRoomViewer } from './viewer.js';
 import { createRequestFlow } from './request.js';
 import { createStudioRepository } from '../studio/repository.js';
 import { readBuyerRoute, buyerRouteHash, projectReturnURL } from './navigation.js';
-import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughRepository, withWalkthroughSession, walkthroughStorageKey } from '../walkthrough/session.js';
+import { readWalkthroughSession, hasWalkthroughRequest, createWalkthroughRepository, withWalkthroughSession, walkthroughStorageKey, walkthroughViewer as walkthroughViewerKind } from '../walkthrough/session.js';
+import { walkthroughViewerURL } from '../walkthrough/flow.js';
 import { BUNDLED_RELEASE, STUDIO_PARTS, resolveStudioContent } from '../studio/seed.js';
 import { preparedProduct, preparedProducts } from './prepared-catalog.js';
 import { preparedProjectRepository } from './prepared-host.js';
@@ -25,6 +26,7 @@ import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
 import { createExplorationHandoff, readExplorationHandoff } from './exploration-handoff.js';
 import { openWorkspaceReference } from './reference-navigation.js';
 import { hasProjectReferenceIdentity, readProjectReferenceContext, setProjectReferenceIdentity } from './project-reference-navigation.js';
+import { externalViewerReferenceURL, readExternalViewerReference } from './external-viewer-navigation.js';
 import { createDemoProjectRepository } from './project-repository.js';
 import { createRoomInquiryHost } from './inquiry-host.js';
 import crankImage from './assets/crank.png';
@@ -55,6 +57,13 @@ async function boot() {
   let referenceProject = null, referenceContext = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
+    // This walkthrough's capture and draft belong to the installed host viewer.
+    // Generic Room navigation must not start a second, native-model inquiry.
+    if (walkthrough && walkthroughViewerKind(walkthrough) === 'independent'
+      && ['explore','overview','specs','inquiry','components'].includes(initialRoute.view) && !referenceProjectId
+      && !['handoff','inspection','studioPreview','release','requestItem','referenceQuote','referenceReview','referenceEntry'].some(key => parameters.has(key))) {
+      location.replace(walkthroughViewerURL(location.href,walkthrough).href); return;
+    }
     // Ordinary browsing can fall back to a configured room. Saved references
     // must never enter another product's repository through that fallback.
     const savedReference = referenceProjectId || ['studioPreview','release','handoff','inspection','followUp'].some(key => parameters.has(key));
@@ -147,15 +156,24 @@ async function boot() {
       if (requestItemId && !requestItem) throw new Error('This requested detail is not in the saved inquiry. Return to the project and open its reference again.');
       if (followUpRelease && (!sameProjectValue(followUpRelease.context, referenceProject.context) || !followUpRelease.context.roomSnapshot))
         throw new Error('The exact product reference saved with this follow-up is unavailable. Your original inquiry and quotations remain unchanged.');
-      referenceContext = readProjectReferenceContext(referenceProject, parameters) || followUpRelease?.context || requestItem?.context || referenceProject.context;
+      if (referenceProject.context.viewerReference) {
+        const selectors = new URLSearchParams(parameters); selectors.set('project',referenceProject.id);
+        referenceContext = readExternalViewerReference(referenceProject,selectors);
+      } else referenceContext = readProjectReferenceContext(referenceProject, parameters) || followUpRelease?.context || requestItem?.context || referenceProject.context;
       const context = referenceContext, model = MODEL_CATALOG[context.modelId];
       if (requestedModel && requestedModel !== context.modelId) throw new Error('This customer project belongs to another model. Open its original project link; the saved record has not changed.');
       if (!preparedProducts.get(context.productId)) throw new Error('This customer project references a product that is not prepared in this deployment. The original project has not been changed.');
-      if (!model || model.revision !== context.modelRevision) throw new Error('The exact model revision saved with this project is not included in this deployment. Your original inquiry and quotations remain available in My projects.');
+      if (context.viewerReference) {
+        if (initialRoute.view === 'explore') {
+          const url = externalViewerReferenceURL({base:location.href,sessionId:walkthrough,project:referenceProject,context,
+            role:parameters.get('returnRole'),returnView:parameters.get('returnView'),quoteId:parameters.get('referenceQuote')});
+          location.replace(url.href); return;
+        }
+      } else if (!model || model.revision !== context.modelRevision) throw new Error('The exact model revision saved with this project is not included in this deployment. Your original inquiry and quotations remain available in My projects.');
       parameters.set('project', referenceProject.id);
       parameters.set('model', context.modelId);
       if (context.roomSnapshot) releaseState = {release:context.roomSnapshot,preview:false,pinned:true};
-      else { releaseState = {release:preparedProduct(context.productId).bundledRelease,preview:false,pinned:true}; releaseWarning = 'This earlier project did not record a product version. Showing the bundled product reference; the saved inquiry remains unchanged.'; }
+      else { releaseState = {release:preparedProduct(context.productId).bundledRelease,preview:false,pinned:true}; releaseWarning = context.viewerReference ? '' : 'This earlier project did not record a product version. Showing the bundled product reference; the saved inquiry remains unchanged.'; }
     }
     if (impactDemo && referenceContext?.roomSnapshot) {
       releaseByProduct['sk08'] = referenceContext.roomSnapshot;
@@ -304,7 +322,7 @@ async function boot() {
       }
     },
   });
-  if (walkthrough && !releaseState.preview && !followUpRelease) walkthroughViewer = createWalkthroughViewerAction({
+  if (walkthrough && walkthroughViewerKind(walkthrough) !== 'independent' && !releaseState.preview && !followUpRelease) walkthroughViewer = createWalkthroughViewerAction({
     viewer, sessionId:walkthrough, isActive:()=>page === 'explore' && !walkthroughProject,
     openInquiry:()=>openRequest(undefined,{opener:document.querySelector('.wt-handoff')}),
   });
@@ -380,6 +398,22 @@ async function boot() {
     renderContent();
   }
   async function exploreContext(context, {leaveChecked = false, record = true, allowStandalone = true} = {}) {
+    if (context.viewerReference) {
+      try {
+        const projectId = currentRoute.projectId || referenceProject?.id;
+        if (!projectId) throw new Error('Open this saved reference from its customer project.');
+        const project = await customerRepository.getProject(projectId);
+        const requestedQuoteId = currentRoute.quoteId || (currentRoute.tab === 'quotation' ? project.quotes.at(-1)?.id : undefined);
+        const requestedQuote = project.quotes.find(item => item.id === requestedQuoteId);
+        const quoteId = !requestedQuote || sameProjectValue(requestedQuote.context || project.context,context) ? requestedQuoteId : undefined;
+        const url = externalViewerReferenceURL({base:location.href,sessionId:walkthrough,project,context,role:'buyer',returnView:location.hash,
+          quoteId});
+        if (!leaveChecked && !(await beforeHostLeave())) return;
+        await viewer.pause().catch(()=>{});
+        location[record ? 'assign' : 'replace'](url.href);
+      } catch (error) { workspace?.cancelLeave(); notice(`The saved view could not be reopened. ${error.message}`); }
+      return;
+    }
     if (!configuredRooms.includes(context.modelId)) { if (leaveChecked) workspace?.cancelLeave(); notice('This project’s model is not available in this deployment.'); return; }
     ++action;
     if (followUpRelease) {
@@ -451,7 +485,10 @@ async function boot() {
       if (page === 'inquiry' && inquiryHost.getContext()) {
         const context = inquiryHost.getContext();
         if (!(await beforeHostLeave())) return;
-        await showSavedContext(context,{...options,leaveChecked:true}); return;
+        if (context.viewerReference) await exploreContext(context,{...options,leaveChecked:true});
+        else if (walkthrough && walkthroughViewerKind(walkthrough) === 'independent') location.assign(walkthroughViewerURL(location.href,walkthrough).href);
+        else await showSavedContext(context,{...options,leaveChecked:true});
+        return;
       }
       if (await openWorkspaceReference({workspace,modelId:productId,open:context => {
         if (turn !== action) return;
@@ -459,7 +496,12 @@ async function boot() {
       }})) return;
       if (turn !== action) return;
       const context = referenceProject?.context || restoredContext || handoffContext;
-      if (context?.modelId === productId) await showSavedContext(context,options);
+      if (context?.viewerReference) await exploreContext(context,options);
+      else if (walkthrough && walkthroughViewerKind(walkthrough) === 'independent') {
+        if (!(await beforeHostLeave())) return;
+        location.assign(walkthroughViewerURL(location.href,walkthrough).href);
+      }
+      else if (context?.modelId === productId) await showSavedContext(context,options);
       else await showPage('explore',{focus:true,...options});
     } catch (error) { notice(`The saved view could not be reopened. ${error.message} Please try again.`); }
   }

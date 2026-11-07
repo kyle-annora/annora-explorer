@@ -1,9 +1,11 @@
 import { createDemoProjectRepository } from '../product-room/project-repository.js';
 
 export const WALKTHROUGH_SESSION_KEY = 'annora.walkthrough.session.v1';
+export const INDEPENDENT_WALKTHROUGH_SESSION_KEY = 'annora.walkthrough.independent.session.v1';
 export const WALKTHROUGH_PRODUCT_ID = 'kinetic-01';
 const PROJECT_PREFIX = 'annora.walkthrough.projects.v1.';
-const SESSION_ID = /^WT-[A-Za-z0-9-]{8,64}$/;
+const INDEPENDENT_PROJECT_PREFIX = 'annora.walkthrough.independent.projects.v1.';
+const SESSION_ID = /^WTI?-[A-Za-z0-9-]{8,64}$/;
 const problem = (code, message) => Object.assign(new Error(message), { code });
 const validId = id => typeof id === 'string' && SESSION_ID.test(id);
 
@@ -29,8 +31,20 @@ function requireId(id) {
   return id;
 }
 
+/** The namespace travels in the validated session ID, including seller links. */
+export function walkthroughViewer(id) {
+  return requireId(id).startsWith('WTI-') ? 'independent' : 'explorer';
+}
+
+function sessionMode(options) {
+  const viewer = options.viewer ?? 'explorer';
+  if (viewer !== 'explorer' && viewer !== 'independent')
+    throw problem('WALKTHROUGH_SESSION_INVALID', 'This demonstration viewer is not supported. Open a walkthrough start page.');
+  return {viewer, key:viewer === 'independent' ? INDEPENDENT_WALKTHROUGH_SESSION_KEY : WALKTHROUGH_SESSION_KEY};
+}
+
 export function walkthroughStorageKey(id) {
-  return PROJECT_PREFIX + requireId(id);
+  return (walkthroughViewer(id) === 'independent' ? INDEPENDENT_PROJECT_PREFIX : PROJECT_PREFIX) + id;
 }
 
 export function withWalkthroughSession(input, id) {
@@ -49,16 +63,19 @@ function storageOf(options) {
   }
 }
 
-function readMetadata(storage) {
+function readMetadata(storage, mode) {
   let raw;
-  try { raw = storage.getItem(WALKTHROUGH_SESSION_KEY); }
+  try { raw = storage.getItem(mode.key); }
   catch { throw problem('WALKTHROUGH_STORAGE_UNAVAILABLE', 'The saved demonstration could not be read. Existing projects have not been changed.'); }
   if (raw === null) return null;
   try {
     const value = JSON.parse(raw);
-    if (value.schemaVersion !== 1 || !validId(value.id) || value.productId !== WALKTHROUGH_PRODUCT_ID
+    if (value.schemaVersion !== 1 || !validId(value.id) || walkthroughViewer(value.id) !== mode.viewer
+      || (mode.viewer === 'independent' ? value.viewer !== 'independent' : value.viewer !== undefined)
+      || value.productId !== WALKTHROUGH_PRODUCT_ID
       || typeof value.createdAt !== 'string' || !Number.isFinite(Date.parse(value.createdAt))) throw new Error();
-    return { schemaVersion:1, id:value.id, createdAt:value.createdAt, productId:WALKTHROUGH_PRODUCT_ID };
+    return { schemaVersion:1, id:value.id, createdAt:value.createdAt, productId:WALKTHROUGH_PRODUCT_ID,
+      ...(mode.viewer === 'independent' ? {viewer:'independent'} : {}) };
   } catch {
     throw problem('WALKTHROUGH_SESSION_CORRUPT', 'The saved demonstration reference could not be read. Start a new demonstration to continue; previous project records will be kept.');
   }
@@ -66,27 +83,30 @@ function readMetadata(storage) {
 
 /** Read-only. Merely opening the start page never seeds or submits an inquiry. */
 export function getWalkthroughSession(options = {}) {
-  return readMetadata(storageOf(options));
+  return readMetadata(storageOf(options), sessionMode(options));
 }
 
 /** Create only a session pointer. Project data is written later by the existing
  * explicitly reviewed workflow, under this session's independent storage key. */
 export function createWalkthroughSession(options = {}) {
+  const mode = sessionMode(options);
   const storage = storageOf(options);
-  const id = requireId(options.makeSessionId ? options.makeSessionId() : `WT-${globalThis.crypto.randomUUID()}`);
+  const id = requireId(options.makeSessionId ? options.makeSessionId() : `${mode.viewer === 'independent' ? 'WTI' : 'WT'}-${globalThis.crypto.randomUUID()}`);
+  if (walkthroughViewer(id) !== mode.viewer) throw problem('WALKTHROUGH_SESSION_INVALID', 'The demonstration identifier does not match its viewer. Start a new demonstration.');
   const createdAt = options.now ? options.now() : new Date().toISOString();
   if (typeof createdAt !== 'string' || !Number.isFinite(Date.parse(createdAt))) throw problem('WALKTHROUGH_SESSION_INVALID', 'The demonstration date could not be created. Try starting again.');
   let previous;
   try {
-    previous = storage.getItem(WALKTHROUGH_SESSION_KEY);
+    previous = storage.getItem(mode.key);
     let priorId;
     try { priorId = JSON.parse(previous)?.id; } catch { /* Explicit creation can recover a corrupt pointer, preserving data. */ }
     if (priorId === id || storage.getItem(walkthroughStorageKey(id)) !== null) throw problem('WALKTHROUGH_SESSION_EXISTS', 'This demonstration identifier is already in use. Start a new demonstration with a new identifier.');
-    const session = { schemaVersion:1, id, createdAt, productId:WALKTHROUGH_PRODUCT_ID };
+    const session = { schemaVersion:1, id, createdAt, productId:WALKTHROUGH_PRODUCT_ID,
+      ...(mode.viewer === 'independent' ? {viewer:'independent'} : {}) };
     const encoded = JSON.stringify(session);
-    if (storage.getItem(WALKTHROUGH_SESSION_KEY) !== previous) throw problem('WALKTHROUGH_SESSION_CONFLICT', 'Another tab started a demonstration. Reopen the walkthrough start page to resume it.');
-    storage.setItem(WALKTHROUGH_SESSION_KEY, encoded);
-    if (storage.getItem(WALKTHROUGH_SESSION_KEY) !== encoded) throw problem('WALKTHROUGH_SESSION_CONFLICT', 'Another tab changed the demonstration reference. Reopen the walkthrough start page to check it.');
+    if (storage.getItem(mode.key) !== previous) throw problem('WALKTHROUGH_SESSION_CONFLICT', 'Another tab started a demonstration. Reopen the walkthrough start page to resume it.');
+    storage.setItem(mode.key, encoded);
+    if (storage.getItem(mode.key) !== encoded) throw problem('WALKTHROUGH_SESSION_CONFLICT', 'Another tab changed the demonstration reference. Reopen the walkthrough start page to check it.');
     return session;
   } catch (error) {
     if (error.code?.startsWith('WALKTHROUGH_')) throw error;
@@ -110,23 +130,30 @@ const mutationMethods = new Set([
   'createSampleQuote', 'requestRevision', 'simulateReply', 'confirmNextStep',
 ]);
 
-function requireProduct(context) {
+function requireProduct(context, independent = false) {
   if (context && (context.productId !== WALKTHROUGH_PRODUCT_ID || context.modelId !== WALKTHROUGH_PRODUCT_ID))
     throw problem('WALKTHROUGH_PRODUCT_INVALID', 'This demonstration follows the crank-slider project. Open another product outside the walkthrough.');
+  if (context && independent && !context.viewerReference)
+    throw problem('WALKTHROUGH_REFERENCE_REQUIRED', 'Return to the independent viewer and select a part before continuing this inquiry. Its saved model reference must stay with the demonstration.');
 }
 
 /** Same async host contract and review gates, with a non-overridable namespace.
  * No renderer, business transition or quotation generator is added here. */
 export function createWalkthroughRepository(id, options = {}) {
   const key = walkthroughStorageKey(id);
+  const independent = walkthroughViewer(id) === 'independent';
   const base = createDemoProjectRepository({ ...options, key });
   const repository = { ...base, mode:'walkthrough', storageKey:key, sessionId:id };
   for (const [method, invoke] of Object.entries(base)) {
     if (typeof invoke !== 'function') continue;
     repository[method] = async (...args) => {
-      if (method === 'getDraft' || method === 'createSampleInquiry') requireProduct(args[0]);
-      if (method === 'saveDraft') requireProduct(args[0]?.context);
-      if (method === 'submitInquiry') requireProduct(args[0]?.draft?.context);
+      if (method === 'getDraft' || method === 'createSampleInquiry') requireProduct(args[0], independent);
+      const draft = method === 'saveDraft' ? args[0] : method === 'submitInquiry' ? args[0]?.draft : null;
+      if (draft) {
+        requireProduct(draft.context, independent);
+        if (independent && Array.isArray(draft.requestItems))
+          for (const item of draft.requestItems) requireProduct(item?.context, true);
+      }
       const result = await invoke(...args);
       if (mutationMethods.has(method)) {
         try {
