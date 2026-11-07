@@ -79,16 +79,16 @@ export const routeHash = (route) => {
   }
   return `#${route.page}${route.page === "edit" ? `/${route.section || "product"}` : ""}${query.size ? `?${query}` : ""}`;
 };
-export const roomURL = ({ preview, release, page = "overview" } = {}) => {
+export const roomURL = ({ preview, release, page = "overview", productId = new URLSearchParams(location.search).get("product") || STUDIO_PRODUCT_ID } = {}) => {
   const url = new URL("../product-room/", location.href);
-  url.searchParams.set("model", STUDIO_PRODUCT_ID);
+  url.searchParams.set("model", productId);
   if (preview) url.searchParams.set("studioPreview", preview);
   if (release) url.searchParams.set("release", release);
   url.hash = page;
   const session = readWalkthroughSession();
   return (session ? withWalkthroughSession(url, session) : url).href;
 };
-export const partOptions = () => [
+export const partOptions = (parts = STUDIO_PARTS) => [
   ["", "Whole product"],
-  ...STUDIO_PARTS.map((part) => [part.id, part.title]),
+  ...parts.map((part) => [part.id, part.title]),
 ];

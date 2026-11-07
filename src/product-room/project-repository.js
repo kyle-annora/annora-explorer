@@ -161,6 +161,7 @@ export function createDemoProjectRepository(options = {}) {
   // Drawing hosts explicitly opt into the reviewed commercial workflow. The
   // ordinary sample adapter and its records keep their existing product gate.
   function assertCommercial(project) {
+    if (options.commercialProduct?.id === project.context.productId && options.commercialProduct.modelRevision === project.context.modelRevision) return;
     if (options.drawingWorkflow === true && project.context.drawing) return;
     assertSample(project);
   }

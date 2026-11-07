@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "kind": "annora-prepared-product-readiness",
+  "valid": true,
+  "products": [
+    {
+      "schemaVersion": 1,
+      "productId": "kinetic-01",
+      "modelId": "kinetic-01",
+      "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+      "viewer": {
+        "status": "ready"
+      },
+      "story": {
+        "status": "ready",
+        "stepKinds": [
+          "inspection",
+          "chapter"
+        ]
+      },
+      "inquiry": {
+        "status": "ready"
+      },
+      "commercial": {
+        "status": "sample-only",
+        "mode": "sample"
+      },
+      "capabilities": {
+        "inspection": {
+          "available": true,
+          "reason": ""
+        },
+        "chapter": {
+          "available": true,
+          "reason": ""
+        },
+        "technical": {
+          "available": false,
+          "reason": "No confirmed drawing detail is available."
+        },
+        "inquiry": {
+          "available": true,
+          "reason": ""
+        },
+        "quotation": {
+          "available": true,
+          "reason": ""
+        }
+      },
+      "technicalReferenceIds": [],
+      "counts": {
+        "parts": 113,
+        "documents": 2,
+        "actions": 3,
+        "technicalReferences": 0
+      },
+      "units": {
+        "source": "m",
+        "display": "m",
+        "evidence": "Prepared mechanism geometry and model metadata orientation.sourceUnits; dimensions remain illustrative."
+      },
+      "source": {
+        "title": "Kinetic 01 — tabletop crank-slider",
+        "author": "Pradeep Kaushik",
+        "repository": "https://github.com/pr9868/scene-acceptance",
+        "commit": "c361b9ad46f91ba960c708c2510aa204ad45605b",
+        "path": "examples/astra-mechanical-assembly/submission/output/crank_slider.glb",
+        "sha256": "5356cb1e7dcf85874c1f2152795b7011f43f01c2bfc899a5fa75a198687204ad",
+        "license": "MIT",
+        "licenseURL": "https://github.com/pr9868/scene-acceptance/blob/c361b9ad46f91ba960c708c2510aa204ad45605b/examples/astra-mechanical-assembly/LICENSE",
+        "licenseSha256": "8f694d23cac4bad2c9f97c5b21f20a891c018445594edc179a39555c17c79728",
+        "generatorSha256": "58c06fd95e6b9c10cb1fc95eb852cc0b59c9e2a2fe71e8734293da7fdfec7bc9",
+        "kind": "Published procedural mechanism study with authored animation; not manufacturer CAD.",
+        "attribution": "Kinetic 01 by Pradeep Kaushik, MIT. Original study produced with an AI agent; presentation metadata and technical edges adapted for Annora Explorer.",
+        "file": "model.glb",
+        "preserved": [
+          "geometry",
+          "hierarchy",
+          "materials",
+          "pivots",
+          "animation channels",
+          "animation samplers"
+        ],
+        "url": "https://github.com/pr9868/scene-acceptance/tree/c361b9ad46f91ba960c708c2510aa204ad45605b/examples/astra-mechanical-assembly"
+      },
+      "issues": [
+        {
+          "area": "drawings",
+          "code": "NO_TECHNICAL_REFERENCE",
+          "path": "technicalReferences",
+          "message": "No confirmed drawing detail is prepared for this product.",
+          "severity": "info"
+        }
+      ],
+      "limitations": [
+        "Prepared views and confirmed associations are not manufacturing approval.",
+        "Readiness does not establish backend storage, customer permissions or delivery guarantees."
+      ],
+      "actions": [
+        {
+          "id": "motion",
+          "duration": 2.5,
+          "subjectIds": [
+            "kinetic-01",
+            "crank"
+          ]
+        },
+        {
+          "id": "inside",
+          "duration": 2.5,
+          "subjectIds": [
+            "kinetic-01",
+            "rod"
+          ]
+        },
+        {
+          "id": "restore",
+          "duration": 2.5,
+          "subjectIds": [
+            "kinetic-01"
+          ]
+        }
+      ],
+      "releaseId": "ROOM-kinetic-01-bundled-2026-11-01",
+      "releaseIssues": [
+        {
+          "path": "content.specGroups.2.facts.0.status",
+          "message": "Required load & cycle rate remains open for discussion.",
+          "section": "product",
+          "severity": "warning"
+        },
+        {
+          "path": "content.specGroups.2.facts.1.status",
+          "message": "Materials & tolerances remains open for discussion.",
+          "section": "product",
+          "severity": "warning"
+        },
+        {
+          "path": "content.specGroups.2.facts.2.status",
+          "message": "Interfaces & installation space remains open for discussion.",
+          "section": "product",
+          "severity": "warning"
+        }
+      ],
+      "inquiryHandoffs": [],
+      "technicalReferences": []
+    },
+    {
+      "schemaVersion": 1,
+      "productId": "sk08",
+      "modelId": "sk08",
+      "modelRevision": "sha256:c1f912af43ddac4ad27f2ff99c05ed1ffa3f8bc4e7057309eca6c1194912949a",
+      "viewer": {
+        "status": "ready"
+      },
+      "story": {
+        "status": "ready",
+        "stepKinds": [
+          "inspection",
+          "technical"
+        ]
+      },
+      "inquiry": {
+        "status": "ready"
+      },
+      "commercial": {
+        "status": "sample-only",
+        "mode": "sample"
+      },
+      "capabilities": {
+        "inspection": {
+          "available": true,
+          "reason": ""
+        },
+        "chapter": {
+          "available": false,
+          "reason": "No prepared short action is supplied."
+        },
+        "technical": {
+          "available": true,
+          "reason": ""
+        },
+        "inquiry": {
+          "available": true,
+          "reason": ""
+        },
+        "quotation": {
+          "available": true,
+          "reason": ""
+        }
+      },
+      "technicalReferenceIds": [
+        "sheet-1:overview:sk08-technical-iso-v1:iso:sheet-1",
+        "sheet-1:shaft-bore:sk08-technical-front-v1:front:sheet-1",
+        "sheet-1:mounting-holes:sk08-technical-top-v1:top:sheet-1",
+        "sheet-1:cross-bore:sk08-technical-side-v1:side:sheet-1",
+        "sheet-2:shaft-bore-detail:sk08-technical-front-v1:bore:sheet-2",
+        "sheet-2:mounting-footprint-detail:sk08-technical-footprint-v1:footprint:sheet-2",
+        "sheet-2:cross-bore-detail:sk08-technical-side-v1:side:sheet-2"
+      ],
+      "counts": {
+        "parts": 3,
+        "documents": 2,
+        "actions": 0,
+        "technicalReferences": 7
+      },
+      "units": {
+        "source": "mm",
+        "display": "m",
+        "evidence": "Pinned STEP/PDF preparation provenance and manifest specify mm → m; legacy metadata orientation.sourceUnits remains unverified."
+      },
+      "source": {
+        "author": "hasecilu; drawing generated by draftwright",
+        "url": "https://github.com/pzfreo/dw-examples/tree/c4c72a71c6440f0c824678660b59d0474f105e71",
+        "license": "CC-BY-3.0",
+        "attribution": "SK08 shaft support by hasecilu, FreeCAD parts library, CC BY 3.0. Published reference drawing: pzfreo/dw-examples, draftwright v0.2.5. Annora prepared the display mesh and enlarged reference sheet.",
+        "description": "A single rigid shaft-support body from the FreeCAD parts library, paired with a drawing generated from the identical pinned STEP source.",
+        "note": "Reference only: unreviewed automatic drawing, missing general tolerance and some chamfer annotations. No manufacturer approval or revision supplied. Display finish is illustrative. Source coordinates are millimeters; display coordinates are meters, Y up. No operating animation or fabricated assembly parts.",
+        "file": "model.glb",
+        "preserved": [
+          "geometry",
+          "source hierarchy",
+          "materials",
+          "pivots",
+          "authored animation channels"
+        ],
+        "sha256": "f7d2ac18f02d8d8648d35d3f40c86d850bbb41b5caf48495c0752a740e9607fa"
+      },
+      "issues": [
+        {
+          "area": "story",
+          "code": "NO_PREPARED_ACTION",
+          "path": "model.tour",
+          "message": "No prepared short action is supplied. Use a captured view or an available drawing detail.",
+          "severity": "info"
+        }
+      ],
+      "limitations": [
+        "Prepared views and confirmed associations are not manufacturing approval.",
+        "Readiness does not establish backend storage, customer permissions or delivery guarantees."
+      ],
+      "actions": [],
+      "releaseId": "ROOM-sk08-bundled-2026-11-07",
+      "releaseIssues": [],
+      "inquiryHandoffs": [
+        {
+          "referenceId": "sheet-1:overview:sk08-technical-iso-v1:iso:sheet-1",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "overview"
+        },
+        {
+          "referenceId": "sheet-1:shaft-bore:sk08-technical-front-v1:front:sheet-1",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "shaft-bore"
+        },
+        {
+          "referenceId": "sheet-1:mounting-holes:sk08-technical-top-v1:top:sheet-1",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "mounting-holes"
+        },
+        {
+          "referenceId": "sheet-1:cross-bore:sk08-technical-side-v1:side:sheet-1",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "cross-bore"
+        },
+        {
+          "referenceId": "sheet-2:shaft-bore-detail:sk08-technical-front-v1:bore:sheet-2",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "shaft-bore-detail"
+        },
+        {
+          "referenceId": "sheet-2:mounting-footprint-detail:sk08-technical-footprint-v1:footprint:sheet-2",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "mounting-footprint-detail"
+        },
+        {
+          "referenceId": "sheet-2:cross-bore-detail:sk08-technical-side-v1:side:sheet-2",
+          "valid": true,
+          "roomReleaseId": "ROOM-sk08-bundled-2026-11-07",
+          "drawingRevision": "annora-reference-1",
+          "regionId": "cross-bore-detail"
+        }
+      ],
+      "technicalReferences": [
+        {
+          "id": "sheet-1:overview:sk08-technical-iso-v1:iso:sheet-1",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-1",
+          "regionId": "overview",
+          "page": 1,
+          "rotation": 0,
+          "viewId": "sk08-technical-iso-v1:iso:sheet-1",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-1:shaft-bore:sk08-technical-front-v1:front:sheet-1",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-1",
+          "regionId": "shaft-bore",
+          "page": 1,
+          "rotation": 0,
+          "viewId": "sk08-technical-front-v1:front:sheet-1",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-1:mounting-holes:sk08-technical-top-v1:top:sheet-1",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-1",
+          "regionId": "mounting-holes",
+          "page": 1,
+          "rotation": 0,
+          "viewId": "sk08-technical-top-v1:top:sheet-1",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-1:cross-bore:sk08-technical-side-v1:side:sheet-1",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-1",
+          "regionId": "cross-bore",
+          "page": 1,
+          "rotation": 0,
+          "viewId": "sk08-technical-side-v1:side:sheet-1",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-2:shaft-bore-detail:sk08-technical-front-v1:bore:sheet-2",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-2",
+          "regionId": "shaft-bore-detail",
+          "page": 2,
+          "rotation": 0,
+          "viewId": "sk08-technical-front-v1:bore:sheet-2",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-2:mounting-footprint-detail:sk08-technical-footprint-v1:footprint:sheet-2",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-2",
+          "regionId": "mounting-footprint-detail",
+          "page": 2,
+          "rotation": 0,
+          "viewId": "sk08-technical-footprint-v1:footprint:sheet-2",
+          "overviewRevision": "overview-26eec8134fba0733"
+        },
+        {
+          "id": "sheet-2:cross-bore-detail:sk08-technical-side-v1:side:sheet-2",
+          "nodeId": "sk08-body",
+          "drawingId": "freecad-sk08-drawing",
+          "sourceRevision": "annora-reference-1",
+          "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+          "mappingRevision": "annora-sk08-map-1",
+          "sheetId": "sheet-2",
+          "regionId": "cross-bore-detail",
+          "page": 2,
+          "rotation": 0,
+          "viewId": "sk08-technical-side-v1:side:sheet-2",
+          "overviewRevision": "overview-26eec8134fba0733"
+        }
+      ]
+    }
+  ],
+  "coverage": "Prepared configuration and source-reference checks only. Browser behavior, delivery and hardware performance require separate evidence."
+}

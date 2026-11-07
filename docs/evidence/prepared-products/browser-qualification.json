@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "kind": "annora-prepared-product-browser-qualification",
+  "checkedAt": "2026-11-07T04:38:34.340Z",
+  "target": "Compiled local build under /annora-explorer/",
+  "product": "sk08",
+  "runs": [
+    {
+      "script": "journey.mjs",
+      "width": 1280,
+      "height": 900,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "inquiry-review-exact-reference",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-project-pinned-detail",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-quotation-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-issued-quote",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-configurable-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-product-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-new-product-version",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-new-published-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "historical-project-unchanged",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "historical-story-original-first-step",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "oldProjectUnchanged": true,
+      "originalRoomRelease": "ROOM-sk08-bundled-2026-11-07",
+      "newRoomRelease": "ROOM-DEMO-63468693-5c56-4849-ad57-a401a22159e4"
+    },
+    {
+      "script": "journey.mjs",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "inquiry-review-exact-reference",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-project-pinned-detail",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-quotation-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-issued-quote",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-configurable-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-product-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-new-product-version",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-new-published-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "historical-project-unchanged",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "oldProjectUnchanged": true,
+      "originalRoomRelease": "ROOM-sk08-bundled-2026-11-07",
+      "newRoomRelease": "ROOM-DEMO-ef681350-45e5-4c0d-98ba-9bdc02209d7c"
+    },
+    {
+      "script": "journey.mjs",
+      "width": 320,
+      "height": 780,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "inquiry-review-exact-reference",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-project-pinned-detail",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-quotation-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-issued-quote",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-configurable-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-product-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-new-product-version",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-new-published-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "historical-project-unchanged",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "oldProjectUnchanged": true,
+      "originalRoomRelease": "ROOM-sk08-bundled-2026-11-07",
+      "newRoomRelease": "ROOM-DEMO-4d6902e9-7b51-4fda-9364-041712f79935"
+    },
+    {
+      "script": "buyer.mjs",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-model",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-drawing",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "manual-takeover-clears-drawing",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        }
+      ],
+      "oldProjectUnchanged": null,
+      "originalRoomRelease": null,
+      "newRoomRelease": null
+    },
+    {
+      "script": "buyer.mjs",
+      "width": 320,
+      "height": 780,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-model",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-model-stage",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-drawing",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "manual-takeover-clears-drawing",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        }
+      ],
+      "oldProjectUnchanged": null,
+      "originalRoomRelease": null,
+      "newRoomRelease": null
+    },
+    {
+      "script": "buyer.mjs",
+      "width": 844,
+      "height": 390,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "original-source-retained",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-model",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-model-stage",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "mobile-same-step-drawing",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "manual-takeover-clears-drawing",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        },
+        {
+          "scheme": "blob",
+          "error": "net::ERR_FILE_NOT_FOUND"
+        }
+      ],
+      "oldProjectUnchanged": null,
+      "originalRoomRelease": null,
+      "newRoomRelease": null
+    },
+    {
+      "script": "paired-studio.mjs",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        {
+          "name": "seller-configurable-story",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "technical-step-paired-3d-view",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-product-preview",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "noHorizontalOverflow": true
+        },
+        {
+          "name": "seller-new-product-version",
+          "noHorizontalOverflow": true
+        }
+      ],
+      "pageErrors": [],
+      "newRoomRelease": "ROOM-DEMO-239359c7-38f6-49a6-a69a-2d69cb9b53f9",
+      "pairedInspectionAndDrawingSamePart": true
+    }
+  ],
+  "checkpointsPassed": 69,
+  "historicalReference": {
+    "id": "freecad-sk08-drawing",
+    "title": "SK08 shaft support - source reference",
+    "revision": "annora-reference-1",
+    "assetId": "reference-pdf",
+    "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+    "partId": "sk08-body",
+    "sheetId": "sheet-1",
+    "sheetTitle": "Original source drawing",
+    "regionId": "mounting-holes",
+    "regionLabel": "Mounting holes",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+    "mappingRevision": "annora-sk08-map-1",
+    "revisionLabel": "Source c4c72a71 / reference edition 1",
+    "presentationSnapshot": {
+      "schemaVersion": 1,
+      "sourceKey": "source-3142792a48f5d652",
+      "sheets": [
+        {
+          "sheetId": "sheet-1",
+          "defaultViewId": "sk08-technical-front-v1:front:sheet-1",
+          "views": [
+            {
+              "id": "sk08-technical-front-v1:front:sheet-1",
+              "viewRevision": "view-91c97dc2dd783718",
+              "title": "Front view",
+              "targets": [
+                {
+                  "targetId": "shaft-bore",
+                  "regionId": "shaft-bore",
+                  "associationKey": "link-5cac39a73f5433d3",
+                  "confirmed": true
+                }
+              ]
+            },
+            {
+              "id": "sk08-technical-top-v1:top:sheet-1",
+              "viewRevision": "view-f80be9940076986c",
+              "title": "Top view · mounting holes",
+              "targets": [
+                {
+                  "targetId": "mounting-holes",
+                  "regionId": "mounting-holes",
+                  "associationKey": "link-fc00d33b00ef8113",
+                  "confirmed": true
+                }
+              ]
+            },
+            {
+              "id": "sk08-technical-side-v1:side:sheet-1",
+              "viewRevision": "view-efb779d018a8ed1a",
+              "title": "Side view · cross-bore",
+              "targets": [
+                {
+                  "targetId": "cross-bore",
+                  "regionId": "cross-bore",
+                  "associationKey": "link-15f16c3e593d666a",
+                  "confirmed": true
+                }
+              ]
+            },
+            {
+              "id": "sk08-technical-iso-v1:iso:sheet-1",
+              "viewRevision": "view-2312de6b6678059f",
+              "title": "Isometric overview",
+              "targets": [
+                {
+                  "targetId": "overview",
+                  "regionId": "overview",
+                  "associationKey": "link-b47ff5322d2cedc2",
+                  "confirmed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "sheetId": "sheet-2",
+          "defaultViewId": "sk08-technical-front-v1:bore:sheet-2",
+          "views": [
+            {
+              "id": "sk08-technical-front-v1:bore:sheet-2",
+              "viewRevision": "view-61839af53ad810c5",
+              "title": "Bore detail",
+              "targets": [
+                {
+                  "targetId": "shaft-bore-detail",
+                  "regionId": "shaft-bore-detail",
+                  "associationKey": "link-7ced16e53deb046d",
+                  "confirmed": true
+                }
+              ]
+            },
+            {
+              "id": "sk08-technical-footprint-v1:footprint:sheet-2",
+              "viewRevision": "view-3640c2e197b7e04b",
+              "title": "Front view · mounting footprint",
+              "targets": [
+                {
+                  "targetId": "mounting-footprint-detail",
+                  "regionId": "mounting-footprint-detail",
+                  "associationKey": "link-f3664816ba2105ec",
+                  "confirmed": true
+                }
+              ]
+            },
+            {
+              "id": "sk08-technical-side-v1:side:sheet-2",
+              "viewRevision": "view-1921966f9fa95ac5",
+              "title": "Side view · cross-bore",
+              "targets": [
+                {
+                  "targetId": "cross-bore-detail",
+                  "regionId": "cross-bore-detail",
+                  "associationKey": "link-a527aeb4177eef80",
+                  "confirmed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "revision": "overview-26eec8134fba0733"
+    },
+    "presentationRevision": "overview-26eec8134fba0733"
+  },
+  "historicalStoryReopened": true,
+  "unrelatedBrowserValuePreserved": true,
+  "visualReview": {
+    "status": "passed",
+    "desktop": "desktop-technical-story.png",
+    "narrowPhone": "mobile-320-model.png",
+    "notes": [
+      "Desktop displays the same exact prepared detail beside the existing 3D viewer.",
+      "Phone and short-landscape hosts switch 3D and drawing while keeping the current step.",
+      "Existing compact Explorer controls and a minimum stage height preserve model visibility.",
+      "Short landscape allows vertical scrolling to reach the complete model stage.",
+      "A scoped compact-embedded spacing rule reserves the measured mode dock height; the selected summary has an 8 px clear gap."
+    ]
+  },
+  "diagnostics": [
+    "Existing technical reader creates inert empty-SVG blob placeholders, replaces them synchronously with inline vectors, then revokes them. Their cancelled blob requests are recorded separately; displayed SVG and PDF references loaded."
+  ],
+  "limits": [
+    "Local compiled qualification does not prove GitHub publication.",
+    "Chrome touch/viewport emulation is not a physical-device performance test.",
+    "Prepared example and browser-local commercial data do not establish engineering approval or backend operation."
+  ],
+  "reproduction": {
+    "directory": "work/product-expansion/W40",
+    "scripts": [
+      "journey.mjs",
+      "buyer.mjs",
+      "studio.mjs",
+      "paired-studio.mjs",
+      "spacing.mjs"
+    ],
+    "environment": [
+      "BASE_URL",
+      "WIDTH",
+      "HEIGHT",
+      "OUT"
+    ]
+  },
+  "layoutChecks": [
+    {
+      "case": "Compact embedded selection summary does not cover mode controls",
+      "summary": {
+        "x": 14,
+        "y": 466.90625,
+        "width": 242,
+        "height": 71.09375
+      },
+      "controls": {
+        "x": 191.5,
+        "y": 546,
+        "width": 308,
+        "height": 97
+      },
+      "overlap": 0
+    }
+  ]
+}

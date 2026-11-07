@@ -1,4 +1,5 @@
 import { normalizeInspectionReference } from '../explorer/inspection-reference.js';
+import { validateTechnicalStoryReference } from './technical-story.js';
 
 export const STORY_VERSION = 1;
 export const STORY_MAX_STEPS = 8;
@@ -7,8 +8,8 @@ const object = value => value && typeof value === 'object' && !Array.isArray(val
 const text = (value, max, required = true) => typeof value === 'string' && value.length <= max && (!required || Boolean(value.trim()));
 const failure = (code, message) => Object.assign(new Error(message), { code });
 
-/** Prepared action references and held views, never executable animation data. */
-export function validateProductStory(story, { model, parts = [], historical = false } = {}) {
+/** Prepared actions, held views and pinned technical references; never executable animation data. */
+export function validateProductStory(story, { model, parts = [], technicalReferences = [], historical = false } = {}) {
   if (story === undefined) return [];
   const issues = [];
   const add = (path, message) => issues.push({ path: `presentation.story${path}`, section: 'presentation', message, severity: 'error' });
@@ -23,13 +24,18 @@ export function validateProductStory(story, { model, parts = [], historical = fa
     if (!text(step.id, 160) || !text(step.title, 100) || !text(step.caption, 320)) add(path, 'Add a short title and explanation to this step.');
     if (!text(step.nodeId, 256)) add(path, 'A story step needs a bounded part identity.');
     else if (!historical && !ids.has(step.nodeId)) add(`${path}.nodeId`, 'Choose a part from this prepared model.');
+    if (step.kind === 'technical') {
+      try { validateTechnicalStoryReference(step.technical, { model, nodeId: step.nodeId, technicalReferences, historical }); }
+      catch (error) { add(`${path}.technical`, error.message); }
+      if (step.tourId !== undefined || step.chapterId !== undefined) add(path, 'A technical reference cannot also start a prepared action.');
+    } else if (step.technical !== undefined) add(path, 'Only a technical step can contain a drawing reference.');
     if (step.kind === 'chapter') {
       const chapter = model?.tour?.chapters?.find(item => item.id === step.chapterId);
       if (!text(step.tourId, 256) || !text(step.chapterId, 256)) add(path, 'An action needs its original tour and chapter identities.');
       else if (!historical && (step.tourId !== model?.tour?.id || !chapter || chapter.duration < 2 || chapter.duration > 3)) add(`${path}.chapterId`, 'Choose an approved 2–3 second action from this model.');
       if (!historical && chapter && ![chapter.selectedId, ...(chapter.highlightIds || [])].includes(step.nodeId)) add(`${path}.nodeId`, 'Choose a subject shown by this prepared action.');
       if (step.inspection !== undefined) add(path, 'An authored action uses its prepared camera; remove the unrelated saved view.');
-    } else if (step.kind === 'inspection') {
+    } else if (step.kind === 'inspection' || (step.kind === 'technical' && step.inspection !== undefined)) {
       try {
         const inspection = normalizeInspectionReference(step.inspection, { model: { id: model.id, revision: model.revision } });
         if (!inspection.view || inspection.preview || inspection.view.selectedId !== step.nodeId)
@@ -38,7 +44,7 @@ export function validateProductStory(story, { model, parts = [], historical = fa
         if (!historical && inspection.view.mode === 'operate' && inspection.view.operation.clipId !== model.operationClipId) throw new Error();
       } catch { add(`${path}.inspection`, 'Capture a settled view of the selected part in this model revision.'); }
       if (step.tourId !== undefined || step.chapterId !== undefined) add(path, 'A held view cannot also refer to an action.');
-    } else add(`${path}.kind`, 'Choose a held view or a prepared action.');
+    } else if (step.kind !== 'technical') add(`${path}.kind`, 'Choose a held view, prepared action or technical reference.');
   }
   return issues;
 }
@@ -53,7 +59,7 @@ export function copyProductStory(story) {
       || !Array.isArray(value.steps) || value.steps.length > STORY_MAX_STEPS
       || value.steps.some(step => !object(step) || !text(step.id, 160)
         || !text(step.title, 100, false) || !text(step.caption, 320, false)
-        || !text(step.nodeId, 256, false) || !['inspection', 'chapter'].includes(step.kind))
+        || !text(step.nodeId, 256, false) || !['inspection', 'chapter', 'technical'].includes(step.kind))
       || new Set(value.steps.map(step => step.id)).size !== value.steps.length)
     throw failure('VALIDATION', 'The product story needs editable steps, titles and part identities.');
   return value;
@@ -67,11 +73,16 @@ export function storyStepIsCurrent(step, state, model) {
 }
 
 /** One command adapter. The existing Explorer owns motion, clock and interruption. */
-export function createStoryController({ viewer, story, model, parts, hostedControls = false, onChange = () => {} }) {
-  const issues = validateProductStory(story, { model, parts });
+export function createStoryController({ viewer, story, model, parts, technicalReferences = [],
+  showTechnicalReference, clearTechnicalReference, hostedControls = false, onChange = () => {} }) {
+  const issues = validateProductStory(story, { model, parts, technicalReferences });
   if (issues.length) throw failure('INVALID_STORY', issues[0].message);
   const source = copy(story);
-  let index = -1, requestId = 0, busy = false, disposed = false, error = '', active = false;
+  let index = -1, requestId = 0, busy = false, disposed = false, error = '', active = false, technicalLoad = null;
+  const clearTechnical = () => {
+    technicalLoad?.abort(); technicalLoad = null;
+    try { clearTechnicalReference?.(); } catch { /* Optional host UI cleanup cannot change viewer state. */ }
+  };
   const snapshot = () => ({ index, step: index >= 0 ? copy(source.steps[index]) : null, count: source.steps.length, busy, active, error });
   const publish = () => { if (!disposed) onChange(snapshot()); };
   const ensure = () => {
@@ -87,9 +98,18 @@ export function createStoryController({ viewer, story, model, parts, hostedContr
     busy = true; error = ''; publish();
     const current = () => !disposed && turn === requestId;
     try {
+      if (step.kind === 'technical' && typeof showTechnicalReference !== 'function')
+        throw failure('UNSUPPORTED_CAPABILITY', 'This host cannot show technical drawing steps. Open a drawing-capable Product Room.');
+      clearTechnical();
       await viewer.pause(); if (!current()) return;
       if (viewer.state?.tour?.active) { await viewer.request('exitTour', { restore: false }); if (!current()) return; }
-      if (step.kind === 'inspection') await viewer.request('restoreInspection', { inspection: copy(step.inspection) });
+      if (step.kind === 'technical') {
+        technicalLoad = new AbortController();
+        await showTechnicalReference(copy(step.technical), { signal: technicalLoad.signal, isCurrent: current, step: copy(step) });
+        if (!current()) return;
+        if (step.inspection) await viewer.request('restoreInspection', { inspection: copy(step.inspection) });
+        else await viewer.request('focus', { nodeId: step.nodeId });
+      } else if (step.kind === 'inspection') await viewer.request('restoreInspection', { inspection: copy(step.inspection) });
       else {
         await viewer.request('startTour', { tourId: step.tourId, ...(hostedControls ? { controls: 'host' } : {}) }); if (!current()) return;
         await viewer.request('goToTourChapter', { chapterId: step.chapterId }); if (!current()) return;
@@ -97,7 +117,7 @@ export function createStoryController({ viewer, story, model, parts, hostedContr
       }
       if (!current()) return;
       index = nextIndex; active = true;
-    } catch (cause) { if (current()) { error = cause.message; throw cause; } }
+    } catch (cause) { if (current()) { if (step.kind === 'technical') clearTechnical(); error = cause.message; throw cause; } }
     finally { if (current()) { busy = false; publish(); } }
   }
   async function pause() { ensure(); await viewer.pause(); publish(); }
@@ -111,13 +131,14 @@ export function createStoryController({ viewer, story, model, parts, hostedContr
   }
   async function close() {
     ++requestId; busy = false; active = false; error = '';
+    clearTechnical();
     await viewer.pause();
     if (viewer.state?.tour?.active) await viewer.request('exitTour', { restore: false });
     publish();
   }
   const restoreControls = () => { if (hostedControls && viewer.state?.tour?.active) void viewer.request('setTourControls', { controls: 'explorer' }).catch(() => {}); };
   return { select, pause, resume, replay, seek, close, state: snapshot,
-    yieldToExplorer() { ++requestId; busy = false; active = false; error = ''; restoreControls(); publish(); },
-    dispose() { disposed = true; ++requestId; restoreControls(); },
+    yieldToExplorer() { ++requestId; busy = false; active = false; error = ''; clearTechnical(); restoreControls(); publish(); },
+    dispose() { disposed = true; ++requestId; clearTechnical(); restoreControls(); },
   };
 }

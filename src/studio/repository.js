@@ -1,6 +1,6 @@
 import {
   StudioError, normalizeStudioDraft, validateStudioDraft, validateRelease, validateReleasePackage,
-  createReleaseReview, assertReleaseReview, studioChanges,
+  createReleaseReview, assertReleaseReview, studioChanges, studioProduct,
 } from './domain.js';
 import { STUDIO_PRODUCT_ID, STUDIO_ASSETS, BUNDLED_RELEASE, ORIGINAL_BUNDLED_RELEASE } from './seed.js';
 import { copyStudioValue, sameStudioValue } from './value.js';
@@ -11,17 +11,20 @@ const empty = () => ({ schemaVersion: STUDIO_SCHEMA_VERSION, revision: 0, drafts
 const nonempty = value => typeof value === 'string' && value.length > 0;
 const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const unique = values => new Set(values.map(item => item.id)).size === values.length;
-const product = id => { if (id !== STUDIO_PRODUCT_ID) throw new StudioError('UNSUPPORTED_PRODUCT', 'This Studio demonstration edits the crank-slider product.'); };
-const records = store => {
-  const all = [ORIGINAL_BUNDLED_RELEASE, BUNDLED_RELEASE, ...store.releases];
+const descriptorFor = options => ({ ...studioProduct(options), bundledRelease: BUNDLED_RELEASE, originalRelease: ORIGINAL_BUNDLED_RELEASE, ...options.product });
+const assertProduct = (id, descriptor) => { if (id !== descriptor.id) throw new StudioError('UNSUPPORTED_PRODUCT', 'Open the Studio workspace for this prepared product.'); };
+const productRecords = (store, descriptor) => {
+  const all = [descriptor.originalRelease, descriptor.bundledRelease, ...store.releases].filter(Boolean);
   return [...new Map(all.map(record => [record.id, record])).values()];
 };
-const published = store => store.publishedId ? records(store).find(release => release.id === store.publishedId) : BUNDLED_RELEASE;
+const publishedRelease = (store, descriptor) => store.publishedId ? productRecords(store, descriptor).find(release => release.id === store.publishedId) : descriptor.bundledRelease;
 const currentDraft = (store, productId) => store.drafts.find(draft => draft.productId === productId);
 const errors = issues => issues.filter(issue => issue.severity === 'error');
 
 /** Unknown or malformed stores are rejected without overwriting the user's local work. */
-export function parseStudioStore(raw) {
+export function parseStudioStore(raw, options = {}) {
+  const descriptor = descriptorFor(options), STUDIO_PRODUCT_ID = descriptor.id, BUNDLED_RELEASE = descriptor.bundledRelease;
+  const scope = { product: descriptor };
   if (raw === null || raw === undefined) return empty();
   try {
     const store = JSON.parse(raw);
@@ -29,7 +32,7 @@ export function parseStudioStore(raw) {
         || !['drafts', 'releases', 'previews'].every(key => Array.isArray(store[key]) && unique(store[key]))
         || new Set(store.drafts.map(draft => draft.productId)).size !== store.drafts.length) throw new Error();
     for (const draft of store.drafts) {
-      if (draft.revision < 1 || !date(draft.updatedAt) || !sameStudioValue(draft, normalizeStudioDraft(draft))) throw new Error();
+      if (draft.revision < 1 || !date(draft.updatedAt) || !sameStudioValue(draft, normalizeStudioDraft(draft, scope))) throw new Error();
     }
     for (const release of [...store.releases, ...store.previews]) {
       // Archived revisions can outlive the configured geometry. Never rewrite them
@@ -38,7 +41,7 @@ export function parseStudioStore(raw) {
           || release.productId !== STUDIO_PRODUCT_ID || !nonempty(release.modelRevision)
           || !release.content || !release.inquiryProfile || !release.presentation) throw new Error();
       const historical = release.modelRevision !== BUNDLED_RELEASE.modelRevision;
-      const invalid = errors(validateRelease(release, { historicalStory: historical })).filter(issue => !historical || !(
+      const invalid = errors(validateRelease(release, { ...scope, historicalStory: true })).filter(issue => !historical || !(
         issue.path === 'modelRevision' || issue.path.endsWith('.nodeId') ||
         /^content\.questions\.\d+\.target$/.test(issue.path) ||
         /^content\.documents\.\d+\.(assetId|assetRevision)$/.test(issue.path)
@@ -47,14 +50,16 @@ export function parseStudioStore(raw) {
     }
     if (store.releases.some(release => release.source !== 'demo' && release.source !== 'bundled')) throw new Error();
     if (store.previews.some(preview => preview.source !== 'preview' || !nonempty(preview.draftId) || !Number.isSafeInteger(preview.draftRevision))) throw new Error();
-    if (store.publishedId !== null && !nonempty(store.publishedId) || !published(store)) throw new Error();
+    if (store.publishedId !== null && !nonempty(store.publishedId) || !publishedRelease(store, descriptor)) throw new Error();
     return store;
   } catch { throw new StudioError('STORAGE_CORRUPT', 'Saved Studio content could not be read. It has not been changed. Recover the stored data or use a separate browser profile.'); }
 }
 
 /** Local demonstration adapter. A host may inject an authenticated service with this contract. */
 export function createStudioRepository(options = {}) {
-  const key = options.key || STUDIO_STORAGE_KEY;
+  const descriptor = descriptorFor(options), scope = { product: descriptor }, STUDIO_PRODUCT_ID = descriptor.id, STUDIO_ASSETS = descriptor.assets, BUNDLED_RELEASE = descriptor.bundledRelease;
+  const product = id => assertProduct(id, descriptor), records = store => productRecords(store, descriptor), published = store => publishedRelease(store, descriptor);
+  const key = options.key || (STUDIO_PRODUCT_ID === 'kinetic-01' ? STUDIO_STORAGE_KEY : `${STUDIO_STORAGE_KEY}:${STUDIO_PRODUCT_ID}`);
   const now = options.now || (() => new Date().toISOString());
   const makeId = options.makeId || (prefix => `${prefix}-${globalThis.crypto.randomUUID()}`);
   const locks = Object.hasOwn(options, 'locks') ? options.locks : globalThis.navigator?.locks;
@@ -67,9 +72,9 @@ export function createStudioRepository(options = {}) {
     } catch { throw new StudioError('STORAGE_UNAVAILABLE', 'Browser storage is unavailable. Keep this page open and allow storage before saving.'); }
   };
   const read = () => {
-    const bundledErrors = errors(validateRelease(BUNDLED_RELEASE));
+    const bundledErrors = errors(validateRelease(BUNDLED_RELEASE, scope));
     if (bundledErrors.length) throw new StudioError('INCOMPATIBLE_RELEASE', 'The prepared product release needs review before Studio can open.', bundledErrors);
-    try { const raw = storageOf().getItem(key); return { raw, store: parseStudioStore(raw) }; }
+    try { const raw = storageOf().getItem(key); return { raw, store: parseStudioStore(raw, scope) }; }
     catch (error) { if (error instanceof StudioError) throw error; throw new StudioError('STORAGE_UNAVAILABLE', 'Saved Studio content could not be read. Nothing has been changed.'); }
   };
   const write = (store, before) => {
@@ -92,7 +97,7 @@ export function createStudioRepository(options = {}) {
     return locks?.request ? locks.request(`annora:${key}`, run) : Promise.resolve().then(run);
   };
   const assertSaved = (store, input) => {
-    const draft = normalizeStudioDraft(input), saved = currentDraft(store, draft.productId);
+    const draft = normalizeStudioDraft(input, scope), saved = currentDraft(store, draft.productId);
     if (!saved || !sameStudioValue(saved, draft)) throw new StudioError('STALE_REVIEW', 'This draft changed after it was saved. Save and review the current content again.');
     return draft;
   };
@@ -102,22 +107,22 @@ export function createStudioRepository(options = {}) {
     return release;
   };
   const api = {
-    mode: 'demo',
+    mode: 'demo', productId: descriptor.id,
     async listProducts() {
       const { store } = read(), release = published(store), draft = currentDraft(store, STUDIO_PRODUCT_ID);
       return [{ id: STUDIO_PRODUCT_ID, title: draft?.content.title || release.content.title, shortTitle: draft?.content.shortTitle || release.content.shortTitle,
         draftRevision: draft?.revision || 0, releaseVersion: release.version, releaseId: release.id, releaseSource: release.source,
-        updatedAt: draft?.updatedAt || release.createdAt, hasChanges: !!draft && studioChanges(release, draft).length > 0 }];
+        updatedAt: draft?.updatedAt || release.createdAt, hasChanges: !!draft && studioChanges(release, draft, scope).length > 0 }];
     },
     async getDraft(productId = STUDIO_PRODUCT_ID) {
       product(productId); const { store } = read(), draft = currentDraft(store, productId);
       if (draft) return copyStudioValue(draft);
       const release = published(store);
       return normalizeStudioDraft({ id: makeId('STUDIO-DRAFT'), revision: 0, productId, modelRevision: release.modelRevision,
-        content: release.content, inquiryProfile: release.inquiryProfile, presentation: release.presentation, updatedAt: null });
+        content: release.content, inquiryProfile: release.inquiryProfile, presentation: release.presentation, updatedAt: null }, scope);
     },
     async saveDraft(input) {
-      const draft = normalizeStudioDraft(input);
+      const draft = normalizeStudioDraft(input, scope);
       return change(store => {
         const previous = currentDraft(store, draft.productId);
         if (previous && (previous.id !== draft.id || previous.revision !== draft.revision)) throw new StudioError('CONFLICT', 'A newer product draft is saved. Reopen it before saving these changes.');
@@ -133,7 +138,7 @@ export function createStudioRepository(options = {}) {
     async listReleases(productId = STUDIO_PRODUCT_ID) { product(productId); return copyStudioValue(records(read().store)).sort((a, b) => b.version - a.version || b.createdAt.localeCompare(a.createdAt)); },
     async createPreview(input) {
       return change(store => {
-        const draft = assertSaved(store, input), issues = validateStudioDraft(draft);
+        const draft = assertSaved(store, input), issues = validateStudioDraft(draft, scope);
         if (errors(issues).length) throw new StudioError('VALIDATION', 'Resolve the highlighted issues before opening the buyer preview.', issues);
         const existing = store.previews.find(item => item.draftId === draft.id && item.draftRevision === draft.revision);
         if (existing) return existing;
@@ -151,7 +156,7 @@ export function createStudioRepository(options = {}) {
     },
     async reviewRelease(input) {
       const { store } = read(), draft = assertSaved(store, input);
-      return createReleaseReview(draft, published(store));
+      return createReleaseReview(draft, published(store), scope);
     },
     async publishDemo(review) {
       const packet = assertReleaseReview(review);
@@ -160,7 +165,7 @@ export function createStudioRepository(options = {}) {
         if (existing) return existing;
         const draft = assertSaved(store, packet.draft), active = published(store);
         if (active.id !== packet.baseReleaseId) throw new StudioError('STALE_REVIEW', 'A different product version is now active. Review the changes against that version before release.');
-        const confirmed = createReleaseReview(draft, active);
+        const confirmed = createReleaseReview(draft, active, scope);
         if (confirmed.token !== review.token) throw new StudioError('STALE_REVIEW', 'The release review is out of date. Review the current product again.');
         const release = { id: makeId('ROOM-DEMO'), version: Math.max(...records(store).map(item => item.version)) + 1,
           productId: draft.productId, modelRevision: draft.modelRevision, content: copyStudioValue(draft.content),
@@ -178,7 +183,7 @@ export function createStudioRepository(options = {}) {
       const referenced = new Set(release.content.documents.map(doc => doc.assetId));
       const packet = { schemaVersion: 1, kind: 'annora-room-release', release,
         assetManifest: STUDIO_ASSETS.filter(asset => referenced.has(asset.id)).map(({ id, fileName, type }) => ({ id, fileName, type })) };
-      const issues = validateReleasePackage(packet);
+      const issues = validateReleasePackage(packet, scope);
       if (errors(issues).length) throw new StudioError('VALIDATION', 'This release package needs review before export.', issues);
       return packet;
     },

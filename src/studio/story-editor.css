@@ -11,6 +11,9 @@
 .studio-story-fields { padding: 8px 8px 20px; }
 .studio-story-order { margin-top: 16px; border-top: 1px solid var(--ar-line); padding-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
 .studio-story-feedback { font-size: 14px; line-height: 1.5; padding: 12px 0; border-top: 1px solid var(--ar-line); }
+.studio-story-technical-preview { min-width: 0; margin-top: 16px; }
+.studio-story-technical-preview .drawing-preview-canvas { min-height: 240px; height: 320px; }
+.studio-story-source { overflow-wrap: anywhere; }
 @media (max-width: 600px) { .studio-story .ar-actions { flex-wrap: wrap; } .studio-story-summary { gap: 8px; padding-inline: 0; } .studio-story-fields { padding-inline: 0; } }
 .studio-story-model-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 @media (max-width: 900px) {

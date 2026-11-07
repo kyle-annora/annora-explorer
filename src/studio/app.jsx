@@ -13,6 +13,9 @@ import {
 import { createStudioRepository } from "./repository.js";
 import { validateStudioDraft } from "./domain.js";
 import { STUDIO_PRODUCT_ID } from "./seed.js";
+import { preparedProduct, preparedProducts } from "../product-room/prepared-catalog.js";
+import { contextForRelease } from "../product-room/release-content.js";
+import { preparedProjectRepository } from "../product-room/prepared-host.js";
 import {
   copy,
   date,
@@ -118,8 +121,9 @@ const drawingPreviewURL = (record) => {
   return url.href;
 };
 
-function Studio({ repository, projectRepository }) {
-  const [selectedPartId, setSelectedPartId] = useState('rod');
+function Studio({ repository, projectRepository, prepared }) {
+  const productId = prepared.id;
+  const [selectedPartId, setSelectedPartId] = useState(prepared.parts.find(part => part.parentId)?.id || prepared.parts[0]?.id);
   const [modelViewer, setModelViewer] = useState(null);
   const [storyCapture, setStoryCapture] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(() => readRoute().page === 'edit');
@@ -163,7 +167,7 @@ function Studio({ repository, projectRepository }) {
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
   const issues = useMemo(
-    () => (draft ? validateStudioDraft(draft) : []),
+    () => (draft ? validateStudioDraft(draft, {product:prepared}) : []),
     [draft],
   );
   const issueSection = (section) =>
@@ -236,7 +240,7 @@ function Studio({ repository, projectRepository }) {
   async function refreshProducts() {
     const [list, history] = await Promise.all([
       repository.listProducts(),
-      repository.listReleases(STUDIO_PRODUCT_ID),
+      repository.listReleases(productId),
     ]);
     setProducts(list);
     setReleases(history);
@@ -280,7 +284,7 @@ function Studio({ repository, projectRepository }) {
   }
   function openReview() {
     return task("review", async () => {
-      const value = await repository.getDraft(STUDIO_PRODUCT_ID);
+      const value = await repository.getDraft(productId);
       if (
         !preview ||
         value.id !== preview.draftId ||
@@ -313,7 +317,7 @@ function Studio({ repository, projectRepository }) {
       );
       const link = document.createElement("a");
       link.href = url;
-      link.download = `annora-${STUDIO_PRODUCT_ID}-release-${receipt?.version || "package"}.json`;
+      link.download = `annora-${productId}-release-${receipt?.version || "package"}.json`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       setMessage(
@@ -325,9 +329,9 @@ function Studio({ repository, projectRepository }) {
   useEffect(() => {
     let active = true;
     Promise.all([
-      repository.getDraft(STUDIO_PRODUCT_ID),
+      repository.getDraft(productId),
       repository.listProducts(),
-      repository.listReleases(STUDIO_PRODUCT_ID),
+      repository.listReleases(productId),
     ])
       .then(async ([value, list, history]) => {
         if (!active) return;
@@ -434,7 +438,7 @@ function Studio({ repository, projectRepository }) {
     };
   }, [repository]);
 
-  const current = products.find((product) => product.id === STUDIO_PRODUCT_ID);
+  const current = products.find((product) => product.id === productId);
   const editSection = route.section || "product";
   const openEdit = (section, issue) => {
     if (issue?.path) {
@@ -643,6 +647,8 @@ function Studio({ repository, projectRepository }) {
         ) : customerScreen && !drawingCustomer && (
           <CustomerWorkspace
             repository={projectRepository}
+            buyerHomeHref={roomURL({page:"inquiry",productId})}
+            sampleContext={prepared.technicalReferences.length ? contextForRelease(prepared.bundledRelease,prepared.technicalReferences[0].technical.context) : undefined}
             productRepository={repository}
             renderDrawingRevision={projectRepository.mode === 'impact-demo' ? ({ key, ...props }) => <ProjectChangeImpact key={key} {...props} packages={editableDrawingPackages} releasesRepository={drawingPackages} staticReleases={DRAWING_RELEASES} resolveEntry={resolveDrawingEntry} repository={projectRepository} hrefFor={context => drawingBuyerHref({ id: props.project.id, context }, true)} /> : undefined}
             route={route}
@@ -658,7 +664,7 @@ function Studio({ repository, projectRepository }) {
                 <h1>Products</h1>
                 <p>Prepare what customers see, understand, and ask for.</p>
               </div>
-              <Evidence kind="sample">Prepared demonstration product</Evidence>
+              <label className="studio-edit-section"><span className="ar-sr-only">Prepared product</span><select aria-label="Prepared product" value={productId} onChange={event => navigate({externalURL:`?product=${encodeURIComponent(event.target.value)}#products`})}>{preparedProducts.list().map(item => <option key={item.id} value={item.id}>{item.bundledRelease.content.shortTitle}</option>)}</select></label>
             </div>
             <div className="studio-product-table">
               <div className="studio-table-labels">
@@ -670,10 +676,10 @@ function Studio({ repository, projectRepository }) {
               {products.map((product) => (
                 <div className="studio-product-row" key={product.id}>
                   <div className="studio-list-product">
-                    <img src={crankImage} alt="" width="104" height="76" />
+                    <img src={prepared.poster || crankImage} alt="" width="104" height="76" />
                     <div>
                       <h2>{product.title}</h2>
-                      <span>Crank-slider · Prepared 3D model</span>
+                      <span>{prepared.model.title} · Prepared 3D model</span>
                       <Status tone={product.hasChanges ? "active" : "neutral"}>
                         {product.hasChanges
                           ? "Unreleased changes"
@@ -814,17 +820,17 @@ function Studio({ repository, projectRepository }) {
               <Button id="studio-toggle-settings" variant="quiet" icon={settingsOpen ? 'back' : undefined} onClick={() => setSettingsOpen(value => !value)} aria-expanded={settingsOpen} aria-controls="studio-product-settings">{settingsOpen ? 'Back to product' : 'Edit settings'}</Button>
             </div>
             <div className="studio-editor-layout" data-editing={settingsOpen}>
-              <StudioModelStage selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} onViewer={setModelViewer} visible={!smallScreen || !settingsOpen} editLabel={editSection === 'presentation' ? 'Edit story' : 'Edit details'} onCapture={editSection === 'presentation' && smallScreen ? storyCapture?.capture : undefined} onCaptureDone={() => { setStoryCapture(null); setSettingsOpen(true); }} onEdit={() => { setStoryCapture(null); if (editSection === 'presentation') setSettingsOpen(true); else navigate({page:'edit', section:'parts'}); }}/>
+              <StudioModelStage productId={productId} parts={prepared.parts} selectedId={selectedPartId} modelRevision={draft.modelRevision} onSelection={setSelectedPartId} onViewer={setModelViewer} visible={!smallScreen || !settingsOpen} editLabel={editSection === 'presentation' ? 'Edit story' : 'Edit details'} onCapture={editSection === 'presentation' && smallScreen ? storyCapture?.capture : undefined} onCaptureDone={() => { setStoryCapture(null); setSettingsOpen(true); }} onEdit={() => { setStoryCapture(null); if (editSection === 'presentation') setSettingsOpen(true); else navigate({page:'edit', section:'parts'}); }}/>
               <div className="studio-editor-body" id="studio-product-settings" hidden={!settingsOpen}>
                 <fieldset
                   className="studio-editor-fields"
                   disabled={Boolean(busy)}
                 >
                   {editSection === "product" && (
-                    <ProductFields draft={draft} change={change} />
+                    <ProductFields prepared={prepared} draft={draft} change={change} />
                   )}
                   {editSection === "parts" && (
-                    <PartsFields
+                    <PartsFields prepared={prepared}
                       draft={draft}
                       change={change}
                       busy={Boolean(busy)}
@@ -834,7 +840,7 @@ function Studio({ repository, projectRepository }) {
                     />
                   )}
                   {editSection === "presentation" && (
-                    <PresentationFields draft={draft} change={change} viewer={modelViewer} onOpenModel={() => { setStoryCapture(null); setSettingsOpen(false); }} onRequestCapture={smallScreen ? capture => { setStoryCapture({capture}); setSettingsOpen(false); } : undefined} />
+                    <PresentationFields prepared={prepared} draft={draft} change={change} viewer={modelViewer} onOpenModel={() => { setStoryCapture(null); setSettingsOpen(false); }} onRequestCapture={smallScreen ? capture => { setStoryCapture({capture}); setSettingsOpen(false); } : undefined} />
                   )}
                   {editSection === "inquiry" && (
                     <InquiryFields draft={draft} change={change} />
@@ -1119,16 +1125,32 @@ function Studio({ repository, projectRepository }) {
   );
 }
 
+function initialStudioProduct() {
+  const parameters = new URLSearchParams(location.search);
+  const explicit = parameters.get('product');
+  if (explicit) return preparedProduct(explicit);
+  // The legacy walkthrough and fixtures retain their original seller context.
+  if (['walkthrough','impactDemo','optionDemo','followUpDemo'].some(key => parameters.has(key)))
+    return preparedProduct(STUDIO_PRODUCT_ID);
+  return preparedProduct(STUDIO_PRODUCT_ID) || preparedProducts.list()[0] || null;
+}
+
 export function createStudio(
   element,
   {
-    repository = createStudioRepository(),
-    projectRepository = createDemoProjectRepository(),
+    prepared = initialStudioProduct(),
+    repository,
+    projectRepository,
   } = {},
 ) {
   const root = createRoot(element);
+  if (!prepared) {
+    const available = preparedProducts.list();
+    root.render(<div className="room-ui studio-loading"><h1>Product unavailable</h1><p>This product is not registered in this deployment. Existing projects are unchanged.</p>{available.length ? available.map(item => <a key={item.id} href={`?product=${encodeURIComponent(item.id)}#products`}>Open {item.bundledRelease.content.shortTitle}</a>) : <a href="../">Open Explorer</a>}</div>);
+    return {dispose(){root.unmount();}};
+  }
   root.render(
-    <Studio repository={repository} projectRepository={projectRepository} />,
+    <Studio repository={repository || createStudioRepository({product:prepared})} projectRepository={projectRepository || preparedProjectRepository(prepared)} prepared={prepared} />,
   );
   return {
     dispose() {

@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 4 · November 6, 2026 · W32 project activity published and verified; publication is recorded in its release receipt.
+Planning revision 5 · November 6, 2026 · W40 prepared-product reuse candidate; publication is recorded separately in its release receipt.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -12,6 +12,7 @@ production services or claim that planned features are implemented.
 | [Detailed scope](scope.md) | Current capability, proposed behavior, records, exclusions and acceptance for every feature |
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
+| [Prepared product review](../w40-prepared-product-review.md) | W40 product registry, pinned technical stories and second-product qualification |
 | [Project activity review](../project-evidence-review.md) | W32 saved project actions, separate local observations and explicit provenance |
 | [SK08 drawing impact review](../drawing-impact-review.md) | W31 per-question and quotation-scope A/B review, exact history and recovery |
 | [Independent questions review](../questions-review.md) | W30 component questions, reviewed resolution, quotation evidence and acceptance |
@@ -57,12 +58,12 @@ The W31 delivery is documented in the [drawing impact review](../drawing-impact-
 | Area | Actual state | Next bounded extension |
 | --- | --- | --- |
 | F1 · Contextual requests | Published: independent request items, complete review, exact reopen | Per-question follow-through and explicit quote-scope mapping |
-| F2 · Story authoring | Published for the prepared crank: action/view steps, preview, reviewed local release | Product capability registry; linked technical-view steps where sources exist |
+| F2 · Story authoring | W40 candidate: prepared-product registry, pinned technical-view steps, crank and SK08 through the same Studio/player | New source onboarding and drawing-product customer follow-ups remain separate |
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Published W31: SK08 per-question and request-scope impact, reviewed A/B working references, pinned quotation snapshots | Follow-up/presentation impact and real customer source qualification remain deferred |
 | F6 · Action workspace and evidence | Published W30 question workflow and W32 read-only saved actions and separate bounded local observations | Representative customer evidence and supported host instrumentation remain deferred |
-| A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
+| A · Onboarding workbench | W40 adds readiness reporting and proves a second prepared product | W41 intake/mapping workbench and independent fresh-source qualification |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 
 ## Recommended decisions
@@ -79,5 +80,5 @@ The W31 delivery is documented in the [drawing impact review](../drawing-impact-
    substitutes for history, recovery, mobile and live-target evidence.
 
 W31 now extends the question and quotation journey with SK08 source-impact review.
-W32 now adds a compact Studio activity disclosure; see its [review](../project-evidence-review.md) and release receipt before moving to W40. Confirmed inquiries remain
+W32 now adds a compact Studio activity disclosure; see its [review](../project-evidence-review.md) and release receipt. W40 now packages product capabilities and technical stories; see the prepared-product review. Confirmed inquiries remain
 immutable; broader impact targets and later packages remain separate reviewable deliveries.

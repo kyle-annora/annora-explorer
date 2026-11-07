@@ -258,6 +258,9 @@ body[data-embedded=true] .view-appearance-control .display-panel { max-height:ca
   body[data-embedded=true] #focus-selection { flex-basis:100%; }
   body[data-embedded=true] .isolate-button { flex:1; }
   body[data-embedded=true].details-collapsed .detail-panel { top:auto; bottom:107px; left:14px; right:auto; width:242px; max-height:95px; }
+  /* Paired product/drawing hosts use compact chrome; reserve the measured mode
+     dock height so the selected summary cannot cover its controls. */
+  body[data-embedded=true][data-compact-chrome=true].details-collapsed .detail-panel { bottom:calc(var(--dock-height,111px) + 54px); }
   body[data-embedded=true].details-collapsed .detail-heading { padding:14px 42px 14px 17px; }
   body[data-embedded=true].details-collapsed .detail-heading h1 { font-size:17px; margin-top:6px; }
   body[data-embedded=true].details-collapsed .detail-actions { display:none; }

@@ -51,3 +51,28 @@ Separate content changes from runtime changes. Keep a short record of the
 trigger, chosen behavior, affected boundary and evaluation evidence in a PR or
 release note. A visible regression should block publication even when static
 validation passes.
+
+## W40 — Prepared products and technical explanation
+
+- Product capability descriptors own parts, documents, authored actions, technical
+  references and inquiry profiles. Studio and Product Room inject that descriptor;
+  the Explorer renderer remains unchanged. Missing motion disables movement
+  authoring, while static and drawing explanations remain available.
+- Technical story steps pin the source PDF/hash, sheet/page/rotation, part, region,
+  mapping and overview. Optional held 3D views must match the same part/model
+  revision. A missing original source fails visibly; it never resolves to latest.
+- On mobile and short landscape, one switch chooses 3D or Drawings for the current
+  step. The same iframe stays measurable; no second WebGL renderer is introduced.
+  Studio can preview a technical drawing before its lazy mobile 3D model loads.
+- Asking about a step attaches its exact drawing and product release to the
+  existing inquiry/review path. Beginning an inquiry clears the reading companion
+  after capture, so the floating form does not compete with another panel.
+- SK08 is a reference-only, single-body source with no operating animation. Its
+  published preparation/association status is distinct from engineering approval.
+  Fictional quotations remain browser-local and explicitly reviewed.
+- Each additional prepared product has separate Studio and customer demo storage.
+  Existing crank keys and archived records are preserved. The release importer
+  accepts registered products and writes only their reviewed content package.
+
+See [prepared-product integration](prepared-products.md), [technical story API](technical-story-api.md)
+and [W40 review](w40-prepared-product-review.md).

@@ -1,0 +1,17 @@
+.room-explore[data-technical=true] { display: grid; grid-template-columns: minmax(0,1fr) minmax(360px,46%); }
+.room-explore[data-technical=true] > .room-viewer { position: relative; width: 100%; height: 100%; min-width: 0; }
+.room-technical-companion { min-width: 0; height: 100%; overflow: auto; background: var(--aw-surface); border-left: 1px solid var(--aw-border); }
+.room-technical-companion > p { padding: 24px; }
+.room-technical-companion .studio-story-technical-preview { height: 100%; }
+.room-technical-companion .drawing-preview { height: 100%; }
+.room-technical-switch { display: none; }
+@media (max-width: 800px), (max-height: 500px) and (max-width: 1100px) {
+  .room-explore[data-technical=true] { display: flex; flex-direction: column; height: max(560px, calc(100svh - var(--header) - var(--room-host-chrome,0px))); }
+  .room-technical-switch:not([hidden]) { display: flex; gap: 6px; padding: 8px 16px; background: var(--aw-surface); border-bottom: 1px solid var(--aw-border); }
+  .room-technical-switch button { min-height: 44px; }
+  .room-technical-switch [aria-pressed=true] { color: var(--aw-ink); border-color: var(--aw-ink); background: var(--aw-surface-hover, #ededeb); }
+  .room-technical-companion { border-left: 0; flex: 1; min-height: 320px; }
+  .room-explore[data-technical-view=drawing] > .room-viewer { position: absolute; inset: 61px 0 0; width: 100%; height: calc(100% - 61px); visibility: hidden; pointer-events: none; }
+  .room-explore[data-technical-view=model] > .room-technical-companion { display: none; }
+  .room-explore[data-technical=true] > .room-viewer { flex: 1; min-height: 300px; }
+}

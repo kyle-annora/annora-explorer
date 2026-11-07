@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T04:41:06.386495+00:00",
+  "status": "passed-local-release-gates",
+  "automated": {
+    "tests": 931,
+    "passed": 930,
+    "failed": 0,
+    "existingConditionalSkip": 1,
+    "projectAndDrawingChecks": "passed",
+    "mainBuild": "passed",
+    "inquiryLibraryBuild": "passed"
+  },
+  "preparedProductBrowser": "browser-qualification.json",
+  "changeImpact": {
+    "base": "http://127.0.0.1:8159/annora-explorer/",
+    "width": 1280,
+    "height": 960,
+    "checkpoints": [
+      {
+        "name": "buyer-A-original",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=inquiry",
+        "overflow": false
+      },
+      {
+        "name": "seller-four-affected-records",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "inspect-original-A",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "inspect-candidate-B",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "seller-human-review-A-B",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "seller-reviewed-working-references",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "seller-draft-exact-reference-scope",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&mode=edit&quote=QT-IMPACT-EXAMPLE-017&draft=QD-IMPACT-EXAMPLE-018",
+        "overflow": false
+      },
+      {
+        "name": "seller-v2-quotation-review",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&mode=quote-review&quote=QT-IMPACT-EXAMPLE-017&draft=QD-IMPACT-EXAMPLE-018",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-v2",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-7BFD6522",
+        "overflow": false
+      },
+      {
+        "name": "buyer-A-B-quote-comparison",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-7BFD6522",
+        "overflow": false
+      },
+      {
+        "name": "buyer-v1-keeps-A",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-IMPACT-EXAMPLE-017",
+        "overflow": false
+      },
+      {
+        "name": "buyer-v2-mixed-references",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-7BFD6522",
+        "overflow": false
+      },
+      {
+        "name": "buyer-v2-exact-B-drawing",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-7BFD6522",
+        "overflow": false
+      },
+      {
+        "name": "buyer-reviewed-B-in-3D",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=sk08&returnRole=buyer&returnView=%23project%26project%3DPRJ-IMPACT-EXAMPLE-002%26tab%3Dquotation%26quote%3DQT-DEMO-7BFD6522&impactDemo=sk08-a-b-v1&referenceQuote=QT-DEMO-7BFD6522&referenceEntry=scope%3Arequest%3Ashaft-bore-request&view=drawings&project=PRJ-IMPACT-EXAMPLE-002#explore&project=PRJ-IMPACT-EXAMPLE-002",
+        "overflow": false
+      },
+      {
+        "name": "reload-preserves-A-B-history",
+        "width": 1280,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-7BFD6522",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-IMPACT-EXAMPLE-002",
+    "quoteIds": [
+      "QT-IMPACT-EXAMPLE-017",
+      "QT-DEMO-7BFD6522"
+    ],
+    "affectedRecords": 4,
+    "retainedA": 2,
+    "adoptedB": 2,
+    "unaffectedNonDrawingRequests": 1,
+    "originalInquiryUnchanged": true,
+    "originalQuestionsUnchanged": true,
+    "quoteV1Unchanged": true,
+    "ordinaryNamespaceUnchanged": true
+  },
+  "crankWalkthrough": [
+    {
+      "success": true,
+      "profile": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "browser": "157.0.8103.38",
+      "timestamp": "2026-11-07T04:39:28.962Z",
+      "assertions": [
+        "One top Continue follows 3D, floating inquiry, clarification/reply, v1, change, v2 comparison and agreed next step. All eight reviews require a later explicit confirmation.",
+        "Inquiry, inspection, quote v1, ordinary project data and final history remain immutable."
+      ],
+      "errors": [],
+      "failedRequests": [],
+      "checkpoints": [
+        "walkthrough-01-product",
+        "walkthrough-02-floating-inquiry",
+        "walkthrough-03-minimized",
+        "walkthrough-04-inquiry-review",
+        "walkthrough-05-inquiry-receipt",
+        "walkthrough-06-seller-clarification-review",
+        "walkthrough-07-buyer-reply-review",
+        "walkthrough-08-seller-v1-review",
+        "walkthrough-09-buyer-change-review",
+        "walkthrough-10-seller-v2-review",
+        "walkthrough-11-buyer-v2-comparison",
+        "walkthrough-12-historical-v1",
+        "walkthrough-13-next-step-review",
+        "walkthrough-14-seller-final-review",
+        "walkthrough-15-complete",
+        "walkthrough-16-reloaded"
+      ],
+      "confirmationStops": [
+        "inquiry-confirm",
+        "seller-confirm-response",
+        "reply-confirm",
+        "seller-confirm-quotation",
+        "change-confirm",
+        "seller-confirm-quotation",
+        "next-confirm",
+        "seller-confirm-response"
+      ],
+      "noHorizontalOverflow": true
+    },
+    {
+      "success": true,
+      "profile": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "browser": "157.0.8103.38",
+      "timestamp": "2026-11-07T04:39:54.802Z",
+      "assertions": [
+        "One top Continue follows 3D, floating inquiry, clarification/reply, v1, change, v2 comparison and agreed next step. All eight reviews require a later explicit confirmation.",
+        "Inquiry, inspection, quote v1, ordinary project data and final history remain immutable."
+      ],
+      "errors": [],
+      "failedRequests": [],
+      "checkpoints": [
+        "walkthrough-01-product",
+        "walkthrough-02-floating-inquiry",
+        "walkthrough-03-minimized",
+        "walkthrough-04-inquiry-review",
+        "walkthrough-05-inquiry-receipt",
+        "walkthrough-06-seller-clarification-review",
+        "walkthrough-07-buyer-reply-review",
+        "walkthrough-08-seller-v1-review",
+        "walkthrough-09-buyer-change-review",
+        "walkthrough-10-seller-v2-review",
+        "walkthrough-11-buyer-v2-comparison",
+        "walkthrough-12-historical-v1",
+        "walkthrough-13-next-step-review",
+        "walkthrough-14-seller-final-review",
+        "walkthrough-15-complete",
+        "walkthrough-16-reloaded"
+      ],
+      "confirmationStops": [
+        "inquiry-confirm",
+        "seller-confirm-response",
+        "reply-confirm",
+        "seller-confirm-quotation",
+        "change-confirm",
+        "seller-confirm-quotation",
+        "next-confirm",
+        "seller-confirm-response"
+      ],
+      "noHorizontalOverflow": true
+    },
+    {
+      "success": true,
+      "profile": {
+        "name": "compact",
+        "width": 320,
+        "height": 780,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "browser": "157.0.8103.38",
+      "timestamp": "2026-11-07T04:40:20.544Z",
+      "assertions": [
+        "One top Continue follows 3D, floating inquiry, clarification/reply, v1, change, v2 comparison and agreed next step. All eight reviews require a later explicit confirmation.",
+        "Inquiry, inspection, quote v1, ordinary project data and final history remain immutable."
+      ],
+      "errors": [],
+      "failedRequests": [],
+      "checkpoints": [
+        "walkthrough-01-product",
+        "walkthrough-02-floating-inquiry",
+        "walkthrough-03-minimized",
+        "walkthrough-04-inquiry-review",
+        "walkthrough-05-inquiry-receipt",
+        "walkthrough-06-seller-clarification-review",
+        "walkthrough-07-buyer-reply-review",
+        "walkthrough-08-seller-v1-review",
+        "walkthrough-09-buyer-change-review",
+        "walkthrough-10-seller-v2-review",
+        "walkthrough-11-buyer-v2-comparison",
+        "walkthrough-12-historical-v1",
+        "walkthrough-13-next-step-review",
+        "walkthrough-14-seller-final-review",
+        "walkthrough-15-complete",
+        "walkthrough-16-reloaded"
+      ],
+      "confirmationStops": [
+        "inquiry-confirm",
+        "seller-confirm-response",
+        "reply-confirm",
+        "seller-confirm-quotation",
+        "change-confirm",
+        "seller-confirm-quotation",
+        "next-confirm",
+        "seller-confirm-response"
+      ],
+      "noHorizontalOverflow": true
+    }
+  ],
+  "preserved": [
+    "Existing Explorer renderer and interaction engine",
+    "Explicit inquiry, quotation and product release confirmation",
+    "Exact historical product, drawing and overview references",
+    "Existing customer project namespaces"
+  ],
+  "layoutException": "Compact embedded selection summary clears mode controls by the measured dock height; standalone Explorer layout is unchanged.",
+  "limits": [
+    "Fictional local data, no production backend",
+    "Viewport/touch emulation, not physical-device performance measurements",
+    "Public target verification is recorded separately in release-receipt.json"
+  ]
+}

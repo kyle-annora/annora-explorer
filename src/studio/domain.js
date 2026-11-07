@@ -11,9 +11,11 @@ const object = value => value && typeof value === 'object' && !Array.isArray(val
 const text = value => typeof value === 'string' ? value.trim() : '';
 const date = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const integer = value => Number.isSafeInteger(value) && value >= 0;
-const partIds = new Set(STUDIO_PARTS.map(part => part.id));
-const assetIds = new Set(STUDIO_ASSETS.map(asset => asset.id));
-const chapters = new Set(STUDIO_MODEL?.tour?.chapters?.map(chapter => chapter.id) || []);
+/** Inject a prepared product at the host boundary; legacy callers keep the crank. */
+export function studioProduct(options = {}) {
+  return options.product || { id: STUDIO_PRODUCT_ID, model: STUDIO_MODEL, parts: STUDIO_PARTS, assets: STUDIO_ASSETS,
+    inquiryProfile: DEFAULT_INQUIRY_PROFILE, posterAssetId: 'kinetic-poster', posterTitle: 'Crank-slider engineering view', technicalReferences: [] };
+}
 const sections = { content: 'product', inquiryProfile: 'inquiry', presentation: 'presentation', modelRevision: 'parts' };
 function sectionOf(path) {
   if (/^content\.(documents|partContent)/.test(path)) return 'parts';
@@ -33,7 +35,8 @@ function unique(issues, entries, key, path) {
 }
 
 /** Saving incomplete copy is allowed. Publishing requires the complete validation below. */
-export function normalizeStudioDraft(input) {
+export function normalizeStudioDraft(input, options = {}) {
+  const product = studioProduct(options), STUDIO_PRODUCT_ID = product.id, STUDIO_ASSETS = product.assets;
   if (!object(input) || !text(input.id) || input.id.length > 160 || !integer(input.revision)
       || input.productId !== STUDIO_PRODUCT_ID || !text(input.modelRevision)
       || !object(input.content) || !object(input.inquiryProfile) || !Array.isArray(input.inquiryProfile.fields)
@@ -44,30 +47,33 @@ export function normalizeStudioDraft(input) {
     content = copyStudioValue(input.content);
     // Files are resolved through the prepared asset catalog, never an arbitrary stored URL.
     if (Array.isArray(content.documents)) content.documents = content.documents.map(({ url, ...doc }) => ({ ...doc,
-      assetRevision: STUDIO_ASSETS.find(asset => asset.id === doc.assetId)?.revision || doc.assetRevision || '',
+      assetRevision: doc.assetRevision || STUDIO_ASSETS.find(asset => asset.id === doc.assetId)?.revision || '',
     }));
     fields = copyStudioValue(input.inquiryProfile.fields);
   } catch { throw new StudioError('VALIDATION', 'Keep this product draft within the supported content size.'); }
   return {
     id: text(input.id), revision: input.revision, productId: input.productId, modelRevision: input.modelRevision,
-    content, inquiryProfile: { id: 'kinetic-inquiry', version: profileVersion(fields), fields },
+    content, inquiryProfile: { id: product.inquiryProfile.id, version: profileVersion(fields), fields },
     presentation: { defaultRenderStyle: input.presentation.defaultRenderStyle,
       ...(input.presentation.story === undefined ? {} : { story: copyProductStory(input.presentation.story) }) },
     updatedAt: input.updatedAt || null,
   };
 }
 
-export function validateStudioDraft(input, { historicalStory = false } = {}) {
+export function validateStudioDraft(input, { historicalStory = false, ...options } = {}) {
+  const product = studioProduct(options), STUDIO_PRODUCT_ID = product.id, STUDIO_MODEL = product.model, STUDIO_PARTS = product.parts, STUDIO_ASSETS = product.assets;
+  const partIds = new Set(STUDIO_PARTS.map(part => part.id)), assetIds = new Set(STUDIO_ASSETS.map(asset => asset.id));
+  const chapters = new Set(STUDIO_MODEL?.tour?.chapters?.map(chapter => chapter.id) || []);
   const issues = [];
   if (!object(input)) return [{ path: 'draft', section: 'release', message: 'The product draft is missing.', severity: 'error' }];
-  if (input.productId !== STUDIO_PRODUCT_ID) issue(issues, 'productId', 'This Studio demonstration supports the crank-slider product.');
+  if (input.productId !== STUDIO_PRODUCT_ID) issue(issues, 'productId', 'Choose the prepared product for this Studio workspace.');
   if (!STUDIO_MODEL || input.modelRevision !== STUDIO_MODEL.revision) issue(issues, 'modelRevision', 'The prepared model revision has changed. Review and rebind references before publishing.');
   const content = input.content;
   if (!object(content)) { issue(issues, 'content', 'Product content is missing.'); return issues; }
-  if (content.id !== STUDIO_PRODUCT_ID || content.modelId !== STUDIO_PRODUCT_ID) issue(issues, 'content.id', 'The product must use its prepared crank-slider model.');
+  if (content.id !== STUDIO_PRODUCT_ID || content.modelId !== STUDIO_MODEL?.id) issue(issues, 'content.id', 'The product must use its exact prepared model.');
   for (const key of ['title', 'shortTitle', 'eyebrow', 'tagline', 'summary']) string(issues, content[key], `content.${key}`, key === 'shortTitle' ? 60 : 180);
   for (const key of ['description', 'demoNotice']) string(issues, content[key], `content.${key}`, 2000);
-  if (content.posterAssetId !== 'kinetic-poster') issue(issues, 'content.posterAssetId', 'Choose the prepared crank-slider poster.');
+  if (content.posterAssetId !== product.posterAssetId) issue(issues, 'content.posterAssetId', 'Choose this product’s prepared image.');
   if (!object(content.source)) issue(issues, 'content.source', 'Keep the model source and attribution with this product.');
   else {
     for (const key of ['label', 'author', 'license', 'note']) string(issues, content.source[key], `content.source.${key}`, key === 'note' ? 2000 : 300);
@@ -133,14 +139,23 @@ export function validateStudioDraft(input, { historicalStory = false } = {}) {
   }
   try { normalizeInquiryProfile(input.inquiryProfile); }
   catch { issue(issues, 'inquiryProfile', 'Check inquiry labels, help text and field settings. Keep application and quantity enabled with their default requirement rules. Quantity is optional for application review.'); }
-  if (input.inquiryProfile?.id !== DEFAULT_INQUIRY_PROFILE.id) issue(issues, 'inquiryProfile.id', 'Use the prepared mechanism inquiry profile.');
+  if (input.inquiryProfile?.id !== product.inquiryProfile.id) issue(issues, 'inquiryProfile.id', 'Use this product’s prepared inquiry profile.');
   if (!object(input.presentation) || !['engineering', 'linework', 'flat'].includes(input.presentation.defaultRenderStyle)) issue(issues, 'presentation.defaultRenderStyle', 'Choose an available display mode.');
   // History retains its exact source IDs and camera revision, even when that model
   // is no longer deployed. New drafts and publication still use the live catalog.
   issues.push(...validateProductStory(input.presentation?.story, {
-    model: historicalStory ? { id: STUDIO_PRODUCT_ID, revision: input.modelRevision } : STUDIO_MODEL,
-    parts: STUDIO_PARTS, historical: historicalStory,
+    model: historicalStory ? { id: STUDIO_MODEL?.id || STUDIO_PRODUCT_ID, revision: input.modelRevision } : STUDIO_MODEL,
+    parts: STUDIO_PARTS, historical: historicalStory, technicalReferences: product.technicalReferences || [],
   }));
+  // A story detail enters inquiry through this exact released document. Friendly
+  // document aliases cannot replace the source identity used by saved contexts.
+  for (const [index, step] of (Array.isArray(input.presentation?.story?.steps) ? input.presentation.story.steps : []).entries()) {
+    if (step?.kind !== 'technical') continue;
+    const drawing = step.technical?.context?.drawing;
+    const doc = drawing && documents.find(document => document.id === drawing.id);
+    if (!drawing || !doc || doc.title !== drawing.title || doc.revision !== drawing.revision || doc.assetId !== drawing.assetId)
+      issue(issues, `presentation.story.steps.${index}.technical`, 'Include the exact source drawing identity, title and revision in this product’s documents before publishing the step.');
+  }
   return issues;
 }
 
@@ -155,9 +170,10 @@ export function validateRelease(release, options) {
   return issues;
 }
 
-export function validateReleasePackage(value) {
+export function validateReleasePackage(value, options = {}) {
+  const STUDIO_ASSETS = studioProduct(options).assets;
   if (!object(value)) return [{ path: 'package', section: 'release', message: 'A release package is required.', severity: 'error' }];
-  const issues = validateRelease(value.release);
+  const issues = validateRelease(value.release, options);
   if (value.kind !== 'annora-room-release' || value.schemaVersion !== 1) issue(issues, 'package', 'This is not a supported Annora Room release package.');
   if (value.release?.source === 'preview') issue(issues, 'release.source', 'Review and confirm a release before exporting it for deployment.');
   if (!Array.isArray(value.assetManifest)) issue(issues, 'assetManifest', 'The prepared document manifest is missing.');
@@ -172,7 +188,8 @@ export function validateReleasePackage(value) {
 }
 
 /** Compare customer-facing meaning; the review token still binds the complete payload. */
-export function studioChanges(before, after) {
+export function studioChanges(before, after, options = {}) {
+  const product = studioProduct(options), STUDIO_PARTS = product.parts, STUDIO_ASSETS = product.assets, STUDIO_MODEL = product.model;
   const rows = [], left = object(before?.content) ? before.content : {}, right = object(after?.content) ? after.content : {};
   const entries = value => Array.isArray(value) ? value.filter(object) : [];
   const show = value => value === undefined || value === null || value === '' ? '—' : typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
@@ -207,7 +224,7 @@ export function studioChanges(before, after) {
     }
   }
   for (const [key, label] of Object.entries({ title: 'Product name', shortTitle: 'Short name', eyebrow: 'Product category', tagline: 'Opening headline', description: 'Product introduction', summary: 'Explanation heading', demoNotice: 'Product scope notice' })) add(label, left[key], right[key]);
-  add('Product image', left.posterAssetId, right.posterAssetId, value => value === 'kinetic-poster' ? 'Crank-slider engineering view' : value ? 'Unrecognized image' : 'No image');
+  add('Product image', left.posterAssetId, right.posterAssetId, value => value === product.posterAssetId ? product.posterTitle : value ? 'Unrecognized image' : 'No image');
   for (const [key, label] of Object.entries({ label: 'Source name', author: 'Source author', license: 'Source license', url: 'Source link', note: 'Source explanation' })) add(label, left.source?.[key], right.source?.[key]);
   // Highlights have fixed positions in the current schema, rather than entity IDs.
   const firstHighlights = entries(left.highlights), nextHighlights = entries(right.highlights);
@@ -274,13 +291,14 @@ export function studioChanges(before, after) {
   add('Product story title', oldStory?.title, newStory?.title);
   collection(oldStory?.steps, newStory?.steps, {
     kind: 'Story step', orderLabel: 'Story step order',
-    describe: step => summary([step.title, step.caption, step.kind === 'chapter' ? `Prepared action: ${step.chapterId}` : 'Captured view']),
+    describe: step => summary([step.title, step.caption, step.kind === 'chapter' ? `Prepared action: ${step.chapterId}` : step.kind === 'technical' ? 'Pinned drawing detail' : 'Captured view']),
     compare(a, b) {
       const name = b.title || a.title || 'Story step';
       add(`${name} · Title`, a.title, b.title);
       add(`${name} · Explanation`, a.caption, b.caption);
       add(`${name} · Part`, a.nodeId, b.nodeId, value => partName(value, right));
-      add(`${name} · Action`, [a.kind, a.tourId, a.chapterId], [b.kind, b.tourId, b.chapterId], value => value[0] === 'chapter' ? `Prepared action: ${value[2]}` : 'Held inspection');
+      add(`${name} · Action`, [a.kind, a.tourId, a.chapterId], [b.kind, b.tourId, b.chapterId], value => value[0] === 'chapter' ? `Prepared action: ${value[2]}` : value[0] === 'technical' ? 'Pinned drawing detail' : 'Held inspection');
+      if (!sameStudioValue(a.technical, b.technical)) rows.push({ label: `${name} · Drawing reference`, before: a.technical ? `${a.technical.context.drawing.regionLabel} · ${a.technical.context.drawing.revision}` : 'No drawing reference', after: b.technical ? `${b.technical.context.drawing.regionLabel} · ${b.technical.context.drawing.revision}` : 'No drawing reference', changed: true });
       if (!sameStudioValue(a.inspection, b.inspection)) rows.push({ label: `${name} · Saved camera`, before: a.inspection ? 'Previous captured view' : 'No captured view', after: b.inspection ? 'New captured view — check buyer preview' : 'Prepared action camera', changed: true });
     },
   });
@@ -288,11 +306,11 @@ export function studioChanges(before, after) {
   return rows;
 }
 
-export function createReleaseReview(draft, published) {
-  const normalized = normalizeStudioDraft(draft), issues = validateStudioDraft(normalized);
+export function createReleaseReview(draft, published, options = {}) {
+  const normalized = normalizeStudioDraft(draft, options), issues = validateStudioDraft(normalized, options);
   if (normalized.revision < 1) throw new StudioError('STALE_REVIEW', 'Save this draft before reviewing its release.');
   if (issues.some(item => item.severity === 'error')) throw new StudioError('VALIDATION', 'Resolve the highlighted product issues before release.', issues);
-  const packet = { kind: 'studio-release', draft: normalized, baseReleaseId: published.id, issues, changes: studioChanges(published, normalized) };
+  const packet = { kind: 'studio-release', draft: normalized, baseReleaseId: published.id, issues, changes: studioChanges(published, normalized, options) };
   return { ...packet, token: canonicalStudioValue(packet) };
 }
 

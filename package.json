@@ -12,6 +12,7 @@
     "test": "npm run prepare:project && node --test tests/*.test.mjs tests/runtime/*.test.js",
     "check": "node scripts/check-project.mjs && node scripts/check-drawings.mjs",
     "import:model": "node scripts/import-model.mjs",
+    "report:products": "node scripts/report-prepared-products.mjs",
     "apply:room-release": "node scripts/apply-room-release.mjs",
     "verify": "npm run check && npm test && npm run build",
     "apply:drawing-release": "node scripts/apply-drawing-release.mjs"

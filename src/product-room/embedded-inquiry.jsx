@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Button, Field, Glyph } from './ui/components.jsx';
-import { INQUIRY_INTENTS, QUOTE_SCOPES, inquiryIntentLabel, quoteScopeLabel } from './project-domain.js';
+import { INQUIRY_INTENTS, QUOTE_SCOPES, inquiryIntentLabel, quoteScopeLabel, normalizeProjectContext } from './project-domain.js';
 import { inquiryField } from './inquiry-profile.js';
 import { createInquirySession } from './inquiry-session.js';
 import { prepareSampleInquiry } from './inquiry-sample.js';
@@ -265,8 +265,10 @@ export async function mountEmbeddedInquiry(element, { repository = createDemoPro
       const { opener: requestedOpener, stage, ...request } = options;
       const explicitOpener = requestedOpener?.ownerDocument === doc && typeof requestedOpener.focus === 'function' ? requestedOpener : null;
       if (explicitOpener || !ui.open || !ui.expanded) opener = explicitOpener || doc.activeElement;
+      // Reject an unavailable or mismatched source before exposing an empty form.
+      const nextContext = normalizeProjectContext(request.context || context);
       updateUI({ open: true, expanded: true });
-      await session.open({ ...request, suggestedIntent:presentation.fixedIntent || request.suggestedIntent, context: request.context || context });
+      await session.open({ ...request, suggestedIntent:presentation.fixedIntent || request.suggestedIntent, context: nextContext });
       // The host may restore a review route, but that only prepares a fresh
       // review. A URL never supplies consent or submits an inquiry.
       if (stage === 'review' && state.stage === 'details') await controls.review();

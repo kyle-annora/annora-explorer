@@ -11,7 +11,7 @@ import { roomURL } from "./navigation.js";
 export function Preview({ preview, onReview, onEdit, busy }) {
   const [size, setSize] = useState("desktop"),
     [page, setPage] = useState("overview");
-  const src = roomURL({ preview: preview.id, page });
+  const src = roomURL({ preview: preview.id, page, productId: preview.productId });
   return (
     <div className="studio-preview-page">
       <div className="studio-preview-intro">

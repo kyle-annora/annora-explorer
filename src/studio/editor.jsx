@@ -17,7 +17,7 @@ import { partOptions } from "./navigation.js";
 import crankImage from "../product-room/assets/crank.png";
 import { StoryEditor } from './story-editor.jsx';
 
-function PartViewer({ onSelection, onClose, selectedLabel, onEdit }) {
+function PartViewer({ productId = STUDIO_PRODUCT_ID, onSelection, onClose, selectedLabel, onEdit }) {
   const mount = useRef(null),
     viewer = useRef(null),
     selection = useRef(onSelection);
@@ -33,16 +33,16 @@ function PartViewer({ onSelection, onClose, selectedLabel, onEdit }) {
         if (
           active &&
           value.lifecycle === "ready" &&
-          value.model?.id === STUDIO_PRODUCT_ID &&
+          value.model?.id === productId &&
           value.navigation?.selectedId
         )
           selection.current(value.navigation.selectedId);
       },
       onReady({ state: value }) {
         if (!active) return;
-        if (value.model?.id !== STUDIO_PRODUCT_ID) {
+        if (value.model?.id !== productId) {
           setError(
-            "This editor is linked to the crank model. Close and reopen the picker to return to it.",
+            "This editor is linked to the prepared product model. Close and reopen the picker to return to it.",
           );
           setState("error");
           return;
@@ -57,7 +57,7 @@ function PartViewer({ onSelection, onClose, selectedLabel, onEdit }) {
       },
     });
     viewer.current = api;
-    api.mountModel(STUDIO_PRODUCT_ID).catch((value) => {
+    api.mountModel(productId).catch((value) => {
       if (active) {
         setError(value.message);
         setState("error");
@@ -114,7 +114,7 @@ function PartViewer({ onSelection, onClose, selectedLabel, onEdit }) {
   );
 }
 
-export function ProductFields({ draft, change }) {
+export function ProductFields({ prepared, draft, change }) {
   const content = draft.content;
   const updateContent = (key, value) =>
     change((next) => {
@@ -162,8 +162,8 @@ export function ProductFields({ draft, change }) {
           </div>
           <figure className="studio-product-poster">
             <img
-              src={crankImage}
-              alt="Engineering view of the crank-slider mechanism"
+              src={prepared?.poster || crankImage}
+              alt={prepared?.posterTitle || "Engineering view of the crank-slider mechanism"}
               width="704"
               height="450"
             />
@@ -252,15 +252,16 @@ export function ProductFields({ draft, change }) {
   );
 }
 
-export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart, onOpenModel }) {
+export function PartsFields({ prepared, draft, change, busy, selectedPartId, onSelectPart, onOpenModel }) {
+  const parts = prepared?.parts || STUDIO_PARTS, assets = prepared?.assets || STUDIO_ASSETS;
   const [localSelectedId, setLocalSelectedId] = useState("rod"),
     [picker, setPicker] = useState(false),
-    [assetId, setAssetId] = useState(STUDIO_ASSETS[0]?.id || ""),
+    [assetId, setAssetId] = useState(assets[0]?.id || ""),
     [newDocumentId, setNewDocumentId] = useState('');
   const selectedId = selectedPartId || localSelectedId;
   const setSelectedId = onSelectPart || setLocalSelectedId;
   const content = draft.content;
-  const selectedPart = STUDIO_PARTS.find((part) => part.id === selectedId);
+  const selectedPart = parts.find((part) => part.id === selectedId);
   const binding = (content.partContent || []).find(
     (part) => part.nodeId === selectedId,
   );
@@ -286,7 +287,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
       next.content.documents[index][key] = value;
     });
   function addDocument() {
-    const asset = STUDIO_ASSETS.find((item) => item.id === assetId);
+    const asset = assets.find((item) => item.id === assetId);
     if (!asset) return;
     const id = `document-${Date.now().toString(36)}`;
     change((next) => {
@@ -332,7 +333,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
         }
       >
         {picker && !onOpenModel && (
-          <PartViewer
+          <PartViewer productId={draft.productId}
             selectedLabel={selectedPart?.title || "Whole assembly"}
             onEdit={() => {
               setPicker(false);
@@ -342,7 +343,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
             }}
             onClose={() => setPicker(false)}
             onSelection={(id) => {
-              if (STUDIO_PARTS.some((part) => part.id === id))
+              if (parts.some((part) => part.id === id))
                 setSelectedId(id);
             }}
           />
@@ -352,7 +353,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
             <Field
               label="Selected part"
               value={selectedId}
-              options={STUDIO_PARTS.map((part) => [part.id, part.title])}
+              options={parts.map((part) => [part.id, part.title])}
               onChange={(e) => setSelectedId(e.target.value)}
             />
             <p className="studio-metadata">
@@ -415,7 +416,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
           <div className="studio-document-add">
           <Field
             label="Prepared document"
-            options={STUDIO_ASSETS.map((asset) => [asset.id, asset.title])}
+            options={assets.map((asset) => [asset.id, asset.title])}
             value={assetId}
             onChange={(e) => setAssetId(e.target.value)}
           />
@@ -438,7 +439,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
                   <strong>{doc.title || "Untitled document"}</strong>
                   <small>
                     {doc.revision || "Revision needed"} ·{" "}
-                    {STUDIO_PARTS.find((part) => part.id === doc.nodeId)
+                    {parts.find((part) => part.id === doc.nodeId)
                       ?.title || "Whole product"}
                   </small>
                 </span>
@@ -460,13 +461,13 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
                   />
                   <Field
                     label="Reference file"
-                    options={STUDIO_ASSETS.map((asset) => [
+                    options={assets.map((asset) => [
                       asset.id,
                       asset.title,
                     ])}
                     value={doc.assetId}
                     onChange={(e) => {
-                      const asset = STUDIO_ASSETS.find(
+                      const asset = assets.find(
                         (item) => item.id === e.target.value,
                       );
                       change((next) => {
@@ -480,7 +481,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
                   />
                   <Field
                     label="Associated part"
-                    options={partOptions()}
+                    options={partOptions(parts)}
                     value={doc.nodeId || ""}
                     onChange={(e) =>
                       updateDoc(index, "nodeId", e.target.value || undefined)
@@ -500,7 +501,7 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
                   <a
                     className="studio-text-link"
                     href={
-                      STUDIO_ASSETS.find((asset) => asset.id === doc.assetId)
+                      assets.find((asset) => asset.id === doc.assetId)
                         ?.url
                     }
                     target="_blank"
@@ -524,12 +525,13 @@ export function PartsFields({ draft, change, busy, selectedPartId, onSelectPart,
   );
 }
 
-export function PresentationFields({ draft, change, viewer, onOpenModel, onRequestCapture }) {
+export function PresentationFields({ prepared, draft, change, viewer, onOpenModel, onRequestCapture }) {
   const questions = draft.content.questions;
-  const model = MODEL_CATALOG[STUDIO_PRODUCT_ID];
+  const model = prepared?.model || MODEL_CATALOG[draft.productId];
+  const parts = prepared?.parts || STUDIO_PARTS;
   const chapters = model.tour?.chapters || [];
   const options = [
-    ...STUDIO_PARTS.map((part) => [`part:${part.id}`, `Part · ${part.title}`]),
+    ...parts.map((part) => [`part:${part.id}`, `Part · ${part.title}`]),
     ...chapters.map((chapter) => [
       `chapter:${chapter.id}`,
       `Guided tour · ${chapter.title || chapter.id}`,
@@ -575,7 +577,7 @@ export function PresentationFields({ draft, change, viewer, onOpenModel, onReque
           }
         />
       </Section>
-      <StoryEditor draft={draft} change={change} viewer={viewer} onOpenModel={onOpenModel} onRequestCapture={onRequestCapture}/>
+      <StoryEditor prepared={prepared} draft={draft} change={change} viewer={viewer} onOpenModel={onOpenModel} onRequestCapture={onRequestCapture}/>
       <Section
         className="studio-separated"
         title="Questions that lead into 3D"

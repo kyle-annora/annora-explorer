@@ -2,7 +2,7 @@ import { createStoryController, storyStepIsCurrent } from './story.js';
 import './story-player.css';
 
 /** Compact host controls; time and all 3D animation remain in Explorer. */
-export function createProductStoryPlayer({ mount, viewer, story, model, parts, onError = () => {}, onDiscuss }) {
+export function createProductStoryPlayer({ mount, viewer, story, model, parts, technicalReferences, showTechnicalReference, clearTechnicalReference, onError = () => {}, onDiscuss }) {
   let opened = false, disposed = false, lastState = null;
   const doc = mount.ownerDocument;
   const make = (tag, className, text) => { const element = doc.createElement(tag); element.className = className; if (text) element.textContent = text; return element; };
@@ -41,7 +41,7 @@ export function createProductStoryPlayer({ mount, viewer, story, model, parts, o
   scrub.addEventListener('change', () => void controller.seek(Number(scrub.value)).catch(onError));
   const notice = make('p', 'room-story-error'); notice.setAttribute('role', 'status');
   bar.append(intro, controls, scrub, notice); mount.replaceChildren(bar);
-  controller = createStoryController({ viewer, story, model, parts, hostedControls: true, onChange: render });
+  controller = createStoryController({ viewer, story, model, parts, technicalReferences, showTechnicalReference, clearTechnicalReference, hostedControls: true, onChange: render });
   function render() {
     if (disposed) return;
     const state = controller.state(), step = state.step;
@@ -77,7 +77,8 @@ export function createProductStoryPlayer({ mount, viewer, story, model, parts, o
       }
       render();
     },
-    suspend() { void viewer.pause().catch(onError); },
+    currentStep() { return controller.state().active ? controller.state().step : null; },
+    suspend() { controller.yieldToExplorer(); opened = false; clearTechnicalReference?.(); void viewer.pause().catch(onError); render(); },
     dispose() { disposed = true; controller.dispose(); mount.replaceChildren(); },
   };
 }
