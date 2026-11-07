@@ -2,8 +2,14 @@
 
 W40 extends the existing Studio and Product Room with a prepared-product
 descriptor and versioned technical-reference story steps. The qualification
-product is SK08; the existing crank remains the regression product. Publication
-and browser results are recorded separately from this review procedure.
+product is SK08; the existing crank remains the regression product.
+
+Published and verified on GitHub Pages: [Buyer experience](https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08) · [Studio presentation editor](https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation).
+Start **Start story**, then **Ask about this** to carry the selected source detail
+into the existing inquiry review. Both public desktop and mobile journeys passed
+15 checkpoints, including quotation review, product v2 publication and reopening
+the original story. The [release receipt](evidence/prepared-products/release-receipt.json)
+records exact application commit `a2d48b9`, deployment and public asset hashes.
 
 ## Source qualification
 

@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 5 · November 6, 2026 · W40 prepared-product reuse candidate; publication is recorded separately in its release receipt.
+Planning revision 5 · November 6, 2026 · W40 prepared-product reuse published and verified; see the [release receipt](../evidence/prepared-products/release-receipt.json).
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -58,7 +58,7 @@ The W31 delivery is documented in the [drawing impact review](../drawing-impact-
 | Area | Actual state | Next bounded extension |
 | --- | --- | --- |
 | F1 · Contextual requests | Published: independent request items, complete review, exact reopen | Per-question follow-through and explicit quote-scope mapping |
-| F2 · Story authoring | W40 candidate: prepared-product registry, pinned technical-view steps, crank and SK08 through the same Studio/player | New source onboarding and drawing-product customer follow-ups remain separate |
+| F2 · Story authoring | Published W40: prepared-product registry, pinned technical-view steps, crank and SK08 through the same Studio/player | New source onboarding and drawing-product customer follow-ups remain separate |
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Published W31: SK08 per-question and request-scope impact, reviewed A/B working references, pinned quotation snapshots | Follow-up/presentation impact and real customer source qualification remain deferred |

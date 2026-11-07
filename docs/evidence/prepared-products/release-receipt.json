@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T04:47:07.590797+00:00",
+  "classification": "public-fictional-example",
+  "status": "published-and-verified",
+  "sourceCommit": "a2d48b9b333ee7228f8311f3f746dffa5d63bed0",
+  "previousApplicationCommit": "167a8ee3ed82959c2e809e64e62d108e782155b2",
+  "deployment": {
+    "provider": "GitHub Pages",
+    "workflowRunId": 42339699504,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42339699504",
+    "conclusion": "success",
+    "deploymentId": 7616692932,
+    "created_at": "2026-11-07T04:45:05Z",
+    "environment_url": "https://kyle-annora.github.io/annora-explorer/",
+    "log_url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42339699504/job/128304627156",
+    "state": "success",
+    "updated_at": "2026-11-07T04:45:05Z"
+  },
+  "routes": {
+    "buyer": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08",
+    "studio": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation",
+    "existingCrank": "https://kyle-annora.github.io/annora-explorer/product-room/?model=kinetic-01"
+  },
+  "publicAssetVerification": {
+    "verifiedAt": "2026-11-07T04:45:36.408Z",
+    "records": [
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/product-room/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/room-Dhq9atOr.js",
+        "sha256": "d1b74e7d6044414a53b41370e0d39569e93441b66cc41bbb761a94135768be54",
+        "status": "matched"
+      },
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/studio/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/studio-CzEWG850.js",
+        "sha256": "51a3084ae967c6174c938abefa8f46d2f657def718c3e6a9680222ea624530ac",
+        "status": "matched"
+      }
+    ]
+  },
+  "localAcceptance": "acceptance.json",
+  "liveJourneys": [
+    {
+      "base": "https://kyle-annora.github.io/annora-explorer/",
+      "width": 1280,
+      "height": 900,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "original-source-retained",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "inquiry-review-exact-reference",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08&inspection=3df83936-ff26-41d6-b7d9-2b22d40e858b#inquiry&stage=review",
+          "overflow": false
+        },
+        {
+          "name": "buyer-project-pinned-detail",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#project&project=PRJ-DEMO-ECBA1674",
+          "overflow": false
+        },
+        {
+          "name": "seller-quotation-review",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#project?id=PRJ-DEMO-ECBA1674&tab=inquiry&mode=quote-review&draft=QD-DEMO-5133F9E7",
+          "overflow": false
+        },
+        {
+          "name": "seller-issued-quote",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#project?id=PRJ-DEMO-ECBA1674&tab=quotation&quote=QT-DEMO-0AF94FF5",
+          "overflow": false
+        },
+        {
+          "name": "seller-configurable-story",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation",
+          "overflow": false
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation",
+          "overflow": false
+        },
+        {
+          "name": "seller-product-preview",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#preview?id=ROOM-PREVIEW-72bb91b4-fd53-4870-ac1f-e000cc762915",
+          "overflow": false
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#release",
+          "overflow": false
+        },
+        {
+          "name": "seller-new-product-version",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#release?id=ROOM-DEMO-1859de52-52e9-4aaf-b905-7114b530e348",
+          "overflow": false
+        },
+        {
+          "name": "buyer-new-published-story",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "historical-project-unchanged",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#project&project=PRJ-DEMO-ECBA1674",
+          "overflow": false
+        },
+        {
+          "name": "historical-story-original-first-step",
+          "width": 1280,
+          "height": 900,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-ECBA1674&view=drawings&project=PRJ-DEMO-ECBA1674#explore&project=PRJ-DEMO-ECBA1674",
+          "overflow": false
+        }
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-DEMO-ECBA1674",
+      "quoteId": "QT-DEMO-0AF94FF5",
+      "originalRoomRelease": "ROOM-sk08-bundled-2026-11-07",
+      "newRoomRelease": "ROOM-DEMO-1859de52-52e9-4aaf-b905-7114b530e348",
+      "sourcePinned": {
+        "id": "freecad-sk08-drawing",
+        "title": "SK08 shaft support - source reference",
+        "revision": "annora-reference-1",
+        "assetId": "reference-pdf",
+        "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+        "partId": "sk08-body",
+        "sheetId": "sheet-1",
+        "sheetTitle": "Original source drawing",
+        "regionId": "mounting-holes",
+        "regionLabel": "Mounting holes",
+        "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+        "mappingRevision": "annora-sk08-map-1",
+        "revisionLabel": "Source c4c72a71 / reference edition 1",
+        "presentationSnapshot": {
+          "schemaVersion": 1,
+          "sourceKey": "source-3142792a48f5d652",
+          "sheets": [
+            {
+              "sheetId": "sheet-1",
+              "defaultViewId": "sk08-technical-front-v1:front:sheet-1",
+              "views": [
+                {
+                  "id": "sk08-technical-front-v1:front:sheet-1",
+                  "viewRevision": "view-91c97dc2dd783718",
+                  "title": "Front view",
+                  "targets": [
+                    {
+                      "targetId": "shaft-bore",
+                      "regionId": "shaft-bore",
+                      "associationKey": "link-5cac39a73f5433d3",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-top-v1:top:sheet-1",
+                  "viewRevision": "view-f80be9940076986c",
+                  "title": "Top view \u00b7 mounting holes",
+                  "targets": [
+                    {
+                      "targetId": "mounting-holes",
+                      "regionId": "mounting-holes",
+                      "associationKey": "link-fc00d33b00ef8113",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-side-v1:side:sheet-1",
+                  "viewRevision": "view-efb779d018a8ed1a",
+                  "title": "Side view \u00b7 cross-bore",
+                  "targets": [
+                    {
+                      "targetId": "cross-bore",
+                      "regionId": "cross-bore",
+                      "associationKey": "link-15f16c3e593d666a",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-iso-v1:iso:sheet-1",
+                  "viewRevision": "view-2312de6b6678059f",
+                  "title": "Isometric overview",
+                  "targets": [
+                    {
+                      "targetId": "overview",
+                      "regionId": "overview",
+                      "associationKey": "link-b47ff5322d2cedc2",
+                      "confirmed": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "sheetId": "sheet-2",
+              "defaultViewId": "sk08-technical-front-v1:bore:sheet-2",
+              "views": [
+                {
+                  "id": "sk08-technical-front-v1:bore:sheet-2",
+                  "viewRevision": "view-61839af53ad810c5",
+                  "title": "Bore detail",
+                  "targets": [
+                    {
+                      "targetId": "shaft-bore-detail",
+                      "regionId": "shaft-bore-detail",
+                      "associationKey": "link-7ced16e53deb046d",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-footprint-v1:footprint:sheet-2",
+                  "viewRevision": "view-3640c2e197b7e04b",
+                  "title": "Front view \u00b7 mounting footprint",
+                  "targets": [
+                    {
+                      "targetId": "mounting-footprint-detail",
+                      "regionId": "mounting-footprint-detail",
+                      "associationKey": "link-f3664816ba2105ec",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-side-v1:side:sheet-2",
+                  "viewRevision": "view-1921966f9fa95ac5",
+                  "title": "Side view \u00b7 cross-bore",
+                  "targets": [
+                    {
+                      "targetId": "cross-bore-detail",
+                      "regionId": "cross-bore-detail",
+                      "associationKey": "link-a527aeb4177eef80",
+                      "confirmed": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "revision": "overview-26eec8134fba0733"
+        },
+        "presentationRevision": "overview-26eec8134fba0733"
+      },
+      "oldProjectUnchanged": true,
+      "sentinelUnchanged": true
+    },
+    {
+      "base": "https://kyle-annora.github.io/annora-explorer/",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        {
+          "name": "buyer-first-technical-step",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "original-source-retained",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "buyer-second-technical-step",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "inquiry-review-exact-reference",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08&inspection=90894113-ca96-4f6e-968e-6ed3980a611e#inquiry&stage=review",
+          "overflow": false
+        },
+        {
+          "name": "buyer-project-pinned-detail",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#project&project=PRJ-DEMO-932CCD38",
+          "overflow": false
+        },
+        {
+          "name": "seller-quotation-review",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#project?id=PRJ-DEMO-932CCD38&tab=inquiry&mode=quote-review&draft=QD-DEMO-4713A345",
+          "overflow": false
+        },
+        {
+          "name": "seller-issued-quote",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#project?id=PRJ-DEMO-932CCD38&tab=quotation&quote=QT-DEMO-9308FE33",
+          "overflow": false
+        },
+        {
+          "name": "seller-configurable-story",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation",
+          "overflow": false
+        },
+        {
+          "name": "seller-exact-step-preview",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#edit/presentation",
+          "overflow": false
+        },
+        {
+          "name": "seller-product-preview",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#preview?id=ROOM-PREVIEW-d4364173-c1d5-4427-b5e4-acac039e4f28",
+          "overflow": false
+        },
+        {
+          "name": "seller-explicit-release-review",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#release",
+          "overflow": false
+        },
+        {
+          "name": "seller-new-product-version",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=sk08#release?id=ROOM-DEMO-0aa297c4-25ac-4a76-aa56-2f4f586926d2",
+          "overflow": false
+        },
+        {
+          "name": "buyer-new-published-story",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#explore",
+          "overflow": false
+        },
+        {
+          "name": "historical-project-unchanged",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08#project&project=PRJ-DEMO-932CCD38",
+          "overflow": false
+        },
+        {
+          "name": "historical-story-original-first-step",
+          "width": 390,
+          "height": 844,
+          "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=sk08&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-932CCD38&view=drawings&project=PRJ-DEMO-932CCD38#explore&project=PRJ-DEMO-932CCD38",
+          "overflow": false
+        }
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-DEMO-932CCD38",
+      "quoteId": "QT-DEMO-9308FE33",
+      "originalRoomRelease": "ROOM-sk08-bundled-2026-11-07",
+      "newRoomRelease": "ROOM-DEMO-0aa297c4-25ac-4a76-aa56-2f4f586926d2",
+      "sourcePinned": {
+        "id": "freecad-sk08-drawing",
+        "title": "SK08 shaft support - source reference",
+        "revision": "annora-reference-1",
+        "assetId": "reference-pdf",
+        "assetRevision": "efbd7d64704fce3a2b73b03e6a61c8f05b4f20fdb2e526425a3278320f558735",
+        "partId": "sk08-body",
+        "sheetId": "sheet-1",
+        "sheetTitle": "Original source drawing",
+        "regionId": "mounting-holes",
+        "regionLabel": "Mounting holes",
+        "sourceURL": "https://github.com/pzfreo/dw-examples/blob/c4c72a71c6440f0c824678660b59d0474f105e71/drawings/sk08/sk08.pdf",
+        "mappingRevision": "annora-sk08-map-1",
+        "revisionLabel": "Source c4c72a71 / reference edition 1",
+        "presentationSnapshot": {
+          "schemaVersion": 1,
+          "sourceKey": "source-3142792a48f5d652",
+          "sheets": [
+            {
+              "sheetId": "sheet-1",
+              "defaultViewId": "sk08-technical-front-v1:front:sheet-1",
+              "views": [
+                {
+                  "id": "sk08-technical-front-v1:front:sheet-1",
+                  "viewRevision": "view-91c97dc2dd783718",
+                  "title": "Front view",
+                  "targets": [
+                    {
+                      "targetId": "shaft-bore",
+                      "regionId": "shaft-bore",
+                      "associationKey": "link-5cac39a73f5433d3",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-top-v1:top:sheet-1",
+                  "viewRevision": "view-f80be9940076986c",
+                  "title": "Top view \u00b7 mounting holes",
+                  "targets": [
+                    {
+                      "targetId": "mounting-holes",
+                      "regionId": "mounting-holes",
+                      "associationKey": "link-fc00d33b00ef8113",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-side-v1:side:sheet-1",
+                  "viewRevision": "view-efb779d018a8ed1a",
+                  "title": "Side view \u00b7 cross-bore",
+                  "targets": [
+                    {
+                      "targetId": "cross-bore",
+                      "regionId": "cross-bore",
+                      "associationKey": "link-15f16c3e593d666a",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-iso-v1:iso:sheet-1",
+                  "viewRevision": "view-2312de6b6678059f",
+                  "title": "Isometric overview",
+                  "targets": [
+                    {
+                      "targetId": "overview",
+                      "regionId": "overview",
+                      "associationKey": "link-b47ff5322d2cedc2",
+                      "confirmed": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "sheetId": "sheet-2",
+              "defaultViewId": "sk08-technical-front-v1:bore:sheet-2",
+              "views": [
+                {
+                  "id": "sk08-technical-front-v1:bore:sheet-2",
+                  "viewRevision": "view-61839af53ad810c5",
+                  "title": "Bore detail",
+                  "targets": [
+                    {
+                      "targetId": "shaft-bore-detail",
+                      "regionId": "shaft-bore-detail",
+                      "associationKey": "link-7ced16e53deb046d",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-footprint-v1:footprint:sheet-2",
+                  "viewRevision": "view-3640c2e197b7e04b",
+                  "title": "Front view \u00b7 mounting footprint",
+                  "targets": [
+                    {
+                      "targetId": "mounting-footprint-detail",
+                      "regionId": "mounting-footprint-detail",
+                      "associationKey": "link-f3664816ba2105ec",
+                      "confirmed": true
+                    }
+                  ]
+                },
+                {
+                  "id": "sk08-technical-side-v1:side:sheet-2",
+                  "viewRevision": "view-1921966f9fa95ac5",
+                  "title": "Side view \u00b7 cross-bore",
+                  "targets": [
+                    {
+                      "targetId": "cross-bore-detail",
+                      "regionId": "cross-bore-detail",
+                      "associationKey": "link-a527aeb4177eef80",
+                      "confirmed": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "revision": "overview-26eec8134fba0733"
+        },
+        "presentationRevision": "overview-26eec8134fba0733"
+      },
+      "oldProjectUnchanged": true,
+      "sentinelUnchanged": true
+    }
+  ],
+  "preserved": [
+    "Explorer renderer, animation and inspection commands",
+    "Exact drawing, source PDF, mapping and overview identities",
+    "Explicit inquiry, quotation and product-release confirmation",
+    "Original project and quotation snapshots after product version 2",
+    "Existing crank and ordinary project namespaces"
+  ],
+  "limits": [
+    "Prepared products only; new sources still require qualification and authored associations.",
+    "SK08 drawing is reference-only, not a manufacturing release.",
+    "Fictional browser-local records and API contracts; no production backend.",
+    "Responsive Chrome emulation is not a physical-phone or ordinary-laptop benchmark.",
+    "Later receipt-only commits do not change the deployed application."
+  ]
+}
