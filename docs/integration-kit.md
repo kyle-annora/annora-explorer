@@ -14,7 +14,7 @@ The fictional records stay in `annora.integration-example.projects.v1`. They do 
 
 ## Present the complete commercial flow
 
-The 0.2.0 candidate adds an [independent-viewer walkthrough entry](https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent): understand the product, request and review a quotation, then resolve a change and agree on the next step. Check the W60 release receipt before treating this route as the published candidate.
+The 0.2.0 release adds an [independent-viewer walkthrough entry](https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent): understand the product, request and review a quotation, then resolve a change and agree on the next step. The [W60 release receipt](https://github.com/kyle-annora/annora-explorer/blob/main/docs/evidence/integration-walkthrough/release-receipt.json) records its verified public source and qualification.
 
 The presenter follows **Continue demo**. Review screens require a later **Confirm & continue** action. The same fictional project moves between the independent viewer, buyer Product Room and seller Studio. Each issued quotation keeps its own external viewer reference; reopening it returns to the original camera and component, with a return to the same project and role.
 
@@ -96,7 +96,7 @@ Run `node scripts/review/integration-kit/fresh-host.mjs` to install and build th
 
 ### 0.2.0
 
-Optional `/walkthrough` entry for a browser-local independent-viewer → buyer inquiry → seller quotation → customer change → revised quotation → next-step demonstration. Adds an isolated WTI session, guarded presenter actions, exact external-reference reopening and same-project buyer/seller return. The existing viewer adapter and external-reference contracts stay at version 1. Candidate qualification and public deployment are tracked separately in W60.
+Optional `/walkthrough` entry for a browser-local independent-viewer → buyer inquiry → seller quotation → customer change → revised quotation → next-step demonstration. Adds an isolated WTI session, guarded presenter actions, exact external-reference reopening and same-project buyer/seller return. The existing viewer adapter and external-reference contracts stay at version 1. Candidate qualification and verified public deployment are recorded separately in W60.
 
 ### 0.1.0
 

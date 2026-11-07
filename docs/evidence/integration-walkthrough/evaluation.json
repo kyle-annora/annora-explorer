@@ -515,10 +515,21 @@
         "status": "passed"
       }
     ],
-    "oldArtifactSha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2"
+    "oldArtifactSha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2",
+    "publicConformance": 15
   },
   "publication": {
-    "status": "pending",
-    "receipt": "release-receipt.json"
+    "status": "published-and-verified",
+    "receipt": "release-receipt.json",
+    "applicationCommit": "a7eb763290ed78cb6afab73ba01ff01c47fdb320",
+    "publicChecks": 66
+  },
+  "finalReturnLayout": {
+    "checks": 20,
+    "profiles": [
+      "desktop",
+      "320px"
+    ],
+    "status": "passed"
   }
 }

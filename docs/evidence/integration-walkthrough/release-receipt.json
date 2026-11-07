@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "workUnit": "W60",
+  "status": "published-and-verified",
+  "verifiedAt": "2026-11-07T07:16:29.819724+00:00",
+  "repository": "https://github.com/kyle-annora/annora-explorer",
+  "applicationCommit": "a7eb763290ed78cb6afab73ba01ff01c47fdb320",
+  "implementationCommit": "a7db3671afdb4178cc2b1eff3842bf0f8dd7aecd",
+  "baselineCommit": "1e31f171421a3a12c67b8a0fba0b5962dfa85d7c",
+  "workflow": {
+    "id": 42350206630,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42350206630",
+    "build": "success",
+    "deploy": "success"
+  },
+  "deployment": {
+    "id": 7618051464,
+    "environment": "github-pages",
+    "state": "success",
+    "statusCreatedAt": "2026-11-07T07:12:43Z"
+  },
+  "reviewLinks": {
+    "walkthrough": "https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent",
+    "github": "https://github.com/kyle-annora/annora-explorer",
+    "review": "https://github.com/kyle-annora/annora-explorer/blob/main/docs/w60-integration-walkthrough-review.md"
+  },
+  "publicArtifact": {
+    "package": {
+      "name": "@annora/integration-kit",
+      "version": "0.2.0"
+    },
+    "sourceRevision": "a7eb763290ed78cb6afab73ba01ff01c47fdb320",
+    "sourceTreeSha256": "492c886720740aac8d55377b92c1ebf1a68f999a6e4d3673e5856bd370527742",
+    "file": "annora-integration-kit-0.2.0.tgz",
+    "sha256": "cec120a673126e1628dd7493357ac3c282639084de8d4302bc49f7c5d91121e6",
+    "bytes": 104738,
+    "installation": "npm install ./annora-integration-kit-0.2.0.tgz react@19.3.1 react-dom@19.3.1",
+    "assetsIncluded": false
+  },
+  "preservedArchive": {
+    "file": "annora-integration-kit-0.1.0.tgz",
+    "sha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2",
+    "bytes": 87315,
+    "originalSourceRevision": "7a82541cf17c8cba0431e85977e08b27c535e7bb",
+    "originalReceipt": "work/product-expansion/W50/public-artifact/release.json"
+  },
+  "exactPublicAssetMatches": [
+    {
+      "path": "integration-kit/annora-integration-kit-0.1.0.tgz",
+      "bytes": 87315,
+      "sha256": "197a37d05b6b750cfe614ec7d41c9f7682a863827ea4fdf7d719c476c3dc0ee2",
+      "localByteMatch": true
+    },
+    {
+      "path": "walkthrough/index.html",
+      "bytes": 1304,
+      "sha256": "8b292da867bbcf6275c022e6c82d86ce01c624dbdb426990af46ddeab6b880a3",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/index.html",
+      "bytes": 3119,
+      "sha256": "67eaa3a3587e694e9c07ae325c66bd381547d43a136a7387006a9f739b5e2294",
+      "localByteMatch": true
+    },
+    {
+      "path": "product-room/index.html",
+      "bytes": 4541,
+      "sha256": "13f1473b68e501cbd7083066c283f78e2769806d260eb8222a8ba03a9fa995d1",
+      "localByteMatch": true
+    },
+    {
+      "path": "studio/index.html",
+      "bytes": 3661,
+      "sha256": "44afae4bd9ba5bfa656dfe5f3f965d0b774a578eba397b8a1e26666aeaf1ab80",
+      "localByteMatch": false
+    },
+    {
+      "path": "integrations/existing-viewer/fixture.json",
+      "bytes": 33032,
+      "sha256": "d2581804ca682f3f81bd6e364b286d89db070793e41dab1b23f8a98564f72bac",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/model.glb",
+      "bytes": 2574332,
+      "sha256": "5356cb1e7dcf85874c1f2152795b7011f43f01c2bfc899a5fa75a198687204ad",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/MODEL-LICENSE.txt",
+      "bytes": 1072,
+      "sha256": "8f694d23cac4bad2c9f97c5b21f20a891c018445594edc179a39555c17c79728",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/walkthrough-BTrzCeCL.js",
+      "bytes": 1088,
+      "sha256": "0d268003b417271bf4cf5c7d4b3d0c4b56140679f06cca43335f0296990190fc",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "bytes": 711,
+      "sha256": "d2a32840421496e872ade591618d2fa5c33797605d1aec04301717e5a90757d0",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/inspection-reference-WG_yQLtT.js",
+      "bytes": 5723,
+      "sha256": "5325d677893677e08a77817de8506dc49aaedab171b248efc4a226652db98cdd",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/project-domain-DKSp5k3L.js",
+      "bytes": 50041,
+      "sha256": "69604cd3e0347269f3db25be2ad4e18061f939803de0294d2c66bdadee83013b",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/project-repository-CYNAz0jU.js",
+      "bytes": 111861,
+      "sha256": "bca4508550b6c35e3372c2ce46ed633b6a36856742ed4f28b6a2e9eef4e3f628",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/session-y2OLoiKa.js",
+      "bytes": 5239,
+      "sha256": "991026380711ee30701fc1f86e1c1e74b38e33bcf4baaaec596f34e5a6a18cca",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/chrome-CGg9B58e.js",
+      "bytes": 4198,
+      "sha256": "be9efa3160ad361b399e5fc95d5eca0a0ec398f923a733b1603a084a3043ce2f",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/chrome-DJ_7TkpI.css",
+      "bytes": 4890,
+      "sha256": "e74900786f47d4e5acc39bcd889b64dafa536f8a50f402a869b12e9290201f20",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-CR4WqjXl.js",
+      "bytes": 462839,
+      "sha256": "fffd4420407fbbc7be2ec0f07e07e7ef07764f79a0ea5894d504b8015d7c38f4",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js",
+      "bytes": 593047,
+      "sha256": "0e6a3e36d63fae31c20c3a3da0c88a5281c4f31c30731710b574243cb089b6f8",
+      "localByteMatch": true
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-BagY9jEi.css",
+      "bytes": 39578,
+      "sha256": "6b345085eba7ac68813736f1109c9b85b676be7da32691b9e182f6a3da838916",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/room-j9NbigJU.js",
+      "bytes": 56476,
+      "sha256": "8af9822d64fa5f03965eb34b018357f5951011b1874878c7562b6a2d83d583e9",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/preload-helper-PPVm8Dsz.js",
+      "bytes": 1232,
+      "sha256": "0bcb72f8ec0d95f592f3a84b3554b9ef5a5325ff5416a9114d6913e03c1c9eb4",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/content-CBAb4k90.js",
+      "bytes": 7730,
+      "sha256": "20720bc1a608eb1bf9093b1c98787ee5151e65ba77a0f51f86fd17ec207c3a2a",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/catalog-CjxupRaY.js",
+      "bytes": 37688,
+      "sha256": "2182db618c12fcf64c5561f958a1381629e6ac0d0cc8cc0ed45b9544efaf5db1",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/metadata-D-ENTGCd.js",
+      "bytes": 118088,
+      "sha256": "b24db533117fb9657d4511a85d487340e5efe24c7e88f75344ef1075a9c15cf2",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/embed-bridge-_STiZKNo.js",
+      "bytes": 4580,
+      "sha256": "51d118fde76a19ea7318a89100715ed5f368886bb7404c6a18b53e4fd2544c9c",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/embed-client-DXDGIrLO.js",
+      "bytes": 2953,
+      "sha256": "b0e1c88d8a36aafcf600c69e5e900a86621e136d49c07e0d1c756a5433cb760a",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/navigation-B-3f1BzH.js",
+      "bytes": 1886621,
+      "sha256": "7387400349d161a6c62980bb1e010c1504afc7e8acc02840225952ddcbc27ee3",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/repository-BDwpqAPr.js",
+      "bytes": 27361,
+      "sha256": "3b5cf1b841eae4d05340fcde8a509ada5a386bb08ced82b51c35b74f63ce9ccd",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/actions-DDpB_hVf.js",
+      "bytes": 948,
+      "sha256": "f4a72875f4199a466161065b2096d38fda65ca8f6b0e69f2470e190c7a0852fe",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/chrome-Gmpn40t-.js",
+      "bytes": 81570,
+      "sha256": "3368c95905e4eec212a339cdcf00ccc30024cf494db9cdcb1e2b2ac4d37ac391",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/exploration-handoff-8V3bw1KV.js",
+      "bytes": 1753,
+      "sha256": "18ca50ab08a6959351f8581438400b996ef329bb9a6214a1068632445e3fa195",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/chrome-DpL4rjT_.css",
+      "bytes": 6791,
+      "sha256": "7f43d5ce9653154c52206344f782885868fa8e55dcf6e6f119f6075f0d0fa199",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/room-mGhdifxp.css",
+      "bytes": 21654,
+      "sha256": "2c8bf5717cd911ef1812362ef371a2dc8db3ac722d283641c4af6b15ca500d8e",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/studio-BI2Y_7lT.js",
+      "bytes": 270770,
+      "sha256": "8ecbe907e615d5a6fd446f93a5a591846d59c1ec39fb74f97375e9e0b848343e",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/client-7oo_5qgQ.js",
+      "bytes": 222236,
+      "sha256": "3af2eef0b1650669b62791cd3e0dd137bab361320a9741a84b14ba3bf5a5e4d4",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/components-DDj2hc_G.js",
+      "bytes": 13493,
+      "sha256": "883222bf4152c7cf982e92ed35f788882076bb683a94d3c53d910f26250d1e37",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/drawing-view-BeK9CbXd.js",
+      "bytes": 11344,
+      "sha256": "f76e132ce3b0129ff605d40523f1eac366e7c7b9908ebe118fe789bba6075b00",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/drawing-overview-FeOwb1Am.js",
+      "bytes": 21479,
+      "sha256": "6d7afcfc8ddde7be9fe68f5648092eab1968c49d35f563283347f613101be01e",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/DrawingPreview-fPH9033f.js",
+      "bytes": 6767,
+      "sha256": "98299a5f3901b1e5882c3f30e29edcf5ff4d83f52ec0c7d3148dc9c41c8ad560",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/technical-story-preview-BECJRl2l.js",
+      "bytes": 2746,
+      "sha256": "df19fe1c45d328a1aafe73a34b0f96ef1e9afafeb6c005c88bc47acf80c348a6",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/reference-preview-D7aCkJwq.js",
+      "bytes": 2326,
+      "sha256": "34c21d8c1c02cd1c903518c290520d47003fede76be43b4ea2f0c9b74e51da81",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/project-questions-By7DamaA.js",
+      "bytes": 45491,
+      "sha256": "21e039663ea5d2b9d7b419784507a36da373f1a4453db1a67772159d98073777",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/request-items-view-DwEWHCKS.js",
+      "bytes": 6563,
+      "sha256": "e0476c3ba9088d099cdf80ac6cfbac12fe048a72be81890d0080a0973d43c85a",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/model-state-D6twAF2P.js",
+      "bytes": 2865,
+      "sha256": "b807594a3a0f3b7363a8397fd3e7bd9feb31398b86c6b39975bf533c8cff671d",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/drawing-repository-DdpQoSx3.js",
+      "bytes": 12249,
+      "sha256": "e4f36a1ee80e066b4c1d04efc77fbf40050536b21b76ff56306f19cd7f70c29d",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/drawing-inquiry-CYCcaZuq.js",
+      "bytes": 280,
+      "sha256": "d7658b11b2262f157f6bf0703be9400f8dc8f1dbaeee40df441c2fc0d097f80b",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/components-Dvt5GKyi.css",
+      "bytes": 11626,
+      "sha256": "bcd097db1378199d1cfbd656d1e7bf83f4a5f09635baf465fbad214ef6118e10",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/drawing-overview-01itqqL_.css",
+      "bytes": 3751,
+      "sha256": "faa28f3a1ac62f58520ac10e42aa41d58378c1aba6f993313ae8cf51de20c13c",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/DrawingPreview-WnUK3xeZ.css",
+      "bytes": 3907,
+      "sha256": "eb2417e5601427aeee7d6762241aa488a6789ae3225bc2f95965818437f34b92",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/project-questions-BtaUnAre.css",
+      "bytes": 20243,
+      "sha256": "25e9002976be6872a3ba4f63f85a917d1804faf9ec8dfa06c2c0621ac4f5ab8a",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/request-items-view-BFNPzL9y.css",
+      "bytes": 4521,
+      "sha256": "a8e23cf74065def2774eff4166ce44347481f82201366a584fa69d59b204184f",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/studio-zCYpyPT_.css",
+      "bytes": 131053,
+      "sha256": "3a1bc05e5787dafa495faa439d736bebd62c9181dced6f1c05230804fce07765",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/embedded-inquiry-CDnI9tIg.js",
+      "bytes": 24829,
+      "sha256": "cd88474d1c963100ba9f72a0023eb4a1365a8260c500777d263bf8bf72c28020",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/inquiry-sample-Bm7qg6aj.js",
+      "bytes": 12931,
+      "sha256": "4efc5cffc47b5aefdea4506b853c957a8f86a049957e4874608ef8f8e2b03de7",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/embedded-inquiry-BEa8JKfE.css",
+      "bytes": 11683,
+      "sha256": "c06718485138031ec09664436a62c56933d9c571c2c641bc6d9095a842fc2fae",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/technical-story-panel-DsKhUYLJ.js",
+      "bytes": 1984,
+      "sha256": "dddaeb90b9d73e315a79a6d5f2a9ad9ee8ae152074ece66eea7b404de07c7ca2",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/technical-story-panel-h1UM1CAL.css",
+      "bytes": 1443,
+      "sha256": "6df3aa4e96c29495cf92b15bd15902639d94fb5bc017a1d733d5d9ddbd08393b",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/workspace-entry-BwN1y8Am.js",
+      "bytes": 81580,
+      "sha256": "1a9eac8f42f84d139581036ac9189e2b7924a1f4698371d5f8ece914d5a3d045",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/workspace-entry-DEC6zhTD.css",
+      "bytes": 37220,
+      "sha256": "f5a848b98a7744cbc85edaa915b8e55fe9ba726b3fe5da4c934b0bbbfddb9500",
+      "localByteMatch": true
+    },
+    {
+      "path": "assets/pdf-runtime-B1fC-J4m.js",
+      "bytes": 459698,
+      "sha256": "2f7d0646e18b9abfe383104452dfb3e88b1253aa12f922d6a4d81bae74cf4ca5",
+      "localByteMatch": true
+    }
+  ],
+  "htmlDifferences": [
+    {
+      "path": "studio/index.html",
+      "servedSha256": "44afae4bd9ba5bfa656dfe5f3f965d0b774a578eba397b8a1e26666aeaf1ab80",
+      "localSha256": "f45bf792d3c2ab3bf45b880b844e4388cad727068aadfe1b986823d672a5a5bd",
+      "difference": "Stylesheet link ordering only; identical document content and asset set."
+    }
+  ],
+  "publicMainJourney": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "timestamp": "2026-11-07T07:14:15.861Z",
+    "results": [
+      {
+        "profile": "desktop",
+        "status": "passed",
+        "sessionId": "WTI-087b3a4d-293e-4a49-b041-e10e4fee4487",
+        "projectId": "PRJ-DEMO-AC0CD387",
+        "checkpoints": 23,
+        "confirmations": 8
+      },
+      {
+        "profile": "mobile",
+        "status": "passed",
+        "sessionId": "WTI-c3233905-1789-472d-8d50-03366de7466e",
+        "projectId": "PRJ-DEMO-8D5915F1",
+        "checkpoints": 23,
+        "confirmations": 8
+      }
+    ]
+  },
+  "publicNavigation": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "results": [
+      {
+        "profile": "desktop",
+        "status": "passed",
+        "checkpoints": 10
+      },
+      {
+        "profile": "compact",
+        "status": "passed",
+        "checkpoints": 10
+      }
+    ]
+  },
+  "publicArtifactQualification": {
+    "freshExternalInstallAndBuild": "passed",
+    "checksPassed": 15,
+    "includesPriorVersionCompatibility": "0.1.0 to 0.2.0",
+    "sourceArtifactSha256": "cec120a673126e1628dd7493357ac3c282639084de8d4302bc49f7c5d91121e6"
+  },
+  "protections": [
+    "Existing Explorer renderer and models unchanged",
+    "WTI session isolated from ordinary, native WT and Studio product stores",
+    "Exact external reference and historical quotations preserved",
+    "Every committed business action retains review then explicit confirmation"
+  ],
+  "limits": [
+    "Fictional browser-local data; no backend delivery, account or cross-device storage",
+    "Independent source model is a static pose; no authored motion or drawing capability claimed",
+    "Desktop and mobile browser emulation; no physical-device benchmark claim"
+  ]
+}

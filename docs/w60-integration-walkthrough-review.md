@@ -1,8 +1,8 @@
 # W60 — Independent viewer commercial walkthrough
 
-Status: candidate qualified locally. Public deployment verification is pending.
-This document is a review brief, not a release receipt or a claim that the public
-target already contains this candidate.
+Status: published and verified. Application source `a7eb763` is live.
+The [release receipt](evidence/integration-walkthrough/release-receipt.json) records
+the successful deployment and public-target qualification.
 
 ## Intended presentation
 
@@ -24,12 +24,12 @@ The primary action is **Continue demo**. A review must remain visible before a
 later **Confirm & continue** activation. Role changes are explicit. The flow
 does not place an order, take payment or claim that an inquiry was delivered.
 
-## Candidate entry and release boundary
+## Published entry and release boundary
 
-Intended entry after verified publication:
+One link for Patrick and Wesley:
 [Independent viewer walkthrough](https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent).
 
-The candidate introduces integration kit **0.2.0**, with optional
+This release includes integration kit **0.2.0**, with optional
 `@annora/integration-kit/walkthrough` exports for Annora's same-origin static-browser
 commercial-demo hosts. The entry depends on separately deployed Product Room and
 Studio pages. It is not a production backend or a portable seller application.
@@ -37,8 +37,7 @@ Studio pages. It is not a production backend or a portable seller application.
 The ordinary [independent viewer example](https://kyle-annora.github.io/annora-explorer/integrations/existing-viewer/)
 retains its standalone capture/inquiry behavior when no walkthrough is requested.
 The original [0.1.0 artifact URL](https://kyle-annora.github.io/annora-explorer/integration-kit/annora-integration-kit-0.1.0.tgz)
-is preserved by the candidate publication assembly. The release check must still
-confirm that the deployed artifact matches the original W50 hash receipt.
+is preserved byte-for-byte and verified against the original W50 hash receipt.
 
 ## What is connected
 
@@ -82,7 +81,7 @@ records the completed candidate runs.
 | Package | Fresh external host installs/builds packed 0.2.0; 15 conformance checks include real 0.1.0→0.2.0 saved-inquiry compatibility |
 | Checks/build | 1,002 passing tests, one existing conditional skip; product/drawing checks and all three builds pass |
 | Rendering | One independent canvas; no Explorer iframe; 0–1 frames during 400 ms idle samples; no renderer/model changes |
-| Publication | Pending separate public-target verification |
+| Publication | Final public release: 46 full-journey and 20 navigation checks; four routes and 60 assets verified; served package fresh install/build and 15 conformance checks passed |
 
 The duplicate confirmation/next-step primaries are hidden or demoted only in the
 WTI presentation. The Guide now stays above the floating inquiry. The explicit
@@ -90,7 +89,10 @@ reference-return action preserves the seller review step instead of guessing the
 next workflow state. Saved-reference visits keep request creation in the project
 workflow rather than starting a second inquiry from a historical record.
 
-Candidate screenshots, records and fictional snapshots are retained under
+The return link now follows its description in normal layout. An explicit spacing
+check passes on desktop, 390 px and 320 px; the final public run includes this fix.
+
+Candidate and public screenshots, records and fictional snapshots are retained under
 `work/product-expansion/W60/`. Browser sizes are emulated; no physical-device or
 ordinary-PC frame-rate claim is made. Backend delivery and cross-device storage
 remain API work, not behavior represented by this demonstration.
@@ -102,3 +104,12 @@ without losing the product context; whether the seller can respond with a clear,
 reviewed scope; and whether a later change remains understandable across versions.
 The presentation should demonstrate that continuity through the customer's own
 viewer, with one obvious next action at each step.
+
+## Suggested customer-call language
+
+- **Understand the product:** “Keep your existing viewer. A specific component can become the starting point of the conversation.”
+- **Get a quotation:** “The selected part and saved view travel with the request, so the seller can respond with context.”
+- **Resolve and move forward:** “Change a requirement, compare the revised quotation, and agree on the next step without losing the original discussion.”
+
+Use Guide → Start a new sample for a fresh rehearsal. Returning to the entry
+resumes this browser's existing sample. No sign-in is required for the public demo.
