@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T01:36:17.183636+00:00",
+  "classification": "public-fictional-example",
+  "status": "published-and-verified",
+  "sourceCommit": "819b51638f01e9a1a5f6e9c1c58353f3cb5f0112",
+  "previousApplicationCommit": "66a335e28fda7e7c7387878c238ce32ae4d3affe",
+  "deployment": {
+    "provider": "GitHub Pages",
+    "workflowRunId": 42324297556,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42324297556",
+    "status": "completed",
+    "conclusion": "success",
+    "deploymentId": 7614714997,
+    "deploymentState": "success",
+    "completedAt": "2026-11-07T01:30:32Z"
+  },
+  "routes": {
+    "buyer": "https://kyle-annora.github.io/annora-explorer/product-room/?optionDemo=crank-options-v1",
+    "seller": "https://kyle-annora.github.io/annora-explorer/studio/?optionDemo=crank-options-v1"
+  },
+  "publicAssetVerification": {
+    "verifiedAt": "2026-11-07T01:31:20.756Z",
+    "records": [
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/product-room/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/room-DcOCYoT2.js",
+        "sha256": "a38ced11baf14296b6761afc69df23e911e1e1ed0904aeab6f395b38536868e4",
+        "status": "matched"
+      },
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/studio/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/studio-BEjCANa9.js",
+        "sha256": "1607be9dff6f39f21e6a1c0efde4d5835f3ebf2c57bae10812a24ffe0b4b28de",
+        "status": "matched"
+      }
+    ]
+  },
+  "localAcceptance": "acceptance.json",
+  "unitChecks": {
+    "command": "npm run verify",
+    "tests": 829,
+    "passed": 828,
+    "failed": 0,
+    "skipped": 1,
+    "existingSkip": true
+  },
+  "inquiryBuild": {
+    "command": "npm run build:inquiry",
+    "status": "passed"
+  },
+  "liveChecks": {
+    "commercialJourneys": [
+      {
+        "viewport": {
+          "width": 1280,
+          "height": 960
+        },
+        "status": "passed",
+        "checkpoints": [
+          "buyer-comparison",
+          "preference-guided-handoff-review",
+          "clarification-blocks-review",
+          "seller-scope-ready",
+          "quotation-v1-review",
+          "preference-engineering-support-review",
+          "explicit-preference-adoption",
+          "quotation-v2-review",
+          "buyer-v1-v2-comparison",
+          "buyer-preserved-v1",
+          "buyer-v2"
+        ],
+        "browserErrors": [],
+        "horizontalOverflow": false,
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true,
+        "localArtifact": "work/product-expansion/W21/live-1280/result.json"
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "status": "passed",
+        "checkpoints": [
+          "buyer-comparison",
+          "preference-guided-handoff-review",
+          "clarification-blocks-review",
+          "seller-scope-ready",
+          "quotation-v1-review",
+          "preference-engineering-support-review",
+          "explicit-preference-adoption",
+          "quotation-v2-review",
+          "buyer-v1-v2-comparison",
+          "buyer-preserved-v1",
+          "buyer-v2"
+        ],
+        "browserErrors": [],
+        "horizontalOverflow": false,
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true,
+        "localArtifact": "work/product-expansion/W21/live-390/result.json"
+      }
+    ],
+    "fixtureNavigation": {
+      "status": "passed",
+      "guardedRoleSwitch": true,
+      "newInquiryLeavesFixture": true,
+      "directInquiryLeavesFixture": true,
+      "fixtureUnchanged": true,
+      "errors": []
+    },
+    "exactPartAndReturn": [
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "errors": [],
+        "originalInquiryPreserved": true,
+        "explicitConfirmation": true,
+        "cancelExitsCleanly": true,
+        "partInExistingViewer": true,
+        "selectedPart": "Connecting rod",
+        "returnPreservesProject": true,
+        "visiblePrimaryInEdit": 1
+      }
+    ]
+  },
+  "preserved": {
+    "explorerRendererUnchanged": true,
+    "existingCommercialWalkthrough": "Local compiled desktop/mobile/compact regression passed; see acceptance.json.",
+    "existingFollowUp": "Local compiled W10 regression passed; see acceptance.json.",
+    "ordinaryProjectStorage": true,
+    "originalInquiry": true,
+    "issuedQuoteV1": true
+  },
+  "limits": [
+    "Browser-local fake data; no backend, delivery, account sync or automatic pricing.",
+    "Two prepared service packages around the same crank model; no geometry variants or general option-authoring UI.",
+    "Live checks used headless Chrome responsive emulation, not physical-device performance benchmarks.",
+    "Feature commit is the deployed application; subsequent receipt-only commits do not change runtime."
+  ]
+}

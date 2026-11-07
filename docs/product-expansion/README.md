@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 1 · November 6, 2026 · Proposed execution breakdown for review.
+Planning revision 2 · November 6, 2026 · W10 and W20/W21 published; remaining work is planned.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -12,7 +12,7 @@ production services or claim that planned features are implemented.
 | [Detailed scope](scope.md) | Current capability, proposed behavior, records, exclusions and acceptance for every feature |
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
-| [Option comparison and scope review](../option-scope-review.md) | W20/W21 candidate, exact journey, API and acceptance |
+| [Option comparison and scope review](../option-scope-review.md) | W20/W21 published journey, API, acceptance and release receipt |
 | [Customer follow-up review](../customer-follow-up-review.md) | W10 published project follow-up and exact next-action history |
 | [First delivery review](../product-expansion-review.md) | The actual published request-item and crank story-authoring delivery |
 
@@ -43,18 +43,19 @@ retain their applicable validation.
 
 ## Baseline and status
 
-Inspected repository: `443c40b7c0b514331755e5ba299773877b259edf`.
-Published application: `605d903b3563a42fff414b7e20d2dc51ff518dad`.
-The [release receipt](../evidence/product-expansion/release-receipt.json) records
-the implemented scope and observed checks. This planning unit changes documents
-only. It does not republish the application or any MK America client artifact.
+Original planning baseline: `443c40b7c0b514331755e5ba299773877b259edf`.
+The [first delivery receipt](../evidence/product-expansion/release-receipt.json)
+preserves that delivery's evidence. Current W20/W21 application:
+`819b51638f01e9a1a5f6e9c1c58353f3cb5f0112`; see its
+[release receipt](../evidence/option-scope/release-receipt.json).
+This delivery does not change any MK America client artifact.
 
 | Area | Actual state | Next bounded extension |
 | --- | --- | --- |
 | F1 · Contextual requests | Published: independent request items, complete review, exact reopen | Per-question follow-through and explicit quote-scope mapping |
 | F2 · Story authoring | Published for the prepared crank: action/view steps, preview, reviewed local release | Product capability registry; linked technical-view steps where sources exist |
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
-| F4 · Options and quoted scope | W20/W21 implemented; target verification pending in delivery review | Two approved same-release alternatives and reviewed scope disposition |
+| F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Existing A/B drawing adoption and old-history retention | Explicit impact findings across questions, drafts and presentation references |
 | F6 · Action workspace and evidence | Existing project queue, replies and next-action ownership | Question-level work and minimal, attributable interaction evidence |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
@@ -73,7 +74,7 @@ only. It does not republish the application or any MK America client artifact.
 5. Review and publish one coherent journey at a time. New feature breadth never
    substitutes for history, recovery, mobile and live-target evidence.
 
-The next execution unit is W0 followed by W1 in [the execution plan](execution.md).
-Its result is a focused follow-up that returns a buyer to the same project and
-original inquiry evidence, then to an exact quotation or current clarification.
-Confirmed inquiries remain immutable. Later packages remain separate reviewable deliveries.
+The next proposed unit is W30 in [the execution plan](execution.md): question-level
+follow-through, then W31 change-impact review. W20/W21 is ready for user review
+before that next slice begins. Confirmed inquiries remain immutable; later
+packages remain separate reviewable deliveries.

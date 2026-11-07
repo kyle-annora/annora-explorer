@@ -1,6 +1,6 @@
 # Execution, harness and agent plan
 
-Revision 2 · Execution plan with W20/W21 implementation status. Feature IDs refer
+Revision 3 · Execution plan with W20/W21 publication status. Feature IDs refer
 to [scope](scope.md); candidate acceptance and publication require separate evidence.
 
 ## 1. Delivery strategy
@@ -11,8 +11,8 @@ only at the end. Keep the existing runtime and commercial flow as the baseline.
 Use a capability flag until a slice's contract, UI and historical behavior agree.
 
 The recommended sequence below remains the delivery plan. The user has approved
-the feature directions. W20/W21 implementation is recorded below; it does not
-mark the remaining packages, integrated acceptance or publication complete.
+the feature directions. W20/W21 publication and integrated acceptance are recorded
+in the [delivery review](../option-scope-review.md); remaining packages stay planned.
 Sizes express coordination/risk, not elapsed-time promises. Re-estimate after W10
 using actual integration, review and recovery work. Asset availability and future
 service ownership can change the schedule independently of agent count.
@@ -23,8 +23,8 @@ service ownership can change the schedule independently of agent count.
 | --- | --- | --- | --- | --- |
 | W00 | Freeze identity/capability/state rules; named fixtures; baseline routes; define error and historical behavior | Current verified release | S–M / conflicting assumptions | A reviewed contract and examples each agent can consume |
 | W10 | F3 crank follow-up: author, buyer resume, same-project next action, local release and public fictional fixture export | W00; existing F1/F2 | M / confusing local and hosted delivery | Seller builds two-step follow-up; buyer returns to the same project and exact quote/clarification |
-| W20 | F4a two prepared service packages, differences and reviewed preference events | W00 | M / unsupported configuration claims | Implemented and integrated QA passed; awaiting target publication. Buyer can choose or remain undecided without changing the confirmed inquiry. See [handoff](../option-scope.md). |
-| W21 | F4b request-to-quote scope mapping, explicit preference adoption and v1/v2 comparison | W20 | M–L / metadata lost during draft/quote copying | Implemented and integrated QA passed; awaiting target publication. Requested versus offered scope is reviewed before separate issue; prior snapshots remain unchanged. See [handoff](../option-scope.md). |
+| W20 | F4a two prepared service packages, differences and reviewed preference events | W00 | M / unsupported configuration claims | Published; local and live desktop/mobile QA passed. Buyer can choose or remain undecided without changing the confirmed inquiry. See [handoff](../option-scope.md). |
+| W21 | F4b request-to-quote scope mapping, explicit preference adoption and v1/v2 comparison | W20 | M–L / metadata lost during draft/quote copying | Published; local and live desktop/mobile QA passed. Requested versus offered scope is reviewed before separate issue; prior snapshots remain unchanged. See [handoff](../option-scope.md). |
 | W30 | F6a question-level events, replies, blocker policy and buyer/seller work list | W00, W21 scope-link contract | L / existing singular pending-question policy | Two independent questions resolve without overwriting original inquiry or v1 |
 | W31 | F5 impact report, per-question/scope working references and explicit drawing/overview A→B decisions | W10, W21, W30; existing drawing revision flow | L / false matches and accidental history adoption | A and B may coexist in working references; original inquiry, discussions and v1 keep A |
 | W32 | F6b bounded events and small evidence view in existing workspace | W10, W30; event definitions from W00 | S–M / counting observations as business outcomes | Reproducible demo counts, no sensitive payloads or blocked user actions |

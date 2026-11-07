@@ -501,5 +501,9 @@
     "No backend, delivery, account sync or CPQ.",
     "Two prepared service packages; no general option authoring or option-set revision UI."
   ],
-  "target": "Pending release receipt"
+  "target": {
+    "status": "published-and-verified",
+    "sourceCommit": "819b51638f01e9a1a5f6e9c1c58353f3cb5f0112",
+    "receipt": "release-receipt.json"
+  }
 }

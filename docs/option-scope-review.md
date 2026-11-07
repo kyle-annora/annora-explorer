@@ -1,6 +1,10 @@
 # Option comparison and quotation scope review
 
-W20/W21 · November 6, 2026 · Candidate verified locally; awaiting target publication.
+W20/W21 · November 6, 2026 · Published and verified on GitHub Pages.
+
+Application commit: `819b51638f01e9a1a5f6e9c1c58353f3cb5f0112`.
+[Successful deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/42324297556)
+and [target verification receipt](evidence/option-scope/release-receipt.json).
 
 This delivery connects a buyer's reviewed preference to the seller's explicit
 quotation scope in one fictional crank-slider project. Explorer rendering,
@@ -45,7 +49,7 @@ an isolated fictional store; they do not transfer a visitor's project data.
 | Layout | PASS · complete commercial path at 1280×960, 390×844 and 320×844; buyer interaction at 1280, 390, 320 and 844px landscape |
 | Existing follow-up | PASS · exact quotation, clarification, review, local v2, missing-version refusal and unsent-reply protection |
 | Existing commercial walkthrough | PASS · desktop, mobile and compact profiles; 21 checkpoints and 8 confirmation gates each |
-| Target deployment | NOT RUN at candidate creation; see release receipt after publication |
+| Target deployment | PASS · successful Pages deployment, matching public JavaScript assets and complete live desktop/mobile journeys; see release receipt |
 
 The final `npm run verify` passed: 829 tests, 828 passed, one existing skip,
 zero failures, asset checks and production build complete. `npm run build:inquiry`
