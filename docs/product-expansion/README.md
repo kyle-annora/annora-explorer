@@ -12,6 +12,8 @@ production services or claim that planned features are implemented.
 | [Detailed scope](scope.md) | Current capability, proposed behavior, records, exclusions and acceptance for every feature |
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
+| [Option comparison and scope review](../option-scope-review.md) | W20/W21 candidate, exact journey, API and acceptance |
+| [Customer follow-up review](../customer-follow-up-review.md) | W10 published project follow-up and exact next-action history |
 | [First delivery review](../product-expansion-review.md) | The actual published request-item and crank story-authoring delivery |
 
 ## Product outcome
@@ -51,8 +53,8 @@ only. It does not republish the application or any MK America client artifact.
 | --- | --- | --- |
 | F1 · Contextual requests | Published: independent request items, complete review, exact reopen | Per-question follow-through and explicit quote-scope mapping |
 | F2 · Story authoring | Published for the prepared crank: action/view steps, preview, reviewed local release | Product capability registry; linked technical-view steps where sources exist |
-| F3 · Customer follow-up | Planned; existing same-tab handoff is not a share link | Project-specific, versioned explanation and a clear next action |
-| F4 · Options and quoted scope | Planned; current quote lines have no semantic request mapping | Two approved same-release alternatives and reviewed scope disposition |
+| F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
+| F4 · Options and quoted scope | W20/W21 implemented; target verification pending in delivery review | Two approved same-release alternatives and reviewed scope disposition |
 | F5 · Change impact | Existing A/B drawing adoption and old-history retention | Explicit impact findings across questions, drafts and presentation references |
 | F6 · Action workspace and evidence | Existing project queue, replies and next-action ownership | Question-level work and minimal, attributable interaction evidence |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |

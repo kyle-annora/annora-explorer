@@ -2,6 +2,9 @@ import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
 import { InspectionReference } from "./inspection-reference.jsx";
 import { RequestItemsSummary } from "./request-items-view.jsx";
+import { OptionComparison } from "./option-comparison.jsx";
+import { QuoteScopeSummary } from "./quote-scope-summary.jsx";
+import { assertOptionScopeRepository, assertOptionPreferenceRoundTrip } from "./option-scope-repository.js";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -51,6 +54,8 @@ const contextualURL = input => {
   const url = new URL(input,location.href), session = readWalkthroughSession();
   const example = new URLSearchParams(location.search).get('followUpDemo');
   if (example) url.searchParams.set('followUpDemo',example);
+  const optionsExample = new URL(location.href).searchParams.get('optionDemo');
+  if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
   return session ? withWalkthroughSession(url,session).href : url.href;
 };
 const money = (value) =>
@@ -393,8 +398,10 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     heading = useRef(null),
     perQuoteDrafts = useRef({});
   const uiReady = useRef(false);
+  const [optionDirty, setOptionDirty] = useState(false);
+  const [optionStage,setOptionStage] = useState("saved"), [showOptionRecords,setShowOptionRecords] = useState(false);
   const setStage = value => { setStageState(value); updateBuyerLocation({stage:value}); };
-  const setTab = value => { setTabState(value); updateBuyerLocation({tab:value}); };
+  const setTab = value => { if (optionDirty) { report(new Error("Confirm or cancel your preference before changing the project view."),true); return; } setTabState(value); updateBuyerLocation({tab:value}); };
   const setQuoteId = value => { setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
   const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined,messageId:value === 'message' ? pendingClarification(project)?.id : undefined}); };
   const setModeStage = value => { setModeStageState(value); updateBuyerLocation({stage:value}); };
@@ -404,7 +411,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   };
   lifecycle.route = route;
   lifecycle.requestDirty = Boolean(
-    mode &&
+    optionDirty || mode &&
       (mode === "message" ? replyValues.body.trim() : mode === "next"
         ? nextValues.message.trim()
         : changeValues.notes?.trim() ||
@@ -487,7 +494,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   }
   lifecycle.beforeLeave = async (nextRoute) => {
     const sameWorkspace = nextRoute?.view === route.view && nextRoute?.projectId === route.projectId;
-    if (sameWorkspace && (!mode || nextRoute.mode === mode)) {
+    if (sameWorkspace && (!mode || nextRoute.mode === mode) && !optionDirty) {
       if (route.view === 'inquiry' && draftRef.current) {
         try { await persistDraft(); } catch (error) { report(error,true); return false; }
       }
@@ -499,7 +506,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     if (lifecycle.requestDirty) {
       report(
         new Error(
-          "Your request has not been confirmed. Review and confirm it, or return to the quotation to leave this form.",
+          optionDirty ? "Your preference has not been confirmed. Confirm or cancel it before leaving this comparison." : "Your request has not been confirmed. Review and confirm it, or return to the quotation to leave this form.",
         ),
         true,
       );
@@ -631,6 +638,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     setReplyValues({ body: "", replyTo: "" });
     setUpdateAvailable(false);
     setProject(null);
+    setOptionDirty(false);
     setQuoteIdState(null);
     setProjects([]);
     setDrafts([]);
@@ -671,6 +679,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
               "This project is not available in this browser. Return to My projects to choose a saved project.",
             );
           if (route.quoteId && !next.quotes.some(item => item.id === route.quoteId)) throw new Error('The exact quotation in this link is unavailable. Return to the project to choose a saved version.');
+          if (next.approvedOptionSet) assertOptionScopeRepository(repository);
           setProject(next);
           const selectedQuote = next.quotes.find(item => item.id === route.quoteId) || next.quotes.at(-1);
           setQuoteIdState(selectedQuote?.id || null);
@@ -762,7 +771,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
           if (disposed || next.revision === project.revision) return;
           // Keep a form's source revision intact. The final write will also reject
           // a stale review, so background updates never replace a customer's input.
-          if (mode) { setUpdateAvailable(true); return; }
+          if (mode || optionDirty) { setUpdateAvailable(true); return; }
           const viewingLatest = quoteId === project.quotes.at(-1)?.id;
           setProject(next);
           if (viewingLatest || !quoteId) setQuoteId(next.quotes.at(-1)?.id || null);
@@ -823,6 +832,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         !sameProjectValue(draft.context[key], route.context[key]),
     );
   function openMode(nextMode) {
+    if (optionDirty) { report(new Error("Confirm or cancel your preference first."),true); return; }
     setMode(nextMode);
     setModeStage("details");
     setModeReview(null);
@@ -904,11 +914,12 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     </p>
   );
   const sellerLink = project && !isPreview && !inquiryOnly ? (
-    <a className="ar-button pw-role-link" data-variant="quiet" href={contextualURL(sellerURL ? sellerURL(project, { tab: tab === 'activity' ? 'conversation' : tab, quoteId: quote?.id || null }) : `../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
+    <a className="ar-button pw-role-link" data-variant="quiet" onClick={event => { if (optionDirty) { event.preventDefault(); report(new Error('Confirm or cancel your preference before switching to the seller.'),true); } }} href={contextualURL(sellerURL ? sellerURL(project, { tab: tab === 'activity' ? 'conversation' : tab, quoteId: quote?.id || null }) : `../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
       View as seller <span aria-hidden="true">↗</span>
     </a>
   ) : null;
   function openReply() {
+    if (optionDirty) { report(new Error('Confirm or cancel your preference before replying.'),true); return; }
     if (!question) return;
     setReplyValues({body:"",replyTo:question.id});
     setMode("message");
@@ -1856,7 +1867,24 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         {!inquiryOnly && <ProjectProgress project={project} />}
         <div className="pw-shared-status"><p><strong>{inquiryOnly ? "Inquiry saved" : projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{inquiryOnly ? "Your confirmed question and exact drawing reference stay together in this preview." : projectStatus(project).next}</span></p>{sellerLink}</div>
         {feedback}
-        {!inquiryOnly && <div className="pw-project-navigation">
+        {project.approvedOptionSet && <OptionComparison key={project.id} project={project} onDirtyChange={setOptionDirty} onStageChange={setOptionStage} onExplore={onExplore}
+          onConfirmPreference={async review => {
+            if (busy.current) throw new Error('Another project action is still saving. Please try confirming again.');
+            let failure, completed = false;
+            await run("confirm-preference", async () => {
+              try {
+                const next = await repository.confirmOptionPreference(review,{confirmed:true});
+                assertOptionPreferenceRoundTrip(review,next);
+                completed = true;
+                setProject(next); setOptionDirty(false); setUpdateAvailable(false);
+                setNotice("Preference confirmed. The seller can now review it against the quotation scope.");
+              } catch (error) { failure=error; throw error; }
+            });
+            if (failure) throw failure;
+            if (!completed) throw new Error('Your preference was not saved. Please confirm again.');
+          }} />}
+        {project.approvedOptionSet && optionStage !== 'saved' && <Button variant="quiet" aria-expanded={showOptionRecords} onClick={() => setShowOptionRecords(value=>!value)}>{showOptionRecords ? 'Hide saved inquiry and quotation history' : 'Show saved inquiry and quotation history'}</Button>}
+        {!inquiryOnly && <div hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords} className="pw-project-navigation">
           <label className="pw-view-choice">
             <span>Project view</span>
             <select value={tab} onChange={event => setTab(event.target.value)} aria-controls="pw-project-content">
@@ -1871,7 +1899,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             onChange={id => { setQuoteId(id); setAllComparisonFields(false); setError(null); }}
           />}
         </div>}
-        <div role="region" id="pw-project-content"
+        <div role="region" id="pw-project-content" hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords}
           aria-label={inquiryOnly || tab === "inquiry" ? "Saved inquiry" : tab === "quotation" ? "Quotation" : "Conversation"}>
           {tab === "inquiry" && (
             <div className="pw-layout">
@@ -2019,6 +2047,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         </Section>
                       )}
                       <p className="pw-application">{quote.scope}</p>
+                      <QuoteScopeSummary selection={quote.scopeSelection} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
                       <div className="pw-price-list">
                         <div className="pw-price-row pw-price-labels">
                           <span>Proposed scope</span>

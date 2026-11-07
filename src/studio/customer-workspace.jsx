@@ -1,3 +1,5 @@
+import { QuoteScopeEditor } from "./quote-scope-editor.jsx";
+import { assertOptionScopeRoundTrip, assertOptionScopeRepository } from "../product-room/option-scope-repository.js";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActionGroup,
@@ -191,6 +193,7 @@ export function CustomerWorkspace({
     baseline,
   ]);
   async function restoreView(record, next) {
+    if (record?.approvedOptionSet) assertOptionScopeRepository(repository);
     const turn = ++viewGeneration.current;
     hydratedView.current = routeHash(next);
     setTabState(next.tab || "inquiry");
@@ -305,6 +308,7 @@ export function CustomerWorkspace({
       repository.listSellerProjects(),
       id ? repository.getSellerProject(id) : null,
     ]);
+    if (record?.approvedOptionSet) assertOptionScopeRepository(repository);
     setProjects(list);
     setProject(record);
     setStale(false);
@@ -348,6 +352,7 @@ export function CustomerWorkspace({
     ])
       .then(async ([list, record]) => {
         if (active && turn === generation.current) {
+          if (record?.approvedOptionSet) assertOptionScopeRepository(repository);
           setProjects(list);
           setProject(record);
           setStale(false);
@@ -474,6 +479,7 @@ export function CustomerWorkspace({
       ...current.draft,
       replyDraft: current.response,
     });
+    assertOptionScopeRoundTrip(current.draft,value);
     setDraft(value);
     setSaved(copy(value));
     setResponse(copy(value.replyDraft || null));
@@ -490,6 +496,7 @@ export function CustomerWorkspace({
   function openDraft() {
     task("open-draft", async () => {
       const fresh = await repository.getSellerProject(project.id);
+      if (fresh.approvedOptionSet) assertOptionScopeRepository(repository);
       const value = await repository.getQuoteDraft(project.id);
       const requested = pendingProjectChange(fresh);
       const answer =
@@ -534,6 +541,7 @@ export function CustomerWorkspace({
   function issue() {
     return task("issue", async () => {
       const result = await repository.issueQuote(review);
+      assertOptionScopeRoundTrip(review.draft,result.quotes.at(-1));
       setProject(result);
       setProjects(await repository.listSellerProjects());
       setQuoteIdState(result.quotes.at(-1).id);
@@ -583,6 +591,7 @@ export function CustomerWorkspace({
   function reviewWalkthroughQuote() {
     return task("prepare-walkthrough-review", async () => {
       const fresh = await repository.getSellerProject(project.id);
+      if (fresh.approvedOptionSet) assertOptionScopeRepository(repository);
       let value = await repository.getQuoteDraft(project.id);
       const requested = pendingProjectChange(fresh);
       let answer = value.replyDraft || (requested ? responseFor(requested) : null);
@@ -1190,6 +1199,14 @@ export function CustomerWorkspace({
                     })}
                   </div>
                 </Section>
+                <QuoteScopeEditor project={project} draft={draft} errors={errors} disabled={Boolean(busy) || drawingEditing}
+                  onChange={next => { setDraft(next); setReview(null); setErrors({}); setMessage(""); }}
+                  onExplore={(context,entry) => localGo(() => {
+                    const url=new URL(buyerHref({...project,context},true)); url.searchParams.set('project',project.id);
+                    if (entry.requestItemId) url.searchParams.set('requestItem',entry.requestItemId);
+                    if (context.drawing) url.searchParams.set('view','drawings');
+                    location.assign(url.href);
+                  })} />
                 <Section
                   title="Pricing"
                   description="Enter known amounts. Leave a unit price blank when it remains to confirm."

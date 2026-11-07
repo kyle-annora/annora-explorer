@@ -1,3 +1,4 @@
+import { QuoteScopeSummary } from "../product-room/quote-scope-summary.jsx";
 import React, { useState } from "react";
 import {
   Button,
@@ -33,6 +34,8 @@ export function buyerURL(project, explore = false) {
   const url = new URL("../product-room/", location.href);
   const example = new URLSearchParams(location.search).get('followUpDemo');
   if (example) url.searchParams.set('followUpDemo', example);
+  const optionsExample = new URL(location.href).searchParams.get('optionDemo');
+  if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
   url.searchParams.set("model", project.context.modelId);
   if (explore) {
     url.searchParams.set("returnRole", "seller");
@@ -115,6 +118,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
         {project && <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
         <p className="customer-preserve">{quote.scope}</p>
       </section>
+      <QuoteScopeSummary selection={quote.scopeSelection} lineItems={quote.lineItems} project={project} />
       <section className="customer-document-section">
         <h3>Pricing</h3>
         <div className="customer-price-table">

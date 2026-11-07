@@ -35,6 +35,7 @@ import "./styles.css";
 import { CustomerWorkspace } from "./customer-workspace.jsx";
 import { FollowUpWorkspace } from "./follow-up-workspace.jsx";
 import { loadFollowUpDemo, FOLLOW_UP_DEMO_KEY } from "../product-room/follow-up-demo.js";
+import { loadOptionScopeDemo, OPTION_SCOPE_DEMO_KEY } from "../product-room/option-scope-demo.js";
 import { createDemoProjectRepository } from "../product-room/project-repository.js";
 import {
   readWalkthroughSession,
@@ -1146,6 +1147,13 @@ if (mount) {
         </a>
       </div>,
     );
+  } else if (new URLSearchParams(location.search).has('optionDemo')) {
+    void loadOptionScopeDemo().then(example => {
+      if (!location.hash) history.replaceState({}, '', `#project?id=${encodeURIComponent(example.projectId)}&tab=inquiry`);
+      createStudio(mount, { projectRepository: example.repository, repository: createStudioRepository({ key: `${OPTION_SCOPE_DEMO_KEY}.studio` }) });
+    }).catch(error => {
+      createRoot(mount).render(<div className="room-ui studio-loading"><h1>Comparison example unavailable</h1><p>{error.message}</p><a className="ar-button" href="./">Open Studio</a></div>);
+    });
   } else if (new URLSearchParams(location.search).has('followUpDemo')) {
     void loadFollowUpDemo().then(example => {
       if (!location.hash) history.replaceState({}, '', `#project?id=${encodeURIComponent(example.projectId)}&mode=follow-up`);

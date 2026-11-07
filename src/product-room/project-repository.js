@@ -7,6 +7,8 @@ import { proposeProjectDrawingRevision, reviewProjectDrawingRevision, validatePr
 import { SAMPLE_PRODUCT_ID, sampleQuote, sampleSupplierReply, sampleInquiryValues } from './project-fixtures.js';
 import { validateFollowUpStore } from './follow-up-domain.js';
 import { createFollowUpRepositoryMethods } from './follow-up-repository.js';
+import { validateOptionScopeProject, assertQuoteScopeSource } from './option-scope-domain.js';
+import { createOptionScopeRepositoryMethods } from './option-scope-repository.js';
 
 import { createQuoteDraft, normalizeQuoteDraft, quoteDraftPreview, reviewQuote, reviewReply, reviewCustomerReply, reviewAcknowledgement, pendingProjectChange, pendingClarification } from './seller-domain.js';
 
@@ -119,6 +121,7 @@ export function parseProjectStore(raw) {
     }
     if (new Set(store.quoteDrafts.map(item => item.projectId)).size !== store.quoteDrafts.length) throw new Error();
     validateFollowUpStore(store);
+    for(const project of store.projects)validateOptionScopeProject(project,store.quoteDrafts.filter(draft=>draft.projectId===project.id));
     return store;
   } catch {
     throw new ProjectError('STORAGE_CORRUPT', 'Saved project data could not be read. It has not been changed. Use a different browser profile for a fresh demo, or recover the stored data before continuing.');
@@ -228,6 +231,7 @@ export function createDemoProjectRepository(options = {}) {
     mode: 'demo',
     supportsRequestItems: true,
     ...createFollowUpRepositoryMethods({ read, change, findProject, now, makeId }),
+    ...createOptionScopeRepositoryMethods({ read, change, findProject, now, makeId }),
     async proposeDrawingRevision(projectId,input) {
       const release=await drawingRelease(input),{store}=read(),project=findProject(store,projectId);assertCommercial(project);
       return proposeProjectDrawingRevision(project,input,release,store.quoteDrafts.find(draft=>draft.projectId===projectId));
@@ -272,6 +276,7 @@ export function createDemoProjectRepository(options = {}) {
       return change(store => {
         const project = findProject(store,draft.projectId); assertCommercial(project);
         const previous = store.quoteDrafts.find(item => item.projectId === project.id);
+        assertQuoteScopeSource(project,draft);
         if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Review and explicitly replace it before saving or issuing a new version.');
         if(project.context.inspection&&!project.context.drawing&&!sameProjectValue(draft.context,project.context))throw new ProjectError('VALIDATION','Keep the saved inquiry view attached to this quotation.');
         if(previous&&project.context.drawing&&!sameProjectValue(recordContext(project,draft),recordContext(project,previous)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','A quotation draft reference can change only through explicit drawing-reference review.');
@@ -372,6 +377,7 @@ export function createDemoProjectRepository(options = {}) {
     async createSampleQuote(projectId) {
       return change(store => {
         const project = findProject(store, projectId); assertSample(project);
+        if(project.approvedOptionSet)throw new ProjectError('SCOPE_REVIEW_REQUIRED','Prepare and review the mapped scope in Studio before issuing a quotation for this project.');
         if (project.quotes.length) return project;
         if (!validInquiryQuantity(project.inquiry.values.quantity)) throw new ProjectError('VALIDATION', 'Quantity is unknown. Prepare a seller quotation with an explicit quantity before issuing it.', { quantity: 'Confirm a whole quantity from 1 to 100,000.' });
         const createdAt = now();
@@ -397,6 +403,7 @@ export function createDemoProjectRepository(options = {}) {
     async simulateReply(projectId, changeId) {
       return change(store => {
         const project = findProject(store, projectId); assertSample(project);
+        if(project.approvedOptionSet)throw new ProjectError('SCOPE_REVIEW_REQUIRED','Prepare and review the mapped scope in Studio before issuing a quotation for this project.');
         if (project.replies.some(item => item.changeId === changeId)) return project;
         const requested = project.changes.find(item => item.id === changeId);
         if (!requested) throw new ProjectError('NOT_FOUND', 'Choose a saved change request before opening an example reply.');

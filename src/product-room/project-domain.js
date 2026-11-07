@@ -211,7 +211,19 @@ export function compareQuotes(before, after, project) {
     const left = beforeLines.get(key), right = afterLines.get(key);
     rows.push([`line-${key}`, right?.label || left.label, describeLine(left), describeLine(right)]);
   }
-  return rows.map(([key, label, left, right]) => ({ key, label, before: left, after: right, changed: left !== right }));
+  if(before.scopeSelection || after.scopeSelection){
+    const describePreference = selection => !selection ? 'Not recorded' : !selection.preference ? 'No preference recorded' : selection.preference.choice==='help-me-decide' ? `Help me decide · preference v${selection.preference.version}` : `${selection.optionSet.options.find(option=>option.id===selection.preference.optionId)?.title || 'Unavailable package'} · preference v${selection.preference.version}`;
+    rows.push(['option-preference','Customer preference',describePreference(before.scopeSelection),describePreference(after.scopeSelection),!sameProjectValue(before.scopeSelection?.preference,after.scopeSelection?.preference)]);
+    if(before.scopeSelection?.preference?.notes || after.scopeSelection?.preference?.notes)rows.push(['option-preference-note','Preference note',before.scopeSelection?.preference?.notes || 'No note',after.scopeSelection?.preference?.notes || 'No note']);
+    const entries = selection => new Map((selection?.entries || []).map(entry=>[entry.id,entry]));
+    const left=entries(before.scopeSelection),right=entries(after.scopeSelection);
+    const describe = (entry,quote) => !entry ? 'Not recorded' : `${entry.disposition.replaceAll('-',' ')}${entry.lineIds.length ? ' · '+entry.lineIds.map(id=>quote.lineItems.find(line=>line.id===id)?.label || id).join(', ') : ''}${entry.rationale ? ' · '+entry.rationale : ''}`;
+    for(const id of new Set([...left.keys(),...right.keys()])){
+      const entry=right.get(id)||left.get(id);
+      rows.push([`scope-${id}`,id==='preference'?'Preferred package scope':entry.context.part?.title || 'Requested detail',describe(left.get(id),before),describe(right.get(id),after),!sameProjectValue(left.get(id),right.get(id))]);
+    }
+  }
+  return rows.map(([key, label, left, right, changed]) => ({ key, label, before: left, after: right, changed: changed ?? left !== right }));
 }
 
 export function projectStatus(project) {
@@ -225,6 +237,8 @@ export function projectStatus(project) {
     : status.label === 'Next step requested' ? 'Supplier to review the request'
     : status.label === 'Information requested' ? 'Answer the supplier question'
     : status.label === 'Customer replied' ? 'Supplier to review your response'
+    : status.label === 'Preference needed' ? 'Compare the approaches and confirm your preference'
+    : status.label === 'Preference confirmed' ? 'Supplier to review your preference and quotation scope'
     : status.next;
   return { label, next, owner };
 }

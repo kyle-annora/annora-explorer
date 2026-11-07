@@ -1,0 +1,505 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T01:13:01.814Z",
+  "classification": "public-fictional-example",
+  "fixture": {
+    "id": "crank-options-v1",
+    "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+    "sha256": "86b0594ed74a38b80a6a443874b7287d22d6820412bf021000566c03e9c9b238"
+  },
+  "checks": {
+    "unit": {
+      "command": "npm run verify",
+      "tests": 829,
+      "passed": 828,
+      "failed": 0,
+      "skipped": 1,
+      "existingSkip": true
+    },
+    "inquiryBuild": {
+      "command": "npm run build:inquiry",
+      "status": "passed"
+    },
+    "buyer": [
+      {
+        "viewport": {
+          "width": 1280,
+          "height": 1000
+        },
+        "errors": [],
+        "originalInquiryPreserved": true,
+        "explicitConfirmation": true,
+        "cancelExitsCleanly": true,
+        "partInExistingViewer": true,
+        "selectedPart": "Connecting rod",
+        "returnPreservesProject": true,
+        "visiblePrimaryInEdit": 1
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "errors": [],
+        "originalInquiryPreserved": true,
+        "explicitConfirmation": true,
+        "cancelExitsCleanly": true,
+        "partInExistingViewer": true,
+        "selectedPart": "Connecting rod",
+        "returnPreservesProject": true,
+        "visiblePrimaryInEdit": 1
+      },
+      {
+        "viewport": {
+          "width": 320,
+          "height": 740
+        },
+        "errors": [],
+        "originalInquiryPreserved": true,
+        "explicitConfirmation": true,
+        "cancelExitsCleanly": true,
+        "partInExistingViewer": true,
+        "selectedPart": "Connecting rod",
+        "returnPreservesProject": true,
+        "visiblePrimaryInEdit": 1
+      },
+      {
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "errors": [],
+        "originalInquiryPreserved": true,
+        "explicitConfirmation": true,
+        "cancelExitsCleanly": true,
+        "partInExistingViewer": true,
+        "selectedPart": "Connecting rod",
+        "returnPreservesProject": true,
+        "visiblePrimaryInEdit": 1
+      }
+    ],
+    "commercialRegression": {
+      "base": "http://127.0.0.1:8159/annora-explorer/",
+      "timestamp": "2026-11-07T01:06:34.972Z",
+      "results": [
+        {
+          "profile": "desktop",
+          "success": true,
+          "sessionId": "WT-f66963c6-2e29-477f-9916-1184f19401e6",
+          "projectId": "PRJ-DEMO-0A6ADDD1",
+          "screenshots": 21,
+          "confirmations": 8
+        },
+        {
+          "profile": "mobile",
+          "success": true,
+          "sessionId": "WT-b5a108dd-ffcd-4936-9b87-abf427c13efa",
+          "projectId": "PRJ-DEMO-D0CA06EF",
+          "screenshots": 21,
+          "confirmations": 8
+        },
+        {
+          "profile": "compact",
+          "success": true,
+          "sessionId": "WT-381a747e-248a-4b00-b041-72764a99d047",
+          "projectId": "PRJ-DEMO-57252C17",
+          "screenshots": 21,
+          "confirmations": 8
+        }
+      ]
+    },
+    "followUpRegression": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "buyer-step-two",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?followUpDemo=crank-review-v1&model=kinetic-01&project=PRJ-FOLLOWUP-EXAMPLE-002&followUp=FOLLOW-UP-FOLLOWUP-EXAMPLE-007#explore"
+        },
+        {
+          "name": "exact-quotation-v1",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?followUpDemo=crank-review-v1&model=kinetic-01&project=PRJ-FOLLOWUP-EXAMPLE-002&followUp=FOLLOW-UP-FOLLOWUP-EXAMPLE-007#project&project=PRJ-FOLLOWUP-EXAMPLE-002&tab=quotation&quote=QT-FOLLOWUP-EXAMPLE-004"
+        },
+        {
+          "name": "seller-review-gate",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?followUpDemo=crank-review-v1#project?id=PRJ-FOLLOWUP-EXAMPLE-002&tab=quotation&mode=follow-up"
+        },
+        {
+          "name": "seller-confirmed-v2",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?followUpDemo=crank-review-v1#project?id=PRJ-FOLLOWUP-EXAMPLE-002&tab=quotation&mode=follow-up"
+        },
+        {
+          "name": "unsent-reply-protected",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?followUpDemo=crank-review-v1&model=kinetic-01&project=PRJ-FOLLOWUP-EXAMPLE-002&followUp=FOLLOW-UP-DEMO-9B273D47#project&project=PRJ-FOLLOWUP-EXAMPLE-002&tab=activity&message=MSG-FOLLOWUP-EXAMPLE-005&mode=message"
+        },
+        {
+          "name": "answered-target-unavailable",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?followUpDemo=crank-review-v1&model=kinetic-01&project=PRJ-FOLLOWUP-EXAMPLE-002&followUp=FOLLOW-UP-DEMO-9B273D47#explore&project=PRJ-FOLLOWUP-EXAMPLE-002"
+        },
+        {
+          "name": "fresh-browser-public-v1-and-missing-local-v2"
+        }
+      ],
+      "errors": []
+    },
+    "scopeJourneys": [
+      {
+        "width": 1280,
+        "base": "http://127.0.0.1:8159/annora-explorer/",
+        "height": 960,
+        "checkpoints": [
+          {
+            "name": "buyer-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "preference-guided-handoff-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "clarification-blocks-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-2178A726",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "seller-scope-ready",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-2178A726",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v1-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=quote-review&draft=QD-DEMO-2178A726",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "preference-engineering-support-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-73A89B54",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "explicit-preference-adoption",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=edit&quote=QT-DEMO-73A89B54&draft=QD-DEMO-F93331DD",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v2-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=quote-review&quote=QT-DEMO-73A89B54&draft=QD-DEMO-F93331DD",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v1-v2-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-51DF9AF0",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "buyer-preserved-v1",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-73A89B54",
+            "width": 1280,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v2",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-51DF9AF0",
+            "width": 1280,
+            "overflow": false
+          }
+        ],
+        "browserErrors": [],
+        "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+        "quoteIds": [
+          "QT-DEMO-73A89B54",
+          "QT-DEMO-51DF9AF0"
+        ],
+        "preferenceIds": [
+          "PREFERENCE-DEMO-A905D503",
+          "PREFERENCE-DEMO-B84A859F"
+        ],
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true
+      },
+      {
+        "width": 390,
+        "base": "http://127.0.0.1:8159/annora-explorer/",
+        "height": 844,
+        "checkpoints": [
+          {
+            "name": "buyer-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "preference-guided-handoff-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "clarification-blocks-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-703C4AA5",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "seller-scope-ready",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-703C4AA5",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v1-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=quote-review&draft=QD-DEMO-703C4AA5",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "preference-engineering-support-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-B7620A13",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "explicit-preference-adoption",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=edit&quote=QT-DEMO-B7620A13&draft=QD-DEMO-274245D9",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v2-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=quote-review&quote=QT-DEMO-B7620A13&draft=QD-DEMO-274245D9",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v1-v2-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-9EFAD745",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "buyer-preserved-v1",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-B7620A13",
+            "width": 390,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v2",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-9EFAD745",
+            "width": 390,
+            "overflow": false
+          }
+        ],
+        "browserErrors": [],
+        "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+        "quoteIds": [
+          "QT-DEMO-B7620A13",
+          "QT-DEMO-9EFAD745"
+        ],
+        "preferenceIds": [
+          "PREFERENCE-DEMO-05F2236B",
+          "PREFERENCE-DEMO-F36D6B90"
+        ],
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true
+      },
+      {
+        "width": 320,
+        "base": "http://127.0.0.1:8159/annora-explorer/",
+        "height": 844,
+        "checkpoints": [
+          {
+            "name": "buyer-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "preference-guided-handoff-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "clarification-blocks-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-582B3087",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "seller-scope-ready",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-582B3087",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v1-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=quote-review&draft=QD-DEMO-582B3087",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "preference-engineering-support-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-D78A7F12",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "explicit-preference-adoption",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=edit&quote=QT-DEMO-D78A7F12&draft=QD-DEMO-8406DDC3",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "quotation-v2-review",
+            "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=quote-review&quote=QT-DEMO-D78A7F12&draft=QD-DEMO-8406DDC3",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v1-v2-comparison",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-C70D2454",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "buyer-preserved-v1",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-D78A7F12",
+            "width": 320,
+            "overflow": false
+          },
+          {
+            "name": "buyer-v2",
+            "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-C70D2454",
+            "width": 320,
+            "overflow": false
+          }
+        ],
+        "browserErrors": [],
+        "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+        "quoteIds": [
+          "QT-DEMO-D78A7F12",
+          "QT-DEMO-C70D2454"
+        ],
+        "preferenceIds": [
+          "PREFERENCE-DEMO-F719D49D",
+          "PREFERENCE-DEMO-BF4CB7FD"
+        ],
+        "ordinaryNamespaceUnchanged": true,
+        "originalInquiryUnchanged": true,
+        "quoteV1Unchanged": true
+      }
+    ],
+    "finalCompiledMobile": {
+      "base": "http://127.0.0.1:8159/annora-explorer/",
+      "width": 390,
+      "height": 844,
+      "checkpoints": [
+        {
+          "name": "buyer-comparison",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "preference-guided-handoff-review",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "clarification-blocks-review",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-7BCE8BDA",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "seller-scope-ready",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=edit&draft=QD-DEMO-7BCE8BDA",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "quotation-v1-review",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=inquiry&mode=quote-review&draft=QD-DEMO-7BCE8BDA",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "preference-engineering-support-review",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-76601D02",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "explicit-preference-adoption",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=edit&quote=QT-DEMO-76601D02&draft=QD-DEMO-41A6623A",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "quotation-v2-review",
+          "url": "http://127.0.0.1:8159/annora-explorer/studio/?optionDemo=crank-options-v1#project?id=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&mode=quote-review&quote=QT-DEMO-76601D02&draft=QD-DEMO-41A6623A",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "buyer-v1-v2-comparison",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-260F0ED3",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "buyer-preserved-v1",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-76601D02",
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "name": "buyer-v2",
+          "url": "http://127.0.0.1:8159/annora-explorer/product-room/?optionDemo=crank-options-v1&model=kinetic-01#project&project=PRJ-OPTIONS-EXAMPLE-002&tab=quotation&quote=QT-DEMO-260F0ED3",
+          "width": 390,
+          "overflow": false
+        }
+      ],
+      "browserErrors": [],
+      "projectId": "PRJ-OPTIONS-EXAMPLE-002",
+      "quoteIds": [
+        "QT-DEMO-76601D02",
+        "QT-DEMO-260F0ED3"
+      ],
+      "preferenceIds": [
+        "PREFERENCE-DEMO-5E521C6C",
+        "PREFERENCE-DEMO-3E829C64"
+      ],
+      "ordinaryNamespaceUnchanged": true,
+      "originalInquiryUnchanged": true,
+      "quoteV1Unchanged": true
+    },
+    "fixtureNavigation": {
+      "status": "passed",
+      "guardedRoleSwitch": true,
+      "newInquiryLeavesFixture": true,
+      "directInquiryLeavesFixture": true,
+      "fixtureUnchanged": true,
+      "errors": []
+    }
+  },
+  "limits": [
+    "Headless Chrome responsive emulation; no physical-device benchmark.",
+    "No backend, delivery, account sync or CPQ.",
+    "Two prepared service packages; no general option authoring or option-set revision UI."
+  ],
+  "target": "Pending release receipt"
+}

@@ -1,0 +1,47 @@
+.ar-quote-scope-summary, .ar-quote-scope-summary * { box-sizing: border-box; }
+.ar-quote-scope-summary { min-width: 0; margin-block: 28px; }
+.ar-quote-scope-heading { margin-bottom: 18px; }
+.ar-quote-scope-heading h3 { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: -.015em; line-height: 1.4; }
+.ar-quote-scope-heading p { margin: 8px 0 0; color: var(--ar-muted); font-size: 13px; line-height: 1.6; }
+.ar-quote-scope-heading p strong { color: var(--ar-ink); font-weight: 500; }
+.ar-quote-scope-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ar-line); }
+.ar-quote-scope-list > li { min-width: 0; padding: 20px 0; border-bottom: 1px solid var(--ar-line); }
+.ar-quote-scope-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.ar-quote-scope-row > div { min-width: 0; }
+.ar-quote-scope-row strong { display: block; font-size: 15px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
+.ar-quote-scope-row small { display: block; margin-top: 3px; color: var(--ar-muted); font-size: 12px; line-height: 1.5; }
+.ar-quote-scope-row .ar-status { flex: 0 0 auto; margin-top: 1px; }
+.ar-quote-scope-request { margin: 10px 0 14px; color: var(--ar-muted); font-size: 14px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 70ch; }
+.ar-quote-scope-coverage { display: grid; grid-template-columns: 126px minmax(0, 1fr); gap: 16px; margin-top: 14px; font-size: 13px; line-height: 1.6; }
+.ar-quote-scope-coverage > span { color: var(--ar-muted); }
+.ar-quote-scope-coverage ul { list-style: none; margin: 0; padding: 0; }
+.ar-quote-scope-coverage li + li { margin-top: 7px; }
+.ar-quote-scope-coverage li { overflow-wrap: anywhere; }
+.ar-quote-scope-coverage li[data-missing] { color: var(--ar-error); }
+.ar-quote-scope-coverage small { display: block; color: var(--ar-muted); font-size: 11px; }
+.ar-quote-scope-coverage p { margin: 0; color: var(--ar-muted); }
+.ar-quote-scope-rationale { margin: 14px 0 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 70ch; }
+.ar-quote-scope-rationale strong { display: block; margin-bottom: 3px; font-weight: 500; }
+.ar-quote-scope-reference { margin-top: 10px; min-width: 0; }
+.ar-quote-scope-reference > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; width: fit-content; max-width: 100%; color: var(--ar-muted); font-size: 12px; cursor: pointer; list-style: none; }
+.ar-quote-scope-reference > summary::-webkit-details-marker { display: none; }
+.ar-quote-scope-reference > summary::before { content: ''; display: block; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1px 1px 0; transform: rotate(-45deg); }
+.ar-quote-scope-reference[open] > summary::before { transform: rotate(45deg); }
+.ar-quote-scope-reference > summary:focus-visible { outline: 2px solid var(--ar-ink); outline-offset: 2px; }
+.ar-quote-scope-facts { display: grid; gap: 7px; margin: 0 0 12px; font-size: 12px; line-height: 1.6; }
+.ar-quote-scope-facts > div { display: grid; grid-template-columns: 126px minmax(0, 1fr); gap: 16px; }
+.ar-quote-scope-facts dt { color: var(--ar-muted); }
+.ar-quote-scope-facts dd { margin: 0; color: var(--ar-ink); overflow-wrap: anywhere; }
+.ar-quote-scope-related { margin-block: 12px; font-size: 12px; line-height: 1.6; }
+.ar-quote-scope-related > strong { font-weight: 500; }
+.ar-quote-scope-related ul { padding-left: 18px; margin: 6px 0 0; }
+.ar-quote-scope-related small { display: block; color: var(--ar-muted); overflow-wrap: anywhere; }
+.ar-quote-scope-footnote { margin: 14px 0 0; color: var(--ar-muted); font-size: 12px; line-height: 1.6; }
+@media (hover: hover) { .ar-quote-scope-reference > summary:hover { color: var(--ar-ink); } }
+@media (max-width: 600px) {
+  .ar-quote-scope-summary { margin-block: 22px; }
+  .ar-quote-scope-row { flex-direction: column; gap: 8px; }
+  .ar-quote-scope-coverage, .ar-quote-scope-facts > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .ar-quote-scope-facts { gap: 10px; }
+  .ar-quote-scope-list > li { padding-block: 18px; }
+}

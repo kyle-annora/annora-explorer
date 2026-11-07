@@ -44,6 +44,8 @@ export function projectReturnURL({base, projectId, role = 'buyer', returnView, s
   const url = new URL(seller ? '../studio/' : '../product-room/',base);
   const example = new URL(base).searchParams.get('followUpDemo');
   if (example) url.searchParams.set('followUpDemo',example);
+  const optionsExample = new URL(base).searchParams.get('optionDemo');
+  if (optionsExample) url.searchParams.set('optionDemo',optionsExample);
   if (session) url.searchParams.set('walkthrough',session);
   if (seller) {
     const [path,query=''] = String(returnView || '').replace(/^#/,'').split('?');

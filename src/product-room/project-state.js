@@ -33,6 +33,11 @@ export function sellerProjectStatus(project) {
     return acknowledged ? { label: 'Next step confirmed', next: 'Continue the agreed discussion', owner: 'Customer', filter: 'waiting' }
       : { label: 'Next step requested', next: 'Confirm the requested next step', owner: 'Seller', filter: 'attention' };
   }
+  if (project.approvedOptionSet) {
+    const preference = project.optionPreferences?.at(-1);
+    if (!preference) return {label:'Preference needed',next:'Customer to compare the approaches and confirm a preference',owner:'Customer',filter:'waiting'};
+    if (quote?.scopeSelection?.preference?.id !== preference.id) return {label:'Preference confirmed',next:'Review the customer preference and prepare its quotation scope',owner:'Seller',filter:'attention'};
+  }
   if (project.quoteDraft) return { label: 'Quotation draft', next: 'Continue preparing the quotation', owner: 'Seller', filter: 'attention' };
   if (quote) return { label: quote.version > 1 ? 'Revised quotation' : 'Quotation ready', next: 'Customer to review the quotation', owner: 'Customer', filter: 'waiting' };
   return { label: 'New inquiry', next: 'Review the inquiry and prepare a quotation', owner: 'Seller', filter: 'attention' };

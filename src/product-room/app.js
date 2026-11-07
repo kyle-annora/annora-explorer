@@ -13,6 +13,7 @@ import { followUpActionAvailability } from './follow-up-domain.js';
 import { validateProductStory } from './story.js';
 import { sameProjectValue } from './project-domain.js';
 import { loadFollowUpDemo } from './follow-up-demo.js';
+import { loadOptionScopeDemo } from './option-scope-demo.js';
 import { loadRoomRelease, contextForRelease, createPreviewProjectRepository } from './release-content.js';
 import { createWalkthroughViewerAction } from '../walkthrough/viewer-action.js';
 import { createExplorationHandoff, readExplorationHandoff } from './exploration-handoff.js';
@@ -31,16 +32,25 @@ const readRoute = readBuyerRoute;
 async function boot() {
   const rooms = {...ROOM_CONTENT}, releaseByProduct = {};
   const parameters = new URL(location.href).searchParams;
-  const initialRoute = readRoute();
+  let initialRoute = readRoute();
   const walkthrough = readWalkthroughSession(parameters);
   const walkthroughRepository = walkthrough ? createWalkthroughRepository(walkthrough) : null;
   let customerRepository = walkthroughRepository || createDemoProjectRepository();
-  let followUpDemo = null, followUpRelease = null, followUpProgress = null;
+  let optionDemo = null, followUpDemo = null, followUpRelease = null, followUpProgress = null;
   let referenceProjectId = initialRoute.view === 'explore' && initialRoute.projectId || parameters.get('project');
-  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('requestItem'),params.get('walkthrough'),params.get('handoff'),params.get('inspection'),params.get('followUp'),params.get('followUpDemo')]);
+  const versionIdentity = params => JSON.stringify([params.get('studioPreview'),params.get('release'),params.get('project'),params.get('requestItem'),params.get('walkthrough'),params.get('handoff'),params.get('inspection'),params.get('followUp'),params.get('followUpDemo'),params.get('optionDemo')]);
   let referenceProject = null, referenceContext = null, handoffContext = null, restoredContext = null, savedInquiryContext = null;
   let releaseState = {preview:false,pinned:false}, releaseWarning = '';
   try {
+    optionDemo = await loadOptionScopeDemo(parameters);
+    if (optionDemo) {
+      customerRepository = optionDemo.repository;
+      if (!location.hash) {
+        initialRoute = {view:'project',projectId:optionDemo.projectId,tab:'inquiry'};
+        history.replaceState({},'',`${location.pathname}${location.search}${buyerRouteHash(initialRoute)}`);
+      }
+      if (initialRoute.projectId && initialRoute.projectId !== optionDemo.projectId) throw new Error('This comparison link names a different project. Open the original example link.');
+    }
     followUpDemo = await loadFollowUpDemo(parameters);
     if (followUpDemo) {
       customerRepository = followUpDemo.repository;
@@ -274,7 +284,7 @@ async function boot() {
       handoffContext = null; restoredContext = null;
       if (referenceModel && referenceModel !== productId) savedInquiryContext = null;
     }
-    for (const key of ['studioPreview','release','project','handoff','inspection','returnRole','returnView','followUp','followUpDemo']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
+    for (const key of ['studioPreview','release','project','handoff','inspection','returnRole','returnView','followUp','followUpDemo','optionDemo']) { if (parameters.has(key)) url.searchParams.set(key,parameters.get(key)); else url.searchParams.delete(key); }
     url.hash = buyerRouteHash({...currentRoute,view:page});
     history[replace ? 'replaceState' : 'pushState'](replace ? history.state : {}, '', url);
     window.dispatchEvent(new Event('annora:routechange'));
@@ -329,7 +339,12 @@ async function boot() {
       url.searchParams.set('returnRole','buyer');
       url.searchParams.set('returnView',location.hash);
       if (walkthrough) url.searchParams.set('walkthrough',walkthrough);
-      url.hash = `explore&project=${encodeURIComponent(currentRoute.projectId)}`;
+      for (const key of ['followUpDemo','optionDemo']) if (parameters.has(key)) url.searchParams.set(key,parameters.get(key));
+      const savedProject = await customerRepository.getProject(currentRoute.projectId);
+      const item = savedProject.inquiry.requestItems?.find(item => sameProjectValue(item.context,context));
+      if (item) url.searchParams.set('requestItem',item.id);
+      if (context.drawing) url.searchParams.set('view','drawings');
+      url.hash = buyerRouteHash({view:'explore',projectId:currentRoute.projectId,...(context.part ? {target:{kind:'part',nodeId:context.part.id}} : {})});
       location[record ? 'assign' : 'replace'](url.href); return;
     }
     if (context.roomSnapshot && context.modelId === 'kinetic-01' && context.roomReleaseId !== releaseByProduct['kinetic-01']?.id) {
@@ -377,9 +392,10 @@ async function boot() {
     if (!workspaceLoading) workspaceLoading = import('./workspace-entry.jsx').then(({createWorkspace}) => {
       workspace = createWorkspace($('room-workspace'), {
         repository:previewRepository || customerRepository,
-        ...(followUpDemo ? {sellerURL:(project, target) => {
+        ...(followUpDemo || optionDemo ? {sellerURL:(project, target) => {
           const url = new URL('../studio/',location.href);
-          url.searchParams.set('followUpDemo',parameters.get('followUpDemo'));
+          if (followUpDemo) url.searchParams.set('followUpDemo',parameters.get('followUpDemo'));
+          if (optionDemo) url.searchParams.set('optionDemo',parameters.get('optionDemo'));
           const query = new URLSearchParams({id:project.id,tab:target.tab});
           if (target.quoteId) query.set('quote',target.quoteId);
           url.hash = `project?${query}`; return url.href;
@@ -416,12 +432,13 @@ async function boot() {
       return;
     }
     if (turn !== navigation) return;
-    if ((followUpRelease || referenceProject) && (next === 'inquiry' || next === 'project' && route.projectId !== referenceProject.id)) {
+    if ((followUpRelease || referenceProject || optionDemo) && (next === 'inquiry' || next === 'project' && route.projectId !== (referenceProject?.id || followUpRelease?.projectId || optionDemo?.projectId))) {
       // A deliberate new request or different project leaves the follow-up host;
       // it must not inherit its immutable project identity or sample namespace.
       const destination = new URL('../product-room/',location.href);
       if (walkthrough) destination.searchParams.set('walkthrough',walkthrough);
       if (followUpDemo && next === 'project' && route.projectId === followUpDemo.projectId) destination.searchParams.set('followUpDemo',parameters.get('followUpDemo'));
+      if (optionDemo && next === 'project' && route.projectId === optionDemo.projectId) destination.searchParams.set('optionDemo',parameters.get('optionDemo'));
       destination.hash = buyerRouteHash(route);
       location.assign(destination.href); return;
     }
