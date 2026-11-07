@@ -12,7 +12,7 @@ Use the same browser for both roles. The isolated example already contains an A 
 2. Check affected work. The two drawing questions and two drawing scope items appear. The online handoff remains unaffected.
 3. Inspect the previous and candidate drawings. For each scope item, choose the intended detail, explain the decision and select its quotation lines. Retain A for one question to demonstrate independent references.
 4. Review all decisions, check the explicit confirmation and apply the impact. This updates the working draft while preserving its commercial terms. It does not issue a quotation.
-5. Continue the draft, review the complete customer-facing quotation, then explicitly issue v2.
+5. Continue the draft. Review the commercial terms and update any wording that still names A where the accepted scope now uses B; the impact check deliberately preserves those terms. Review the complete customer-facing quotation, then explicitly issue v2.
 6. Switch to the buyer. Compare v1 and v2; open each exact drawing and the individual reviewed references. The inquiry and original question history remain A. Reload to verify persistence.
 
 ## Design decisions

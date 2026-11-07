@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "applicationCommit": "4072374098de5cc967a90bef0f645eb03e9bb4fa",
+  "workflowRunId": 42331132075,
+  "workflowUrl": "https://github.com/kyle-annora/annora-explorer/actions/runs/42331132075",
+  "attempts": [
+    {
+      "attempt": 1,
+      "build": "success",
+      "deploy": "failure",
+      "endedAt": "2026-11-07T03:00:59Z",
+      "reason": "Pages remained syncing_files for the 10-minute action timeout; action canceled the deployment."
+    },
+    {
+      "attempt": 2,
+      "build": "reused-success",
+      "deploy": "failure",
+      "endedAt": "2026-11-07T03:02:10Z",
+      "reason": "Pages returned Deployment cancelled on the first status poll."
+    }
+  ],
+  "nextAction": "Publish a new revision containing delivery-record clarifications. Application code and built assets are unchanged.",
+  "publicationClaim": "Not published by either recorded attempt. See release-receipt.json for a later successful publication."
+}
