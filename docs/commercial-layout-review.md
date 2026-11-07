@@ -1,6 +1,10 @@
 # Commercial project layout
 
-Status: candidate verified; publication is recorded separately in the release receipt.
+Status: published and verified.
+
+Application revision: `46d987c16f643ee43543815e63559659612c4fcd`.
+See the [release receipt](evidence/commercial-layout/release-receipt.json).
+This documentation-only follow-up does not redeploy the application.
 
 ## Purpose
 
@@ -110,3 +114,23 @@ historical-quotation-to-current-response path.
 See [acceptance evidence](evidence/commercial-layout/acceptance.json). Application
 source identity, Actions deployment and live-target checks belong in the
 release receipt rather than being inferred from a successful push.
+
+## Review captures
+
+- [Seller inquiry](evidence/commercial-layout/desktop-seller-inquiry.png)
+- [Seller quotation review](evidence/commercial-layout/desktop-seller-review.png)
+- [Buyer version comparison](evidence/commercial-layout/desktop-buyer-comparison.png)
+- [Mobile version comparison](evidence/commercial-layout/mobile-buyer-comparison.png)
+
+## Published verification
+
+The live desktop and phone paths passed 66 browser checkpoints: the complete
+commercial journey, sixteen separate end-to-end confirmations, focused page
+checks and ordinary workspace operation. Both runs reopened the exact saved
+references and historical quotations without browser errors or failed requests.
+
+GitHub Actions build and deployment succeeded for the application revision above.
+Four live entry pages and 61 runtime assets match the reviewed build. All 521
+protected source files, 72 model assets and the independent-viewer assets remain
+unchanged. The Explorer entry differs only in hashed shared-import filenames.
+The published integration archive and source manifest were checked separately.

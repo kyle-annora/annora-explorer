@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "status": "published-and-verified",
+  "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+  "baselineRevision": "1bb0ceaa962c258de8df442025a72b03f80aa327",
+  "priorPublishedRevision": "d759fad96d7baef4e6d1de6eba526c4faf198d73",
+  "checkedAt": "2026-11-07T10:52:15.540Z",
+  "baseUrl": "https://kyle-annora.github.io/annora-explorer/",
+  "workflow": {
+    "id": 42365600952,
+    "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42365600952",
+    "jobs": [
+      {
+        "id": 128382885190,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-07T10:50:04Z",
+        "completedAt": "2026-11-07T10:51:21Z",
+        "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42365600952/job/128382885190"
+      },
+      {
+        "id": 128383164730,
+        "name": "deploy",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-07T10:51:25Z",
+        "completedAt": "2026-11-07T10:51:42Z",
+        "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42365600952/job/128383164730"
+      }
+    ]
+  },
+  "deployment": {
+    "id": 7620168172,
+    "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+    "state": "success",
+    "completedAt": "2026-11-07T10:51:43Z",
+    "environmentUrl": "https://kyle-annora.github.io/annora-explorer/",
+    "logUrl": "https://github.com/kyle-annora/annora-explorer/actions/runs/42365600952/job/128383164730"
+  },
+  "checks": {
+    "status": "passed",
+    "workflowSuccessAtExactRevision": true,
+    "deploymentSuccessAtExactRevision": true,
+    "pageAssetSetsMatchReviewedBuild": true,
+    "generatedRuntimeAssetsMatchReviewedBuild": true,
+    "protectedSourceUnchanged": true,
+    "newSourceFilesWithinApprovedScope": true,
+    "modelAssetsUnchanged": true,
+    "independentViewerUnchanged": true,
+    "explorerEntryOnlyImportFilenamesChanged": true,
+    "integrationPackageVerified": true,
+    "historicalArchive010Unchanged": true,
+    "artifactsChecked": 143,
+    "runtimeAssetsChecked": 61,
+    "modelAssetsChecked": 72,
+    "protectedSourcePathsChecked": 521,
+    "sourceChanges": [],
+    "sourceAdditions": [
+      "src/product-room/ui/project-frame.css",
+      "src/product-room/ui/project-frame.jsx",
+      "src/studio/customer-record-context.js"
+    ],
+    "unexpectedSourceAdditions": [],
+    "runtimeDifferences": [],
+    "modelDifferences": [],
+    "externalDifferences": [],
+    "errors": []
+  },
+  "pages": [
+    {
+      "path": "index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "product-room/index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "studio/index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": true
+    },
+    {
+      "path": "integrations/existing-viewer/index.html",
+      "exactHtml": true,
+      "sameDocumentAndSortedLinks": true,
+      "sameDirectAssetSet": true,
+      "sameDependencySet": true,
+      "directAssetSetChangedFromBaseline": false
+    }
+  ],
+  "explorerEntryComparison": {
+    "before": "assets/explorer-CRKMCDc9.js",
+    "after": "assets/explorer-7__rwght.js",
+    "baselineBytes": 93168,
+    "publishedBytes": 93168,
+    "exactBytes": false,
+    "equalAfterNormalizingOnlyHashedJsCssFilenames": true,
+    "normalizedBaselineSha256": "76579685dc74f6364dee693e1cbc61b7f9bf6b4ee3cccd4cb86fdc5bff6727e9",
+    "normalizedPublishedSha256": "76579685dc74f6364dee693e1cbc61b7f9bf6b4ee3cccd4cb86fdc5bff6727e9"
+  },
+  "integrationPackage": {
+    "release": {
+      "package": {
+        "name": "@annora/integration-kit",
+        "version": "0.2.0"
+      },
+      "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+      "sourceTreeSha256": "492c886720740aac8d55377b92c1ebf1a68f999a6e4d3673e5856bd370527742",
+      "file": "annora-integration-kit-0.2.0.tgz",
+      "sha256": "fb6f1e05f0f7a2b438b71fb2b9d212c377cf0c68339305cb0e12a30d21c40f33",
+      "bytes": 105018,
+      "installation": "npm install ./annora-integration-kit-0.2.0.tgz react@19.3.1 react-dom@19.3.1",
+      "assetsIncluded": false
+    },
+    "sourceRevisionMatches": true,
+    "releaseMatchesArchive": true,
+    "releaseMatchesManifest": true,
+    "sourceTreeMatchesBaseline": true,
+    "changedFilesFromReviewedBuild": [],
+    "onlyRevisionDifferenceFromReviewedBuild": true
+  },
+  "evidence": {
+    "candidate": "acceptance.json",
+    "publicBrowser": "public-browser.json",
+    "localHttpAudit": "work/commercial-layout/release/receipt.json",
+    "localSourceAudit": "work/commercial-layout/release/protected-source-verification.json"
+  },
+  "limitations": [
+    "Fictional browser-local data; no backend, message delivery or orders.",
+    "Chromium desktop/touch/reflow emulation, not physical-device or ordinary-computer performance benchmarking.",
+    "Protected Explorer source and models are unchanged; generated shared-chunk filenames changed with the application import graph."
+  ],
+  "verifiedAt": "2026-11-07T10:54:46.099Z",
+  "publicBrowser": {
+    "status": "published-browser-accepted",
+    "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+    "checkpoints": 66,
+    "profiles": [
+      "desktop 1280x900",
+      "mobile 390x844"
+    ],
+    "fullJourneyConfirmations": 16,
+    "errors": 0,
+    "failedRequests": 0
+  },
+  "reviewLinks": {
+    "walkthrough": "https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent&new=1",
+    "review": "https://github.com/kyle-annora/annora-explorer/blob/main/docs/commercial-layout-review.md"
+  }
+}

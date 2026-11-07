@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "status": "published-browser-accepted",
+  "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd",
+  "checkedAt": "2026-11-07T10:54:46.099Z",
+  "baseUrl": "https://kyle-annora.github.io/annora-explorer/",
+  "releaseVerifiedAfterBrowserRuns": {
+    "url": "https://kyle-annora.github.io/annora-explorer/integration-kit/release.json?review=1794048885902",
+    "status": 200,
+    "sourceRevision": "46d987c16f643ee43543815e63559659612c4fcd"
+  },
+  "suites": [
+    {
+      "name": "w60",
+      "status": "passed",
+      "profiles": [
+        {
+          "name": "desktop",
+          "viewport": {
+            "name": "desktop",
+            "width": 1280,
+            "height": 900
+          },
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/public/w60/desktop/result.json"
+        },
+        {
+          "name": "mobile",
+          "viewport": {
+            "name": "mobile",
+            "width": 390,
+            "height": 844,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "checkpoints": 23,
+          "explicitConfirmations": 8,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/public/w60/mobile/result.json"
+        }
+      ]
+    },
+    {
+      "name": "focused",
+      "status": "passed",
+      "profiles": [
+        {
+          "name": "desktop",
+          "viewport": {
+            "name": "desktop",
+            "width": 1280,
+            "height": 900
+          },
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/public/focused/desktop/result.json"
+        },
+        {
+          "name": "mobile",
+          "viewport": {
+            "name": "mobile",
+            "width": 390,
+            "height": 844,
+            "isMobile": true,
+            "hasTouch": true
+          },
+          "checkpoints": 10,
+          "explicitConfirmations": 4,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "evidence": "work/commercial-layout/public/focused/mobile/result.json"
+        }
+      ]
+    }
+  ],
+  "totalRecordedCheckpoints": 66,
+  "canonicalConfirmationCoverage": "16 explicit business confirmations across desktop and 390px mobile W60 sessions; focused tests additionally exercise native manual issue and response controls.",
+  "publicationReceipt": "../release/receipt-summary.json",
+  "candidateReceipt": "../../../docs/evidence/commercial-layout/acceptance.json",
+  "representativeScreenshots": [
+    "w60/desktop/09-seller-v1-review.png",
+    "focused/desktop/01-seller-inquiry.png",
+    "focused/desktop/05-buyer-v2-comparison.png",
+    "focused/mobile/05-buyer-v2-comparison.png"
+  ],
+  "verified": [
+    "Full inquiry, clarification, quotation v1, change, quotation v2, comparison and next-step route completes using one Continue demo action and explicit confirmation gates.",
+    "Current project, selected part, quotation version and role remain clear.",
+    "Historical v1, stored camera/reference, return links and reload preserve exact context.",
+    "Native manual actions remain available without guided chrome.",
+    "Old-v1 selection followed by responding or acknowledging a v2 request uses the actual v2 context.",
+    "Keyboard details activation, viewport boundaries and browser error checks pass.",
+    "Four unrelated storage namespaces remain unchanged in both W60 runs."
+  ],
+  "data": "Fresh isolated Chromium contexts; fictional demo records only. No user browser session or production customer data used.",
+  "limits": [
+    "Desktop 1280 \u00d7 900 and mobile 390 \u00d7 844 Chromium emulation on the actual published target.",
+    "Physical phones, Safari and ordinary-computer GPU performance are not claimed.",
+    "No backend, email, order or real delivery was exercised."
+  ]
+}
