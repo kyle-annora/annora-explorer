@@ -42,9 +42,9 @@ for a bounded recheck of validation, sample replacement, review, edit and
 confirmation; it also verifies the exact drawing reference remains unchanged.
 Set `FLOATING_ONLY=1` for a bounded floating fill, review and receipt check. This
 records computed typography and requires both font aliases to resolve, preserving
-the 22 px desktop and 21 px phone task heading.
+the 24 px desktop and 23 px phone task heading.
 
-Floating checks also assert resolved font tokens and 22 px desktop / 21 px mobile
+Floating checks also assert resolved font tokens and 24 px desktop / 23 px mobile
 task headings, so an invalid font shorthand cannot pass as structurally present.
 
 Results and screenshots go to `OUT`. Chromium viewport and touch emulation do

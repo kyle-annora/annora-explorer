@@ -12,9 +12,17 @@ export function mountWalkthrough(sessionId) {
   const role=seller || externalReference && parameters.get('returnRole')==='seller' ? 'seller' : 'buyer';
   const strip=document.createElement('aside');
   strip.className='walkthrough-strip';strip.setAttribute('aria-label','Demo walkthrough');
-  strip.innerHTML=`<div class="wt-main"><div class="wt-context" aria-live="polite" aria-atomic="true"><span class="wt-current-chapter"></span><strong class="wt-current-step">Opening the demo…</strong></div><div class="wt-role-context" aria-live="polite" aria-atomic="true"><span class="wt-role">${role==='seller'?'Seller':'Buyer'} view</span><span class="wt-next-role" hidden></span></div><button type="button" class="wt-handoff" disabled data-step="loading"><span class="wt-action-label">Continue demo</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button><details class="wt-tools"><summary aria-label="Demo guide">Guide</summary><div class="wt-menu"><p class="wt-menu-note"></p><nav class="wt-chapters" aria-label="Demonstration chapters"></nav><button type="button" class="wt-navigation" aria-expanded="false">Show workspace navigation</button><p class="wt-sample-note">Fictional sample · Saved in this browser. Nothing is sent.</p><button type="button" class="wt-restart">Start a new sample</button></div></details></div><p id="wt-next-action" class="wt-sr-only"></p><p class="wt-error" role="alert" hidden></p>`;
+  strip.innerHTML=`<div class="wt-main"><div class="wt-context" aria-live="polite" aria-atomic="true"><span class="wt-current-chapter"></span><strong class="wt-current-step">Opening the demo…</strong></div><div class="wt-role-context" aria-live="polite" aria-atomic="true"><span class="wt-role">${role==='seller'?'Seller':'Buyer'} view</span><span class="wt-next-role" hidden></span></div><details class="wt-tools"><summary aria-label="Demo guide">Guide</summary><div class="wt-menu"><p class="wt-menu-note"></p><nav class="wt-chapters" aria-label="Demonstration chapters"></nav><button type="button" class="wt-navigation" aria-expanded="false">Show workspace navigation</button><p class="wt-sample-note">Fictional sample · Saved in this browser. Nothing is sent.</p><button type="button" class="wt-restart">Start a new sample</button></div></details></div><div class="wt-actionbar"><div class="wt-actioninner"><p class="wt-action-caption" aria-hidden="true"></p><button type="button" class="wt-handoff" disabled data-step="loading"><span class="wt-action-label">Continue demo</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button></div></div><p id="wt-next-action" class="wt-sr-only"></p><p class="wt-error" role="alert" hidden></p>`;
   document.body.prepend(strip);document.body.dataset.walkthrough='true';document.body.dataset.walkthroughViewer=walkthroughViewer(sessionId);
-  const resize=new ResizeObserver(()=>document.documentElement.style.setProperty('--walkthrough-height',`${strip.getBoundingClientRect().height}px`));resize.observe(strip);
+  const resize=new ResizeObserver(()=>{
+    document.documentElement.style.setProperty('--walkthrough-height',`${strip.getBoundingClientRect().height}px`);
+    document.documentElement.style.setProperty('--walkthrough-action-height',`${strip.querySelector('.wt-actionbar').getBoundingClientRect().height}px`);
+  });resize.observe(strip);resize.observe(strip.querySelector('.wt-actionbar'));
+  const viewport=window.visualViewport;
+  const positionAction=()=>document.documentElement.style.setProperty('--walkthrough-viewport-bottom',`${Math.max(0,window.innerHeight-(viewport?.height||window.innerHeight)-(viewport?.offsetTop||0))}px`);
+  positionAction();
+  viewport?.addEventListener('resize',positionAction);
+  viewport?.addEventListener('scroll',positionAction);
   const steps=strip.querySelector('.wt-chapters');
   for(const chapter of WALKTHROUGH_CHAPTERS) {
     const b=document.createElement('button');b.type='button';b.dataset.chapter=chapter.id;
@@ -82,6 +90,7 @@ export function mountWalkthrough(sessionId) {
     nextRole.hidden=!presentation.nextRoleLabel;
     const note=currentAction.note || flow.note;
     strip.querySelector('#wt-next-action').textContent=note;
+    strip.querySelector('.wt-action-caption').textContent=currentAction.confirmation?'Review before confirming.':presentation.nextRoleLabel;
     strip.querySelector('.wt-menu-note').textContent=note;
     actionURL=location.href;
     if(!handoff.disabled && restoreKeyboardFocus && !document.querySelector('dialog[open], .ei-panel[role="dialog"]')) {
@@ -172,6 +181,6 @@ export function mountWalkthrough(sessionId) {
   window.addEventListener('storage',event=>{if(!event.key||event.key===repository.storageKey)schedule();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();});
   const unsubscribe=subscribeWalkthroughActions(invalidate);
-  window.addEventListener('pagehide',event=>{if(!event.persisted){unsubscribe();resize.disconnect();clearTimeout(timer);document.removeEventListener('pointerdown',closeMenu);}});
+  window.addEventListener('pagehide',event=>{if(!event.persisted){unsubscribe();resize.disconnect();clearTimeout(timer);document.removeEventListener('pointerdown',closeMenu);viewport?.removeEventListener('resize',positionAction);viewport?.removeEventListener('scroll',positionAction);}});
   void refresh();
 }

@@ -156,7 +156,7 @@
   margin-bottom: 8px;
 }
 .room-ui .ar-optional {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ar-muted);
   font-weight: 400;
 }
@@ -232,7 +232,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.5;
   color: var(--ar-muted);
@@ -333,7 +333,7 @@
   text-wrap: balance;
 }
 .room-ui .ar-section-description {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
   color: var(--ar-muted);
   margin: 8px 0 0;
@@ -379,58 +379,98 @@
   flex-wrap: wrap;
 }
 .room-ui .ar-version-selector > label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ar-muted);
 }
 .room-ui .ar-version-selector > .ar-input {
   width: auto;
   min-width: 166px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .room-ui .ar-version-note {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ar-muted);
 }
 .room-ui .ar-comparison table {
   border-collapse: collapse;
+  table-layout: fixed;
   width: 100%;
-  font-size: 13px;
+  font-size: 15px;
   text-align: left;
-  line-height: 1.6;
+  line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
 .room-ui .ar-comparison th,
 .room-ui .ar-comparison td {
-  padding: 16px 18px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--ar-line);
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 .room-ui .ar-comparison th:first-child {
   padding-left: 0;
-  width: 34%;
+  width: 32%;
   font-weight: 500;
 }
+.room-ui .ar-comparison tbody th {
+  font-size: 13px;
+  line-height: 1.5;
+}
 .room-ui .ar-comparison td {
-  width: 33%;
+  width: 34%;
+  white-space: pre-line;
 }
 .room-ui .ar-comparison thead th {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ar-muted);
   font-weight: 500;
   border-top: 1px solid var(--ar-line);
+  padding-block: 11px;
 }
-.room-ui .ar-comparison tbody td:nth-child(2) {
+.room-ui .ar-comparison thead th:last-child {
+  color: var(--ar-ink);
+}
+.room-ui .ar-comparison-previous {
   color: var(--ar-muted);
 }
-.room-ui .ar-comparison tr[data-changed] td:last-child {
-  background: #efede7;
+.room-ui .ar-comparison-current {
+  color: var(--ar-ink);
+}
+.room-ui .ar-comparison tr[data-changed] .ar-comparison-current {
+  background: #f1f0eb;
+  font-weight: 500;
+}
+.room-ui .ar-comparison-column {
+  display: none;
+}
+.room-ui .ar-comparison-facts {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  white-space: normal;
+}
+.room-ui .ar-comparison-facts > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+}
+.room-ui .ar-comparison-facts dt {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ar-muted);
+}
+.room-ui .ar-comparison-facts dd {
+  margin: 0;
+  text-align: right;
+  min-width: 0;
 }
 .room-ui .ar-change-label {
   display: block;
   margin-top: 4px;
-  font: 10px/1.5 var(--ar-mono);
-  color: #765238;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ar-muted);
   font-weight: 400;
 }
 .room-ui .ar-sr-only {
@@ -536,12 +576,12 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     border-bottom: 1px solid var(--ar-line);
-    padding-block: 15px;
+    padding-block: 12px;
   }
   .room-ui .ar-comparison th:first-child {
     width: auto;
     grid-column: 1/-1;
-    padding: 0 0 10px;
+    padding: 0 0 8px;
     border: 0;
     display: flex;
     gap: 12px;
@@ -550,22 +590,34 @@
   .room-ui .ar-comparison td {
     width: auto;
     min-width: 0;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 0;
+    font-size: 14px;
   }
   .room-ui .ar-comparison td:nth-child(2) {
     padding-left: 0;
   }
-  .room-ui .ar-comparison td::before {
-    content: attr(data-column);
+  .room-ui .ar-comparison-column {
     display: block;
-    margin-bottom: 6px;
-    font-size: 11px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 400;
     color: var(--ar-muted);
+  }
+  .room-ui .ar-comparison-facts {
+    gap: 8px;
+  }
+  .room-ui .ar-comparison-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+  }
+  .room-ui .ar-comparison-facts dd {
+    text-align: left;
   }
   .room-ui .ar-comparison .ar-change-label {
     display: inline;
-    font-size: 9px;
+    font-size: 12px;
+    margin-top: 0;
   }
   .room-ui.ar-catalog {
     padding: 32px 22px 56px;

@@ -1,0 +1,277 @@
+{
+  "capturedAt": "2026-11-07T12:30:18.938005+00:00",
+  "status": "candidate-qualified",
+  "baselineRevision": "5eedb8c68c5296493427126310cc55ade066974a",
+  "repositoryVerification": {
+    "command": "npm run verify",
+    "tests": 1015,
+    "passed": 1014,
+    "failed": 0,
+    "existingConditionalSkip": 1,
+    "applicationIntegrationPackageAndExampleBuilt": true
+  },
+  "browser": {
+    "fullJourney": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "timestamp": "2026-11-07T12:20:57.906Z",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "sessionId": "WTI-e06d2691-75e1-40f7-96c8-32bbfda24f71",
+          "projectId": "PRJ-DEMO-8D3C7308",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "sessionId": "WTI-cbe63d2e-9ff8-4e68-8a9c-6cb7711286c9",
+          "projectId": "PRJ-DEMO-720384E9",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "sessionId": "WTI-f40b2b21-32b3-44b2-ac7c-f1e02d55b4a8",
+          "projectId": "PRJ-DEMO-6D4E7503",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "sessionId": "WTI-68531ddf-3e4e-4aea-9f22-14bc1d9d0bfe",
+          "projectId": "PRJ-DEMO-B6941DC1",
+          "checkpoints": 23,
+          "confirmations": 8
+        }
+      ]
+    },
+    "ordinaryPages": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "checkpoints": 16
+        }
+      ],
+      "timestamp": "2026-11-07T12:24:34.770Z"
+    },
+    "navigation": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 10
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 10
+        }
+      ]
+    }
+  },
+  "supplementaryGuideQualification": {
+    "results": [
+      {
+        "profile": {
+          "name": "intermediate",
+          "width": 700,
+          "height": 900
+        },
+        "status": "passed",
+        "checkpoints": 5,
+        "capturedAt": "2026-11-07T12:27:43.835Z"
+      },
+      {
+        "profile": {
+          "name": "landscape",
+          "width": 844,
+          "height": 390,
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "status": "passed",
+        "checkpoints": 5,
+        "capturedAt": "2026-11-07T12:27:47.556Z"
+      },
+      {
+        "profile": {
+          "name": "mobile",
+          "width": 390,
+          "height": 844,
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "status": "passed",
+        "checkpoints": 7,
+        "capturedAt": "2026-11-07T12:27:51.463Z"
+      },
+      {
+        "profile": {
+          "name": "compact",
+          "width": 320,
+          "height": 568,
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "status": "passed",
+        "checkpoints": 5,
+        "capturedAt": "2026-11-07T12:29:32.846Z"
+      }
+    ],
+    "visualReview": {
+      "status": "passed",
+      "priorEvidence": "work/commercial-polish/guide-layout-initial",
+      "correction": {
+        "finding": "Initial320x568 Guide menu extended left of viewport and clipped labels.",
+        "fix": "Root placed mobile Guide in grid column3 and raised guide stacking above the inquiry.",
+        "rerun": "compact profile only after rebuilt candidate; all5checks passed, including added whole-menu horizontal bounds.",
+        "evidence": [
+          "compact/02-guide-details.png",
+          "compact/04-guide-review.png"
+        ],
+        "menuBounds": [
+          {
+            "checkpoint": "02-guide-details",
+            "left": 8,
+            "right": 308,
+            "viewportWidth": 320,
+            "buttonHit": true,
+            "buttonBottomGap": 23.859375
+          },
+          {
+            "checkpoint": "04-guide-review",
+            "left": 8,
+            "right": 308,
+            "viewportWidth": 320,
+            "buttonHit": true,
+            "buttonBottomGap": 43.046875
+          }
+        ]
+      },
+      "reviewedScreenshots": [
+        "landscape/01-inquiry-details.png",
+        "landscape/03-inquiry-review.png",
+        "landscape/03b-inquiry-review-end.png",
+        "mobile/05-review-visual-viewport-emulation.png",
+        "mobile/06-guide-visual-viewport-emulation.png",
+        "compact/03-inquiry-review.png",
+        "compact/02-guide-details.png",
+        "compact/04-guide-review.png"
+      ],
+      "qualification": "Original four-profile geometry run passed22checkpoints. Screenshot inspection then found the compact menu issue; corrected compact rerun passed5checks. No actual OS keyboard or physical device was used. Native guided Explorer was not separately tested by this focused harness."
+    },
+    "note": "Final compact result replaces the first run after visual inspection found and corrected menu clipping. Other profiles were unaffected by the compact placement correction."
+  },
+  "protectedSourceGroups": [
+    {
+      "name": "explorer",
+      "description": "Complete shared Explorer source tree including renderer, controller, camera/navigation, appearance, motion, and viewer UI.",
+      "trackedFileCount": 70,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "993201cefa4fd4ef05fb6b4bc1c1349743e897a3eadf5480e0f70cb0e9923ecd"
+    },
+    {
+      "name": "prepared-models",
+      "description": "Committed model packages and model assets.",
+      "trackedFileCount": 138,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "a1e71a27ad11e0b94f078ceef9234f3276c760fa4f72466ab9d9afc9c7ea3b6c"
+    },
+    {
+      "name": "project-configuration",
+      "description": "Native viewer entry and model configuration.",
+      "trackedFileCount": 2,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "4cf9b3243e4ff6f5973bc077bbd9141c484872a288b6a4128b0b86233e61e31e"
+    },
+    {
+      "name": "independent-viewer",
+      "description": "Independent host renderer and viewer source.",
+      "trackedFileCount": 11,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "03cf2d1d918a6d4757ff2dec5b02f7f34e616aaa5a2b2622690db100b33ba856"
+    },
+    {
+      "name": "integration-api",
+      "description": "Integration package contracts, version, controller and adapter templates.",
+      "trackedFileCount": 9,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "def2592e0d14a53b90c14a9c8d020ffaf19e1a0e8e8a21a917081ec37572e5ac"
+    },
+    {
+      "name": "repositories",
+      "description": "Every tracked source file named repository or ending in -repository.js.",
+      "trackedFileCount": 10,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "19087e176c5e99541a92fc4c102cbb84e0c9547307d8021536db2abd8e282405"
+    },
+    {
+      "name": "domains",
+      "description": "Every tracked source file named domain or ending in -domain.js.",
+      "trackedFileCount": 10,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "894bb3aa2d65f38fdd80cc83c84958474ed7b03621efecc1aa3a992c6cecc0cb"
+    },
+    {
+      "name": "version-and-reference-bindings",
+      "description": "Existing drawing/reference version bindings, model/release projections and navigation seams.",
+      "trackedFileCount": 9,
+      "allTrackedFilesByteIdentical": true,
+      "changedOrMissing": [],
+      "untrackedSourceFiles": [],
+      "manifestSha256": "94d536964bc45c96225f84cbd485eb7146e8ba9a06cf4ef06dc83c29e52d9134"
+    }
+  ],
+  "staticDesignScan": {
+    "files": 7,
+    "findings": []
+  },
+  "corrections": [
+    "Explicit unknown first-line quantity remains unknown rather than inheriting top-level quantity.",
+    "Mobile pricing item names use the full row width.",
+    "Buyer reply review removes repeated stage badge.",
+    "Short landscape inquiry uses a wider sheet with horizontal context and action rows.",
+    "The guide menu reserves the fixed action region and stays inside the viewport."
+  ],
+  "limitations": [
+    "Isolated Chromium viewport/touch emulation, not a physical device or low-end hardware benchmark.",
+    "Soft-keyboard viewport geometry is synthetic; no claim of testing a real phone keyboard.",
+    "Data remains fictional and browser-local."
+  ]
+}

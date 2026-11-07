@@ -43,7 +43,7 @@ async function run(profile) {
     assert.equal(await page.locator('.ar-project-task h1:visible,.ei-task h2:visible').count(),1,`${name}: one task title`);
     const typography=await page.locator('.ar-project-task h1:visible,.ei-task h2:visible').evaluate(el=>{const s=getComputedStyle(el);return{fontSize:Number.parseFloat(s.fontSize),fontWeight:s.fontWeight,fontFamily:s.fontFamily,workspaceFont:s.getPropertyValue('--aw-font').trim(),roomFont:s.getPropertyValue('--ar-font').trim()};});
     assert.ok(typography.fontSize>=20,`${name}: task title retains heading hierarchy`);
-    if(floating){assert.equal(typography.fontSize,profile.width<=760?21:22,`${name}: floating heading uses its designed font size`);assert.ok(typography.workspaceFont&&typography.roomFont,`${name}: font aliases resolve without a cycle`);}
+    if(floating){assert.equal(typography.fontSize,profile.width<=760?23:24,`${name}: floating heading uses its designed font size`);assert.ok(typography.workspaceFont&&typography.roomFont,`${name}: font aliases resolve without a cycle`);}
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,`${name}: no horizontal overflow`);
     if(recordVersion) assert.match(await page.locator('.ar-project-context').getAttribute('data-record-label'),new RegExp(`v${recordVersion}\\b`),`${name}: exact quotation reference`);
     await primary().scrollIntoViewIfNeeded();
@@ -77,12 +77,12 @@ async function run(profile) {
     const application=await page.locator('[name="application"]').inputValue();
     const drawingContext=structuredClone((await store()).drafts[0].context);
     await click(primary());
-    await page.getByRole('heading',{name:'Check your request.',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'Review your inquiry',exact:true}).waitFor();
     assert.equal((await store()).projects.length,0,'Inquiry review does not confirm');
     await checkpoint('03-native-inquiry-review');
     await click(page.getByRole('button',{name:/Edit requirements/}));
     assert.equal(await page.locator('[name="application"]').inputValue(),application,'Review/edit retains inquiry');
-    await click(primary());await page.getByRole('heading',{name:'Check your request.',exact:true}).waitFor();await click(primary());
+    await click(primary());await page.getByRole('heading',{name:'Review your inquiry',exact:true}).waitFor();await click(primary());
     await page.waitForFunction(key=>JSON.parse(localStorage.getItem(key)||'{"projects":[]}').projects.length===1,key);
     const inquiry=(await store()).projects[0];assert.equal(inquiry.inquiry.values.application,application);
     assert.deepEqual(inquiry.context,drawingContext,'Native inquiry preserves its exact model, drawing, mapping and overview versions');
@@ -98,7 +98,7 @@ async function run(profile) {
       else await page.getByLabel('Message',{exact:false}).fill('Fictional next step: review the mounting interfaces with engineering.');
       await checkpoint(mode==='revision'?'04-buyer-change-fill':'07-buyer-next-fill',{recordVersion:2});
       await click(primary());
-      await page.getByRole('heading',{name:mode==='revision'?'Review your requested changes.':'Review your next step.',exact:true}).waitFor();
+      await page.getByRole('heading',{name:mode==='revision'?'Review requested changes':'Review your next step',exact:true}).waitFor();
       assert.equal((await store()).projects[0][mode==='revision'?'changes':'nextSteps'].length,0,'Request review does not submit');
       await checkpoint(mode==='revision'?'05-buyer-change-review':'08-buyer-next-review',{recordVersion:2});
       await click(primary());

@@ -1,3 +1,5 @@
+import { QuotationMasthead, QuotationPricing } from "../product-room/ui/quotation-document.jsx";
+import { quotationComparisonRows } from "../product-room/ui/quotation-comparison.js";
 import { QuoteScopeSummary } from "../product-room/quote-scope-summary.jsx";
 import React, { useState } from "react";
 import {
@@ -79,22 +81,20 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
   const comparisonKey = `${previous?.id}:${quote?.id}:${quote?.version}`;
   const showUnchanged = expandedFor === comparisonKey;
   const comparisonRows =
-    previous && quote ? compareQuotes(previous, quote, project) : [];
+    previous && quote ? quotationComparisonRows(compareQuotes(previous, quote, project), previous, quote) : [];
   const changedRows = comparisonRows.filter((row) => row.changed);
   if (!quote) return null;
   return (
     <div className="customer-quote-summary">
+      <QuotationMasthead quote={quote} requestedScope={project && quoteScopeLabel(project.inquiry.values, project.context)} />
       {showComparison && previous && (
         <details className="customer-disclosure customer-comparison" key={comparisonKey} open={comparisonExpanded || undefined}>
           <summary>Compare with version {previous.version}<span>{changedRows.length} changes</span></summary>
           <div>
-          <p className="customer-fine">
-            {changedRows.length
-              ? `${changedRows.length} changed fields. Unchanged terms are kept in the full quotation below.`
-              : "No commercial fields changed."}
-          </p>
+          {!changedRows.length && <p className="customer-fine">No commercial fields changed.</p>}
           <Comparison
             rows={showUnchanged ? comparisonRows : changedRows}
+            changedOnly={!showUnchanged}
             beforeLabel={`Version ${previous.version}`}
             afterLabel={quote.version ? `Version ${quote.version}` : "Draft"}
           />
@@ -108,42 +108,8 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
           </div>
         </details>
       )}
-      <div className="customer-quote-masthead">
-        <section className="customer-quoted-scope" aria-label={`Quoted scope for ${productTitle}`}>
-          <h2>Quoted scope</h2>
-          <p className="customer-preserve">{quote.scope}</p>
-          {project && <p className="customer-fine">Requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
-        </section>
-        <div className="customer-subtotal">
-          <span>Priced subtotal · USD</span>
-          <strong>{money(quote.subtotal)}</strong>
-          <small>Final total remains to confirm</small>
-        </div>
-      </div>
       <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} impactScope={quote.impactScope} lineItems={quote.lineItems} project={project} />
-      <section className="customer-document-section">
-        <h3>Pricing</h3>
-        <div className="customer-price-table">
-          <div className="customer-price-labels">
-            <span>Item</span>
-            <span>Quantity</span>
-            <span>Unit price</span>
-            <span>Amount</span>
-          </div>
-          {quote.lineItems.map((item, index) => (
-            <div className="customer-price-row" key={item.id || index}>
-              <strong>{item.label}</strong>
-              <span data-label="Quantity">{item.quantity ?? "To confirm"}</span>
-              <span data-label="Unit price">{money(item.unitPrice)}</span>
-              <span data-label="Amount">{money(item.amount)}</span>
-            </div>
-          ))}
-        </div>
-        <p className="customer-fine">
-          Unpriced items are excluded from the subtotal. No payment or order is
-          created.
-        </p>
-      </section>
+      <QuotationPricing quote={quote} />
       <div className="customer-document-grid">
         <section>
           <h3>Requested timing</h3>
@@ -540,7 +506,7 @@ export function ResponseSummary({ value, title, headingAs: Heading = "h3" }) {
     </div>
   );
 }
-export function Conversation({ project, buyerHref = buyerURL }) {
+export function Conversation({ project, buyerHref = buyerURL, outcomeFirst = false }) {
   const events = [
     {
       id: project.inquiry.id,
@@ -593,15 +559,18 @@ export function Conversation({ project, buyerHref = buyerURL }) {
     const step = project.nextSteps.find(item => item.id === event.nextStepId);
     const quoteVersion = event.quoteVersion || step?.quoteVersion ||
       project.changes.find(item => item.id === event.changeId)?.quoteVersion;
+    const isOutcome = outcomeFirst && event === events[0] && event.kind === "next-step-confirmation";
+    const eventMeta = <div className="customer-event-meta">
+      <strong>{event.role}</strong>
+      <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
+    </div>;
     return (
-      <li key={event.id}>
-        <div className="customer-event-meta">
-          <strong>{event.role}</strong>
-          <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
-        </div>
-        <h2>{event.label}</h2>
-        {quoteVersion && <p className="customer-event-reference">{step ? `${step.intent === "engineering-review" ? "Engineering review" : "Discussion"} · ` : ""}Quotation v{quoteVersion}</p>}
+      <li key={event.id} className={isOutcome ? "customer-confirmed-outcome" : undefined}>
+        {!isOutcome && eventMeta}
+        {!isOutcome && <h2>{event.label}</h2>}
+        {quoteVersion && <p className="customer-event-reference">{isOutcome ? "Seller confirmation · " : step ? `${step.intent === "engineering-review" ? "Engineering review" : "Discussion"} · ` : ""}Quotation v{quoteVersion}</p>}
         <p className="customer-preserve">{event.body}</p>
+        {isOutcome && eventMeta}
         <DrawingReference context={recordContext(project, event)} href={buyerHref({ ...project, context: recordContext(project, event) }, true)} compact />
         {event.resolutions?.length > 0 && (
           <ResponseSummary value={{ ...event, body: "" }} />

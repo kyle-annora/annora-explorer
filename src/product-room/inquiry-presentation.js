@@ -7,11 +7,11 @@ const defaults = Object.freeze({
   minimizeLabel: 'Minimize inquiry', closeLabel: 'Close inquiry and keep draft', errorTitle: 'Check your inquiry',
   resumeLabel: 'Continue your inquiry', savedLabel: 'Inquiry saved', draftLabel: 'Saved inquiry draft', productLabel: 'Product inquiry',
   loadingLabel: 'Opening your saved inquiry…', reviewButton: 'Review inquiry', confirmButton: 'Confirm demo inquiry',
-  receiptTitle: 'Your inquiry and saved view are together.',
-  receiptDescription: 'You can continue exploring or open the project to follow the quotation and conversation.',
-  receiptNote: 'This fictional inquiry is saved in this browser. Nothing has been sent.',
+  receiptTitle: 'Your requirements and reference are saved together.',
+  receiptDescription: 'Open the project to follow the quotation and conversation.',
+  receiptNote: 'Nothing has been sent. This demo project stays in this browser.',
   openProjectButton: 'Open project', startAnotherButton: 'Start another inquiry', saveNote: 'Demo only · Nothing is sent',
-  reviewNote: 'Confirmation saves these exact details and this reference as one project. Engineering suitability remains subject to review.',
+  reviewNote: 'Save these details with the attached reference. Engineering suitability remains subject to review.',
 });
 
 /** Presentation only: an adapter still owns field mapping and business validation. */

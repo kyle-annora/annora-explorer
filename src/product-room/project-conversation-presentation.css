@@ -1,7 +1,7 @@
 /* The latest shared receipt leads; the complete history remains available. */
 .room-workspace .pw-conversation.pw-conversation-records {
   display: block;
-  margin-top: 24px;
+  margin-top: 0;
 }
 .room-workspace .pw-conversation-records .pw-timeline {
   border: 0;
@@ -34,3 +34,8 @@
 
 .room-workspace .pw-conversation-records .pw-timeline h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; line-height: 1.4; margin: 14px 0 10px; }
 .room-workspace .pw-conversation-records .pw-reply-topics h3 { font-size: 14px; font-weight: 600; margin: 0 0 14px; }
+.room-workspace .pw-conversation-records .pw-confirmed-outcome > .pw-preserve { font-size: 18px; line-height: 1.65; margin: 12px 0 24px; max-width: 64ch; }
+.room-workspace .pw-conversation-records .pw-confirmed-outcome > small { display: block; color: var(--aw-muted); font-size: 13px; }
+.room-workspace .pw-conversation-records .pw-confirmed-outcome > .pw-event-head { margin: 0 0 20px; padding-top: 16px; border-top: 1px solid var(--aw-border); }
+.room-workspace .pw-conversation-records .pw-confirmed-outcome > .ar-project-details { margin-bottom: 0; }
+.room-workspace .pw-conversation-records .pw-event-head time { font-size: 12px; }

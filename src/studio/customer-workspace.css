@@ -1439,7 +1439,35 @@
 .customer-workspace .customer-event-meta { font-size: 12px; }
 .customer-workspace .customer-event-meta time { font-size: 11px; }
 .customer-workspace .customer-timeline .customer-event-reference { color: var(--aw-muted); font-size: 12px; margin: -4px 0 12px; }
+.customer-workspace .ar-project-task-actions .customer-project-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 360px;
+}
+.customer-workspace .ar-project-task-actions .customer-project-toolbar > :only-child { grid-column: 1 / -1; }
+.customer-workspace .ar-project-task-actions .customer-view-choice,
+.customer-workspace .ar-project-task-actions .ar-version-selector { display: grid; gap: 6px; min-width: 0; width: auto; }
+.customer-workspace .ar-project-task-actions .customer-view-choice > span,
+.customer-workspace .ar-project-task-actions .ar-version-selector > label { margin: 0; color: var(--aw-muted); font-size: 12px; line-height: 1.4; }
+.customer-workspace .ar-project-task-actions .customer-view-choice select,
+.customer-workspace .ar-project-task-actions .ar-version-selector > select { width: 100%; max-width: none; min-width: 0; min-height: 44px; font-size: 14px; }
+.customer-workspace .customer-facts dd,
+.customer-workspace .customer-document-section p,
+.customer-workspace .customer-document-section li,
+.customer-workspace .customer-document-grid p { font-size: 15px; line-height: 1.65; }
+.customer-workspace .customer-fine { font-size: 13px; line-height: 1.6; }
+.customer-workspace .customer-confirmed-outcome > .customer-preserve { font-size: 18px; line-height: 1.65; margin: 12px 0 24px; max-width: 64ch; }
+.customer-workspace .customer-confirmed-outcome > .customer-event-meta { margin: 0; padding-top: 16px; border-top: 1px solid var(--aw-border); }
+.customer-workspace .customer-confirmed-outcome > .customer-event-reference { margin: 0; font-size: 13px; }
 @media (max-width: 760px) {
+  .customer-workspace .ar-project-task-actions .customer-project-toolbar { width: 100%; }
+  .customer-workspace .ar-project-task-actions .customer-view-choice select,
+  .customer-workspace .ar-project-task-actions .ar-version-selector > select { font-size: 16px; }
   .customer-workspace .customer-context-wrap { padding: 18px 16px 0; }
   .customer-workspace .customer-project-layout,
   .customer-workspace .customer-editor-page,
@@ -1454,7 +1482,7 @@
   .customer-workspace .customer-subtotal { text-align: left; }
   .customer-workspace .customer-subtotal strong { font-size: 26px; }
   .customer-workspace .customer-facts { gap: 20px; }
-  .customer-workspace .customer-facts dd { font-size: 13px; }
+  .customer-workspace .customer-facts dd { font-size: 15px; }
   .customer-workspace .customer-supporting-details .customer-reference-body > dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .customer-workspace .customer-supporting-details .customer-reference-body > img { float: none; margin: 0 0 16px; }
   .customer-workspace .customer-supporting-details .project-evidence-disclosure > summary { gap: 5px 12px; }

@@ -232,7 +232,7 @@ async function run(profile) {
     assert.equal(new URL(page.url()).searchParams.get('referenceQuote'),revised.quotes[1].id);
     await click(page.locator('#return-project'));await waitStep('next-review');assertDestination(v2Url);
     await page.getByLabel('Quote version',{exact:true}).selectOption(quoteV1.id);
-    await page.getByRole('heading',{name:'An earlier quotation.',exact:true}).waitFor();await waitStep('latest-quotation');
+    await page.getByRole('heading',{name:'Quotation v1 · Earlier version',exact:true}).waitFor();await waitStep('latest-quotation');
     await checkpoint('17-historical-v1');
     const historicalUrl=page.url();
     await click(page.getByRole('button',{name:'Reopen saved view',exact:true}).first());

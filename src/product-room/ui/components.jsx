@@ -351,16 +351,36 @@ export function VersionSelector({
   );
 }
 
+function ComparisonValue({ value, changedOnly }) {
+  if (value?.kind === "line-item") {
+    const facts = changedOnly
+      ? value.facts.filter((fact) => fact.changed)
+      : value.facts;
+    return (
+      <dl className="ar-comparison-facts">
+        {facts.map((fact) => (
+          <div key={fact.key} data-changed={fact.changed || undefined}>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+  return value ?? "To confirm";
+}
+
 export function Comparison({
   rows,
   beforeLabel = "Previous",
   afterLabel = "Revised",
   caption = "Version comparison",
+  changedOnly = false,
   className = "",
 }) {
   return (
-    <div className={classes("ar-comparison", className)}>
-      <table>
+    <div className={classes("ar-comparison", className)} data-changed-only={changedOnly || undefined}>
+      <table role="table">
         <caption className="ar-sr-only">{caption}</caption>
         <thead>
           <tr>
@@ -373,20 +393,29 @@ export function Comparison({
           {rows.map((item, index) => {
             const {
               label,
+              labelDisplay,
               before,
               after,
+              beforeDisplay = before,
+              afterDisplay = after,
               changed = before !== after,
             } = Array.isArray(item)
               ? { label: item[0], before: item[1], after: item[2] }
               : item;
             return (
-              <tr key={`${label}-${index}`} data-changed={changed || undefined}>
+              <tr key={item.key || `${label}-${index}`} data-changed={changed || undefined}>
                 <th scope="row">
-                  {label}
-                  {changed && <span className="ar-change-label">Changed</span>}
+                  {labelDisplay ?? label}
+                  {changed && <span className={changedOnly ? "ar-sr-only" : "ar-change-label"}> Changed</span>}
                 </th>
-                <td data-column={beforeLabel}>{before ?? "To confirm"}</td>
-                <td data-column={afterLabel}>{after ?? "To confirm"}</td>
+                <td data-column={beforeLabel} className="ar-comparison-previous">
+                  <span className="ar-comparison-column" aria-hidden="true">{beforeLabel}</span>
+                  <ComparisonValue value={beforeDisplay} changedOnly={changedOnly} />
+                </td>
+                <td data-column={afterLabel} className="ar-comparison-current">
+                  <span className="ar-comparison-column" aria-hidden="true">{afterLabel}</span>
+                  <ComparisonValue value={afterDisplay} changedOnly={changedOnly} />
+                </td>
               </tr>
             );
           })}

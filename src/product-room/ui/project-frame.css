@@ -1,5 +1,5 @@
 /* Shared buyer/seller page composition. No routes, records or renderer state. */
-.room-ui .ar-project-context { border-bottom:1px solid var(--aw-border); padding:0 0 18px; margin:0 0 24px; min-width:0; }
+.room-ui .ar-project-context { border-bottom:1px solid var(--aw-border); padding:0 0 14px; margin:0 0 20px; min-width:0; }
 .ar-project-context-main { display:flex; align-items:center; gap:14px; min-width:0; }
 .ar-project-back { flex:none; }
 .ar-project-back :is(button,a) { min-width:44px; min-height:44px; }
@@ -7,7 +7,7 @@
 .ar-project-product { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px; }
 .ar-project-product strong { font-size:16px; font-weight:550; line-height:1.4; }
 .ar-project-product > span { color:var(--aw-muted); font-size:13px; }
-.ar-project-record { display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:6px; color:var(--aw-muted); font-size:11px; line-height:1.5; font-variant-numeric:tabular-nums; }
+.ar-project-record { display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:6px; color:var(--aw-muted); font-size:12px; line-height:1.5; font-variant-numeric:tabular-nums; }
 .ar-project-record strong { font-weight:550; color:var(--aw-ink); }
 .ar-project-record > *, .ar-project-product > * { overflow-wrap:anywhere; }
 .ar-project-context-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
@@ -18,7 +18,7 @@
 .room-ui .ar-project-task { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin:0 0 24px; }
 .ar-project-task-copy { min-width:0; }
 .ar-project-task-title { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
-.room-ui .ar-project-task h1 { margin:0; font:500 clamp(24px,2.6vw,30px)/1.2 var(--aw-font); letter-spacing:-.025em; text-wrap:balance; }
+.room-ui .ar-project-task h1 { margin:0; font:500 clamp(24px,2.4vw,28px)/1.2 var(--aw-font); letter-spacing:-.025em; text-wrap:balance; }
 /* A programmatic reading target, not an interactive control. */
 .room-ui .ar-project-task h1[tabindex="-1"]:focus { outline:none; }
 .ar-project-task-copy > p { max-width:68ch; color:var(--aw-muted); font-size:14px; line-height:1.6; margin:10px 0 0; text-wrap:pretty; }
@@ -28,7 +28,7 @@
 .ar-project-details > summary { display:flex; align-items:center; gap:12px; min-height:48px; padding:12px 0; cursor:pointer; list-style:none; color:var(--aw-ink); font-size:13px; font-weight:500; }
 .ar-project-details > summary::-webkit-details-marker { display:none; }
 .ar-project-details > summary > span { flex:1; }
-.ar-project-details > summary > small { color:var(--aw-muted); font-size:11px; font-weight:400; }
+.ar-project-details > summary > small { color:var(--aw-muted); font-size:12px; font-weight:400; }
 .ar-project-details > summary > svg { width:16px; height:16px; flex:none; transform:rotate(90deg); }
 .ar-project-details[open] > summary > svg { transform:rotate(-90deg); }
 .ar-project-details > summary:hover { color:var(--aw-muted); }
@@ -54,7 +54,7 @@ body[data-walkthrough] .ar-project-role { display:none; }
  .ar-project-context-actions { flex-basis:100%; justify-content:flex-start; }
  .room-ui .ar-project-task { flex-direction:column; gap:12px; margin-bottom:20px; }
  .room-ui .ar-project-task h1 { font-size:25px; }
- .ar-project-task-copy > p { font-size:13px; }
+ .ar-project-task-copy > p { font-size:14px; }
  .ar-project-task-actions { justify-content:flex-start; width:100%; }
  .ar-project-details > summary { flex-wrap:wrap; gap:4px 10px; }
  .ar-project-details > summary > small { max-width:60%; text-align:right; }

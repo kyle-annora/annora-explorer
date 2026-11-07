@@ -144,6 +144,10 @@ export function CustomerWorkspace({
   const nextDestination = status?.label === "Next step confirmed" ? "conversation" : "quotation";
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
+  const confirmedOutcome = status?.label === "Next step confirmed"
+    ? project.messages?.filter(item => item.kind === "next-step-confirmation").at(-1)
+    : null;
+  const confirmedOutcomeStep = confirmedOutcome && project.nextSteps.find(item => item.id === confirmedOutcome.nextStepId);
   const referenceReview = project && <div ref={drawingSection}>{renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy) || questionEditing, onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage(repository.mode === 'impact-demo' ? "Drawing impact confirmed. The working draft now uses the reviewed references; earlier quotations and discussions retain their originals." : "Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}</div>;
   const walkthrough = readWalkthroughSession();
   const workKey = (id) =>
@@ -1075,12 +1079,10 @@ export function CustomerWorkspace({
             <>
               <div className="customer-project-layout">
                 <ProjectTaskHeader
-                  title={tab === "inquiry" ? "Review the customer inquiry" : tab === "quotation" ? quote ? `Quotation v${quote.version}` : "Prepare a quotation" : "Customer conversation"}
-                  description={`${customerName(project)} · ${status.next}`}
-                  status={<Status tone={status.filter === "attention" ? "active" : "neutral"}>{status.label}</Status>}
-                />
-                <div className="customer-project-main">
-                  <div className="customer-project-toolbar">
+                  title={tab === "inquiry" ? "Customer inquiry" : tab === "quotation" ? quote ? `Quotation v${quote.version}` : "Prepare a quotation" : confirmedOutcomeStep ? confirmedOutcomeStep.intent === "engineering-review" ? "Engineering review agreed" : "Discussion agreed" : "Customer conversation"}
+                  description={customerName(project)}
+                  status={!(tab === "conversation" && confirmedOutcomeStep) && <Status tone={status.filter === "attention" ? "active" : "neutral"}>{status.label}</Status>}
+                  actions={<div className="customer-project-toolbar">
                     <label className="customer-view-choice">
                       <span>Project view</span>
                       <select aria-label="Customer project section" value={tab} onChange={event => {
@@ -1088,7 +1090,7 @@ export function CustomerWorkspace({
                         localGo(() => setTab(next, {observe:true}));
                       }}>
                         <option value="inquiry">Customer inquiry</option>
-                        <option value="quotation">Quotation{project.quotes.length ? ` · ${project.quotes.length} ${project.quotes.length === 1 ? "version" : "versions"}` : ""}</option>
+                        <option value="quotation">Quotation</option>
                         <option value="conversation">Conversation</option>
                       </select>
                     </label>
@@ -1099,7 +1101,9 @@ export function CustomerWorkspace({
                         onChange={value => setQuoteId(value, {observe:true})}
                       />
                     </>}
-                  </div>
+                  </div>}
+                />
+                <div className="customer-project-main">
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
@@ -1161,7 +1165,7 @@ export function CustomerWorkspace({
                       ))}
                     {tab === "conversation" && (
                       <>
-                        <Conversation project={project} buyerHref={buyerHref} />
+                        <Conversation project={project} buyerHref={buyerHref} outcomeFirst={Boolean(confirmedOutcomeStep)} />
                       </>
                     )}
                   </div>
@@ -1462,8 +1466,7 @@ export function CustomerWorkspace({
             <div className="customer-review-page">
               <ProjectTaskHeader
                 title={`Review quotation v${project.quotes.length + 1}`}
-                description={`Check the scope, pricing and terms for ${customerName(project)} before you issue this version.`}
-                status={<Status tone="active">Awaiting your confirmation</Status>}
+                description={`For ${customerName(project)} · Check the scope, pricing and terms before issuing.`}
               />
               <QuoteSummary project={project} quote={preview} previous={project.quotes.at(-1)} comparisonExpanded productTitle={quoteProductTitle(project)} drawing={recordContext(project, draft).drawing} />
               {response && <ResponseSummary value={response} />}
@@ -1482,7 +1485,7 @@ export function CustomerWorkspace({
               <ProjectTaskHeader
                 title={mode === "ack-review" ? "Review the next step" : mode === "ack" ? "Confirm the next step" : mode === "reply-review" ? "Review your response" : response?.kind === "clarification" ? "Ask for clarification" : "Reply to the customer"}
                 description={customerName(project)}
-                status={<Status tone={mode.endsWith("review") ? "active" : "neutral"}>{mode.endsWith("review") ? "Awaiting your confirmation" : "Draft response"}</Status>}
+                status={!mode.endsWith("review") && <Status>Draft response</Status>}
               />
               {mode === "reply" || mode === "ack" ? (
                 <>
@@ -1546,7 +1549,7 @@ export function CustomerWorkspace({
                     </div>}
                     <ResponseSummary
                       value={mode === "ack-review" ? { ...response, body: review?.body ?? response.body } : reviewedResponse}
-                      title={mode === "ack-review" ? "Your next-step confirmation" : undefined}
+                      title={mode === "ack-review" ? "Your confirmation" : undefined}
                       headingAs="h2"
                     />
                   </div>

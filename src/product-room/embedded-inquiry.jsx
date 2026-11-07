@@ -40,9 +40,9 @@ function DraftFields({ state, session, formId, disabled, presentation, onReview 
         onChange={event => session.updateValues({ intent: event.target.value })} />}
       {field('application', { textarea: true, rows: 3, maxLength: 2000, placeholder: consultation ? 'Describe your application or question…' : 'Describe the application you need quoted…' })}
       {presentation.showScope && <Field label={consultation ? 'Scope to discuss' : 'Requested quote scope'} name="quoteScope" value={values.quoteScope || ''} error={errors.quoteScope}
-        options={[["", "Not specified"], ...QUOTE_SCOPES.filter(item => item.value !== 'part' || context.part).map(item => [item.value, item.value === 'part' ? `Selected component · ${context.part.title}` : item.label])]}
+        options={[["", "Not specified"], ...QUOTE_SCOPES.filter(item => item.value !== 'part' || context.part).map(item => [item.value, item.value === 'part' ? `Attached part · ${context.part.title}` : item.label])]}
         onChange={event => session.updateValues({ quoteScope: event.target.value })}
-        hint="A viewed component is a reference. Choose the scope separately." />}
+        hint="Quote scope can differ from the attached reference." />}
       {!consultation && commercialFields}
       {technical && <Disclosure title="Technical details" note="Optional" openForError={Boolean(errors.stroke || errors.load || errors.notes || errors.requirements)} defaultOpen={Boolean(values.stroke || values.load || values.notes || draft.requirements.length)}>
         <div className="ei-field-pair">{field('stroke', { type: 'number', min: 0, step: 'any', inputMode: 'decimal', maxLength: 100, placeholder: 'To discuss' })}{field('load', { maxLength: 200, placeholder: 'Include the unit…' })}</div>
@@ -54,7 +54,7 @@ function DraftFields({ state, session, formId, disabled, presentation, onReview 
         {errors.requirements && <p className="ei-field-error" role="alert">{errors.requirements}</p>}
       </Disclosure>}
       {consultation && ['quantity','targetWeeks'].some(enabled) && <Disclosure title="Quantity & timing" note="Optional" openForError={Boolean(errors.quantity || errors.targetWeeks)} defaultOpen={Boolean(values.quantity || values.targetWeeks)}>{commercialFields}<p className="ei-hint">Leave unknown quantities open for discussion.</p></Disclosure>}
-      {['name', 'company', 'email'].some(enabled) && <Disclosure title="Contact details" note="Optional in this demo" openForError={Boolean(errors.name || errors.company || errors.email)} defaultOpen={Boolean(values.name || values.company || values.email)}>
+      {['name', 'company', 'email'].some(enabled) && <Disclosure title="Contact details" note="Optional" openForError={Boolean(errors.name || errors.company || errors.email)} defaultOpen={Boolean(values.name || values.company || values.email)}>
         {field('name', { maxLength: 120, autoComplete: 'name' })}{field('company', { maxLength: 160, autoComplete: 'organization' })}{field('email', { type: 'email', inputMode: 'email', maxLength: 254, autoComplete: 'email', spellCheck: false })}
       </Disclosure>}
     </fieldset>
@@ -73,12 +73,12 @@ function Review({ draft, presentation }) {
   const { values, context } = draft;
   const facts = ['quantity', 'targetWeeks', 'stroke', 'load'].filter(id => inquiryFieldVisible(presentation,id) && inquiryField(context, id, values)?.enabled || values[id]);
   return <div className="ei-review" aria-label="Reviewed inquiry">
-    <dl className="ei-facts"><div><dt>Purpose</dt><dd>{inquiryIntentLabel(values)}</dd></div>{presentation.showScope && <div><dt>Requested scope</dt><dd>{quoteScopeLabel(values, context)}</dd></div>}</dl>
-    <section><h3>{inquiryField(context, 'application', values)?.label || 'Application'}</h3><p>{values.application}</p></section>
-    <dl className="ei-facts">{facts.map(id => <div key={id}><dt>{inquiryField(context, id, values)?.label || id}</dt><dd>{values[id] ? `${values[id]}${id === 'quantity' ? ' units' : id === 'targetWeeks' ? ' weeks requested' : id === 'stroke' ? ' mm' : ''}` : 'To discuss'}</dd></div>)}</dl>
+    <dl className="ei-facts ei-facts-stacked ei-review-overview"><div><dt>Purpose</dt><dd>{inquiryIntentLabel(values)}</dd></div>{presentation.showScope && <div><dt>Requested scope</dt><dd>{quoteScopeLabel(values, context)}</dd></div>}</dl>
+    <section className="ei-review-application"><h3>{presentation.fieldLabels.application || inquiryField(context, 'application', values)?.label || 'Application'}</h3><p>{values.application}</p></section>
+    <dl className="ei-facts ei-specifications">{facts.map(id => <div key={id} data-field={id}><dt>{presentation.fieldLabels[id] || inquiryField(context, id, values)?.label || id}</dt><dd>{values[id] ? `${values[id]}${id === 'quantity' ? ' units' : id === 'targetWeeks' ? ' weeks requested' : id === 'stroke' ? ' mm' : ''}` : <span className="ei-undecided">To discuss</span>}</dd></div>)}</dl>
     {values.notes && <section><h3>{inquiryField(context, 'notes', values)?.label || 'Notes'}</h3><p>{values.notes}</p></section>}
     {draft.requirements.length > 0 && <section><h3>Confirmed requirements</h3><ul>{draft.requirements.map(item => <li key={item.id}>{item.label}: {item.value} {item.unit}{item.part && <small>{item.part.title}</small>}</li>)}</ul></section>}
-    {['name', 'company', 'email'].some(id => values[id]) && <section><h3>Contact</h3><dl className="ei-facts">{['name', 'company', 'email'].filter(id => values[id]).map(id => <div key={id}><dt>{inquiryField(context, id, values)?.label || id}</dt><dd>{values[id]}</dd></div>)}</dl></section>}
+    {['name', 'company', 'email'].some(id => values[id]) && <section className="ei-review-contact"><h3>Contact</h3><dl className="ei-facts ei-facts-stacked">{['name', 'company', 'email'].filter(id => values[id]).map(id => <div key={id}><dt>{presentation.fieldLabels[id] || inquiryField(context, id, values)?.label || id}</dt><dd>{values[id]}</dd></div>)}</dl></section>}
     <p className="ei-confirm-note">{presentation.labels.reviewNote}</p>
   </div>;
 }
@@ -110,6 +110,8 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
   const titleId = useId(), formId = useId();
   const context = state.draft?.context || state.project?.context;
   const { presentation } = callbacks, { labels } = presentation;
+  const referenceTitle = context?.drawing?.regionLabel || context?.part?.title || context?.productTitle;
+  const restoreLabel = context?.drawing ? 'View attached detail' : context?.part ? 'View attached part' : 'Restore saved view';
   const incompatible = inquiryPresentationError(presentation,state.draft);
   const busy = state.loading || Boolean(state.pending) || ui.leaving;
   const canReload = ['CONFLICT', 'STALE_REVIEW', 'RELOAD_FAILED', 'DRAFT_UNAVAILABLE'].includes(state.error?.code);
@@ -146,13 +148,16 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
     <span className="ei-resume-mark"><Glyph name={state.stage === 'confirmed' ? 'check' : 'document'} /></span><span><strong>{state.stage === 'confirmed' ? labels.savedLabel : labels.resumeLabel}</strong><small>{context?.part?.title || context?.productTitle || labels.productLabel}</small></span><span aria-hidden="true">↑</span></button></div>;
   return <section ref={pane} className="room-ui ei-panel" role="dialog" aria-modal="false" aria-labelledby={titleId} aria-busy={state.loading || undefined} data-stage={state.stage}>
     <header className="ei-header">
-      <ProjectContextBar project={state.project} context={context || { productTitle: labels.productLabel }}
-        recordLabel={state.stage === 'confirmed' ? labels.savedLabel : state.stage === 'review' ? `2 of 2 · ${labels.reviewStep}` : `1 of 2 · ${labels.requirementsStep}`}
-        actions={context && callbacks.onRestore && <Button variant="quiet" className="ei-view" icon="external" aria-label="View saved reference" title="View saved reference" disabled={busy} onClick={() => swallow(controls.restore())}>View</Button>} />
+      <div className="ei-header-main">
+      <ProjectContextBar project={state.project} context={context ? { ...context, part: undefined, drawing: undefined } : { productTitle: labels.productLabel }} />
       <div className="ei-window-actions">
         <button type="button" className="ei-icon-button" aria-label={labels.minimizeLabel} disabled={busy} onClick={() => swallow(controls.minimize())}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14" /></svg></button>
         <button type="button" className="ei-icon-button" aria-label={labels.closeLabel} disabled={busy} onClick={() => swallow(controls.close())}><Glyph name="close" /></button>
       </div>
+      </div>
+      {context && <div className="ei-attached-reference"><p><span>Attached:</span> <strong>{referenceTitle}</strong></p>
+        {callbacks.onRestore && <Button variant="quiet" className="ei-view" icon="external" disabled={busy} onClick={() => swallow(controls.restore())}>{restoreLabel}</Button>}
+      </div>}
     </header>
     <div ref={scroll} className="ei-scroll">
       <div className="ei-task"><h2 id={titleId} ref={heading} tabIndex={-1}>{titleFor(state,labels)}</h2></div>
@@ -171,7 +176,7 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
         {context && <InquiryReference compact context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} session={session} />}
       </>}
     </div>
-    <footer className="ei-footer"><div className="ei-save-state" role="status" aria-live="polite"><span>{saveLabel(state)}</span><small>{labels.saveNote}</small></div>
+    <footer className="ei-footer" data-inquiry-action-region><div className="ei-save-state" role="status" aria-live="polite"><span>{saveLabel(state)}</span><small>{labels.saveNote}</small></div>
       <ProjectActionBar className="ei-actions" primary={state.stage === 'confirmed'
         ? callbacks.onProject && <Button icon="arrow" disabled={busy} onClick={() => swallow(controls.openProject())}>{labels.openProjectButton}</Button>
         : state.stage === 'review' ? <Button disabled={busy || Boolean(incompatible) || ui.reviewUnavailable} pending={state.pending === 'confirm'} pendingLabel="Saving…" onClick={() => swallow(controls.confirm())}>{labels.confirmButton}</Button>
