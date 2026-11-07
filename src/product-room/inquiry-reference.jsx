@@ -13,12 +13,13 @@ export function InquiryReference({ context, editable, busy, onCapture, onRestore
   return <section className="ei-reference" aria-label="Attached product reference">
     <div className="ei-reference-summary">
       {preview ? <img src={preview.dataUrl} width={preview.width} height={preview.height} alt={`Saved view of ${context.part?.title || context.productTitle}`} /> : <span className="ei-reference-placeholder"><Glyph name="document" /></span>}
-      <div><small>{drawing ? 'Saved drawing detail' : context.inspection ? 'Saved 3D view' : 'Product reference'}</small><strong>{title}</strong>{description && <span>{description}</span>}</div>
+      <div><small>{drawing ? 'Saved drawing detail' : context.inspection || context.viewerReference ? 'Saved 3D view' : 'Product reference'}</small><strong>{title}</strong>{description && <span>{description}</span>}</div>
       {onRestore && <Button variant="quiet" className="ei-view" disabled={busy} onClick={() => swallow(onRestore())}>View</Button>}
     </div>
     <details className="ei-reference-details">
       <summary>Reference details</summary>
       <dl><div><dt>Product</dt><dd>{context.productTitle}</dd></div>
+        {context.productRevision && <div><dt>Product version</dt><dd>{context.productRevision}</dd></div>}
         {context.part && <div><dt>Component</dt><dd>{context.part.title}</dd></div>}
         {context.chapter && <div><dt>Explanation</dt><dd>{context.chapter.title}</dd></div>}
         {context.document && <div><dt>Document</dt><dd>{context.document.title} · {context.document.revision}</dd></div>}

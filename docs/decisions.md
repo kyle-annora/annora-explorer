@@ -76,3 +76,21 @@ validation passes.
 
 See [prepared-product integration](prepared-products.md), [technical story API](technical-story-api.md)
 and [W40 review](w40-prepared-product-review.md).
+
+## W50 — Integrate an existing viewer
+
+- The kit owns neither rendering nor persistence. A host supplies an explicit JSON
+  viewer adapter and repository; a separate example keeps its own Three.js canvas.
+- External cameras retain their original coordinate system in `viewerReference`
+  v1, pinned to product, model and adapter revisions. Existing native `inspection`
+  semantics and historical record keys remain unchanged.
+- Unsupported drawing/story capabilities are explicit. Capture never invents
+  these references. Unknown versions and lossy repositories fail closed.
+- Review and confirmation remain separate. Browsing does not mutate attached
+  references; replacing a view invalidates prior review.
+- A packed, asset-free library and a fresh independently built host are the
+  qualification boundary. The package excludes models, Three.js and PDF.js.
+- Sample browser storage is opt-in and isolated. Backend, authentication and
+  arbitrary commercial-viewer support remain outside this release.
+
+See [integration kit](integration-kit.md) and [W50 qualification](w50-integration-kit-review.md).

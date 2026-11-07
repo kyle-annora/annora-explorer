@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "workUnit": "W50",
+  "status": "publication-pending",
+  "repository": "https://github.com/kyle-annora/annora-explorer",
+  "target": "https://kyle-annora.github.io/annora-explorer/integrations/existing-viewer/",
+  "evaluation": "evaluation.json",
+  "note": "Source and local qualification are separate from actual target publication. This receipt will be replaced with verified target evidence after deployment."
+}

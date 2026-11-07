@@ -1,6 +1,7 @@
 /** In-memory demo request state. No delivery, account or storage implementation. */
 import { normalizeDrawingContext, drawingVersionKey } from './drawing-context.js';
 import { normalizeInspection } from '../explorer/inspection-reference.js';
+import { integrationText, normalizeViewerReference } from '../integration-kit/viewer-reference.js';
 export const REQUEST_PURPOSES = Object.freeze([
   Object.freeze({ id: 'question', label: 'Ask a product question' }),
   Object.freeze({ id: 'application', label: 'Discuss an application' }),
@@ -15,6 +16,7 @@ export function requestContext(input) {
     productId: text(input.productId), productTitle: text(input.productTitle),
     modelId: text(input.modelId), modelRevision: text(input.modelRevision)
   };
+  if (Object.hasOwn(input, 'productRevision')) context.productRevision = integrationText(input.productRevision, 'Product revision');
   for (const key of ['part', 'document', 'chapter']) {
     const item = input[key];
     if (!item) continue;
@@ -28,6 +30,10 @@ export function requestContext(input) {
   }
   if (input.drawing !== undefined) context.drawing = normalizeDrawingContext(input.drawing, context);
   if (input.inspection !== undefined) context.inspection = normalizeInspection(input.inspection, { model: { id: context.modelId, revision: context.modelRevision } });
+  if (Object.hasOwn(input, 'viewerReference')) {
+    if (input.inspection !== undefined) throw new TypeError('Keep external viewer references separate from Annora inspection state.');
+    context.viewerReference = normalizeViewerReference(input.viewerReference, context);
+  }
   return context;
 }
 
@@ -81,7 +87,7 @@ export function confirmRequest(state, receipt) {
   return { ...copy(state), stage: 'confirmed', receipt: { id: text(receipt.id), createdAt: receipt.createdAt, delivery: 'demo-only' } };
 }
 
-export const requestDraftKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
+export const requestDraftKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, ...(context.productRevision ? [{productRevision:context.productRevision}] : []), ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
 /** Reopening against a different selection must not confirm the older question
  * without showing its restored context in the editable details screen first. */

@@ -16,6 +16,7 @@ export const requestItemTitle = item => item?.context?.drawing?.regionLabel || i
 export const requestItemCollectionKey = context => JSON.stringify([
   context.productId, context.modelId, context.modelRevision,
   context.roomReleaseId || null, context.inquiryProfileVersion || null,
+  ...(context.productRevision ? [{productRevision:context.productRevision}] : []),
 ]);
 
 export function normalizeRequestItems(input, inquiryContext) {

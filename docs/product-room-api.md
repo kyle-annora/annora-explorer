@@ -162,9 +162,12 @@ repository review/confirmation boundary. Loading a newer conflicting draft and
 starting another inquiry after a receipt are explicit actions. The product
 release, rules version and reviewed packet stay separate from transient UI state.
 
-This local composition is not a published cross-viewer SDK. An external viewer
-still needs verified identity/capture/restore adapters; the existing Annora JSON
-controller remains the only supported renderer boundary.
+This section describes the local composition. External viewers can use the
+separately versioned [integration kit](integration-kit-api.md) with a verified
+identity/capture/restore adapter and explicit repository support for its saved
+references. It qualifies one independent host, not every third-party viewer.
+Embedding the Annora renderer itself continues to use its existing JSON
+controller; neither integration exposes internal Three.js objects.
 
 ## Production adapter responsibilities
 

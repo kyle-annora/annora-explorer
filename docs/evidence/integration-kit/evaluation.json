@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "workUnit": "W50",
+  "status": "implemented-and-locally-qualified",
+  "baselineCommit": "0fc6e61ff5832309feb17f8113451bd5d3cbc774",
+  "recordedAt": "2026-11-07T06:17:35.937614+00:00",
+  "package": {
+    "name": "@annora/integration-kit",
+    "version": "0.1.0"
+  },
+  "repositoryChecks": {
+    "total": 988,
+    "passed": 987,
+    "skipped": 1,
+    "failed": 0,
+    "builds": [
+      "main application",
+      "inquiry-only library",
+      "integration kit",
+      "independent host"
+    ]
+  },
+  "installedArtifact": {
+    "checks": 14,
+    "status": "passed",
+    "freshHostOutsideRepository": true,
+    "sameVersionReinstall": true,
+    "crossVersionMigration": false
+  },
+  "browser": {
+    "checkpoints": 44,
+    "viewports": [
+      [
+        1280,
+        900
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        320,
+        740
+      ],
+      [
+        844,
+        390
+      ]
+    ],
+    "pageErrors": 0,
+    "oneCanvas": true,
+    "annoraIframe": false,
+    "exactCameraRestore": true,
+    "forcedStorageFailureRecovery": true,
+    "existingNamespacePreserved": true,
+    "idleFramesObserved": 0,
+    "idleWindowMs": 400,
+    "actualBackPassed": true,
+    "genuineBfcacheExercised": false,
+    "syntheticRetainedPagePassed": true
+  },
+  "regressions": {
+    "crankWalkthroughCheckpoints": 32,
+    "confirmationsPerRun": 8,
+    "sk08AtoBCheckpoints": 15,
+    "originalReferencesPreserved": true
+  },
+  "visualReview": {
+    "disposition": "ship",
+    "resolved": [
+      "mobile selector clipping",
+      "documented renderer token mismatch"
+    ]
+  },
+  "preservation": {
+    "explorerRuntime": "unchanged",
+    "modelPackages": "unchanged",
+    "existingProductConfiguration": "unchanged",
+    "exampleNamespace": "annora.integration-example.projects.v1",
+    "privateClientContent": "excluded"
+  },
+  "limits": [
+    "Fictional browser-local records; no delivery or backend.",
+    "One qualified independent Three.js adapter; not universal viewer certification.",
+    "Browser emulation, not physical-device or ordinary-PC benchmarking.",
+    "Genuine bfcache restoration was not observed.",
+    "First kit release; reinstall is not cross-version migration evidence."
+  ],
+  "publication": {
+    "status": "pending",
+    "receipt": "release-receipt.json"
+  }
+}

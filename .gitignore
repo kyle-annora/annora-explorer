@@ -1,6 +1,9 @@
 node_modules/
 dist/
 dist-inquiry/
+dist-integration/
+examples/existing-viewer/public/model.glb
+examples/existing-viewer/package-lock.json
 work/
 .DS_Store
 .env

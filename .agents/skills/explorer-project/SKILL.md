@@ -18,6 +18,11 @@ description: Configure, import content into, validate, integrate or deploy a pro
    must not require model-specific branches in `src/explorer/`.
 5. For another app, read `docs/integration.md` and `docs/api.md`. Use the JSON
    interface and capability discovery, not DOM selectors or renderer internals.
+   When that app keeps its own viewer, use `docs/integration-kit.md` and
+   `docs/integration-kit-api.md`. Build the versioned artifact, declare supported
+   capabilities, preserve exact references and qualify a fresh independent host
+   with `docs/integration-kit-acceptance.md`. Do not substitute the Annora iframe
+   for an independent-viewer acceptance case or silently fall back to its store.
 6. Run `npm run verify`. Review the built site on desktop/mobile and inspect the
    actual changed capabilities. Use `docs/evaluation.md`; distinguish measured
    evidence from untested assumptions.

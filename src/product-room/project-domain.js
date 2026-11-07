@@ -26,7 +26,7 @@ export function quoteScopeLabel(values, context) {
   return QUOTE_SCOPES.find(item => item.value === values?.quoteScope)?.label || 'Not specified';
 }
 const id = () => `DRAFT-${globalThis.crypto.randomUUID()}`;
-export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null, ...(context.drawing ? [drawingVersionKey(context)] : [])]);
+export const projectContextKey = context => JSON.stringify([context.productId, context.modelId, context.modelRevision, context.roomReleaseId || null, context.inquiryProfileVersion || null, ...(context.productRevision ? [{productRevision:context.productRevision}] : []), ...(context.drawing ? [drawingVersionKey(context)] : [])]);
 
 export function normalizeProjectContext(input) {
   let context;
@@ -167,7 +167,7 @@ export function reviewRevision(project, quoteId, input) {
   if (values.notes.length > 2000) fields.notes = 'Keep the question within 2,000 characters.';
   if (!Object.keys(fields).length && +values.quantity === quote.quantity && (values.targetWeeks ? +values.targetWeeks : null) === quote.requestedWeeks && !values.notes) fields.notes = 'Describe what you want to change, or update quantity or timing.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the requested changes.', fields);
-  return reviewedProjectValue({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values, ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
+  return reviewedProjectValue({ kind: 'revision', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, values, ...(project.context.drawing || project.context.inspection || project.context.viewerReference ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 export function reviewNextStep(project, quoteId, input) {
   const quote = assertCurrentQuote(project, quoteId);
@@ -177,7 +177,7 @@ export function reviewNextStep(project, quoteId, input) {
   if (!message) fields.message = 'Add what you would like to discuss or review.';
   else if (message.length > 2000) fields.message = 'Keep the message within 2,000 characters.';
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION', 'Check the next-step request.', fields);
-  return reviewedProjectValue({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message, ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
+  return reviewedProjectValue({ kind: 'next-step', projectId: project.id, projectRevision: project.revision, quoteId: quote.id, quoteVersion: quote.version, intent, message, ...(project.context.drawing || project.context.inspection || project.context.viewerReference ? {context:cloneProjectValue(recordContext(project,quote))} : {}) });
 }
 
 const money = value => value === null ? 'Pending review' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value);

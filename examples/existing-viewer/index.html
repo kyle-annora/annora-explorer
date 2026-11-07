@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Keep your 3D viewer. Connect a selected part and saved view to a reviewed inquiry with Annora."><title>Existing viewer · Annora Integration Kit</title></head>
+<body>
+  <header class="host-header"><a class="wordmark" href="https://github.com/kyle-annora/annora-explorer">Annora</a><span class="host-title">Independent viewer example</span><nav aria-label="Page actions"><button id="saved-open" type="button">Saved inquiries <span id="saved-count">0</span></button><button id="request" class="primary" type="button" disabled>Request a quote</button></nav></header>
+  <main>
+    <section class="stage" aria-label="Product exploration">
+      <div id="viewer" class="viewer" aria-label="Interactive crank-slider model"></div>
+      <div class="intro"><h1>Your viewer.<br>Your next conversation.</h1><p>Inspect a part, then bring that exact view into your request.</p></div>
+      <div class="view-tools"><button id="fit" disabled>Fit selection</button><button id="reset" disabled>Reset view</button></div>
+      <div class="selection"><label for="part">Selected part</label><select id="part" disabled><option value="">Whole mechanism</option></select><button id="inquire-part" disabled>Ask about this view</button></div>
+      <p id="load-status" class="load-status" role="status">Loading the mechanism…</p>
+      <p class="gesture">Drag to rotate · Scroll or pinch to zoom</p>
+    </section>
+    <section class="host-note" aria-label="Example details"><p><strong>Crank-slider mechanism</strong><span>Public mechanism study · Demo data only</span></p><details><summary>About this integration</summary><div class="integration-details"><p>This page has its own 3D viewer. Annora adds a floating inquiry, review and saved product reference. Nothing is sent.</p><dl><div><dt>Available</dt><dd>Part selection, saved view, inquiry</dd></div><div><dt>Not provided by this viewer</dt><dd>Drawing details and guided stories</dd></div></dl><p>Original Kinetic 01 study by Pradeep Kaushik. Static pose; this example does not simulate operation.</p><a href="./MODEL-LICENSE.txt">Model license</a> <a href="https://github.com/kyle-annora/annora-explorer/blob/main/docs/integration-kit.md">Integration guide</a></div></details></section>
+    <p id="host-error" class="host-error" role="alert" hidden></p>
+    <aside id="saved" class="saved" hidden aria-labelledby="saved-heading"><header><h2 id="saved-heading" tabindex="-1">Saved inquiries</h2><button id="saved-close">Close</button></header><p>Local to this example and this browser.</p><div id="saved-list"></div></aside>
+  </main>
+  <div id="inquiry"></div>
+  <script type="module" src="./app.js"></script>
+</body></html>

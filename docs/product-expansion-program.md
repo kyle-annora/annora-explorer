@@ -26,8 +26,8 @@ separately from deployment and automated test success.
 | 3 | Prepared option comparison and scope | Compare approved alternatives, show included/optional/requested parts, retain exact selected option in the request | Planned |
 | 4 | Change-impact review | Identify references/questions/draft quote lines requiring review when an approved source changes; never rewrite historical records | Planned |
 | 5 | Action workspace and conversion evidence | Track independently anchored questions, responsibility and resolution; distinguish observed events from inferred sales value | Planned |
-| Foundation A | Product onboarding workbench | Reuse one intake/readiness path for another prepared product; report semantic/source/performance gaps and preparation effort | Planned |
-| Foundation B | Supported integration kit | Versioned distributable, adapter examples, capability checks and host acceptance suite; reuse the existing MK integration as evidence | Planned |
+| Foundation A | Product onboarding workbench | Reuse one intake/readiness path for another prepared product; report semantic/source/performance gaps and preparation effort | W41 published; [review and receipt](w41-product-onboarding-review.md) |
+| Foundation B | Supported integration kit | Versioned distributable, adapter examples, capability checks and independent host acceptance suite | W50 implemented and qualified; [review and publication receipt](w50-integration-kit-review.md). MK remains a separate integration. |
 
 Real accounts, durable cross-device sharing, permissions, notifications and external
 transmission remain future host-service work. Simulate those contracts with fake

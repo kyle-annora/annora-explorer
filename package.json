@@ -15,8 +15,10 @@
     "report:products": "node scripts/report-prepared-products.mjs",
     "apply:room-release": "node scripts/apply-room-release.mjs",
     "apply:onboarding": "node scripts/apply-onboarding-package.mjs",
-    "verify": "npm run check && npm test && npm run build",
-    "apply:drawing-release": "node scripts/apply-drawing-release.mjs"
+    "verify": "npm run check && npm test && npm run build && npm run build:integration && npm run build:integration-example",
+    "apply:drawing-release": "node scripts/apply-drawing-release.mjs",
+    "build:integration": "node scripts/build-integration-kit.mjs",
+    "build:integration-example": "node scripts/build-integration-example.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

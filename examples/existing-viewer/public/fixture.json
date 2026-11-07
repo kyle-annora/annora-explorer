@@ -1,0 +1,1032 @@
+{
+  "schemaVersion": 1,
+  "modelId": "kinetic-01",
+  "title": "Crank-slider mechanism",
+  "modelRevision": "sha256:6b8de14cd5f65835670aa6bf8b1f3b42f8d46f2192601d9c852c06e5564572b9",
+  "coordinateFrame": "source-meters-y-up-v1",
+  "source": {
+    "title": "Kinetic 01 \u2014 tabletop crank-slider",
+    "author": "Pradeep Kaushik",
+    "repository": "https://github.com/pr9868/scene-acceptance",
+    "commit": "c361b9ad46f91ba960c708c2510aa204ad45605b",
+    "path": "examples/astra-mechanical-assembly/submission/output/crank_slider.glb",
+    "sha256": "5356cb1e7dcf85874c1f2152795b7011f43f01c2bfc899a5fa75a198687204ad",
+    "license": "MIT",
+    "licenseURL": "https://github.com/pr9868/scene-acceptance/blob/c361b9ad46f91ba960c708c2510aa204ad45605b/examples/astra-mechanical-assembly/LICENSE",
+    "licenseSha256": "8f694d23cac4bad2c9f97c5b21f20a891c018445594edc179a39555c17c79728",
+    "generatorSha256": "58c06fd95e6b9c10cb1fc95eb852cc0b59c9e2a2fe71e8734293da7fdfec7bc9",
+    "kind": "Published procedural mechanism study with authored animation; not manufacturer CAD.",
+    "attribution": "Kinetic 01 by Pradeep Kaushik, MIT. Original study produced with an AI agent; presentation metadata and technical edges adapted for Annora Explorer.",
+    "file": "model.glb",
+    "preserved": [
+      "geometry",
+      "hierarchy",
+      "materials",
+      "pivots",
+      "animation channels",
+      "animation samplers"
+    ],
+    "note": "Public illustrative mechanism study. This independent viewer displays the saved static pose; it does not simulate or play the authored operating cycle."
+  },
+  "stats": {
+    "meshCount": 107,
+    "nodeCount": 114,
+    "triangles": 74572,
+    "sourceMaterials": 7,
+    "animationClips": 1,
+    "bytes": 2574332,
+    "gzipBytes": 595025
+  },
+  "defaultDirection": [
+    0.55,
+    1.2,
+    1.35
+  ],
+  "groups": [
+    {
+      "id": "crank",
+      "title": "Crank drive"
+    },
+    {
+      "id": "rod",
+      "title": "Connecting rod"
+    },
+    {
+      "id": "carriage",
+      "title": "Slider carriage"
+    },
+    {
+      "id": "guide",
+      "title": "Linear guide"
+    },
+    {
+      "id": "frame",
+      "title": "Frame and supports"
+    }
+  ],
+  "parts": [
+    {
+      "id": "kinetic-node-000",
+      "meshName": "Base_|_cobalt_plinth",
+      "sourceNodeIndex": 0,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Base | cobalt plinth",
+      "title": "Base \u00b7 cobalt plinth",
+      "group": "frame",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-001",
+      "meshName": "Connecting_rod",
+      "sourceNodeIndex": 1,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Connecting rod",
+      "title": "Connecting rod",
+      "group": "rod",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-002",
+      "meshName": "Rod_bearing_bronze_seat",
+      "sourceNodeIndex": 2,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod bearing bronze seat",
+      "title": "Rod bearing bronze seat",
+      "group": "rod",
+      "finishFamily": "bronze"
+    },
+    {
+      "id": "kinetic-node-003",
+      "meshName": "Rod_bearing_bronze_seat001",
+      "sourceNodeIndex": 3,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod bearing bronze seat.001",
+      "title": "Rod bearing bronze seat 2",
+      "group": "rod",
+      "finishFamily": "bronze"
+    },
+    {
+      "id": "kinetic-node-004",
+      "meshName": "Rod_pivot_hex_recess",
+      "sourceNodeIndex": 4,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot hex recess",
+      "title": "Rod pivot hex recess",
+      "group": "rod",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-005",
+      "meshName": "Rod_pivot_hex_recess001",
+      "sourceNodeIndex": 5,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot hex recess.001",
+      "title": "Rod pivot hex recess 2",
+      "group": "rod",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-006",
+      "meshName": "Rod_pivot_socket_head",
+      "sourceNodeIndex": 6,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot socket head",
+      "title": "Rod pivot socket head",
+      "group": "rod",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-007",
+      "meshName": "Rod_pivot_socket_head001",
+      "sourceNodeIndex": 7,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot socket head.001",
+      "title": "Rod pivot socket head 2",
+      "group": "rod",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-008",
+      "meshName": "Rod_pivot_washer",
+      "sourceNodeIndex": 8,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot washer",
+      "title": "Rod pivot washer",
+      "group": "rod",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-009",
+      "meshName": "Rod_pivot_washer001",
+      "sourceNodeIndex": 9,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod pivot washer.001",
+      "title": "Rod pivot washer 2",
+      "group": "rod",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-010",
+      "meshName": "Rod_recessed_spine",
+      "sourceNodeIndex": 10,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Connecting_Rod_Pose/Rod recessed spine",
+      "title": "Rod recessed spine",
+      "group": "rod",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-013",
+      "meshName": "Crank_arm",
+      "sourceNodeIndex": 13,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Crank arm",
+      "title": "Crank arm",
+      "group": "crank",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-014",
+      "meshName": "Crank_balance_disk",
+      "sourceNodeIndex": 14,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Crank balance disk",
+      "title": "Crank balance disk",
+      "group": "crank",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-015",
+      "meshName": "Crank_pin_lower_spacer",
+      "sourceNodeIndex": 15,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Crank pin lower spacer",
+      "title": "Crank pin lower spacer",
+      "group": "crank",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-016",
+      "meshName": "Crank_pin_shaft",
+      "sourceNodeIndex": 16,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Crank pin shaft",
+      "title": "Crank pin shaft",
+      "group": "crank",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-018",
+      "meshName": "Disk_silver_pocket",
+      "sourceNodeIndex": 18,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket",
+      "title": "Disk silver pocket",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-019",
+      "meshName": "Disk_silver_pocket001",
+      "sourceNodeIndex": 19,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket.001",
+      "title": "Disk silver pocket 2",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-020",
+      "meshName": "Disk_silver_pocket002",
+      "sourceNodeIndex": 20,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket.002",
+      "title": "Disk silver pocket 3",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-021",
+      "meshName": "Disk_silver_pocket003",
+      "sourceNodeIndex": 21,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket.003",
+      "title": "Disk silver pocket 4",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-022",
+      "meshName": "Disk_silver_pocket004",
+      "sourceNodeIndex": 22,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket.004",
+      "title": "Disk silver pocket 5",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-023",
+      "meshName": "Disk_silver_pocket005",
+      "sourceNodeIndex": 23,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Disk silver pocket.005",
+      "title": "Disk silver pocket 6",
+      "group": "crank",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-024",
+      "meshName": "Spindle_cap_hex_recess",
+      "sourceNodeIndex": 24,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Spindle cap hex recess",
+      "title": "Spindle cap hex recess",
+      "group": "crank",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-025",
+      "meshName": "Spindle_cap_socket_head",
+      "sourceNodeIndex": 25,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Spindle cap socket head",
+      "title": "Spindle cap socket head",
+      "group": "crank",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-026",
+      "meshName": "Spindle_cap_washer",
+      "sourceNodeIndex": 26,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Crank_Rotation/Spindle cap washer",
+      "title": "Spindle cap washer",
+      "group": "crank",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-028",
+      "meshName": "Deck_fastener_hex_recess",
+      "sourceNodeIndex": 28,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener hex recess",
+      "title": "Deck fastener hex recess",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-029",
+      "meshName": "Deck_fastener_hex_recess001",
+      "sourceNodeIndex": 29,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener hex recess.001",
+      "title": "Deck fastener hex recess 2",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-030",
+      "meshName": "Deck_fastener_hex_recess002",
+      "sourceNodeIndex": 30,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener hex recess.002",
+      "title": "Deck fastener hex recess 3",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-031",
+      "meshName": "Deck_fastener_hex_recess003",
+      "sourceNodeIndex": 31,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener hex recess.003",
+      "title": "Deck fastener hex recess 4",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-032",
+      "meshName": "Deck_fastener_socket_head",
+      "sourceNodeIndex": 32,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener socket head",
+      "title": "Deck fastener socket head",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-033",
+      "meshName": "Deck_fastener_socket_head001",
+      "sourceNodeIndex": 33,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener socket head.001",
+      "title": "Deck fastener socket head 2",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-034",
+      "meshName": "Deck_fastener_socket_head002",
+      "sourceNodeIndex": 34,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener socket head.002",
+      "title": "Deck fastener socket head 3",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-035",
+      "meshName": "Deck_fastener_socket_head003",
+      "sourceNodeIndex": 35,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener socket head.003",
+      "title": "Deck fastener socket head 4",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-036",
+      "meshName": "Deck_fastener_washer",
+      "sourceNodeIndex": 36,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener washer",
+      "title": "Deck fastener washer",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-037",
+      "meshName": "Deck_fastener_washer001",
+      "sourceNodeIndex": 37,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener washer.001",
+      "title": "Deck fastener washer 2",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-038",
+      "meshName": "Deck_fastener_washer002",
+      "sourceNodeIndex": 38,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener washer.002",
+      "title": "Deck fastener washer 3",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-039",
+      "meshName": "Deck_fastener_washer003",
+      "sourceNodeIndex": 39,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck fastener washer.003",
+      "title": "Deck fastener washer 4",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-040",
+      "meshName": "Deck_subtitle",
+      "sourceNodeIndex": 40,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck subtitle",
+      "title": "Deck subtitle",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-041",
+      "meshName": "Deck_title",
+      "sourceNodeIndex": 41,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck title",
+      "title": "Deck title",
+      "group": "frame",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-042",
+      "meshName": "Deck_|_brushed_insert",
+      "sourceNodeIndex": 42,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Deck | brushed insert",
+      "title": "Deck \u00b7 brushed insert",
+      "group": "frame",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-043",
+      "meshName": "Guide_end_support",
+      "sourceNodeIndex": 43,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide end support",
+      "title": "Guide end support",
+      "group": "guide",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-044",
+      "meshName": "Guide_end_support001",
+      "sourceNodeIndex": 44,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide end support.001",
+      "title": "Guide end support 2",
+      "group": "guide",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-045",
+      "meshName": "Guide_label",
+      "sourceNodeIndex": 45,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide label",
+      "title": "Guide label",
+      "group": "guide",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-046",
+      "meshName": "Guide_support_collar",
+      "sourceNodeIndex": 46,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide support collar",
+      "title": "Guide support collar",
+      "group": "guide",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-047",
+      "meshName": "Guide_support_collar001",
+      "sourceNodeIndex": 47,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide support collar.001",
+      "title": "Guide support collar 2",
+      "group": "guide",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-048",
+      "meshName": "Guide_support_collar002",
+      "sourceNodeIndex": 48,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide support collar.002",
+      "title": "Guide support collar 3",
+      "group": "guide",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-049",
+      "meshName": "Guide_support_collar003",
+      "sourceNodeIndex": 49,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Guide support collar.003",
+      "title": "Guide support collar 4",
+      "group": "guide",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-050",
+      "meshName": "Linear_guide_rail",
+      "sourceNodeIndex": 50,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Linear guide rail",
+      "title": "Linear guide rail",
+      "group": "guide",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-051",
+      "meshName": "Linear_guide_rail001",
+      "sourceNodeIndex": 51,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Linear guide rail.001",
+      "title": "Linear guide rail 2",
+      "group": "guide",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-052",
+      "meshName": "Main_vertical_shaft",
+      "sourceNodeIndex": 52,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Main vertical shaft",
+      "title": "Main vertical shaft",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-053",
+      "meshName": "Rubber_isolator",
+      "sourceNodeIndex": 53,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Rubber isolator",
+      "title": "Rubber isolator",
+      "group": "frame",
+      "finishFamily": "polymer"
+    },
+    {
+      "id": "kinetic-node-054",
+      "meshName": "Rubber_isolator001",
+      "sourceNodeIndex": 54,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Rubber isolator.001",
+      "title": "Rubber isolator 2",
+      "group": "frame",
+      "finishFamily": "polymer"
+    },
+    {
+      "id": "kinetic-node-055",
+      "meshName": "Rubber_isolator002",
+      "sourceNodeIndex": 55,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Rubber isolator.002",
+      "title": "Rubber isolator 3",
+      "group": "frame",
+      "finishFamily": "polymer"
+    },
+    {
+      "id": "kinetic-node-056",
+      "meshName": "Rubber_isolator003",
+      "sourceNodeIndex": 56,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Rubber isolator.003",
+      "title": "Rubber isolator 4",
+      "group": "frame",
+      "finishFamily": "polymer"
+    },
+    {
+      "id": "kinetic-node-057",
+      "meshName": "Scale_tick_00",
+      "sourceNodeIndex": 57,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 00",
+      "title": "Scale tick 00",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-058",
+      "meshName": "Scale_tick_01",
+      "sourceNodeIndex": 58,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 01",
+      "title": "Scale tick 01",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-059",
+      "meshName": "Scale_tick_02",
+      "sourceNodeIndex": 59,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 02",
+      "title": "Scale tick 02",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-060",
+      "meshName": "Scale_tick_03",
+      "sourceNodeIndex": 60,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 03",
+      "title": "Scale tick 03",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-061",
+      "meshName": "Scale_tick_04",
+      "sourceNodeIndex": 61,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 04",
+      "title": "Scale tick 04",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-062",
+      "meshName": "Scale_tick_05",
+      "sourceNodeIndex": 62,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 05",
+      "title": "Scale tick 05",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-063",
+      "meshName": "Scale_tick_06",
+      "sourceNodeIndex": 63,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 06",
+      "title": "Scale tick 06",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-064",
+      "meshName": "Scale_tick_07",
+      "sourceNodeIndex": 64,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 07",
+      "title": "Scale tick 07",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-065",
+      "meshName": "Scale_tick_08",
+      "sourceNodeIndex": 65,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 08",
+      "title": "Scale tick 08",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-066",
+      "meshName": "Scale_tick_09",
+      "sourceNodeIndex": 66,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 09",
+      "title": "Scale tick 09",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-067",
+      "meshName": "Scale_tick_10",
+      "sourceNodeIndex": 67,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 10",
+      "title": "Scale tick 10",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-068",
+      "meshName": "Scale_tick_11",
+      "sourceNodeIndex": 68,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 11",
+      "title": "Scale tick 11",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-069",
+      "meshName": "Scale_tick_12",
+      "sourceNodeIndex": 69,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 12",
+      "title": "Scale tick 12",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-070",
+      "meshName": "Scale_tick_13",
+      "sourceNodeIndex": 70,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 13",
+      "title": "Scale tick 13",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-071",
+      "meshName": "Scale_tick_14",
+      "sourceNodeIndex": 71,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Scale tick 14",
+      "title": "Scale tick 14",
+      "group": "guide",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-072",
+      "meshName": "Carriage_mark",
+      "sourceNodeIndex": 72,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage mark",
+      "title": "Carriage mark",
+      "group": "carriage",
+      "finishFamily": "satin"
+    },
+    {
+      "id": "kinetic-node-073",
+      "meshName": "Carriage_screw_hex_recess",
+      "sourceNodeIndex": 73,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw hex recess",
+      "title": "Carriage screw hex recess",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-074",
+      "meshName": "Carriage_screw_hex_recess001",
+      "sourceNodeIndex": 74,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw hex recess.001",
+      "title": "Carriage screw hex recess 2",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-075",
+      "meshName": "Carriage_screw_hex_recess002",
+      "sourceNodeIndex": 75,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw hex recess.002",
+      "title": "Carriage screw hex recess 3",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-076",
+      "meshName": "Carriage_screw_hex_recess003",
+      "sourceNodeIndex": 76,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw hex recess.003",
+      "title": "Carriage screw hex recess 4",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-077",
+      "meshName": "Carriage_screw_socket_head",
+      "sourceNodeIndex": 77,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw socket head",
+      "title": "Carriage screw socket head",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-078",
+      "meshName": "Carriage_screw_socket_head001",
+      "sourceNodeIndex": 78,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw socket head.001",
+      "title": "Carriage screw socket head 2",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-079",
+      "meshName": "Carriage_screw_socket_head002",
+      "sourceNodeIndex": 79,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw socket head.002",
+      "title": "Carriage screw socket head 3",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-080",
+      "meshName": "Carriage_screw_socket_head003",
+      "sourceNodeIndex": 80,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw socket head.003",
+      "title": "Carriage screw socket head 4",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-081",
+      "meshName": "Carriage_screw_washer",
+      "sourceNodeIndex": 81,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw washer",
+      "title": "Carriage screw washer",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-082",
+      "meshName": "Carriage_screw_washer001",
+      "sourceNodeIndex": 82,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw washer.001",
+      "title": "Carriage screw washer 2",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-083",
+      "meshName": "Carriage_screw_washer002",
+      "sourceNodeIndex": 83,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw washer.002",
+      "title": "Carriage screw washer 3",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-084",
+      "meshName": "Carriage_screw_washer003",
+      "sourceNodeIndex": 84,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Carriage screw washer.003",
+      "title": "Carriage screw washer 4",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-085",
+      "meshName": "Orange_slider_carriage",
+      "sourceNodeIndex": 85,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Orange slider carriage",
+      "title": "Orange slider carriage",
+      "group": "carriage",
+      "finishFamily": "indicator"
+    },
+    {
+      "id": "kinetic-node-086",
+      "meshName": "Slider_bushing_barrel",
+      "sourceNodeIndex": 86,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing barrel",
+      "title": "Slider bushing barrel",
+      "group": "carriage",
+      "finishFamily": "bronze"
+    },
+    {
+      "id": "kinetic-node-087",
+      "meshName": "Slider_bushing_barrel001",
+      "sourceNodeIndex": 87,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing barrel.001",
+      "title": "Slider bushing barrel 2",
+      "group": "carriage",
+      "finishFamily": "bronze"
+    },
+    {
+      "id": "kinetic-node-088",
+      "meshName": "Slider_bushing_end_ring",
+      "sourceNodeIndex": 88,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing end ring",
+      "title": "Slider bushing end ring",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-089",
+      "meshName": "Slider_bushing_end_ring001",
+      "sourceNodeIndex": 89,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing end ring.001",
+      "title": "Slider bushing end ring 2",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-090",
+      "meshName": "Slider_bushing_end_ring002",
+      "sourceNodeIndex": 90,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing end ring.002",
+      "title": "Slider bushing end ring 3",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-091",
+      "meshName": "Slider_bushing_end_ring003",
+      "sourceNodeIndex": 91,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider bushing end ring.003",
+      "title": "Slider bushing end ring 4",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-092",
+      "meshName": "Slider_pin_saddle",
+      "sourceNodeIndex": 92,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider pin saddle",
+      "title": "Slider pin saddle",
+      "group": "carriage",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-093",
+      "meshName": "Slider_pin_shaft",
+      "sourceNodeIndex": 93,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Slider_Translation/Slider pin shaft",
+      "title": "Slider pin shaft",
+      "group": "carriage",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-096",
+      "meshName": "Spindle_bearing_housing",
+      "sourceNodeIndex": 96,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Spindle bearing housing",
+      "title": "Spindle bearing housing",
+      "group": "frame",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-097",
+      "meshName": "Spindle_bearing_race",
+      "sourceNodeIndex": 97,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Spindle bearing race",
+      "title": "Spindle bearing race",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-098",
+      "meshName": "Spindle_bearing_seal",
+      "sourceNodeIndex": 98,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Spindle bearing seal",
+      "title": "Spindle bearing seal",
+      "group": "frame",
+      "finishFamily": "polymer"
+    },
+    {
+      "id": "kinetic-node-099",
+      "meshName": "Spindle_pedestal",
+      "sourceNodeIndex": 99,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Spindle pedestal",
+      "title": "Spindle pedestal",
+      "group": "frame",
+      "finishFamily": "structure"
+    },
+    {
+      "id": "kinetic-node-100",
+      "meshName": "Support_mount_hex_recess",
+      "sourceNodeIndex": 100,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount hex recess",
+      "title": "Support mount hex recess",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-101",
+      "meshName": "Support_mount_hex_recess001",
+      "sourceNodeIndex": 101,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount hex recess.001",
+      "title": "Support mount hex recess 2",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-102",
+      "meshName": "Support_mount_hex_recess002",
+      "sourceNodeIndex": 102,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount hex recess.002",
+      "title": "Support mount hex recess 3",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-103",
+      "meshName": "Support_mount_hex_recess003",
+      "sourceNodeIndex": 103,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount hex recess.003",
+      "title": "Support mount hex recess 4",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-104",
+      "meshName": "Support_mount_socket_head",
+      "sourceNodeIndex": 104,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount socket head",
+      "title": "Support mount socket head",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-105",
+      "meshName": "Support_mount_socket_head001",
+      "sourceNodeIndex": 105,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount socket head.001",
+      "title": "Support mount socket head 2",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-106",
+      "meshName": "Support_mount_socket_head002",
+      "sourceNodeIndex": 106,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount socket head.002",
+      "title": "Support mount socket head 3",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-107",
+      "meshName": "Support_mount_socket_head003",
+      "sourceNodeIndex": 107,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount socket head.003",
+      "title": "Support mount socket head 4",
+      "group": "frame",
+      "finishFamily": "machined"
+    },
+    {
+      "id": "kinetic-node-108",
+      "meshName": "Support_mount_washer",
+      "sourceNodeIndex": 108,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount washer",
+      "title": "Support mount washer",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-109",
+      "meshName": "Support_mount_washer001",
+      "sourceNodeIndex": 109,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount washer.001",
+      "title": "Support mount washer 2",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-110",
+      "meshName": "Support_mount_washer002",
+      "sourceNodeIndex": 110,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount washer.002",
+      "title": "Support mount washer 3",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-111",
+      "meshName": "Support_mount_washer003",
+      "sourceNodeIndex": 111,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Support mount washer.003",
+      "title": "Support mount washer 4",
+      "group": "frame",
+      "finishFamily": "polished"
+    },
+    {
+      "id": "kinetic-node-112",
+      "meshName": "Travel_scale",
+      "sourceNodeIndex": 112,
+      "sourcePath": "/CRANK_SLIDER_ASSEMBLY/Travel scale",
+      "title": "Travel scale",
+      "group": "guide",
+      "finishFamily": "machined"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "annora-existing-viewer-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite --host 127.0.0.1", "build": "vite build", "preview": "vite preview --host 127.0.0.1" },
+  "dependencies": { "@annora/integration-kit": "file:../../dist-integration/annora-integration-kit-0.1.0.tgz", "react": "19.3.1", "react-dom": "19.3.1", "three": "0.180.0" },
+  "devDependencies": { "vite": "7.3.7" },
+  "engines": { "node": ">=22.13.0" }
+}

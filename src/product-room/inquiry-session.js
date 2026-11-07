@@ -9,10 +9,33 @@ function requireRequestItemSupport(repository, draft) {
     throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store does not support independently referenced requests. Keep the reviewed references until a compatible project store is available.');
 }
 
+function requireViewerReferenceSupport(repository, draft) {
+  const references = [draft?.context, ...(draft?.requestItems || []).map(item => item.context)].filter(context => context?.viewerReference);
+  if (references.some(context => !Array.isArray(repository.supportedViewerReferenceVersions) || !repository.supportedViewerReferenceVersions.includes(context.viewerReference.version)))
+    throw new ProjectError('UNSUPPORTED_VIEWER_REFERENCE', 'This project store does not support the saved viewer reference. Keep the original view and use a compatible project store.');
+}
+function assertViewerReferencePreserved(source, result, code = 'UNSUPPORTED_VIEWER_REFERENCE') {
+  if ((source?.viewerReference || source?.productRevision) && !sameProjectValue(source, result))
+    throw new ProjectError(code, 'The project store did not preserve the exact product version and saved view. Your original reference is still here; confirmation could not be verified.');
+}
+function validateLoadedViewerDraft(repository, draft, incoming) {
+  if (!incoming?.viewerReference && !incoming?.productRevision && !draft?.context?.viewerReference && !draft?.context?.productRevision && !draft?.requestItems?.some(item => item.context?.viewerReference)) return;
+  requireViewerReferenceSupport(repository, draft);
+  const normalized = normalizeProjectContext(draft?.context);
+  if (!sameProjectValue(normalized, draft.context) || projectContextKey(normalized) !== projectContextKey(incoming)
+      || incoming.viewerReference && !normalized.viewerReference)
+    throw new ProjectError('INCOMPATIBLE_CONTEXT', 'This project store returned a different or incomplete product reference. The saved draft has not been replaced.');
+  if (!draft.revision) assertViewerReferencePreserved(incoming, normalized);
+  if (draft.requestItems?.some(item => item.context?.viewerReference) && !sameProjectValue(normalizeRequestItems(draft.requestItems, normalized), draft.requestItems))
+    throw new ProjectError('INCOMPATIBLE_CONTEXT', 'The saved request list contains an incomplete viewer reference. Your current input is unchanged.');
+}
+
 /** The same persistence/review boundary is used by page and embedded inquiries. */
 export async function prepareInquirySubmission({ repository, draft, saveDraft = value => repository.saveDraft(value) }) {
   requireRequestItemSupport(repository, draft);
+  requireViewerReferenceSupport(repository, draft);
   const saved = await saveDraft(draft);
+  assertViewerReferencePreserved(draft?.context, saved?.context);
   if (Object.hasOwn(draft || {}, 'requestItems') && !sameProjectValue(saved?.requestItems, normalizeRequestItems(draft.requestItems, draft.context)))
     throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store did not preserve the request list. Keep the original references and use a compatible project store before continuing.');
   const standard = reviewInquiry(saved);
@@ -28,7 +51,9 @@ export async function prepareInquirySubmission({ repository, draft, saveDraft = 
 
 export async function confirmInquirySubmission({ repository, review }) {
   requireRequestItemSupport(repository, review?.draft);
+  requireViewerReferenceSupport(repository, review?.draft);
   const project = await repository.submitInquiry(review);
+  assertViewerReferencePreserved(review?.draft?.context, project?.context, 'INVALID_CONFIRMATION');
   if (Object.hasOwn(review?.draft || {}, 'requestItems') && !sameProjectValue(project?.inquiry?.requestItems, review.draft.requestItems))
     throw new ProjectError('INVALID_CONFIRMATION', 'The project response did not preserve every referenced request. Confirmation could not be verified; keep this reviewed inquiry and check the project store.');
   return project;
@@ -72,7 +97,9 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
       if (savedDraft && sameProjectValue(source, savedDraft)) return copy(savedDraft);
       publish({ saving: true });
       try {
+        requireViewerReferenceSupport(repository, source);
         const saved = await repository.saveDraft(source);
+        assertViewerReferencePreserved(source.context, saved?.context);
         if (Object.hasOwn(source, 'requestItems') && !sameProjectValue(saved?.requestItems, normalizeRequestItems(source.requestItems, source.context)))
           throw new ProjectError('UNSUPPORTED_REQUEST_ITEMS', 'This project store did not preserve the request list. Your original references are still here; use a compatible project store before continuing.');
         if (!disposed && turn === generation && state.draft?.id === saved.id) {
@@ -151,6 +178,7 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
     return item;
   }
   function openDraft(draft, incoming, { suggestedIntent, suggestedScope } = {}) {
+    validateLoadedViewerDraft(repository, draft, incoming);
     savedDraft = draft.revision ? copy(draft) : null;
     if (emptyDraft(draft)) {
       if (['quotation', 'application-review'].includes(suggestedIntent)) draft.values.intent = suggestedIntent;
@@ -168,6 +196,7 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
     async open({ context, suggestedIntent, suggestedScope } = {}) {
       assertActive();
       const incoming = normalizeProjectContext(context);
+      requireViewerReferenceSupport(repository, { context: incoming });
       if (state.draft && projectContextKey(state.draft.context) === projectContextKey(incoming)) {
         if (!sameProjectValue(state.draft.context, incoming)) publish({ notice: 'Your draft keeps its saved view. Choose Use current view to replace it.' });
         return snapshot();
@@ -259,6 +288,7 @@ export function createInquirySession({ repository, autosaveDelay = 500, schedule
         try { saved = await repository.getDraft(state.draft.context); }
         catch (error) { throw new ProjectError('RELOAD_FAILED', `The saved draft could not be loaded. Your current entries are still here. ${error?.message || 'Please try again.'}`); }
         if (!saved?.revision) throw new ProjectError('DRAFT_UNAVAILABLE', 'This draft was submitted or removed in another tab. Your current entries are still here; check the saved project before starting another inquiry.');
+        validateLoadedViewerDraft(repository, saved, state.draft.context);
         savedDraft = copy(saved);
         publish({ draft: copy(saved), review: null, project: null, stage: 'details', error: null, notice: 'Latest saved draft loaded. Review these details again before confirming.' });
         return copy(saved);

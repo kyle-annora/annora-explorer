@@ -3,8 +3,10 @@
 The same floating presentation and headless session now serve the standalone
 crank Explorer, Product Room, the walkthrough and prepared drawing previews.
 Each host owns navigation and its repository; the panel owns only its request
-session and local presentation. This is a source integration boundary, not a
-published package or compatibility claim for arbitrary third-party viewers.
+session and local presentation. This document describes the repository-local
+source integration. External hosts can use the separately versioned
+[integration kit](integration-kit-api.md); its independent viewer qualification
+does not imply compatibility with arbitrary third-party viewers.
 
 ## Host contract
 

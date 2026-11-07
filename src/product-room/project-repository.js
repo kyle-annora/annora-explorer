@@ -28,7 +28,7 @@ const inquiryRuleSnapshot = inquiry => Object.hasOwn(inquiry, 'inquiryRulesVersi
 const inquiryItemsSnapshot = inquiry => Object.hasOwn(inquiry, 'requestItems') ? { requestItems: cloneProjectValue(inquiry.requestItems) } : {};
 const validOpenItems = items => array(items) && items.every(item => nonempty(item.id) && nonempty(item.label) && nonempty(item.owner) && nonempty(item.status));
 const validateInspectionRecord = (project, record) => {
-  if (!project?.context.drawing && (project?.context.inspection || record.context?.inspection) && !sameProjectValue(record.context, project?.context)) throw new Error('A saved record changed its inquiry view.');
+  if (!project?.context.drawing && (project?.context.inspection || record.context?.inspection || project?.context.viewerReference || record.context?.viewerReference) && !sameProjectValue(record.context, project?.context)) throw new Error('A saved record changed its inquiry view.');
 };
 
 /** Reject corrupt/unknown versions without replacing or silently resetting user records. */
@@ -222,7 +222,7 @@ export function createDemoProjectRepository(options = {}) {
   function appendMessage(project,values,token,authorRole = 'seller') {
     const parent=values.replyTo?project.messages.find(item=>item.id===values.replyTo):values.changeId?project.changes.find(item=>item.id===values.changeId):values.nextStepId?project.nextSteps.find(item=>item.id===values.nextStepId):null;
     const pinned=parent?recordContext(project,parent):projectDrawingContext(project);
-    const message = { ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(pinned)} : {}),id:makeId('MSG'),projectRevision:project.revision+1,authorRole,kind:values.kind,body:values.body,changeId:values.changeId || null,replyTo:values.replyTo || null,nextStepId:values.nextStepId || null,resolutions:cloneProjectValue(values.resolutions || []),createdAt:now(),reviewToken:token,delivery:'demo-only' };
+    const message = { ...(project.context.drawing || project.context.inspection || project.context.viewerReference ? {context:cloneProjectValue(pinned)} : {}),id:makeId('MSG'),projectRevision:project.revision+1,authorRole,kind:values.kind,body:values.body,changeId:values.changeId || null,replyTo:values.replyTo || null,nextStepId:values.nextStepId || null,resolutions:cloneProjectValue(values.resolutions || []),createdAt:now(),reviewToken:token,delivery:'demo-only' };
     project.messages.push(message); return message;
   }
   async function drawingRelease(input) {
@@ -238,6 +238,7 @@ export function createDemoProjectRepository(options = {}) {
     mode: 'demo',
     evidenceScope: Object.freeze({schemaVersion:1, namespace:key, storage:'browser-local'}),
     supportsRequestItems: true,
+    supportedViewerReferenceVersions: Object.freeze(['1']),
     ...createFollowUpRepositoryMethods({ read, change, findProject, now, makeId }),
     ...createOptionScopeRepositoryMethods({ read, change, findProject, now, makeId }),
     ...createQuestionRepositoryMethods({ read, change, findProject, now, makeId }),
@@ -292,7 +293,7 @@ export function createDemoProjectRepository(options = {}) {
         assertQuestionScopeSource(project,draft);
         assertImpactScopeSource(project,draft);
         if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Review and explicitly replace it before saving or issuing a new version.');
-        if(project.context.inspection&&!project.context.drawing&&!sameProjectValue(draft.context,project.context))throw new ProjectError('VALIDATION','Keep the saved inquiry view attached to this quotation.');
+        if((project.context.inspection||project.context.viewerReference)&&!project.context.drawing&&!sameProjectValue(draft.context,project.context))throw new ProjectError('VALIDATION','Keep the saved inquiry view attached to this quotation.');
         if(previous&&project.context.drawing&&!sameProjectValue(recordContext(project,draft),recordContext(project,previous)))throw new ProjectError('DRAWING_REVIEW_REQUIRED','A quotation draft reference can change only through explicit drawing-reference review.');
         if (draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('CONFLICT','The customer project changed. Reopen it before saving the quotation draft. Your input is still available.');
         if (previous ? previous.id !== draft.id || previous.revision !== draft.revision : draft.revision !== 0) throw new ProjectError('CONFLICT','This quotation draft changed or was issued in another tab. Reopen the latest draft.');
@@ -399,7 +400,7 @@ export function createDemoProjectRepository(options = {}) {
         const createdAt = now();
         if (store.quoteDrafts.some(item => item.projectId === project.id)) throw new ProjectError('CONFLICT','A seller quotation draft is already in progress. Open Studio to review it.');
         const quote = sampleQuote({ id: makeId('QT'), version: 1, createdAt, values: project.inquiry.values });
-        if (project.context.inspection) quote.context = cloneProjectValue(project.context);
+        if (project.context.inspection || project.context.viewerReference) quote.context = cloneProjectValue(project.context);
         project.quotes.push(quote);
         return touch(project, createdAt);
       });
@@ -412,7 +413,7 @@ export function createDemoProjectRepository(options = {}) {
         const quote = assertFreshProject(project, packet); reviewRevision(project, quote.id, packet.values);
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'A change request already awaits a reply for this quotation.');
         const createdAt = now();
-        project.changes.push({ id: makeId('CHG'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, values: cloneProjectValue(packet.values), ...(project.context.drawing || project.context.inspection?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, reviewToken: review.token });
+        project.changes.push({ id: makeId('CHG'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, values: cloneProjectValue(packet.values), ...(project.context.drawing || project.context.inspection || project.context.viewerReference?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, reviewToken: review.token });
         return touch(project, createdAt);
       });
     },
@@ -430,7 +431,7 @@ export function createDemoProjectRepository(options = {}) {
         const createdAt = now(), reply = sampleSupplierReply({ id: makeId('REPLY'), createdAt, change: requested, quote, inquiry: project.inquiry });
         const revised = sampleQuote({ id: makeId('QT'), version: quote.version + 1, createdAt, values: { ...project.inquiry.values, quantity: requested.values.quantity, targetWeeks: requested.values.targetWeeks }, additionalQuestions: project.changes.map(item => item.values.notes), previousQuoteId: quote.id, changeId, replyId: reply.id });
         if (store.quoteDrafts.some(item => item.projectId === project.id)) throw new ProjectError('CONFLICT','A seller quotation draft is already in progress. Open Studio to review it.');
-        if(project.context.drawing || project.context.inspection){reply.context=cloneProjectValue(recordContext(project,requested));revised.context=cloneProjectValue(projectDrawingContext(project));}
+        if(project.context.drawing || project.context.inspection || project.context.viewerReference){reply.context=cloneProjectValue(recordContext(project,requested));revised.context=cloneProjectValue(projectDrawingContext(project));}
         project.replies.push(reply); project.quotes.push(revised);
         return touch(project, createdAt);
       });
@@ -444,7 +445,7 @@ export function createDemoProjectRepository(options = {}) {
         if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT', 'Review the pending change response before confirming a next step.');
         if (project.nextSteps.some(item => item.quoteId === quote.id && ((!project.messages.some(message => message.kind === 'next-step-confirmation' && message.nextStepId === item.id)) || (item.intent === packet.intent && item.message === packet.message)))) throw new ProjectError('CONFLICT','A matching or unanswered next-step request is already saved for this quotation.');
         const createdAt = now();
-        project.nextSteps.push({ id: makeId('NEXT'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, intent: packet.intent, message: packet.message, ...(project.context.drawing || project.context.inspection?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, delivery: 'demo-only', reviewToken: review.token });
+        project.nextSteps.push({ id: makeId('NEXT'), projectRevision:project.revision+1, quoteId: quote.id, quoteVersion: quote.version, intent: packet.intent, message: packet.message, ...(project.context.drawing || project.context.inspection || project.context.viewerReference?{context:cloneProjectValue(recordContext(project,quote))}:{}), createdAt, delivery: 'demo-only', reviewToken: review.token });
         return touch(project, createdAt);
       });
     }
