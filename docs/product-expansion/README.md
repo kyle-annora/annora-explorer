@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 6 · November 6, 2026 · W41 onboarding implementation and fresh-source qualification; publication status is recorded in its [release receipt](../evidence/product-onboarding/release-receipt.json). The prior W40 [release receipt](../evidence/prepared-products/release-receipt.json) remains unchanged.
+Planning revision 6 · November 6, 2026 · W41 onboarding and fresh-source qualification published and verified; publication evidence is recorded in its [release receipt](../evidence/product-onboarding/release-receipt.json). The prior W40 [release receipt](../evidence/prepared-products/release-receipt.json) remains unchanged.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,

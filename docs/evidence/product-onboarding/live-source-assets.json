@@ -1,0 +1,19 @@
+{
+  "verifiedAt": "2026-11-07T05:36:59.341Z",
+  "records": [
+    {
+      "source": "content/models/nema17-bracket/model.glb.gz",
+      "url": "https://kyle-annora.github.io/annora-explorer/assets/model.glb-Dc1M4HAo.gz",
+      "sha256": "019d1a5e0f4bb7db0480938439f161243a6b179a0c84b76bd15816ac46f10a99",
+      "bytes": 30723,
+      "status": "exact-source-match"
+    },
+    {
+      "source": "content/drawings/nema17-bracket/source.pdf",
+      "url": "https://kyle-annora.github.io/annora-explorer/assets/source-DiUqsxVn.pdf",
+      "sha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "bytes": 76732,
+      "status": "exact-source-match"
+    }
+  ]
+}

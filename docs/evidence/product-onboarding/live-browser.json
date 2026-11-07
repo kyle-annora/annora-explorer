@@ -1,0 +1,470 @@
+{
+  "intake1280": {
+    "width": 1280,
+    "height": 900,
+    "checks": [
+      {
+        "name": "01-source-checks",
+        "overflow": false
+      },
+      {
+        "name": "unchecked sources block progression"
+      },
+      {
+        "name": "host navigation protects unsaved edits; discard preserves saved setup"
+      },
+      {
+        "name": "02-source-detail-mapping",
+        "overflow": false
+      },
+      {
+        "name": "source mesh only in mapping options; unconfirmed links cannot enter preview"
+      },
+      {
+        "name": "each mapping confirmed manually; changing a part invalidates confirmation"
+      },
+      {
+        "name": "03-explicit-3d-preview",
+        "overflow": false
+      },
+      {
+        "name": "04-exact-saved-preview",
+        "overflow": false
+      },
+      {
+        "name": "05-review-before-export",
+        "overflow": false
+      },
+      {
+        "name": "06-reviewed-export",
+        "overflow": false
+      },
+      {
+        "name": "exact reviewed export, original hashes, no existing store mutations, duplicate export idempotent"
+      }
+    ],
+    "browserErrors": [],
+    "exportId": "ONBOARD-EXPORT-4bb1ea1c-6b4b-4517-b6d4-3d21b6c521b5"
+  },
+  "intake390": {
+    "width": 390,
+    "height": 844,
+    "checks": [
+      {
+        "name": "01-source-checks",
+        "overflow": false
+      },
+      {
+        "name": "unchecked sources block progression"
+      },
+      {
+        "name": "host navigation protects unsaved edits; discard preserves saved setup"
+      },
+      {
+        "name": "02-source-detail-mapping",
+        "overflow": false
+      },
+      {
+        "name": "source mesh only in mapping options; unconfirmed links cannot enter preview"
+      },
+      {
+        "name": "each mapping confirmed manually; changing a part invalidates confirmation"
+      },
+      {
+        "name": "03-explicit-3d-preview",
+        "overflow": false
+      },
+      {
+        "name": "04-exact-saved-preview",
+        "overflow": false
+      },
+      {
+        "name": "05-review-before-export",
+        "overflow": false
+      },
+      {
+        "name": "06-reviewed-export",
+        "overflow": false
+      },
+      {
+        "name": "exact reviewed export, original hashes, no existing store mutations, duplicate export idempotent"
+      }
+    ],
+    "browserErrors": [],
+    "exportId": "ONBOARD-EXPORT-21fee1b7-1fb4-4d6c-8607-83198c4b786f"
+  },
+  "journey1280": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "width": 1280,
+    "height": 900,
+    "checkpoints": [
+      {
+        "name": "buyer-first-technical-step",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "original-source-retained",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "buyer-second-technical-step",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "inquiry-review-exact-reference",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket&inspection=b9e937d8-3bf7-4d20-a9d4-c7e6ce67f16c#inquiry&stage=review",
+        "overflow": false
+      },
+      {
+        "name": "buyer-project-pinned-detail",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-66A7C687",
+        "overflow": false
+      },
+      {
+        "name": "seller-quotation-review",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-66A7C687&tab=inquiry&mode=quote-review&draft=QD-DEMO-427DDF16",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-quote",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-66A7C687&tab=quotation&quote=QT-DEMO-BA41E68B",
+        "overflow": false
+      },
+      {
+        "name": "seller-configurable-story",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-exact-step-preview",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-product-preview",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#preview?id=ROOM-PREVIEW-a2271a92-da6d-4dad-800b-4bf832ca97a7",
+        "overflow": false
+      },
+      {
+        "name": "seller-explicit-release-review",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#release",
+        "overflow": false
+      },
+      {
+        "name": "seller-new-product-version",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#release?id=ROOM-DEMO-0438189c-0433-4c38-b25e-4ca1de0eb8ac",
+        "overflow": false
+      },
+      {
+        "name": "buyer-new-published-story",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "historical-project-unchanged",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-66A7C687",
+        "overflow": false
+      },
+      {
+        "name": "historical-story-original-first-step",
+        "width": 1280,
+        "height": 900,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-66A7C687&view=drawings&project=PRJ-DEMO-66A7C687#explore&project=PRJ-DEMO-66A7C687",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-DEMO-66A7C687",
+    "quoteId": "QT-DEMO-BA41E68B",
+    "originalRoomRelease": "ROOM-nema17-bracket-6410d7162b0f416e",
+    "newRoomRelease": "ROOM-DEMO-0438189c-0433-4c38-b25e-4ca1de0eb8ac",
+    "sourcePinned": {
+      "id": "build123d-nema17-bracket-drawing",
+      "title": "NEMA 17 motor bracket - source reference",
+      "revision": "annora-reference-1",
+      "assetId": "source-pdf",
+      "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "partId": "nema17-bracket-body",
+      "sheetId": "sheet-1",
+      "sheetTitle": "Original source drawing",
+      "regionId": "motor-mounting-holes",
+      "regionLabel": "Motor mounting holes",
+      "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "mappingRevision": "onboarding-map-b5235bbc696139c4",
+      "revisionLabel": "Source 16789983 / reference edition 1",
+      "presentationSnapshot": {
+        "schemaVersion": 1,
+        "sourceKey": "source-95ff81511bcfd29d",
+        "sheets": [
+          {
+            "sheetId": "sheet-1",
+            "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+            "views": [
+              {
+                "id": "nema17-technical-front-v1:front:sheet-1",
+                "viewRevision": "view-575e70b3a8879965",
+                "title": "Motor aperture",
+                "targets": [
+                  {
+                    "targetId": "motor-aperture",
+                    "regionId": "motor-aperture",
+                    "associationKey": "link-ee8fb885fffb59df",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-front-v1:mounting:sheet-1",
+                "viewRevision": "view-b471833b0ed4190d",
+                "title": "Motor mounting pattern",
+                "targets": [
+                  {
+                    "targetId": "motor-mounting-holes",
+                    "regionId": "motor-mounting-holes",
+                    "associationKey": "link-bcf2f31ce142ca76",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-base-v1:base:sheet-1",
+                "viewRevision": "view-dca82bfa9bed9a38",
+                "title": "Base mounting slots",
+                "targets": [
+                  {
+                    "targetId": "base-slots",
+                    "regionId": "base-slots",
+                    "associationKey": "link-dbbafb6c0d7877be",
+                    "confirmed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "revision": "overview-535e85b712c67463"
+      },
+      "presentationRevision": "overview-535e85b712c67463"
+    },
+    "oldProjectUnchanged": true,
+    "sentinelUnchanged": true
+  },
+  "journey390": {
+    "base": "https://kyle-annora.github.io/annora-explorer/",
+    "width": 390,
+    "height": 844,
+    "checkpoints": [
+      {
+        "name": "buyer-first-technical-step",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "original-source-retained",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "buyer-second-technical-step",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "inquiry-review-exact-reference",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket&inspection=477e9d83-b09c-481f-a331-0113c70f7166#inquiry&stage=review",
+        "overflow": false
+      },
+      {
+        "name": "buyer-project-pinned-detail",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-39F6838A",
+        "overflow": false
+      },
+      {
+        "name": "seller-quotation-review",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-39F6838A&tab=inquiry&mode=quote-review&draft=QD-DEMO-985E50BC",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-quote",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-39F6838A&tab=quotation&quote=QT-DEMO-A1BE18F6",
+        "overflow": false
+      },
+      {
+        "name": "seller-configurable-story",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-exact-step-preview",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-product-preview",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#preview?id=ROOM-PREVIEW-dd240bd2-50b6-4491-87a1-052fd24ab06a",
+        "overflow": false
+      },
+      {
+        "name": "seller-explicit-release-review",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#release",
+        "overflow": false
+      },
+      {
+        "name": "seller-new-product-version",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#release?id=ROOM-DEMO-0827681f-4185-47ed-84f4-81ed56c674d7",
+        "overflow": false
+      },
+      {
+        "name": "buyer-new-published-story",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "historical-project-unchanged",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-39F6838A",
+        "overflow": false
+      },
+      {
+        "name": "historical-story-original-first-step",
+        "width": 390,
+        "height": 844,
+        "url": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-39F6838A&view=drawings&project=PRJ-DEMO-39F6838A#explore&project=PRJ-DEMO-39F6838A",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-DEMO-39F6838A",
+    "quoteId": "QT-DEMO-A1BE18F6",
+    "originalRoomRelease": "ROOM-nema17-bracket-6410d7162b0f416e",
+    "newRoomRelease": "ROOM-DEMO-0827681f-4185-47ed-84f4-81ed56c674d7",
+    "sourcePinned": {
+      "id": "build123d-nema17-bracket-drawing",
+      "title": "NEMA 17 motor bracket - source reference",
+      "revision": "annora-reference-1",
+      "assetId": "source-pdf",
+      "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "partId": "nema17-bracket-body",
+      "sheetId": "sheet-1",
+      "sheetTitle": "Original source drawing",
+      "regionId": "motor-mounting-holes",
+      "regionLabel": "Motor mounting holes",
+      "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "mappingRevision": "onboarding-map-b5235bbc696139c4",
+      "revisionLabel": "Source 16789983 / reference edition 1",
+      "presentationSnapshot": {
+        "schemaVersion": 1,
+        "sourceKey": "source-95ff81511bcfd29d",
+        "sheets": [
+          {
+            "sheetId": "sheet-1",
+            "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+            "views": [
+              {
+                "id": "nema17-technical-front-v1:front:sheet-1",
+                "viewRevision": "view-575e70b3a8879965",
+                "title": "Motor aperture",
+                "targets": [
+                  {
+                    "targetId": "motor-aperture",
+                    "regionId": "motor-aperture",
+                    "associationKey": "link-ee8fb885fffb59df",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-front-v1:mounting:sheet-1",
+                "viewRevision": "view-b471833b0ed4190d",
+                "title": "Motor mounting pattern",
+                "targets": [
+                  {
+                    "targetId": "motor-mounting-holes",
+                    "regionId": "motor-mounting-holes",
+                    "associationKey": "link-bcf2f31ce142ca76",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-base-v1:base:sheet-1",
+                "viewRevision": "view-dca82bfa9bed9a38",
+                "title": "Base mounting slots",
+                "targets": [
+                  {
+                    "targetId": "base-slots",
+                    "regionId": "base-slots",
+                    "associationKey": "link-dbbafb6c0d7877be",
+                    "confirmed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "revision": "overview-535e85b712c67463"
+      },
+      "presentationRevision": "overview-535e85b712c67463"
+    },
+    "oldProjectUnchanged": true,
+    "sentinelUnchanged": true
+  }
+}

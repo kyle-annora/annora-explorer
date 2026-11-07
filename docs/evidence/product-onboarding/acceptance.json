@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "recordedAt": "2026-11-07T05:32:56.387174+00:00",
-  "status": "passed-local-release-gates",
+  "status": "passed-local-and-live-release-gates",
   "baseline": "248707f6f5c765ebfb4a2c8f3f37712647f90612",
   "automated": {
     "tests": 953,
@@ -40,5 +40,5 @@
     "Source reference is not manufacturing-approved.",
     "Chrome desktop viewport and touch emulation, not physical-device performance certification."
   ],
-  "publication": "Recorded separately in release-receipt.json after target verification."
+  "publication": "release-receipt.json"
 }

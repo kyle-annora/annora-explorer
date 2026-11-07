@@ -1,5 +1,7 @@
 # W41 — New product onboarding
 
+Published and verified on November 6, 2026 (Pacific). Application commit `1b116ea455c4d52218e4b113ea1a707b017220e3`; Pages workflow `42343263858`.
+
 W41 turns prepared-file intake into a Studio workflow and qualifies it with a
 new NEMA 17 motor bracket. The seller checks source evidence, confirms drawing
 links, reviews a saved preview and exports one package. The deployment owner

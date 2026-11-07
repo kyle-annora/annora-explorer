@@ -1,0 +1,23 @@
+{
+  "verifiedAt": "2026-11-07T05:35:52.553Z",
+  "records": [
+    {
+      "route": "https://kyle-annora.github.io/annora-explorer/",
+      "entry": "https://kyle-annora.github.io/annora-explorer/assets/explorer-CN__D_Ka.js",
+      "sha256": "0a6d154630ac40ab5b914d9b8b9def3f1509b96ce54b226bed1e5f2932c5d039",
+      "status": "matched"
+    },
+    {
+      "route": "https://kyle-annora.github.io/annora-explorer/product-room/",
+      "entry": "https://kyle-annora.github.io/annora-explorer/assets/room-DP2JEb_7.js",
+      "sha256": "75ccb0ec985674d1192bc59e91e507dafdaff13b50067cfd1ee501862d1b9990",
+      "status": "matched"
+    },
+    {
+      "route": "https://kyle-annora.github.io/annora-explorer/studio/",
+      "entry": "https://kyle-annora.github.io/annora-explorer/assets/studio-BIwovIv2.js",
+      "sha256": "c4af9b21bcf5a704efc99f282e34a739d860fb0a593f7e37f92dfa7cac6a7b7b",
+      "status": "matched"
+    }
+  ]
+}

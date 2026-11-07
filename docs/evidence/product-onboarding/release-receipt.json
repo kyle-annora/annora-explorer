@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "workUnit": "W41",
+  "status": "published-and-verified",
+  "verifiedAt": "2026-11-07T05:38:48.300886+00:00",
+  "repository": "https://github.com/kyle-annora/annora-explorer",
+  "applicationCommit": "1b116ea455c4d52218e4b113ea1a707b017220e3",
+  "baselineCommit": "248707f6f5c765ebfb4a2c8f3f37712647f90612",
+  "workflow": {
+    "id": 42343263858,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42343263858",
+    "build": "success",
+    "deploy": "success"
+  },
+  "deployment": {
+    "id": 7617148700,
+    "environment": "github-pages",
+    "state": "success",
+    "statusCreatedAt": "2026-11-07T05:35:09Z",
+    "url": "https://kyle-annora.github.io/annora-explorer/"
+  },
+  "reviewLinks": {
+    "onboarding": "https://kyle-annora.github.io/annora-explorer/studio/#onboard",
+    "product": "https://kyle-annora.github.io/annora-explorer/product-room/?model=nema17-bracket#explore",
+    "sellerProduct": "https://kyle-annora.github.io/annora-explorer/studio/?product=nema17-bracket#products"
+  },
+  "appliedBrowserPackage": {
+    "id": "ONBOARD-EXPORT-91c291ab-73e3-4b02-bf1d-fe01fc00370e",
+    "file": "reviewed-package.json",
+    "applicationReceipt": "../../../content/rooms/nema17-bracket/onboarding-receipt.json",
+    "roomRelease": "ROOM-nema17-bracket-6410d7162b0f416e"
+  },
+  "evidence": {
+    "localAcceptance": "acceptance.json",
+    "publicApplicationBytes": "live-assets.json",
+    "publicModelAndOriginalPDFBytes": "live-source-assets.json",
+    "liveBrowserJourneys": "live-browser.json",
+    "independentOperator": "independent-operator.json"
+  },
+  "liveSummary": {
+    "onboarding": [
+      {
+        "width": 1280,
+        "checks": 11,
+        "browserErrors": []
+      },
+      {
+        "width": 390,
+        "checks": 11,
+        "browserErrors": []
+      }
+    ],
+    "commercial": [
+      {
+        "width": 1280,
+        "checkpoints": 15,
+        "browserErrors": [],
+        "oldProjectUnchanged": true
+      },
+      {
+        "width": 390,
+        "checkpoints": 15,
+        "browserErrors": [],
+        "oldProjectUnchanged": true
+      }
+    ]
+  },
+  "boundaries": [
+    "Backend not implemented. Fictional project/quote records remain browser-local.",
+    "New product is prepared rigid geometry with a paired unreviewed source drawing.",
+    "Browser export is separate from repository application and actual hosted deployment.",
+    "Mobile tests use Chrome viewport/touch emulation; no physical-device performance claim."
+  ],
+  "receiptCommit": "A following documentation-only commit records this receipt; the application commit above identifies the verified deployed build."
+}
