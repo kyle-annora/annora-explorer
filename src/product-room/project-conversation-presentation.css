@@ -1,0 +1,36 @@
+/* The latest shared receipt leads; the complete history remains available. */
+.room-workspace .pw-conversation.pw-conversation-records {
+  display: block;
+  margin-top: 24px;
+}
+.room-workspace .pw-conversation-records .pw-timeline {
+  border: 0;
+  padding: 0;
+}
+.room-workspace .pw-conversation-records .pw-timeline > li::before { content: none; }
+.room-workspace .pw-conversation-records .pw-timeline > li:last-child { padding-bottom: 0; }
+.room-workspace .pw-conversation-records .pw-latest-receipt {
+  padding: 24px 28px;
+  border: 1px solid var(--aw-border);
+  border-radius: var(--aw-radius);
+  background: var(--aw-surface);
+}
+.room-workspace .pw-conversation-records .pw-timeline p {
+  max-width: 70ch;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.room-workspace .pw-conversation-records .pw-timeline small { font-size: 12px; }
+.room-workspace .pw-conversation-records .pw-event-head { gap: 12px; }
+.room-workspace .pw-conversation-records .pw-event-head time { font-size: 11px; }
+.room-workspace .pw-conversation-records .pw-question-callout { border: 0; padding-top: 0; }
+.room-workspace .pw-conversation-records .pw-question-callout .ar-project-actions { margin-top: 12px; padding-top: 0; border: 0; }
+.room-workspace .pw-conversation-records .ar-project-details { margin-bottom: 0; }
+@media (max-width: 760px) {
+  .room-workspace .pw-conversation-records .pw-latest-receipt { padding: 20px 16px; }
+  .room-workspace .pw-conversation-records .pw-event-head time { max-width: 120px; }
+}
+
+.room-workspace .pw-conversation-records .pw-timeline h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; line-height: 1.4; margin: 14px 0 10px; }
+.room-workspace .pw-conversation-records .pw-reply-topics h3 { font-size: 14px; font-weight: 600; margin: 0 0 14px; }

@@ -124,8 +124,7 @@
   .room-workspace .pw-project-navigation .ar-version-note { flex-basis: 100%; }
 }
 
-/* Buyer record pages use the same project frame as the seller workspace.
-   Entry inquiry and the floating viewer retain their established composition. */
+/* Buyer records and request tasks share the seller workspace project frame. */
 .room-workspace.pw-project-detail,
 .room-workspace.pw-review-task { max-width: 1184px; }
 @media (min-width: 761px) {
@@ -198,4 +197,23 @@
   .room-workspace.pw-review-task .ar-project-actions { max-width: none; }
   .room-workspace.pw-project-detail .pw-quote-document > .ar-section + .pw-quote-title { margin-top: 24px; padding-top: 22px; }
   .pw-project-detail .pw-quote-terms > summary > small { max-width: 45%; overflow-wrap: anywhere; }
+}
+
+/* Request entry and confirmation share the same task-first project frame. */
+.pw-request-task .pw-save-state { color: var(--aw-muted); font-size: 12px; line-height: 1.6; }
+.room-workspace.pw-request-task .pw-sidebar > .ar-project-details { margin-top: 0; }
+.room-workspace.pw-request-task .pw-sidebar .pw-context { padding: 0; background: transparent; box-shadow: none; border: 0; }
+.room-workspace.pw-request-task .pw-side-note { padding-top: 0; }
+.room-workspace.pw-request-task .pw-side-note h2 { font-size: 15px; font-weight: 500; }
+.room-workspace.pw-request-task .pw-side-facts { margin-block: 14px; }
+.room-workspace.pw-request-task .pw-document > .ar-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.room-workspace.pw-request-task .pw-document .pw-application { font-size: 16px; line-height: 1.6; }
+.pw-request-task .ar-comparison .ar-change-label { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 760px) {
+  .room-workspace.pw-request-task .pw-sidebar { display: block; order: 0; }
+  .room-workspace.pw-request-task .pw-sidebar > .ar-project-details { margin-block: 0; }
+  .room-workspace.pw-request-task .pw-side-note { padding: 0 0 16px; }
+  .room-workspace.pw-request-task .pw-side-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .room-workspace.pw-request-task .pw-side-facts > div { min-width: 0; }
+  .room-workspace.pw-request-task .pw-side-facts dd { overflow-wrap: anywhere; }
 }

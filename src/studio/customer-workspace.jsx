@@ -818,6 +818,12 @@ export function CustomerWorkspace({
   const { context: displayedContext, label: displayedRecordLabel } = customerRecordContext({
     project, mode, tab, quote, draft, response, review,
   });
+  const reviewedResponse = mode === "reply-review" ? review?.values || response : response;
+  const responseNextStep = mode.startsWith("ack")
+    ? project?.nextSteps.find(step => step.id === (mode === "ack-review" ? review?.nextStepId : response?.nextStepId))
+    : null;
+  const guideOwnsDetailAction = walkthrough && repository.mode === "walkthrough" && project && !status?.questionId &&
+    (acknowledgement || !clarification && !change && (!project.quotes.length || project.quoteDraft));
   const guardReferenceLink = (event) => {
     if (dirtyRef.current || busyRef.current || drawingEditing) {
       event.preventDefault();
@@ -1160,7 +1166,7 @@ export function CustomerWorkspace({
                     )}
                   </div>
                   <ProjectActionBar primary={detailPrimary} note="Demo workspace · changes stay in this browser.">
-                    {walkthrough && React.isValidElement(detailPrimary) && React.cloneElement(detailPrimary, { variant: "secondary" })}
+                    {walkthrough && !guideOwnsDetailAction && React.isValidElement(detailPrimary) && React.cloneElement(detailPrimary, { variant: "secondary" })}
                     {tab === "inquiry" && <Button variant="secondary" onClick={() => openReply("clarification")} disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}>Ask for clarification</Button>}
                     {tab === "quotation" && quote && !primaryIsDraft && <Button variant="secondary" onClick={openDraft} disabled={Boolean(busy) || drawingEditing || Boolean(clarification)}>{project.quoteDraft ? "Continue draft" : "Prepare next version"}</Button>}
                     {tab === "conversation" && !change && <Button variant="secondary" onClick={() => openReply()} disabled={Boolean(busy) || drawingEditing}>Reply to customer</Button>}
@@ -1474,7 +1480,7 @@ export function CustomerWorkspace({
           ) : (
             <div className="customer-message-page">
               <ProjectTaskHeader
-                title={mode.startsWith("ack") ? "Confirm the next step" : mode === "reply-review" ? "Review your response" : "Reply to the customer"}
+                title={mode === "ack-review" ? "Review the next step" : mode === "ack" ? "Confirm the next step" : mode === "reply-review" ? "Review your response" : response?.kind === "clarification" ? "Ask for clarification" : "Reply to the customer"}
                 description={customerName(project)}
                 status={<Status tone={mode.endsWith("review") ? "active" : "neutral"}>{mode.endsWith("review") ? "Awaiting your confirmation" : "Draft response"}</Status>}
               />
@@ -1495,27 +1501,31 @@ export function CustomerWorkspace({
                       <>
                         <div className="customer-request-summary">
                           <strong>
-                            {acknowledgement?.intent === "engineering-review"
+                            {responseNextStep?.intent === "engineering-review"
                               ? "Engineering review requested"
                               : "Discussion requested"}
                           </strong>
-                          <p>{acknowledgement?.message}</p>
+                          {responseNextStep?.quoteVersion && <span>Quotation v{responseNextStep.quoteVersion}</span>}
+                          <p>{responseNextStep?.message}</p>
                         </div>
                         <Field
-                          label="Confirmed next step"
+                          label="Next-step confirmation"
                           textarea
                           rows="5"
                           value={response.body}
                           onChange={(e) =>
                             setResponse({ ...response, body: e.target.value })
                           }
-                          hint="Describe the agreed next action. This does not confirm an order."
+                          hint="Describe the agreed next action. You will review it before confirming."
                           error={errors.body}
                         />
                       </>
                     )}
                   </fieldset>
-                  <ActionGroup align="between">
+                  <ProjectActionBar
+                    primary={<Button onClick={reviewMessage} pending={busy === "review-message"} disabled={Boolean(busy) || drawingEditing} icon="arrow">{mode === "ack" ? "Review next step" : "Review response"}</Button>}
+                    note="Review before sharing. Nothing is sent outside this demo."
+                  >
                     <Button
                       variant="quiet"
                       onClick={() => localGo(closeEditor)}
@@ -1524,26 +1534,28 @@ export function CustomerWorkspace({
                     >
                       Back to project
                     </Button>
-                    <Button
-                      onClick={reviewMessage}
-                      pending={busy === "review-message"}
-                      disabled={Boolean(busy) || drawingEditing}
-                      icon="arrow"
-                    >
-                      Review response
-                    </Button>
-                  </ActionGroup>
+                  </ProjectActionBar>
                 </>
               ) : (
                 <>
-                  <ResponseSummary value={response} />
-                  <Notice>
-                    Confirming makes this message visible in the buyer view.{" "}
-                    {mode === "reply-review"
-                      ? "This action does not create a new quotation."
-                      : "This records the next step, not an order."}
-                  </Notice>
-                  <ActionGroup align="between">
+                  <div className="customer-message-review">
+                    {responseNextStep && <div className="customer-request-summary">
+                      <strong>{responseNextStep.intent === "engineering-review" ? "Engineering review requested" : "Discussion requested"}</strong>
+                      {responseNextStep.quoteVersion && <span>Quotation v{responseNextStep.quoteVersion}</span>}
+                      <p>{responseNextStep.message}</p>
+                    </div>}
+                    <ResponseSummary
+                      value={mode === "ack-review" ? { ...response, body: review?.body ?? response.body } : reviewedResponse}
+                      title={mode === "ack-review" ? "Your next-step confirmation" : undefined}
+                      headingAs="h2"
+                    />
+                  </div>
+                  <ProjectActionBar
+                    primary={<Button onClick={sendMessage} pending={busy === "send"} pendingLabel="Saving…" disabled={Boolean(busy) || drawingEditing}>Confirm demo response</Button>}
+                    note={mode === "ack-review"
+                      ? "Confirming records this next step in the buyer view. No order is created."
+                      : "Confirming shares this exact response in the buyer view. No new quotation is created."}
+                  >
                     <Button
                       variant="secondary"
                       onClick={() =>
@@ -1554,15 +1566,7 @@ export function CustomerWorkspace({
                     >
                       Back to editing
                     </Button>
-                    <Button
-                      onClick={sendMessage}
-                      pending={busy === "send"}
-                      pendingLabel="Saving…"
-                      disabled={Boolean(busy) || drawingEditing}
-                    >
-                      Confirm demo response
-                    </Button>
-                  </ActionGroup>
+                  </ProjectActionBar>
                 </>
               )}
             </div>

@@ -508,7 +508,7 @@ export function ResponseFields({
     </div>
   );
 }
-export function ResponseSummary({ value }) {
+export function ResponseSummary({ value, title, headingAs: Heading = "h3" }) {
   const labels = {
     quantity: "Quantity",
     timing: "Delivery timing",
@@ -521,11 +521,11 @@ export function ResponseSummary({ value }) {
   };
   return (
     <div className="customer-response-summary">
-      <h3>
-        {value.kind === "clarification"
+      <Heading>
+        {title || (value.kind === "clarification"
           ? "Question for the customer"
-          : "Message to the customer"}
-      </h3>
+          : "Message to the customer")}
+      </Heading>
       <p className="customer-preserve">{value.body}</p>
       {value.kind !== "clarification" &&
         value.resolutions?.map((item) => (
@@ -558,7 +558,7 @@ export function Conversation({ project, buyerHref = buyerURL }) {
     })),
     ...project.changes.map((c) => ({
       ...c,
-      label: `Changes requested · quotation v${c.quoteVersion}`,
+      label: "Changes requested",
       role: "Customer",
       body: `${c.values.quantity} units · ${c.values.targetWeeks ? `${c.values.targetWeeks} weeks requested` : "Timing to discuss"}${c.values.notes ? `\n${c.values.notes}` : ""}`,
     })),
@@ -589,27 +589,36 @@ export function Conversation({ project, buyerHref = buyerURL }) {
       body: n.message,
     })),
   ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const renderEvent = (event) => {
+    const step = project.nextSteps.find(item => item.id === event.nextStepId);
+    const quoteVersion = event.quoteVersion || step?.quoteVersion ||
+      project.changes.find(item => item.id === event.changeId)?.quoteVersion;
+    return (
+      <li key={event.id}>
+        <div className="customer-event-meta">
+          <strong>{event.role}</strong>
+          <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
+        </div>
+        <h2>{event.label}</h2>
+        {quoteVersion && <p className="customer-event-reference">{step ? `${step.intent === "engineering-review" ? "Engineering review" : "Discussion"} · ` : ""}Quotation v{quoteVersion}</p>}
+        <p className="customer-preserve">{event.body}</p>
+        <DrawingReference context={recordContext(project, event)} href={buyerHref({ ...project, context: recordContext(project, event) }, true)} compact />
+        {event.resolutions?.length > 0 && (
+          <ResponseSummary value={{ ...event, body: "" }} />
+        )}
+      </li>
+    );
+  };
   return (
-    <Section
-      title="Conversation"
-      description="Shared replies, requested changes and quotation history."
-    >
-      <ol className="customer-timeline">
-        {events.map((event) => (
-          <li key={event.id}>
-            <div className="customer-event-meta">
-              <strong>{event.role}</strong>
-              <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
-            </div>
-            <h3>{event.label}</h3>
-            <p className="customer-preserve">{event.body}</p>
-            <DrawingReference context={recordContext(project, event)} href={buyerHref({ ...project, context: recordContext(project, event) }, true)} compact />
-            {event.resolutions?.length > 0 && (
-              <ResponseSummary value={{ ...event, body: "" }} />
-            )}
-          </li>
-        ))}
+    <div className="customer-conversation" aria-label="Customer conversation">
+      <ol className="customer-timeline customer-latest-message" aria-label="Latest project activity">
+        {events.slice(0, 1).map(renderEvent)}
       </ol>
-    </Section>
+      {events.length > 1 && <ProjectDetails title="Earlier conversation" meta={`${events.length - 1} ${events.length === 2 ? "record" : "records"}`}>
+        <ol className="customer-timeline" aria-label="Earlier project activity">
+          {events.slice(1).map(renderEvent)}
+        </ol>
+      </ProjectDetails>}
+    </div>
   );
 }

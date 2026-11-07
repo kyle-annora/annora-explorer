@@ -1,0 +1,146 @@
+{
+  "status": "candidate-accepted",
+  "baselineRevision": "3f7bb13eebae9ce3d2fe1ce4ecfd1a9fadf9de8c",
+  "verification": {
+    "command": "npm run verify",
+    "tests": 1009,
+    "passed": 1008,
+    "failed": 0,
+    "existingConditionalSkip": 1,
+    "applicationBuild": "passed",
+    "integrationPackageBuild": "passed",
+    "independentViewerBuild": "passed"
+  },
+  "suites": {
+    "fullJourney": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "timestamp": "2026-11-07T11:20:45.551Z",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "sessionId": "WTI-2eb5cb8c-d7f0-45ed-a480-1a0a0ac379e7",
+          "projectId": "PRJ-DEMO-CFD90AF3",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "sessionId": "WTI-38def142-6a94-4395-8139-bc1531bcb655",
+          "projectId": "PRJ-DEMO-34D45E1C",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "sessionId": "WTI-e80861c0-8f2d-4e47-a668-22616bb1238a",
+          "projectId": "PRJ-DEMO-FCE1DE2E",
+          "checkpoints": 23,
+          "confirmations": 8
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "sessionId": "WTI-700d9ecc-0e24-42d2-b5fa-3ae5a10a3533",
+          "projectId": "PRJ-DEMO-37BDBC00",
+          "checkpoints": 23,
+          "confirmations": 8
+        }
+      ]
+    },
+    "manual": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 16
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "checkpoints": 16
+        }
+      ],
+      "timestamp": "2026-11-07T11:18:55.132Z"
+    },
+    "navigation": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 10
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 10
+        }
+      ]
+    },
+    "nativeRecovery": {
+      "base": "http://127.0.0.1:8190/annora-explorer/",
+      "results": [
+        {
+          "profile": "desktop",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "mobile",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "compact",
+          "status": "passed",
+          "checkpoints": 3
+        },
+        {
+          "profile": "landscape",
+          "status": "passed",
+          "checkpoints": 3
+        }
+      ],
+      "timestamp": "2026-11-07T11:21:40.107Z"
+    }
+  },
+  "designReview": {
+    "detectorFindings": 0,
+    "independentSourceReview": "completed",
+    "defaultReferenceSSRParityFixtures": 8,
+    "fixes": [
+      "Preserve the separate question-review action when the guide owns a different action.",
+      "Use Button icon slots to keep icons beside labels.",
+      "Keep 44 px window control targets.",
+      "Clear stale field validation when sample values replace invalid input; preserve non-field errors.",
+      "Preserve contiguous headings in the final conversation."
+    ]
+  },
+  "captures": [
+    "mobile-floating-inquiry.png",
+    "desktop-change-review.png",
+    "mobile-next-step-review.png",
+    "mobile-seller-confirmation.png",
+    "mobile-complete.png",
+    "mobile-inquiry-recovery.png"
+  ],
+  "limits": [
+    "Chromium viewport/touch emulation, not physical-device or hardware benchmarking.",
+    "Fictional browser-local data only; no backend or external message delivery.",
+    "Full four-viewport journey preceded a native sample-feedback-only fix; the affected native route was then revalidated at all four sizes. Public full-journey qualification follows deployment."
+  ]
+}

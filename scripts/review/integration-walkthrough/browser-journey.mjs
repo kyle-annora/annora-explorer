@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { requestLayoutCheckpoint } from '../request-layout/checkpoint.mjs';
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = new URL(process.env.BASE_URL || 'http://127.0.0.1:8159/annora-explorer/');
@@ -65,6 +66,7 @@ async function run(profile) {
   }
   async function checkpoint(name,{inquiry=false,independent=false}={}) {
     stage=name;
+    const requestLayout = process.env.LAYOUT_REVIEW === 'request' ? await requestLayoutCheckpoint(page, name) : null;
     const layout=await page.evaluate(() => {
       const box=selector=>{const el=document.querySelector(selector);if(!el||!el.getClientRects().length)return null;const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
       return {width:innerWidth,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth,panel:box('.ei-panel'),footer:box('.ei-footer'),guide:box('.walkthrough-strip'),action:box('.wt-handoff'),role:document.querySelector('.wt-role')?.textContent,step:document.querySelector('.wt-handoff')?.dataset.step,confirmation:document.querySelector('.wt-handoff')?.dataset.confirmation};
@@ -77,7 +79,7 @@ async function run(profile) {
     assert.ok(layout.action?.height>=44,`${name}: Continue touch target`);
     const viewer=independent?(await diagnostics()).viewer:null;
     if(independent&&profile.width<600)assert.ok(viewer.drawingBufferDpr<=1.5,'Mobile drawing buffer stays bounded');
-    const item={name,url:page.url(),layout,canvases,...(viewer?{viewer}: {})};checkpoints.push(item);
+    const item={name,url:page.url(),layout,canvases,...(viewer?{viewer}: {}),...(requestLayout?{requestLayout}:{})};checkpoints.push(item);
     await page.screenshot({path:path.join(dir,`${name}.png`),animations:'disabled'});
     await fs.writeFile(path.join(dir,`${name}.json`),JSON.stringify(item,null,2));
     console.log(`${profile.name}: ${name}`);

@@ -5,6 +5,7 @@ import { INQUIRY_INTENTS, QUOTE_SCOPES, inquiryIntentLabel, quoteScopeLabel, nor
 import { inquiryField } from './inquiry-profile.js';
 import { createInquirySession } from './inquiry-session.js';
 import { prepareSampleInquiry } from './inquiry-sample.js';
+import { ProjectContextBar, ProjectActionBar } from './ui/project-frame.jsx';
 import { InquiryReference } from './inquiry-reference.jsx';
 import { RequestItemsEditor, RequestItemsSummary } from './request-items-view.jsx';
 import { normalizeInquiryPresentation, inquiryFieldVisible, inquiryPresentationError } from './inquiry-presentation.js';
@@ -64,7 +65,7 @@ function Disclosure({ title, note, children, defaultOpen, openForError }) {
   const [open, setOpen] = useState(Boolean(defaultOpen));
   useEffect(() => { if (openForError) setOpen(true); }, [openForError]);
   return <details className="ei-disclosure" open={open} onToggle={event => setOpen(event.currentTarget.open)}>
-    <summary><strong>{title}</strong><small>{note}</small><span aria-hidden="true">{open ? '−' : '+'}</span></summary><div>{children}</div>
+    <summary><strong>{title}</strong><small>{note}</small><Glyph name="arrow" /></summary><div>{children}</div>
   </details>;
 }
 
@@ -91,8 +92,8 @@ class ClientReview extends React.Component {
     if (this.state.unavailable) return <div className="ei-message ei-error" role="alert">The complete review could not be displayed. Your draft is unchanged. Choose Edit details and try reviewing again.</div>;
     const { review, draft, presentation } = this.props;
     return <>
-      <RequestItemsSummary items={draft.requestItems} />
       {presentation.renderReview ? <CustomReview render={presentation.renderReview} review={review} draft={draft} /> : <Review draft={draft} presentation={presentation} />}
+      <RequestItemsSummary items={draft.requestItems} />
     </>;
   }
 }
@@ -144,12 +145,17 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
   if (!ui.expanded) return <div className="room-ui ei-minimized" aria-label={labels.draftLabel}><button type="button" className="ei-resume" onClick={controls.expand}>
     <span className="ei-resume-mark"><Glyph name={state.stage === 'confirmed' ? 'check' : 'document'} /></span><span><strong>{state.stage === 'confirmed' ? labels.savedLabel : labels.resumeLabel}</strong><small>{context?.part?.title || context?.productTitle || labels.productLabel}</small></span><span aria-hidden="true">↑</span></button></div>;
   return <section ref={pane} className="room-ui ei-panel" role="dialog" aria-modal="false" aria-labelledby={titleId} aria-busy={state.loading || undefined} data-stage={state.stage}>
-    <header className="ei-header"><div><span className="ei-eyebrow">{labels.eyebrow}</span><h2 id={titleId} ref={heading} tabIndex={-1}>{titleFor(state,labels)}</h2></div><div className="ei-window-actions">
-      <button type="button" className="ei-icon-button" aria-label={labels.minimizeLabel} disabled={busy} onClick={() => swallow(controls.minimize())}>−</button>
-      <button type="button" className="ei-icon-button" aria-label={labels.closeLabel} disabled={busy} onClick={() => swallow(controls.close())}>×</button>
-    </div></header>
-    {state.stage !== 'confirmed' && <ol className="ei-progress" aria-label={labels.stepsLabel}><li aria-current={state.stage === 'details' ? 'step' : undefined} data-complete={state.stage === 'review'}><span>{state.stage === 'review' ? '✓' : '1'}</span>{labels.requirementsStep}</li><li aria-current={state.stage === 'review' ? 'step' : undefined}><span>2</span>{labels.reviewStep}</li></ol>}
+    <header className="ei-header">
+      <ProjectContextBar project={state.project} context={context || { productTitle: labels.productLabel }}
+        recordLabel={state.stage === 'confirmed' ? labels.savedLabel : state.stage === 'review' ? `2 of 2 · ${labels.reviewStep}` : `1 of 2 · ${labels.requirementsStep}`}
+        actions={context && callbacks.onRestore && <Button variant="quiet" className="ei-view" icon="external" aria-label="View saved reference" title="View saved reference" disabled={busy} onClick={() => swallow(controls.restore())}>View</Button>} />
+      <div className="ei-window-actions">
+        <button type="button" className="ei-icon-button" aria-label={labels.minimizeLabel} disabled={busy} onClick={() => swallow(controls.minimize())}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14" /></svg></button>
+        <button type="button" className="ei-icon-button" aria-label={labels.closeLabel} disabled={busy} onClick={() => swallow(controls.close())}><Glyph name="close" /></button>
+      </div>
+    </header>
     <div ref={scroll} className="ei-scroll">
+      <div className="ei-task"><h2 id={titleId} ref={heading} tabIndex={-1}>{titleFor(state,labels)}</h2></div>
       {state.error && <div className="ei-message ei-error" role="alert"><strong>{labels.errorTitle}</strong><p>{state.error.message}</p>
         {canReload && !replacePrompt && <Button variant="quiet" disabled={busy} data-load-saved onClick={() => setReplacePrompt(true)}>Load saved draft</Button>}
         {canReload && replacePrompt && <div className="ei-reload-choice"><p data-reload-warning tabIndex={-1}>Your current entries will be replaced by the latest saved draft. Keep your edits here until you are ready to replace them.</p><div><Button variant="quiet" disabled={busy} onClick={() => { setReplacePrompt(false); requestAnimationFrame(() => pane.current?.querySelector('[data-load-saved]')?.focus({ preventScroll: true })); }}>Keep my edits</Button><Button variant="secondary" disabled={busy} onClick={() => swallow(session.loadSavedDraft())}>Replace with saved draft</Button></div></div>}
@@ -158,18 +164,22 @@ function EmbeddedInquiry({ state, ui, session, controls, callbacks }) {
       {incompatible && <div className="ei-message ei-error" role="alert">{incompatible}</div>}
       {state.notice && <p className="ei-message" role="status">{state.notice}</p>}
       {state.loading ? <p className="ei-loading" role="status">{labels.loadingLabel}</p> : <>
-        {context && <InquiryReference context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restore : undefined} session={session} />}
-        {state.draft && state.stage === 'details' && <RequestItemsEditor state={state} session={session} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restoreItem : undefined} />}
         {state.draft && (state.stage === 'review' ? <ClientReview key={state.review?.token} review={state.review} draft={state.review?.draft || state.draft} presentation={presentation} onUnavailable={controls.reviewUnavailable} /> : <DraftFields state={state} session={session} formId={formId} disabled={busy} presentation={presentation} onReview={controls.review} />)}
+        {state.draft && state.stage === 'details' && state.supportsRequestItems && <div className="ei-linked-requests"><Disclosure title="Requests about details" note={state.draft.requestItems?.length ? `${state.draft.requestItems.length} attached` : 'Optional'} defaultOpen={Boolean(state.draft.requestItems?.length)} openForError={Boolean(state.error?.fields && Object.keys(state.error.fields).some(key => key === 'requestItems' || key.startsWith('requestItem-')))}><RequestItemsEditor state={state} session={session} busy={busy} onCapture={callbacks.onCapture} onRestore={callbacks.onRestore ? controls.restoreItem : undefined} /></Disclosure></div>}
+        {state.stage === 'confirmed' && state.project && <div className="ei-receipt"><h3>{labels.receiptTitle}</h3><p>{labels.receiptDescription}</p><dl className="ei-facts"><div><dt>Purpose</dt><dd>{inquiryIntentLabel(state.project.inquiry.values)}</dd></div></dl><p className="ei-hint">{labels.receiptNote}</p>{callbacks.allowAnother && <Button variant="secondary" disabled={busy} pending={state.pending === 'new'} pendingLabel="Attaching current view…" onClick={() => swallow(session.startAnother({ capture: callbacks.onCapture, suggestedIntent:presentation.fixedIntent || 'quotation' }))}>{labels.startAnotherButton}</Button>}</div>}
         {state.stage === 'confirmed' && state.project && <RequestItemsSummary items={state.project.inquiry.requestItems} onOpen={callbacks.onRestore ? (context, item) => swallow(controls.restoreItem(item.id)) : undefined} />}
-        {state.stage === 'confirmed' && state.project && <div className="ei-receipt"><span className="ei-receipt-mark"><Glyph name="check" /></span><h3>{labels.receiptTitle}</h3><p>{labels.receiptDescription}</p><dl className="ei-facts"><div><dt>Project</dt><dd>{state.project.id}</dd></div><div><dt>Purpose</dt><dd>{inquiryIntentLabel(state.project.inquiry.values)}</dd></div></dl><p className="ei-hint">{labels.receiptNote}</p>{callbacks.allowAnother && <Button variant="secondary" disabled={busy} pending={state.pending === 'new'} pendingLabel="Attaching current view…" onClick={() => swallow(session.startAnother({ capture: callbacks.onCapture, suggestedIntent:presentation.fixedIntent || 'quotation' }))}>{labels.startAnotherButton}</Button>}</div>}
+        {context && <InquiryReference compact context={context} editable={state.stage === 'details'} busy={busy} onCapture={callbacks.onCapture} session={session} />}
       </>}
     </div>
-    <footer className="ei-footer"><div className="ei-save-state" role="status" aria-live="polite"><span>{saveLabel(state)}</span><small>{labels.saveNote}</small></div><div className="ei-actions">
-      {state.stage === 'confirmed' ? <><Button variant="secondary" disabled={busy} onClick={() => swallow(controls.minimize())}>Keep exploring</Button>{callbacks.onProject && <Button disabled={busy} onClick={() => swallow(controls.openProject())}>{labels.openProjectButton} <span aria-hidden="true">→</span></Button>}</>
-        : state.stage === 'review' ? <><Button variant="secondary" disabled={busy} onClick={() => session.edit()}>Edit details</Button><Button disabled={busy || Boolean(incompatible) || ui.reviewUnavailable} pending={state.pending === 'confirm'} pendingLabel="Saving…" onClick={() => swallow(controls.confirm())}>{labels.confirmButton}</Button></>
-          : <><Button variant="quiet" disabled={busy} onClick={() => swallow(controls.minimize())}>Keep exploring</Button><Button type="submit" form={formId} disabled={busy || !state.draft || Boolean(incompatible)} pending={state.pending === 'review'} pendingLabel="Preparing…">{labels.reviewButton} <span aria-hidden="true">→</span></Button></>}
-    </div></footer>
+    <footer className="ei-footer"><div className="ei-save-state" role="status" aria-live="polite"><span>{saveLabel(state)}</span><small>{labels.saveNote}</small></div>
+      <ProjectActionBar className="ei-actions" primary={state.stage === 'confirmed'
+        ? callbacks.onProject && <Button icon="arrow" disabled={busy} onClick={() => swallow(controls.openProject())}>{labels.openProjectButton}</Button>
+        : state.stage === 'review' ? <Button disabled={busy || Boolean(incompatible) || ui.reviewUnavailable} pending={state.pending === 'confirm'} pendingLabel="Saving…" onClick={() => swallow(controls.confirm())}>{labels.confirmButton}</Button>
+          : <Button type="submit" form={formId} icon="arrow" disabled={busy || !state.draft || Boolean(incompatible)} pending={state.pending === 'review'} pendingLabel="Preparing…">{labels.reviewButton}</Button>}>
+        {state.stage === 'review' ? <Button variant="secondary" disabled={busy} onClick={() => session.edit()}>Edit details</Button>
+          : <Button variant="quiet" disabled={busy} onClick={() => swallow(controls.minimize())}>Keep exploring</Button>}
+      </ProjectActionBar>
+    </footer>
   </section>;
 }
 
