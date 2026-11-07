@@ -1,0 +1,563 @@
+[
+  {
+    "base": "http://127.0.0.1:8159/annora-explorer/",
+    "width": 1280,
+    "height": 900,
+    "checkpoints": [
+      {
+        "name": "buyer-first-technical-step",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "original-source-retained",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "buyer-second-technical-step",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "inquiry-review-exact-reference",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&inspection=e54f97d6-4da1-43ce-9792-c4701e8f3d80#inquiry&stage=review",
+        "overflow": false
+      },
+      {
+        "name": "buyer-project-pinned-detail",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-B826A6DB",
+        "overflow": false
+      },
+      {
+        "name": "seller-quotation-review",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-B826A6DB&tab=inquiry&mode=quote-review&draft=QD-DEMO-94773B30",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-quote",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-B826A6DB&tab=quotation&quote=QT-DEMO-52132768",
+        "overflow": false
+      },
+      {
+        "name": "seller-configurable-story",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-exact-step-preview",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-product-preview",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#preview?id=ROOM-PREVIEW-65ca99ef-df34-4671-8982-0bc67c4b4536",
+        "overflow": false
+      },
+      {
+        "name": "seller-explicit-release-review",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release",
+        "overflow": false
+      },
+      {
+        "name": "seller-new-product-version",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release?id=ROOM-DEMO-8c1e55ad-6281-4e88-ba62-0ca0f3ccc2e8",
+        "overflow": false
+      },
+      {
+        "name": "buyer-new-published-story",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "historical-project-unchanged",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-B826A6DB",
+        "overflow": false
+      },
+      {
+        "name": "historical-story-original-first-step",
+        "width": 1280,
+        "height": 900,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-B826A6DB&view=drawings&project=PRJ-DEMO-B826A6DB#explore&project=PRJ-DEMO-B826A6DB",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-DEMO-B826A6DB",
+    "quoteId": "QT-DEMO-52132768",
+    "originalRoomRelease": "ROOM-nema17-bracket-6410d7162b0f416e",
+    "newRoomRelease": "ROOM-DEMO-8c1e55ad-6281-4e88-ba62-0ca0f3ccc2e8",
+    "sourcePinned": {
+      "id": "build123d-nema17-bracket-drawing",
+      "title": "NEMA 17 motor bracket - source reference",
+      "revision": "annora-reference-1",
+      "assetId": "source-pdf",
+      "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "partId": "nema17-bracket-body",
+      "sheetId": "sheet-1",
+      "sheetTitle": "Original source drawing",
+      "regionId": "motor-mounting-holes",
+      "regionLabel": "Motor mounting holes",
+      "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "mappingRevision": "onboarding-map-b5235bbc696139c4",
+      "revisionLabel": "Source 16789983 / reference edition 1",
+      "presentationSnapshot": {
+        "schemaVersion": 1,
+        "sourceKey": "source-95ff81511bcfd29d",
+        "sheets": [
+          {
+            "sheetId": "sheet-1",
+            "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+            "views": [
+              {
+                "id": "nema17-technical-front-v1:front:sheet-1",
+                "viewRevision": "view-575e70b3a8879965",
+                "title": "Motor aperture",
+                "targets": [
+                  {
+                    "targetId": "motor-aperture",
+                    "regionId": "motor-aperture",
+                    "associationKey": "link-ee8fb885fffb59df",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-front-v1:mounting:sheet-1",
+                "viewRevision": "view-b471833b0ed4190d",
+                "title": "Motor mounting pattern",
+                "targets": [
+                  {
+                    "targetId": "motor-mounting-holes",
+                    "regionId": "motor-mounting-holes",
+                    "associationKey": "link-bcf2f31ce142ca76",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-base-v1:base:sheet-1",
+                "viewRevision": "view-dca82bfa9bed9a38",
+                "title": "Base mounting slots",
+                "targets": [
+                  {
+                    "targetId": "base-slots",
+                    "regionId": "base-slots",
+                    "associationKey": "link-dbbafb6c0d7877be",
+                    "confirmed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "revision": "overview-535e85b712c67463"
+      },
+      "presentationRevision": "overview-535e85b712c67463"
+    },
+    "oldProjectUnchanged": true,
+    "sentinelUnchanged": true
+  },
+  {
+    "base": "http://127.0.0.1:8159/annora-explorer/",
+    "width": 390,
+    "height": 844,
+    "checkpoints": [
+      {
+        "name": "buyer-first-technical-step",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "original-source-retained",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "buyer-second-technical-step",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "inquiry-review-exact-reference",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&inspection=40ff7427-49bb-410b-9743-2a012583cd84#inquiry&stage=review",
+        "overflow": false
+      },
+      {
+        "name": "buyer-project-pinned-detail",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-6D4488EC",
+        "overflow": false
+      },
+      {
+        "name": "seller-quotation-review",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-6D4488EC&tab=inquiry&mode=quote-review&draft=QD-DEMO-A78DA060",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-quote",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-6D4488EC&tab=quotation&quote=QT-DEMO-2D890AE9",
+        "overflow": false
+      },
+      {
+        "name": "seller-configurable-story",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-exact-step-preview",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-product-preview",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#preview?id=ROOM-PREVIEW-cbe6a543-9b33-43d5-ae8a-aa0da52d1e83",
+        "overflow": false
+      },
+      {
+        "name": "seller-explicit-release-review",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release",
+        "overflow": false
+      },
+      {
+        "name": "seller-new-product-version",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release?id=ROOM-DEMO-acb9cc7e-3a58-4fd4-826c-673850f6e2ae",
+        "overflow": false
+      },
+      {
+        "name": "buyer-new-published-story",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "historical-project-unchanged",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-6D4488EC",
+        "overflow": false
+      },
+      {
+        "name": "historical-story-original-first-step",
+        "width": 390,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-6D4488EC&view=drawings&project=PRJ-DEMO-6D4488EC#explore&project=PRJ-DEMO-6D4488EC",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-DEMO-6D4488EC",
+    "quoteId": "QT-DEMO-2D890AE9",
+    "originalRoomRelease": "ROOM-nema17-bracket-6410d7162b0f416e",
+    "newRoomRelease": "ROOM-DEMO-acb9cc7e-3a58-4fd4-826c-673850f6e2ae",
+    "sourcePinned": {
+      "id": "build123d-nema17-bracket-drawing",
+      "title": "NEMA 17 motor bracket - source reference",
+      "revision": "annora-reference-1",
+      "assetId": "source-pdf",
+      "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "partId": "nema17-bracket-body",
+      "sheetId": "sheet-1",
+      "sheetTitle": "Original source drawing",
+      "regionId": "motor-mounting-holes",
+      "regionLabel": "Motor mounting holes",
+      "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "mappingRevision": "onboarding-map-b5235bbc696139c4",
+      "revisionLabel": "Source 16789983 / reference edition 1",
+      "presentationSnapshot": {
+        "schemaVersion": 1,
+        "sourceKey": "source-95ff81511bcfd29d",
+        "sheets": [
+          {
+            "sheetId": "sheet-1",
+            "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+            "views": [
+              {
+                "id": "nema17-technical-front-v1:front:sheet-1",
+                "viewRevision": "view-575e70b3a8879965",
+                "title": "Motor aperture",
+                "targets": [
+                  {
+                    "targetId": "motor-aperture",
+                    "regionId": "motor-aperture",
+                    "associationKey": "link-ee8fb885fffb59df",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-front-v1:mounting:sheet-1",
+                "viewRevision": "view-b471833b0ed4190d",
+                "title": "Motor mounting pattern",
+                "targets": [
+                  {
+                    "targetId": "motor-mounting-holes",
+                    "regionId": "motor-mounting-holes",
+                    "associationKey": "link-bcf2f31ce142ca76",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-base-v1:base:sheet-1",
+                "viewRevision": "view-dca82bfa9bed9a38",
+                "title": "Base mounting slots",
+                "targets": [
+                  {
+                    "targetId": "base-slots",
+                    "regionId": "base-slots",
+                    "associationKey": "link-dbbafb6c0d7877be",
+                    "confirmed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "revision": "overview-535e85b712c67463"
+      },
+      "presentationRevision": "overview-535e85b712c67463"
+    },
+    "oldProjectUnchanged": true,
+    "sentinelUnchanged": true
+  },
+  {
+    "base": "http://127.0.0.1:8159/annora-explorer/",
+    "width": 320,
+    "height": 844,
+    "checkpoints": [
+      {
+        "name": "buyer-first-technical-step",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "original-source-retained",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "buyer-second-technical-step",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "inquiry-review-exact-reference",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&inspection=6c651e09-c97b-454d-a1b9-dd36a03a5476#inquiry&stage=review",
+        "overflow": false
+      },
+      {
+        "name": "buyer-project-pinned-detail",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-7BF0E0C1",
+        "overflow": false
+      },
+      {
+        "name": "seller-quotation-review",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-7BF0E0C1&tab=inquiry&mode=quote-review&draft=QD-DEMO-B06D3325",
+        "overflow": false
+      },
+      {
+        "name": "seller-issued-quote",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#project?id=PRJ-DEMO-7BF0E0C1&tab=quotation&quote=QT-DEMO-EA61E5A8",
+        "overflow": false
+      },
+      {
+        "name": "seller-configurable-story",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-exact-step-preview",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#edit/presentation",
+        "overflow": false
+      },
+      {
+        "name": "seller-product-preview",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#preview?id=ROOM-PREVIEW-04480577-b167-43e5-a441-7ccc08e9c259",
+        "overflow": false
+      },
+      {
+        "name": "seller-explicit-release-review",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release",
+        "overflow": false
+      },
+      {
+        "name": "seller-new-product-version",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/studio/?product=nema17-bracket#release?id=ROOM-DEMO-bab740ca-deec-4deb-b417-0846c624250a",
+        "overflow": false
+      },
+      {
+        "name": "buyer-new-published-story",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#explore",
+        "overflow": false
+      },
+      {
+        "name": "historical-project-unchanged",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket#project&project=PRJ-DEMO-7BF0E0C1",
+        "overflow": false
+      },
+      {
+        "name": "historical-story-original-first-step",
+        "width": 320,
+        "height": 844,
+        "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=nema17-bracket&returnRole=buyer&returnView=%23project%26project%3DPRJ-DEMO-7BF0E0C1&view=drawings&project=PRJ-DEMO-7BF0E0C1#explore&project=PRJ-DEMO-7BF0E0C1",
+        "overflow": false
+      }
+    ],
+    "browserErrors": [],
+    "projectId": "PRJ-DEMO-7BF0E0C1",
+    "quoteId": "QT-DEMO-EA61E5A8",
+    "originalRoomRelease": "ROOM-nema17-bracket-6410d7162b0f416e",
+    "newRoomRelease": "ROOM-DEMO-bab740ca-deec-4deb-b417-0846c624250a",
+    "sourcePinned": {
+      "id": "build123d-nema17-bracket-drawing",
+      "title": "NEMA 17 motor bracket - source reference",
+      "revision": "annora-reference-1",
+      "assetId": "source-pdf",
+      "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "partId": "nema17-bracket-body",
+      "sheetId": "sheet-1",
+      "sheetTitle": "Original source drawing",
+      "regionId": "motor-mounting-holes",
+      "regionLabel": "Motor mounting holes",
+      "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "mappingRevision": "onboarding-map-b5235bbc696139c4",
+      "revisionLabel": "Source 16789983 / reference edition 1",
+      "presentationSnapshot": {
+        "schemaVersion": 1,
+        "sourceKey": "source-95ff81511bcfd29d",
+        "sheets": [
+          {
+            "sheetId": "sheet-1",
+            "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+            "views": [
+              {
+                "id": "nema17-technical-front-v1:front:sheet-1",
+                "viewRevision": "view-575e70b3a8879965",
+                "title": "Motor aperture",
+                "targets": [
+                  {
+                    "targetId": "motor-aperture",
+                    "regionId": "motor-aperture",
+                    "associationKey": "link-ee8fb885fffb59df",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-front-v1:mounting:sheet-1",
+                "viewRevision": "view-b471833b0ed4190d",
+                "title": "Motor mounting pattern",
+                "targets": [
+                  {
+                    "targetId": "motor-mounting-holes",
+                    "regionId": "motor-mounting-holes",
+                    "associationKey": "link-bcf2f31ce142ca76",
+                    "confirmed": true
+                  }
+                ]
+              },
+              {
+                "id": "nema17-technical-base-v1:base:sheet-1",
+                "viewRevision": "view-dca82bfa9bed9a38",
+                "title": "Base mounting slots",
+                "targets": [
+                  {
+                    "targetId": "base-slots",
+                    "regionId": "base-slots",
+                    "associationKey": "link-dbbafb6c0d7877be",
+                    "confirmed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "revision": "overview-535e85b712c67463"
+      },
+      "presentationRevision": "overview-535e85b712c67463"
+    },
+    "oldProjectUnchanged": true,
+    "sentinelUnchanged": true
+  }
+]

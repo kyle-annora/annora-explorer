@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "modelId": "nema17-bracket",
+  "sourceSha256": "0352481427da9a0e3e15eca6a184aeb27015be9350136d9de9885757d189eae1",
+  "preservedSource": true,
+  "limits": {
+    "sourceBytes": 67108864,
+    "jsonBytes": 2097152,
+    "meshes": 2000,
+    "nodes": 10000,
+    "triangles": 1000000,
+    "trianglesPerGeometry": 250000,
+    "vertices": 3000000,
+    "animationKeys": 100000,
+    "clipSeconds": 120,
+    "outputBytes": 201326592
+  },
+  "counts": {
+    "meshes": 1,
+    "nodes": 1,
+    "triangles": 3396,
+    "vertices": 3436,
+    "uniqueGeometries": 1,
+    "sourceAnimationClips": 0
+  },
+  "bytes": {
+    "source": 124508,
+    "compressedModel": 30723,
+    "creases": 40488,
+    "contours": 40272,
+    "total": 279768
+  },
+  "operation": null,
+  "tour": null,
+  "warnings": [
+    "No guided tour was authored; none was generated."
+  ],
+  "assets": {
+    "model.glb": {
+      "bytes": 124508,
+      "sha256": "0352481427da9a0e3e15eca6a184aeb27015be9350136d9de9885757d189eae1"
+    },
+    "model.glb.gz": {
+      "bytes": 30723,
+      "sha256": "019d1a5e0f4bb7db0480938439f161243a6b179a0c84b76bd15816ac46f10a99"
+    },
+    "metadata.json": {
+      "bytes": 3499,
+      "sha256": "4625d07439c052a27580bf4c4fa8d96a19fa28f10649637c1eedb7cd192a5750"
+    },
+    "edges.bin": {
+      "bytes": 40488,
+      "sha256": "fa86c11e76f63cdf73bd97f3754ab9e01622d132bb123460861458ed9c17796b"
+    },
+    "edges.bin.gz": {
+      "bytes": 9243,
+      "sha256": "b2151f27e6346018cb5a6d064bbc97242ac380e52712a1ca97e5106bc8b6d2f0"
+    },
+    "edge-metadata.json": {
+      "bytes": 1308,
+      "sha256": "d48143c8ed9caa146311c4b8183feecb5f9120f78927a937afd69b439aa59f26"
+    },
+    "silhouettes.bin": {
+      "bytes": 40272,
+      "sha256": "4e0fb3287d0dac8cee15c6ef6ade2f123149052f33615942c8994ded30584033"
+    },
+    "silhouettes.bin.gz": {
+      "bytes": 15561,
+      "sha256": "2611c49cab0ae2720797c3b2fc68705e3a6e8546b0e2f087c01a404c7e4d9f96"
+    },
+    "silhouette-metadata.json": {
+      "bytes": 961,
+      "sha256": "bc73c1fb5d639c9a6b846407fc6f5a5309e00e546d6e6511899ff77f20d46cb1"
+    },
+    "LICENSE.txt": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "manifest.json": {
+      "bytes": 1847,
+      "sha256": "a005fbe76dfca8360d03a794fe723990c0dc54459866c964e099b4102cddc1c6"
+    }
+  }
+}

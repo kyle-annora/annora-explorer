@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "0352481427da9a0e3e15eca6a184aeb27015be9350136d9de9885757d189eae1"
+  },
+  "edges": {
+    "file": "edges.bin",
+    "compressedFile": "edges.bin.gz",
+    "compression": "gzip",
+    "format": "float32-le",
+    "coordinates": "mesh-local",
+    "topology": "line-segments",
+    "creaseAngle": 35,
+    "sha256": "fa86c11e76f63cdf73bd97f3754ab9e01622d132bb123460861458ed9c17796b"
+  },
+  "stats": {
+    "meshCount": 1,
+    "uniqueGeometryCount": 1,
+    "bytes": 40488,
+    "uniqueSegments": 1687
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "vertexCount": 3374,
+      "segmentCount": 1687,
+      "geometryId": 0,
+      "sourceGeometrySha256": "d71433c8cccf0d56be0d5f2fb7d4d8e5d5ee519d49c05209f41180eec721f58f",
+      "edgeSha256": "fa86c11e76f63cdf73bd97f3754ab9e01622d132bb123460861458ed9c17796b",
+      "bounds": [
+        [
+          -4.440892309431682e-19,
+          -4.440892309431682e-19,
+          -0.020500000566244125
+        ],
+        [
+          0.03500000014901161,
+          0.050999999046325684,
+          0.020500000566244125
+        ]
+      ]
+    }
+  ],
+  "meshes": {
+    "nema17_bracket_body": {
+      "byteOffset": 0,
+      "vertexCount": 3374,
+      "segmentCount": 1687,
+      "geometryId": 0
+    }
+  }
+}

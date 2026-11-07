@@ -1,0 +1,199 @@
+{
+  "baselineDimensionChecks": {
+    "motorApertureDiameterMm": {
+      "observedMm": 32.00000627305772,
+      "sourceDimensionMm": 32,
+      "errorMm": 6.27305772127329e-06
+    },
+    "motorHoleDiameterMm": {
+      "observedMm": 3.2999977535671654,
+      "sourceDimensionMm": 3.3,
+      "errorMm": 2.246432834418499e-06
+    },
+    "motorHolePitchMm": {
+      "observedMm": 31.00000271267361,
+      "sourceDimensionMm": 31,
+      "errorMm": 2.7126736092952797e-06
+    },
+    "overallWidthMm": {
+      "observedMm": 41.000000635782875,
+      "sourceDimensionMm": 41,
+      "errorMm": 6.357828752356909e-07
+    },
+    "overallHeightMm": {
+      "observedMm": 50.99999855889214,
+      "sourceDimensionMm": 51,
+      "errorMm": 1.4411078623766116e-06
+    },
+    "baseDepthMm": {
+      "observedMm": 34.99999945958455,
+      "sourceDimensionMm": 35,
+      "errorMm": 5.404154492794078e-07
+    },
+    "baseSlotWidthMm": {
+      "observedMm": 4.499999872843424,
+      "sourceDimensionMm": 4.5,
+      "errorMm": 1.271565759353166e-07
+    },
+    "baseSlotLengthMm": {
+      "observedMm": 7.50000517103407,
+      "sourceDimensionMm": 7.5,
+      "errorMm": 5.17103407027264e-06
+    }
+  },
+  "freshRemoteByteChecks": [
+    {
+      "file": "nema17-bracket.step",
+      "sourceURL": "https://raw.githubusercontent.com/pzfreo/dw-examples/1678998387693c9a96c7033123f849411e061c93/steps/build123d/nema-17-bracket.step",
+      "sha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d",
+      "freshRemoteMatches": true
+    },
+    {
+      "file": "source.pdf",
+      "sourceURL": "https://raw.githubusercontent.com/pzfreo/dw-examples/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+      "sha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+      "freshRemoteMatches": true
+    },
+    {
+      "file": "source-review.json",
+      "sourceURL": "https://raw.githubusercontent.com/pzfreo/dw-examples/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.review.json",
+      "sha256": "1e79a5341f3aa3e5b895105faa5b7a7acd8c75414db7df21d8ebcad90be279a8",
+      "freshRemoteMatches": true
+    },
+    {
+      "file": "LICENSE.txt",
+      "sourceURL": "https://raw.githubusercontent.com/pzfreo/dw-examples/1678998387693c9a96c7033123f849411e061c93/steps/build123d/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "freshRemoteMatches": true
+    }
+  ],
+  "originalBuild123dStepMatches": true,
+  "singleSolid": true,
+  "cadCylinders": [
+    {
+      "entity": "#72",
+      "radiusMm": 3.0,
+      "point": "CARTESIAN_POINT('',(3.,-20.5,3.))"
+    },
+    {
+      "entity": "#213",
+      "radiusMm": 1.65,
+      "point": "CARTESIAN_POINT('',(0.,15.5,14.5))"
+    },
+    {
+      "entity": "#244",
+      "radiusMm": 1.65,
+      "point": "CARTESIAN_POINT('',(0.,15.5,45.5))"
+    },
+    {
+      "entity": "#275",
+      "radiusMm": 1.65,
+      "point": "CARTESIAN_POINT('',(0.,-15.5,14.5))"
+    },
+    {
+      "entity": "#306",
+      "radiusMm": 16.0,
+      "point": "CARTESIAN_POINT('',(0.,0.,30.))"
+    },
+    {
+      "entity": "#337",
+      "radiusMm": 1.65,
+      "point": "CARTESIAN_POINT('',(0.,-15.5,45.5))"
+    },
+    {
+      "entity": "#1217",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(10.,-12.5,0.))"
+    },
+    {
+      "entity": "#1276",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(10.,-15.5,0.))"
+    },
+    {
+      "entity": "#1341",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(21.5,-15.5,0.))"
+    },
+    {
+      "entity": "#1400",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(18.5,-15.5,0.))"
+    },
+    {
+      "entity": "#1465",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(30.,-12.5,0.))"
+    },
+    {
+      "entity": "#1524",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(30.,-15.5,0.))"
+    },
+    {
+      "entity": "#1589",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(10.,15.5,0.))"
+    },
+    {
+      "entity": "#1648",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(10.,12.5,0.))"
+    },
+    {
+      "entity": "#1713",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(21.5,15.5,0.))"
+    },
+    {
+      "entity": "#1772",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(18.5,15.5,0.))"
+    },
+    {
+      "entity": "#1837",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(30.,15.5,0.))"
+    },
+    {
+      "entity": "#1896",
+      "radiusMm": 2.25,
+      "point": "CARTESIAN_POINT('',(30.,12.5,0.))"
+    }
+  ],
+  "glbCoordinateConversionVerified": true,
+  "glbBoundsMeters": [
+    [
+      -4.440892309431682e-19,
+      -4.440892309431682e-19,
+      -0.020500000566244125
+    ],
+    [
+      0.03500000014901161,
+      0.050999999046325684,
+      0.020500000566244125
+    ]
+  ],
+  "noMotionInvented": true,
+  "technicalProjectionChecks": [
+    {
+      "view": "front",
+      "exactPaths": 40,
+      "maxPresentationCoordinateError": 3.930664433937636e-07,
+      "allHighlightPathsExist": true
+    },
+    {
+      "view": "base",
+      "exactPaths": 48,
+      "maxPresentationCoordinateError": 4.81445340483333e-07,
+      "allHighlightPathsExist": true
+    }
+  ],
+  "revisionCorrection": {
+    "reason": "A source GLB checksum was incorrectly used as the composite model package revision in the first unpublished intake draft.",
+    "sourceGLBSha256": "0352481427da9a0e3e15eca6a184aeb27015be9350136d9de9885757d189eae1",
+    "correctRuntimeRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+    "affected": "Unpublished input, working package and source evidence corrected before operator publication.",
+    "prevention": "Preparation and validation now obtain the authoritative revision directly from loadProject."
+  }
+}

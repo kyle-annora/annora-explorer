@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "nema17-bracket",
+  "modelManifest": "content/models/nema17-bracket/manifest.json",
+  "drawingDirectory": "content/drawings/nema17-bracket",
+  "title": "NEMA 17 motor bracket",
+  "shortTitle": "Motor bracket",
+  "tagline": "Inspect the mounting geometry before the next conversation.",
+  "summary": "One support body, with its original engineering reference.",
+  "description": "Compare the motor opening, mounting holes and base slots in the prepared 3D model and the same source drawing. Required fit, material and tolerances remain questions for review.",
+  "sourceLabel": "build123d example · paired STEP and drawing",
+  "units": {
+    "source": "mm",
+    "display": "m",
+    "evidence": "Pinned STEP and source PDF use millimeters. The preparation converts coordinates by 0.001 and preserves a single rigid solid; see the package preparation report."
+  },
+  "posterFile": "poster.svg",
+  "commercialMode": "sample",
+  "createdAt": "2026-11-07T05:00:00.000Z"
+}

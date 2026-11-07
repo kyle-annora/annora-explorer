@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "sheets": {
+    "sheet-1": [
+      "nema17-technical-front-v1:front:sheet-1",
+      "nema17-technical-front-v1:mounting:sheet-1",
+      "nema17-technical-base-v1:base:sheet-1"
+    ]
+  }
+}

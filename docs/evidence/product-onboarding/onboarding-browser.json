@@ -1,0 +1,176 @@
+[
+  {
+    "onboarding": {
+      "width": 1280,
+      "height": 900,
+      "checks": [
+        {
+          "name": "01-source-checks",
+          "overflow": false
+        },
+        {
+          "name": "unchecked sources block progression"
+        },
+        {
+          "name": "host navigation protects unsaved edits; discard preserves saved setup"
+        },
+        {
+          "name": "02-source-detail-mapping",
+          "overflow": false
+        },
+        {
+          "name": "source mesh only in mapping options; unconfirmed links cannot enter preview"
+        },
+        {
+          "name": "each mapping confirmed manually; changing a part invalidates confirmation"
+        },
+        {
+          "name": "03-explicit-3d-preview",
+          "overflow": false
+        },
+        {
+          "name": "04-exact-saved-preview",
+          "overflow": false
+        },
+        {
+          "name": "05-review-before-export",
+          "overflow": false
+        },
+        {
+          "name": "06-reviewed-export",
+          "overflow": false
+        },
+        {
+          "name": "exact reviewed export, original hashes, no existing store mutations, duplicate export idempotent"
+        }
+      ],
+      "browserErrors": [],
+      "exportId": "ONBOARD-EXPORT-72d23e78-3c31-46a1-bd28-f3130a5655ac"
+    },
+    "navigation": {
+      "results": [
+        "Local back saves through shared guard and returns; add-product entry resumes draft",
+        "Direct hash navigation is guarded and keep-editing restores route",
+        "Editing after review discards prior preview/review and requires a new saved preview",
+        "All visible onboarding buttons have at least 44px height at 1280px"
+      ],
+      "browserErrors": []
+    }
+  },
+  {
+    "onboarding": {
+      "width": 390,
+      "height": 844,
+      "checks": [
+        {
+          "name": "01-source-checks",
+          "overflow": false
+        },
+        {
+          "name": "unchecked sources block progression"
+        },
+        {
+          "name": "host navigation protects unsaved edits; discard preserves saved setup"
+        },
+        {
+          "name": "02-source-detail-mapping",
+          "overflow": false
+        },
+        {
+          "name": "source mesh only in mapping options; unconfirmed links cannot enter preview"
+        },
+        {
+          "name": "each mapping confirmed manually; changing a part invalidates confirmation"
+        },
+        {
+          "name": "03-explicit-3d-preview",
+          "overflow": false
+        },
+        {
+          "name": "04-exact-saved-preview",
+          "overflow": false
+        },
+        {
+          "name": "05-review-before-export",
+          "overflow": false
+        },
+        {
+          "name": "06-reviewed-export",
+          "overflow": false
+        },
+        {
+          "name": "exact reviewed export, original hashes, no existing store mutations, duplicate export idempotent"
+        }
+      ],
+      "browserErrors": [],
+      "exportId": "ONBOARD-EXPORT-7a036445-8e55-4b0f-987e-b5211d317a00"
+    },
+    "navigation": {
+      "results": [
+        "Local back saves through shared guard and returns; add-product entry resumes draft",
+        "Direct hash navigation is guarded and keep-editing restores route",
+        "Editing after review discards prior preview/review and requires a new saved preview",
+        "All visible onboarding buttons have at least 44px height at 390px"
+      ],
+      "browserErrors": []
+    }
+  },
+  {
+    "onboarding": {
+      "width": 320,
+      "height": 844,
+      "checks": [
+        {
+          "name": "01-source-checks",
+          "overflow": false
+        },
+        {
+          "name": "unchecked sources block progression"
+        },
+        {
+          "name": "host navigation protects unsaved edits; discard preserves saved setup"
+        },
+        {
+          "name": "02-source-detail-mapping",
+          "overflow": false
+        },
+        {
+          "name": "source mesh only in mapping options; unconfirmed links cannot enter preview"
+        },
+        {
+          "name": "each mapping confirmed manually; changing a part invalidates confirmation"
+        },
+        {
+          "name": "03-explicit-3d-preview",
+          "overflow": false
+        },
+        {
+          "name": "04-exact-saved-preview",
+          "overflow": false
+        },
+        {
+          "name": "05-review-before-export",
+          "overflow": false
+        },
+        {
+          "name": "06-reviewed-export",
+          "overflow": false
+        },
+        {
+          "name": "exact reviewed export, original hashes, no existing store mutations, duplicate export idempotent"
+        }
+      ],
+      "browserErrors": [],
+      "exportId": "ONBOARD-EXPORT-27ccb315-703c-4715-ab50-8ff98f2cfedf"
+    },
+    "navigation": {
+      "results": [
+        "Local back saves through shared guard and returns; add-product entry resumes draft",
+        "Direct hash navigation is guarded and keep-editing restores route",
+        "Editing after review discards prior preview/review and requires a new saved preview",
+        "All visible onboarding buttons have at least 44px height at 320px"
+      ],
+      "browserErrors": []
+    }
+  }
+]

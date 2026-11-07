@@ -56,6 +56,8 @@ import { ProjectChangeImpact } from "./project-change-impact.jsx";
 import { createDrawingProjectRepository } from "../product-room/drawing-inquiry.js";
 import { createDrawingContext } from "../drawing-preview/context.js";
 import "./workspace-layout.css";
+import { OnboardingWorkspace } from "./onboarding-workspace.jsx";
+import { ONBOARDING_CANDIDATES, onboardingDiagnostics } from "./onboarding-catalog.js";
 
 const editableDrawingPackages = DRAWING_CATALOG.filter(
   (entry) =>
@@ -136,7 +138,8 @@ function Studio({ repository, projectRepository, prepared }) {
     return () => media.removeEventListener('change', change);
   }, []);
   const customerGuard = useRef(null),
-    drawingGuard = useRef(null);
+    drawingGuard = useRef(null),
+    onboardingGuard = useRef(null);
   const [route, setRoute] = useState(readRoute),
     [products, setProducts] = useState([]),
     [draft, setDraft] = useState(null),
@@ -202,6 +205,8 @@ function Studio({ repository, projectRepository, prepared }) {
     });
   }
   async function navigate(next) {
+    if (onboardingGuard.current && !(await onboardingGuard.current.beforeLeave()))
+      return;
     if (drawingGuard.current && !(await drawingGuard.current.beforeLeave()))
       return;
     if (customerGuard.current?.(next)) return;
@@ -367,6 +372,10 @@ function Studio({ repository, projectRepository, prepared }) {
     };
     const back = async () => {
       const next = readRoute();
+      if (onboardingGuard.current && !(await onboardingGuard.current.beforeLeave())) {
+        history.replaceState({}, "", routeHash(routeRef.current));
+        return;
+      }
       if (drawingGuard.current && !(await drawingGuard.current.beforeLeave())) {
         history.replaceState({}, "", routeHash(routeRef.current));
         return;
@@ -470,6 +479,7 @@ function Studio({ repository, projectRepository, prepared }) {
   const customerScreen =
     ["projects", "project"].includes(screen) || drawingCustomer;
   const drawingScreen = screen === "drawings";
+  const onboardingScreen = screen === "onboard";
   const drawingNavigate = (next) =>
     navigate({
       ...next,
@@ -548,7 +558,7 @@ function Studio({ repository, projectRepository, prepared }) {
             <span />
             Local demo
           </span>
-          <a className="studio-text-link" href={roomURL({ page: "explore" })}>
+          <a className="studio-text-link" href={roomURL({ page: "explore" })} onClick={event => { event.preventDefault(); navigate({externalURL:roomURL({page:'explore'})}); }}>
             Product Room <Glyph name="external" />
           </a>
         </div>
@@ -559,7 +569,7 @@ function Studio({ repository, projectRepository, prepared }) {
         id="studio-main"
         className={`studio-main studio-screen-${screen}`}
       >
-        {error && !customerScreen && !drawingScreen && (
+        {error && !customerScreen && !drawingScreen && !onboardingScreen && (
           <div className="studio-feedback" ref={errorRef} tabIndex="-1">
             <Notice kind="error" title="We could not complete that action.">
               {error}
@@ -569,18 +579,18 @@ function Studio({ repository, projectRepository, prepared }) {
             )}
           </div>
         )}
-        {message && !customerScreen && !drawingScreen && (
+        {message && !customerScreen && !drawingScreen && !onboardingScreen && (
           <div className="studio-feedback" role="status">
             <Notice kind="success">{message}</Notice>
           </div>
         )}
-        {busy === "loading" && !customerScreen && !drawingScreen && (
+        {busy === "loading" && !customerScreen && !drawingScreen && !onboardingScreen && (
           <div className="studio-loading" role="status">
             <span className="ar-spinner" />
             <p>Opening your product workspace…</p>
           </div>
         )}
-        {!draft && busy !== "loading" && !customerScreen && !drawingScreen && (
+        {!draft && busy !== "loading" && !customerScreen && !drawingScreen && !onboardingScreen && (
           <div className="studio-loading">
             <p>
               Your product workspace could not be opened. Existing customer
@@ -589,6 +599,13 @@ function Studio({ repository, projectRepository, prepared }) {
             <Button onClick={() => location.reload()}>Try again</Button>
           </div>
         )}
+        {onboardingScreen && <>
+          {onboardingDiagnostics.map(item => <Notice key={item.productId} kind="error" title={`Check the prepared files for ${item.productId}`}>{item.message}</Notice>)}
+          <OnboardingWorkspace candidates={ONBOARDING_CANDIDATES} guardRef={onboardingGuard}
+            onBack={() => navigate({page:'products'})}
+            deploymentCommand="npm run apply:onboarding -- --file path/to/reviewed-package.json"
+            onOpenProduct={id => navigate({externalURL:`?product=${encodeURIComponent(id)}#products`})} />
+        </>}
         {drawingScreen && !editableDrawingPackages.length && (
           <Notice title="No prepared drawing packages">
             Add a paired drawing package for a configured model to enable
@@ -664,7 +681,7 @@ function Studio({ repository, projectRepository, prepared }) {
                 <h1>Products</h1>
                 <p>Prepare what customers see, understand, and ask for.</p>
               </div>
-              <label className="studio-edit-section"><span className="ar-sr-only">Prepared product</span><select aria-label="Prepared product" value={productId} onChange={event => navigate({externalURL:`?product=${encodeURIComponent(event.target.value)}#products`})}>{preparedProducts.list().map(item => <option key={item.id} value={item.id}>{item.bundledRelease.content.shortTitle}</option>)}</select></label>
+              <ActionGroup><label className="studio-edit-section"><span className="ar-sr-only">Prepared product</span><select aria-label="Prepared product" value={productId} onChange={event => navigate({externalURL:`?product=${encodeURIComponent(event.target.value)}#products`})}>{preparedProducts.list().map(item => <option key={item.id} value={item.id}>{item.bundledRelease.content.shortTitle}</option>)}</select></label><Button variant="secondary" onClick={() => navigate({page:'onboard'})}>Add prepared product</Button></ActionGroup>
             </div>
             <div className="studio-product-table">
               <div className="studio-table-labels">

@@ -37,6 +37,9 @@ const project = {
       "manifest": "content/models/sk08/manifest.json"
     },
     {
+      "manifest": "content/models/nema17-bracket/manifest.json"
+    },
+    {
       "manifest": "content/models/open-duck/manifest.json"
     },
     {

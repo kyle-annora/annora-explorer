@@ -1,0 +1,378 @@
+{
+ "drawing_consumer": {
+  "holes": [
+   {
+    "carriers": [
+     "d:f:hole_pattern:1/bore.diameter"
+    ],
+    "feature": "f:hole:1",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole_pattern:1/bore.diameter"
+    ],
+    "feature": "f:hole:2",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole_pattern:1/bore.diameter"
+    ],
+    "feature": "f:hole:3",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole:4/bore.diameter"
+    ],
+    "feature": "f:hole:4",
+    "state": "supported"
+   },
+   {
+    "carriers": [
+     "d:f:hole_pattern:1/bore.diameter"
+    ],
+    "feature": "f:hole:5",
+    "state": "supported"
+   }
+  ],
+  "supported": 5,
+  "unknown": 0,
+  "unsupported": 0
+ },
+ "lint": [],
+ "problems": [
+  {
+   "code": "general_tolerance_missing",
+   "fix": [
+    {
+     "op": "set",
+     "path": "sheet/title/tolerance",
+     "value": "UNSPECIFIED"
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A3"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "2:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Mark the general tolerance as UNSPECIFIED in the title block, without choosing a tolerance.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "sheet/title/tolerance",
+       "value": "UNSPECIFIED"
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A3"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "2:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    }
+   ],
+   "group": "general_tolerance_missing",
+   "id": "p:general_tolerance_missing:sheet",
+   "impact": "decision",
+   "message": "GEN. TOL. is blank: no general tolerance is drawn from the Spec or usable PMI. Set sheet/title/tolerance to the intended requirement. The offered fix explicitly states UNSPECIFIED; it acknowledges the missing requirement without inventing a manufacturing tolerance.",
+   "refs": [
+    "title_block/general_tolerance",
+    "sheet/title/tolerance"
+   ],
+   "severity": "warning",
+   "subjects": [
+    "sheet"
+   ]
+  },
+  {
+   "code": "dimensions_not_ported",
+   "group": "dimensions_not_ported:through_step",
+   "id": "p:dimensions_not_ported:f:through_step:1",
+   "impact": "incomplete",
+   "message": "The through step is not dimensioned as a through step: as in draftwright, its legs are stated by the 3 plate thickness, the overall z extent, the 3 plate thickness and the overall x extent, but those dimensions do not claim it.",
+   "severity": "warning",
+   "subjects": [
+    "f:through_step:1"
+   ]
+  },
+  {
+   "code": "extension_through_feature",
+   "fix": [
+    {
+     "op": "set",
+     "path": "dimensions/d:f:slot:2~1location_slot_across.length/place",
+     "value": {
+      "along": "middle",
+      "lane": 0,
+      "side": "left",
+      "view": "plan"
+     }
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A3"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "2:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Move the 5 dimension to the left of the plan view, nearest the view. Trade-off: adds these findings: The second extension line of 5 crosses the \u23003.3 hole. [extension_through_feature] The second extension line of 5 crosses the \u230032 hole. [extension_through_feature] The second extension line of 5 crosses the \u23003.3 hole. [extension_through_feature] The second extension line of 5 crosses the 4.5 wide slot. [extension_through_feature].",
+     "ops": [
+      {
+       "op": "set",
+       "path": "dimensions/d:f:slot:2~1location_slot_across.length/place",
+       "value": {
+        "along": "middle",
+        "lane": 0,
+        "side": "left",
+        "view": "plan"
+       }
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A3"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "2:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    },
+    {
+     "description": "List the holes in a hole table and draw at 1:1. The whole sheet is laid out again, so placements you have moved by hand may change.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "hole_table",
+       "value": "always"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      }
+     ],
+     "scope": "sheet"
+    }
+   ],
+   "group": "extension_through_feature",
+   "id": "p:extension_through_feature:d:f:slot:2/location_slot_across.length|f:slot:3:line:1",
+   "impact": "advisory",
+   "message": "The second extension line of 5 crosses the 4.5 wide slot.",
+   "severity": "warning",
+   "subjects": [
+    "d:f:slot:2/location_slot_across.length",
+    "f:slot:3"
+   ]
+  },
+  {
+   "code": "extension_through_feature",
+   "fix": [
+    {
+     "op": "set",
+     "path": "dimensions/d:f:slot:5~1location_slot_across.length/place",
+     "value": {
+      "along": "middle",
+      "lane": 0,
+      "side": "left",
+      "view": "plan"
+     }
+    },
+    {
+     "op": "set",
+     "path": "sheet/keep_layout",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "sheet/size",
+     "value": "A3"
+    },
+    {
+     "op": "set",
+     "path": "sheet/scale",
+     "value": "2:1"
+    },
+    {
+     "op": "set",
+     "path": "sheets/max",
+     "value": 1
+    }
+   ],
+   "fixes": [
+    {
+     "description": "Move the 36 dimension to the left of the plan view, nearest the view. Trade-off: adds these findings: The second extension line of 36 crosses the \u23003.3 hole. [extension_through_feature] The second extension line of 36 crosses the \u23003.3 hole. [extension_through_feature] The second extension line of 36 crosses the \u230032 hole. [extension_through_feature] The second extension line of 36 crosses the 4.5 wide slot. [extension_through_feature].",
+     "ops": [
+      {
+       "op": "set",
+       "path": "dimensions/d:f:slot:5~1location_slot_across.length/place",
+       "value": {
+        "along": "middle",
+        "lane": 0,
+        "side": "left",
+        "view": "plan"
+       }
+      },
+      {
+       "op": "set",
+       "path": "sheet/keep_layout",
+       "value": true
+      },
+      {
+       "op": "set",
+       "path": "sheet/size",
+       "value": "A3"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "2:1"
+      },
+      {
+       "op": "set",
+       "path": "sheets/max",
+       "value": 1
+      }
+     ],
+     "scope": "local"
+    },
+    {
+     "description": "List the holes in a hole table and draw at 1:1. The whole sheet is laid out again, so placements you have moved by hand may change.",
+     "ops": [
+      {
+       "op": "set",
+       "path": "hole_table",
+       "value": "always"
+      },
+      {
+       "op": "set",
+       "path": "sheet/scale",
+       "value": "1:1"
+      }
+     ],
+     "scope": "sheet"
+    }
+   ],
+   "group": "extension_through_feature",
+   "id": "p:extension_through_feature:d:f:slot:5/location_slot_across.length|f:slot:6:line:1",
+   "impact": "advisory",
+   "message": "The second extension line of 36 crosses the 4.5 wide slot.",
+   "severity": "warning",
+   "subjects": [
+    "d:f:slot:5/location_slot_across.length",
+    "f:slot:6"
+   ]
+  },
+  {
+   "code": "unclaimed_geometry",
+   "group": "unclaimed_geometry",
+   "id": "p:unclaimed_geometry:sheet",
+   "impact": "advisory",
+   "message": "Analysis features and dimensioned stock claim 30 of 42 faces; 12 faces are unclaimed. Review the geometry: ordinary stock faces may also be unclaimed; this is not a count of missed features.",
+   "severity": "info",
+   "subjects": [
+    "face:18",
+    "face:20",
+    "face:22",
+    "face:24",
+    "face:26",
+    "face:28",
+    "face:30",
+    "face:32",
+    "face:34",
+    "face:36",
+    "face:38",
+    "face:40"
+   ]
+  }
+ ],
+ "structural": [],
+ "summary": {
+  "groups": {
+   "dimensions_not_ported:through_step": 1,
+   "extension_through_feature": 2,
+   "general_tolerance_missing": 1,
+   "unclaimed_geometry": 1
+  },
+  "impacts": {
+   "advisory": {
+    "findings": 3,
+    "groups": 2
+   },
+   "decision": {
+    "findings": 1,
+    "groups": 1
+   },
+   "incomplete": {
+    "findings": 1,
+    "groups": 1
+   },
+   "readability": {
+    "findings": 0,
+    "groups": 0
+   }
+  }
+ }
+}

@@ -1,0 +1,111 @@
+{
+  "base": "http://127.0.0.1:8159/annora-explorer/",
+  "width": 1280,
+  "height": 960,
+  "checkpoints": [
+    {
+      "name": "buyer-A-original",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=inquiry",
+      "overflow": false
+    },
+    {
+      "name": "seller-four-affected-records",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "inspect-original-A",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "inspect-candidate-B",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "seller-human-review-A-B",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "seller-reviewed-working-references",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "seller-draft-exact-reference-scope",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&mode=edit&quote=QT-IMPACT-EXAMPLE-017&draft=QD-IMPACT-EXAMPLE-018",
+      "overflow": false
+    },
+    {
+      "name": "seller-v2-quotation-review",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=inquiry&mode=quote-review&quote=QT-IMPACT-EXAMPLE-017&draft=QD-IMPACT-EXAMPLE-018",
+      "overflow": false
+    },
+    {
+      "name": "seller-issued-v2",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/studio/?impactDemo=sk08-a-b-v1#project?id=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-3ED3A830",
+      "overflow": false
+    },
+    {
+      "name": "buyer-A-B-quote-comparison",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-3ED3A830",
+      "overflow": false
+    },
+    {
+      "name": "buyer-v1-keeps-A",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-IMPACT-EXAMPLE-017",
+      "overflow": false
+    },
+    {
+      "name": "buyer-v2-mixed-references",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-3ED3A830",
+      "overflow": false
+    },
+    {
+      "name": "buyer-v2-exact-B-drawing",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-3ED3A830",
+      "overflow": false
+    },
+    {
+      "name": "buyer-reviewed-B-in-3D",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?model=sk08&returnRole=buyer&returnView=%23project%26project%3DPRJ-IMPACT-EXAMPLE-002%26tab%3Dquotation%26quote%3DQT-DEMO-3ED3A830&impactDemo=sk08-a-b-v1&referenceQuote=QT-DEMO-3ED3A830&referenceEntry=scope%3Arequest%3Ashaft-bore-request&view=drawings&project=PRJ-IMPACT-EXAMPLE-002#explore&project=PRJ-IMPACT-EXAMPLE-002",
+      "overflow": false
+    },
+    {
+      "name": "reload-preserves-A-B-history",
+      "width": 1280,
+      "url": "http://127.0.0.1:8159/annora-explorer/product-room/?impactDemo=sk08-a-b-v1&model=sk08&project=PRJ-IMPACT-EXAMPLE-002#project&project=PRJ-IMPACT-EXAMPLE-002&tab=quotation&quote=QT-DEMO-3ED3A830",
+      "overflow": false
+    }
+  ],
+  "browserErrors": [],
+  "projectId": "PRJ-IMPACT-EXAMPLE-002",
+  "quoteIds": [
+    "QT-IMPACT-EXAMPLE-017",
+    "QT-DEMO-3ED3A830"
+  ],
+  "affectedRecords": 4,
+  "retainedA": 2,
+  "adoptedB": 2,
+  "unaffectedNonDrawingRequests": 1,
+  "originalInquiryUnchanged": true,
+  "originalQuestionsUnchanged": true,
+  "quoteV1Unchanged": true,
+  "ordinaryNamespaceUnchanged": true
+}

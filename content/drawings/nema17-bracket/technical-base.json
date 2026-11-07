@@ -1,0 +1,177 @@
+{
+  "id": "nema17-technical-base-v1",
+  "title": "Base mounting slots",
+  "sheetId": "sheet-1",
+  "viewBox": [
+    0,
+    0,
+    1000,
+    720
+  ],
+  "artworkFile": "technical-base.svg",
+  "annotationVariant": "front",
+  "regions": [
+    {
+      "id": "base-slots",
+      "label": "Base mounting slots",
+      "partId": "nema17-bracket-body",
+      "role": "feature",
+      "bounds": [
+        387.87400817871094,
+        171.1810302734375,
+        277.7952880859375,
+        402.519775390625
+      ],
+      "geometry": {
+        "type": "compound",
+        "bounds": [
+          387.87400817871094,
+          171.1810302734375,
+          277.7952880859375,
+          402.519775390625
+        ],
+        "cx": 526.7716522216797,
+        "cy": 372.44091796875
+      },
+      "featureOutlinePathIds": [
+        "source-path-44",
+        "source-path-45",
+        "source-path-46",
+        "source-path-47",
+        "source-path-48",
+        "source-path-49",
+        "source-path-50",
+        "source-path-51",
+        "source-path-52",
+        "source-path-53",
+        "source-path-54",
+        "source-path-55",
+        "source-path-56",
+        "source-path-57",
+        "source-path-58",
+        "source-path-59",
+        "source-path-60",
+        "source-path-61",
+        "source-path-62",
+        "source-path-63",
+        "source-path-64",
+        "source-path-65",
+        "source-path-66",
+        "source-path-67"
+      ]
+    }
+  ],
+  "sourceSha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+  "sourceStepSha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d",
+  "canonical": {
+    "sheetId": "sheet-1",
+    "regionId": "base-slots",
+    "bounds": [
+      137.48031616210938,
+      115.171630859375,
+      138.89764404296875,
+      201.2598876953125
+    ]
+  },
+  "source": {
+    "file": "source.pdf",
+    "page": 1,
+    "revision": "annora-reference-1",
+    "mappingRevision": "annora-nema17-map-1",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+    "units": "mm",
+    "paperUnits": "pt",
+    "sourceScale": "2:1 as printed",
+    "sourceViewBounds": [
+      93.5433120727539,
+      99.58111572265625,
+      198.4251937866211,
+      232.44094848632812
+    ],
+    "sourceToPresentation": [
+      2,
+      0,
+      0,
+      2,
+      112.91337585449219,
+      -59.1622314453125
+    ],
+    "geometryPathIndices": {
+      "contour": [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67
+      ],
+      "hidden": [
+        187,
+        188,
+        189,
+        190,
+        191,
+        192
+      ],
+      "center": [
+        3,
+        4,
+        5
+      ]
+    }
+  },
+  "displayedSourceDimensions": [
+    "35",
+    "41",
+    "6\u00d7 SLOT 4.5 \u00d7 7.5"
+  ],
+  "status": "derived-reference-not-manufacturing-release",
+  "validation": {
+    "unitChecksMm": {
+      "motorApertureDiameterMm": 32.00000627305772,
+      "motorHoleDiameterMm": 3.2999977535671654,
+      "motorHolePitchMm": 31.00000271267361,
+      "overallWidthMm": 41.000000635782875,
+      "overallHeightMm": 50.99999855889214,
+      "baseDepthMm": 34.99999945958455,
+      "baseSlotWidthMm": 4.499999872843424,
+      "baseSlotLengthMm": 7.50000517103407
+    },
+    "sourcePathCount": 48,
+    "geometryRegenerated": false,
+    "dimensionValuesAdded": false
+  }
+}

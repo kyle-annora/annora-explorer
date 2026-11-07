@@ -4,6 +4,7 @@ import { createPreparedProductRegistry, preparedProductParts } from './prepared-
 import { createDrawingContext } from '../drawing-preview/context.js';
 import { preparedOverviewViewsFor, overviewPresentationFor } from '../drawing-preview/technical-catalog.js';
 import { createTechnicalStoryReference } from './technical-story.js';
+import { registeredProductPackages } from './registered-packages.js';
 import crankMetadata from '../../content/models/kinetic-01/metadata.json' with { type: 'json' };
 import supportMetadata from '../../content/models/sk08/metadata.json' with { type: 'json' };
 import supportDrawing from '../../content/drawings/sk08/package.json' with { type: 'json' };
@@ -50,5 +51,5 @@ const descriptors = [{ id: 'kinetic-01', model: MODEL_CATALOG['kinetic-01'], par
   bundledRelease: BUNDLED_RELEASE, originalRelease: ORIGINAL_BUNDLED_RELEASE, inquiryProfile: BUNDLED_RELEASE.inquiryProfile,
   commercial: { mode: 'sample', drawingWorkflow: false }, technicalReferences: [], drawingPackages: [], resolveContent: resolveStudioContent }, prepareSupport()].filter(item => item?.model);
 
-export const preparedProducts = createPreparedProductRegistry(descriptors);
+export const preparedProducts = createPreparedProductRegistry([...descriptors,...registeredProductPackages]);
 export const preparedProduct = id => preparedProducts.get(id);

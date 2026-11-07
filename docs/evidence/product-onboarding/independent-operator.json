@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 1,
+  "workUnit": "W41",
+  "operator": "independent source agent",
+  "runbook": "docs/product-onboarding.md",
+  "isolatedRoot": "/tmp/annora-w41-operator-l9yya9h7",
+  "input": {
+    "file": "work/product-expansion/W41/reviewed-package.json",
+    "id": "ONBOARD-EXPORT-91c291ab-73e3-4b02-bf1d-fe01fc00370e",
+    "sha256": "0ef0af45bbd04f7999f719d668d1021ea104bb2adf649f9d5afd33bb42e2cced"
+  },
+  "browserPacketUsed": true,
+  "existingRoomRemovedOnlyInIsolatedCopy": true,
+  "backend": "not configured; demo data only",
+  "checks": [
+    {
+      "name": "Path traversal rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "This export targets another prepared source or destination. Existing products have not changed."
+    },
+    {
+      "name": "Stale preview title rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "The product changed after preview. Open the current saved version before reviewing it."
+    },
+    {
+      "name": "Stale rendering choice rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "The product changed after preview. Open the current saved version before reviewing it."
+    },
+    {
+      "name": "Changed original source bytes rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "Source asset source-pdf no longer matches its reviewed SHA-256 hash."
+    },
+    {
+      "name": "Internal source symlink rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "Symlinks are not allowed in prepared source or output paths: content/drawings/nema17-bracket/source.pdf"
+    },
+    {
+      "name": "Output directory symlink rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "Symlinks are not allowed in prepared source or output paths: content/rooms/nema17-bracket"
+    },
+    {
+      "name": "Real reviewed export applied",
+      "status": "passed",
+      "changedFiles": [
+        "content/drawings/nema17-bracket/package.json",
+        "content/rooms/nema17-bracket/onboarding-receipt.json",
+        "content/rooms/nema17-bracket/product.json",
+        "content/rooms/nema17-bracket/release.json"
+      ],
+      "sharedSourceEdits": 0,
+      "existingProductsChanged": 0,
+      "immutableIntakePreserved": true,
+      "sourceBytesPreserved": true,
+      "receiptDeployment": "not-run",
+      "storySteps": [
+        {
+          "title": "Motor aperture",
+          "technical": {
+            "version": 1,
+            "context": {
+              "modelId": "nema17-bracket",
+              "modelRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+              "part": {
+                "id": "nema17-bracket-body",
+                "title": "Bracket body"
+              },
+              "drawing": {
+                "id": "build123d-nema17-bracket-drawing",
+                "title": "NEMA 17 motor bracket - source reference",
+                "revision": "annora-reference-1",
+                "assetId": "source-pdf",
+                "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+                "partId": "nema17-bracket-body",
+                "sheetId": "sheet-1",
+                "sheetTitle": "Original source drawing",
+                "regionId": "motor-aperture",
+                "regionLabel": "Motor aperture",
+                "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+                "mappingRevision": "onboarding-map-b5235bbc696139c4",
+                "revisionLabel": "Source 16789983 / reference edition 1",
+                "presentationSnapshot": {
+                  "schemaVersion": 1,
+                  "sourceKey": "source-95ff81511bcfd29d",
+                  "sheets": [
+                    {
+                      "sheetId": "sheet-1",
+                      "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+                      "views": [
+                        {
+                          "id": "nema17-technical-front-v1:front:sheet-1",
+                          "viewRevision": "view-575e70b3a8879965",
+                          "title": "Motor aperture",
+                          "targets": [
+                            {
+                              "targetId": "motor-aperture",
+                              "regionId": "motor-aperture",
+                              "associationKey": "link-ee8fb885fffb59df",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-front-v1:mounting:sheet-1",
+                          "viewRevision": "view-b471833b0ed4190d",
+                          "title": "Motor mounting pattern",
+                          "targets": [
+                            {
+                              "targetId": "motor-mounting-holes",
+                              "regionId": "motor-mounting-holes",
+                              "associationKey": "link-bcf2f31ce142ca76",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-base-v1:base:sheet-1",
+                          "viewRevision": "view-dca82bfa9bed9a38",
+                          "title": "Base mounting slots",
+                          "targets": [
+                            {
+                              "targetId": "base-slots",
+                              "regionId": "base-slots",
+                              "associationKey": "link-dbbafb6c0d7877be",
+                              "confirmed": true
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "revision": "overview-535e85b712c67463"
+                },
+                "presentationRevision": "overview-535e85b712c67463"
+              }
+            },
+            "pdfPage": 1,
+            "rotation": 0,
+            "viewId": "nema17-technical-front-v1:front:sheet-1"
+          }
+        },
+        {
+          "title": "Motor mounting holes",
+          "technical": {
+            "version": 1,
+            "context": {
+              "modelId": "nema17-bracket",
+              "modelRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+              "part": {
+                "id": "nema17-bracket-body",
+                "title": "Bracket body"
+              },
+              "drawing": {
+                "id": "build123d-nema17-bracket-drawing",
+                "title": "NEMA 17 motor bracket - source reference",
+                "revision": "annora-reference-1",
+                "assetId": "source-pdf",
+                "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+                "partId": "nema17-bracket-body",
+                "sheetId": "sheet-1",
+                "sheetTitle": "Original source drawing",
+                "regionId": "motor-mounting-holes",
+                "regionLabel": "Motor mounting holes",
+                "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+                "mappingRevision": "onboarding-map-b5235bbc696139c4",
+                "revisionLabel": "Source 16789983 / reference edition 1",
+                "presentationSnapshot": {
+                  "schemaVersion": 1,
+                  "sourceKey": "source-95ff81511bcfd29d",
+                  "sheets": [
+                    {
+                      "sheetId": "sheet-1",
+                      "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+                      "views": [
+                        {
+                          "id": "nema17-technical-front-v1:front:sheet-1",
+                          "viewRevision": "view-575e70b3a8879965",
+                          "title": "Motor aperture",
+                          "targets": [
+                            {
+                              "targetId": "motor-aperture",
+                              "regionId": "motor-aperture",
+                              "associationKey": "link-ee8fb885fffb59df",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-front-v1:mounting:sheet-1",
+                          "viewRevision": "view-b471833b0ed4190d",
+                          "title": "Motor mounting pattern",
+                          "targets": [
+                            {
+                              "targetId": "motor-mounting-holes",
+                              "regionId": "motor-mounting-holes",
+                              "associationKey": "link-bcf2f31ce142ca76",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-base-v1:base:sheet-1",
+                          "viewRevision": "view-dca82bfa9bed9a38",
+                          "title": "Base mounting slots",
+                          "targets": [
+                            {
+                              "targetId": "base-slots",
+                              "regionId": "base-slots",
+                              "associationKey": "link-dbbafb6c0d7877be",
+                              "confirmed": true
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "revision": "overview-535e85b712c67463"
+                },
+                "presentationRevision": "overview-535e85b712c67463"
+              }
+            },
+            "pdfPage": 1,
+            "rotation": 0,
+            "viewId": "nema17-technical-front-v1:mounting:sheet-1"
+          }
+        },
+        {
+          "title": "Base mounting slots",
+          "technical": {
+            "version": 1,
+            "context": {
+              "modelId": "nema17-bracket",
+              "modelRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+              "part": {
+                "id": "nema17-bracket-body",
+                "title": "Bracket body"
+              },
+              "drawing": {
+                "id": "build123d-nema17-bracket-drawing",
+                "title": "NEMA 17 motor bracket - source reference",
+                "revision": "annora-reference-1",
+                "assetId": "source-pdf",
+                "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+                "partId": "nema17-bracket-body",
+                "sheetId": "sheet-1",
+                "sheetTitle": "Original source drawing",
+                "regionId": "base-slots",
+                "regionLabel": "Base mounting slots",
+                "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+                "mappingRevision": "onboarding-map-b5235bbc696139c4",
+                "revisionLabel": "Source 16789983 / reference edition 1",
+                "presentationSnapshot": {
+                  "schemaVersion": 1,
+                  "sourceKey": "source-95ff81511bcfd29d",
+                  "sheets": [
+                    {
+                      "sheetId": "sheet-1",
+                      "defaultViewId": "nema17-technical-front-v1:front:sheet-1",
+                      "views": [
+                        {
+                          "id": "nema17-technical-front-v1:front:sheet-1",
+                          "viewRevision": "view-575e70b3a8879965",
+                          "title": "Motor aperture",
+                          "targets": [
+                            {
+                              "targetId": "motor-aperture",
+                              "regionId": "motor-aperture",
+                              "associationKey": "link-ee8fb885fffb59df",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-front-v1:mounting:sheet-1",
+                          "viewRevision": "view-b471833b0ed4190d",
+                          "title": "Motor mounting pattern",
+                          "targets": [
+                            {
+                              "targetId": "motor-mounting-holes",
+                              "regionId": "motor-mounting-holes",
+                              "associationKey": "link-bcf2f31ce142ca76",
+                              "confirmed": true
+                            }
+                          ]
+                        },
+                        {
+                          "id": "nema17-technical-base-v1:base:sheet-1",
+                          "viewRevision": "view-dca82bfa9bed9a38",
+                          "title": "Base mounting slots",
+                          "targets": [
+                            {
+                              "targetId": "base-slots",
+                              "regionId": "base-slots",
+                              "associationKey": "link-dbbafb6c0d7877be",
+                              "confirmed": true
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "revision": "overview-535e85b712c67463"
+                },
+                "presentationRevision": "overview-535e85b712c67463"
+              }
+            },
+            "pdfPage": 1,
+            "rotation": 0,
+            "viewId": "nema17-technical-base-v1:base:sheet-1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate application rejected",
+      "status": "passed",
+      "unchangedOnRejection": true,
+      "message": "This product already has a Room directory. Use its existing versioned Studio release workflow; intake never overwrites a registered product."
+    }
+  ],
+  "commands": [
+    {
+      "label": "Prepare configured sources as documented",
+      "args": [
+        "run",
+        "prepare:project"
+      ],
+      "exitCode": 0,
+      "stdout": "> annora-explorer-template@0.1.0 prepare:project\n> node scripts/configure.mjs\n\nConfigured Annora Explorer: 8 model packages.",
+      "stderr": ""
+    },
+    {
+      "label": "Path traversal rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "This export targets another prepared source or destination. Existing products have not changed."
+    },
+    {
+      "label": "Stale preview title rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "The product changed after preview. Open the current saved version before reviewing it."
+    },
+    {
+      "label": "Stale rendering choice rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "The product changed after preview. Open the current saved version before reviewing it."
+    },
+    {
+      "label": "Changed original source bytes rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "Source asset source-pdf no longer matches its reviewed SHA-256 hash."
+    },
+    {
+      "label": "Internal source symlink rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "Symlinks are not allowed in prepared source or output paths: content/drawings/nema17-bracket/source.pdf"
+    },
+    {
+      "label": "Output directory symlink rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "/tmp/annora-w41-operator-l9yya9h7/operator-invalid.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file /tmp/annora-w41-operator-l9yya9h7/operator-invalid.json",
+      "stderr": "Symlinks are not allowed in prepared source or output paths: content/rooms/nema17-bracket"
+    },
+    {
+      "label": "Apply real browser-reviewed export",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "reviewed-package.json"
+      ],
+      "exitCode": 0,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file reviewed-package.json\n\nPrepared package applied: nema17-bracket (ROOM-nema17-bracket-6410d7162b0f416e).\nDeployment still required. Run npm run verify, review the content changes, and use the existing GitHub workflow. No customer records or hosted releases were changed.",
+      "stderr": ""
+    },
+    {
+      "label": "Duplicate application rejected",
+      "args": [
+        "run",
+        "apply:onboarding",
+        "--",
+        "--file",
+        "reviewed-package.json"
+      ],
+      "exitCode": 1,
+      "stdout": "> annora-explorer-template@0.1.0 apply:onboarding\n> node scripts/apply-onboarding-package.mjs --file reviewed-package.json",
+      "stderr": "This product already has a Room directory. Use its existing versioned Studio release workflow; intake never overwrites a registered product."
+    }
+  ],
+  "limitations": [
+    "No browser or GPU validation in this operator check.",
+    "No full verification suite or deployment performed here; the parent owns those checks."
+  ],
+  "runbookAssessment": {
+    "sufficient": true,
+    "scope": "Deployment owner applying a prequalified, browser-reviewed product; the preparation operator still supplies qualified source assets.",
+    "newSharedJavaScriptEditsRequired": 0,
+    "notes": [
+      "Read the three owner roles before proceeding.",
+      "Model registration and generated catalog preparation are explicitly documented before source review.",
+      "Composite package revision is clearly distinguished from the source GLB checksum.",
+      "The original-PDF detail list handles overlapping source rectangles.",
+      "The documented apply command works without an undocumented flag or source edit.",
+      "Application receipt explicitly remains separate from deployment."
+    ]
+  },
+  "finishedAt": "2026-11-07T05:16:39.630Z",
+  "auditedInputs": {
+    "runbookSha256": "ec9e994d7db082023f91837f2ec82a64c8a13b653d3747a1ed2cd7d2dddd6d31",
+    "cliSha256": "401aca5ecd4e1be66c316649afd8c6ce1e85914d5ce59367ec758ba781842b6b",
+    "registeredRoomIdsAfterApply": [
+      "kinetic-01",
+      "nema17-bracket",
+      "sk08"
+    ],
+    "preparedModelCount": 8
+  },
+  "codeReview": {
+    "pathContainment": "Contained repository-relative paths only; path components including source/output directories are checked using lstat. Internal symlinks are rejected.",
+    "reviewFreshness": "The draft, preview, review token and trusted candidate must agree. Changed title or rendering mode fails before writes.",
+    "sourceIdentity": "Actual original PDF/STEP hashes and loadProject composite model revision are verified against the reviewed package.",
+    "existingProductProtection": "An existing Room directory is rejected. The isolated run changed only the new Room files and its confirmed drawing package.",
+    "writeStrategy": "Code inspected: validation precedes staged writes; directory rename and drawing backup provide rollback. Failure injection coverage is owned by the domain agent; this independent run exercised rejection paths and byte preservation, not injected I/O failures.",
+    "presentationBoundary": "Poster and prepared technical artwork are trusted repository inputs at apply. The receipt records the poster hash; technical story steps pin the generated overview/view revisions. The browser packet does not independently authenticate uploaded artwork.",
+    "authenticationBoundary": "Review fingerprints are change identifiers, not authentication signatures. A future remote API needs authenticated operators and independently verified artifact identities."
+  }
+}

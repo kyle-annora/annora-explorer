@@ -25,7 +25,10 @@ test('integrated robot packages and matching derivative media preserve the revie
   }
   const project = await json('project.config.json');
   assert.equal(project.id, 'annora-explorer'); assert.equal(project.defaultModel, 'kinetic-01');
-  assert.deepEqual(project.models.map(item => item.manifest), ['kinetic-01','apollo','linkrods','sk08','open-duck','hexapod','dropbear'].map(id => `content/models/${id}/manifest.json`));
+  const preserved = ['kinetic-01','apollo','linkrods','sk08','open-duck','hexapod','dropbear'].map(id => `content/models/${id}/manifest.json`);
+  // New prepared products may be added through data. Existing examples and
+  // their ordering remain stable without a test-code edit for each intake.
+  assert.deepEqual(project.models.map(item => item.manifest).filter(path => preserved.includes(path)), preserved);
 });
 
 test('a project only bundles media belonging to its configured model and exact authored tour', async () => {

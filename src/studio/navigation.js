@@ -38,6 +38,7 @@ export const readRoute = (hash = location.hash) => {
   const route = {
     page: [
       "products",
+      "onboard",
       "drawings",
       "drawing-projects",
       "drawing-project",

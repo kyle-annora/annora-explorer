@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T05:32:56.387174+00:00",
+  "status": "passed-local-release-gates",
+  "baseline": "248707f6f5c765ebfb4a2c8f3f37712647f90612",
+  "automated": {
+    "tests": 953,
+    "passed": 952,
+    "failed": 0,
+    "existingConditionalSkip": 1,
+    "projectAndDrawingChecks": "passed",
+    "mainBuild": "passed",
+    "inquiryLibraryBuild": "passed"
+  },
+  "onboardingBrowser": "onboarding-browser.json",
+  "newProductCommercialJourneys": "commercial-journeys.json",
+  "independentOperator": "independent-operator.json",
+  "sourceAudit": "source-audit.json",
+  "regressions": [
+    "regression-sk08.json",
+    "regression-impact.json",
+    "regression-crank.json"
+  ],
+  "preserved": {
+    "explorer": "unchanged",
+    "existingModelPackages": "unchanged",
+    "existingSourceAndRoomPackages": "unchanged",
+    "commercialStores": "unchanged"
+  },
+  "sourcePreparation": {
+    "manualActivities": 5,
+    "operatorActiveMinutes": "not instrumented",
+    "sharedRuntimeChangesForIndependentIntake": 0,
+    "triangles": 3396,
+    "compressedGeometryBytes": 30723
+  },
+  "limitations": [
+    "Prepared rigid model and one paired drawing package; no arbitrary upload conversion.",
+    "Browser-local fictional data; API contract only.",
+    "Source reference is not manufacturing-approved.",
+    "Chrome desktop viewport and touch emulation, not physical-device performance certification."
+  ],
+  "publication": "Recorded separately in release-receipt.json after target verification."
+}

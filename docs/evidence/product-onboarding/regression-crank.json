@@ -1,0 +1,30 @@
+{
+  "base": "http://127.0.0.1:8159/annora-explorer/",
+  "timestamp": "2026-11-07T05:32:17.672Z",
+  "results": [
+    {
+      "profile": "desktop",
+      "success": true,
+      "sessionId": "WT-8c446509-895e-4d06-9533-addf470e73c9",
+      "projectId": "PRJ-DEMO-12AECB3D",
+      "screenshots": 16,
+      "confirmations": 8
+    },
+    {
+      "profile": "mobile",
+      "success": true,
+      "sessionId": "WT-624fb0ee-86f2-43eb-8865-b099062bfe19",
+      "projectId": "PRJ-DEMO-3A843086",
+      "screenshots": 16,
+      "confirmations": 8
+    },
+    {
+      "profile": "compact",
+      "success": true,
+      "sessionId": "WT-8b0fcb26-f694-4830-a091-9cdf5a1ccae2",
+      "projectId": "PRJ-DEMO-7546DCA6",
+      "screenshots": 16,
+      "confirmations": 8
+    }
+  ]
+}

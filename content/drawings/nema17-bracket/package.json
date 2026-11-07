@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "id": "build123d-nema17-bracket-drawing",
+  "modelId": "nema17-bracket",
+  "title": "NEMA 17 motor bracket - source reference",
+  "number": "B123D-NEMA17-BRACKET",
+  "revision": "annora-reference-1",
+  "revisionLabel": "Source 16789983 / reference edition 1",
+  "manufacturerRevision": null,
+  "assetRevision": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+  "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+  "units": "mm",
+  "status": "unreviewed-reference",
+  "statusLabel": "Reference drawing - unreviewed",
+  "statusNote": "Automatic draftwright source drawing. No manufacturer revision or approval is supplied. General tolerance and full through-step dimensions are missing; some extension lines cross features. Prepared technical views rearrange source vectors and existing annotations only.",
+  "stepFile": "nema17-bracket.step",
+  "stepSha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d",
+  "pdfFile": "source.pdf",
+  "originalPdfFile": "source.pdf",
+  "reviewFile": "source-review.json",
+  "modelRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+  "mappingRevision": "onboarding-map-b5235bbc696139c4",
+  "pairing": {
+    "status": "source-derived",
+    "evidence": "dw-examples commit 1678998387693c9a96c7033123f849411e061c93 publishes this STEP and its generated PDF together. The STEP matches the build123d original at 742a3dccb372a39d50cb231de481f3add34efcd9 byte for byte. The display mesh is tessellated from that STEP; prepared views preserve the PDF vector geometry."
+  },
+  "assets": [
+    {
+      "id": "source-pdf",
+      "kind": "pdf",
+      "file": "source.pdf",
+      "sha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14"
+    },
+    {
+      "id": "source-step",
+      "kind": "step",
+      "file": "nema17-bracket.step",
+      "sha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d"
+    }
+  ],
+  "sheets": [
+    {
+      "id": "sheet-1",
+      "title": "Original source drawing",
+      "svgFile": "sheet-1.svg",
+      "assetId": "source-pdf",
+      "format": "pdf",
+      "pdfPage": 1,
+      "coordinateFrame": "page-top-left",
+      "rotation": 0,
+      "viewBox": [
+        0,
+        0,
+        1190.5511474609375,
+        841.8897705078125
+      ],
+      "regions": [
+        {
+          "id": "motor-aperture",
+          "label": "Motor aperture",
+          "bounds": [
+            470.5511474609375,
+            464.8818359375,
+            181.4173583984375,
+            181.4173583984375
+          ],
+          "focusPoint": [
+            0.0015,
+            0.03,
+            0
+          ],
+          "dimension": "Diameter 32 mm THRU, as printed",
+          "note": "Source cylinder #306, radius 16 mm, axis through (0, 0, 30) mm. One feature of the original bracket body.",
+          "partId": "nema17-bracket-body",
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "camera": {
+            "target": [
+              0.0015,
+              0.03,
+              0
+            ],
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "halfSize": [
+              0.003,
+              0.018,
+              0.018
+            ]
+          }
+        },
+        {
+          "id": "motor-mounting-holes",
+          "label": "Motor mounting holes",
+          "bounds": [
+            464.031494140625,
+            458.3621826171875,
+            194.4566650390625,
+            194.4566650390625
+          ],
+          "focusPoint": [
+            0.0015,
+            0.03,
+            0
+          ],
+          "dimension": "4 x diameter 3.3 mm THRU; 31 mm pitch, as printed",
+          "note": "Four source cylinders #213, #244, #275 and #337, radius 1.65 mm, centers at y +/-15.5 and z 14.5 / 45.5 mm. All belong to the same solid.",
+          "partId": "nema17-bracket-body",
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "camera": {
+            "target": [
+              0.0015,
+              0.03,
+              0
+            ],
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "halfSize": [
+              0.003,
+              0.02,
+              0.02
+            ]
+          }
+        },
+        {
+          "id": "base-slots",
+          "label": "Base mounting slots",
+          "bounds": [
+            137.48031616210938,
+            115.171630859375,
+            138.89764404296875,
+            201.2598876953125
+          ],
+          "focusPoint": [
+            0.02,
+            0.0015,
+            0
+          ],
+          "dimension": "6 x SLOT 4.5 x 7.5 mm, as printed",
+          "note": "Six source base slots use radius 2.25 mm end surfaces #1217 through #1896, on the same body. The original PDF identifies their 4.5 x 7.5 dimensions.",
+          "partId": "nema17-bracket-body",
+          "mappingStatus": "confirmed",
+          "role": "feature",
+          "camera": {
+            "target": [
+              0.02,
+              0.0015,
+              0
+            ],
+            "direction": [
+              0,
+              1,
+              0
+            ],
+            "halfSize": [
+              0.015,
+              0.003,
+              0.02
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

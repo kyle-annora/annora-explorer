@@ -1,0 +1,76 @@
+{
+  "product": "nema17-bracket",
+  "sourceAssetsVerified": [
+    {
+      "id": "source-pdf",
+      "sha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14"
+    },
+    {
+      "id": "source-step",
+      "sha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d"
+    }
+  ],
+  "modelRevision": "sha256:7606153455cb7659be54549a18d6cb0bf2b4d998050dfb6b556f16c2a281ab74",
+  "partIds": [
+    "nema17-bracket-body"
+  ],
+  "originalMappings": [
+    {
+      "id": "motor-aperture",
+      "status": "needs-review"
+    },
+    {
+      "id": "motor-mounting-holes",
+      "status": "needs-review"
+    },
+    {
+      "id": "base-slots",
+      "status": "needs-review"
+    }
+  ],
+  "initialReleaseBlocked": true,
+  "confirmedInMemoryReleaseValid": true,
+  "referenceOnlyWarningRetained": true,
+  "preparedViews": [
+    {
+      "id": "nema17-technical-base-v1:base:sheet-1",
+      "regionIds": [
+        "base-slots"
+      ]
+    },
+    {
+      "id": "nema17-technical-front-v1:front:sheet-1",
+      "regionIds": [
+        "motor-aperture"
+      ]
+    },
+    {
+      "id": "nema17-technical-front-v1:mounting:sheet-1",
+      "regionIds": [
+        "motor-mounting-holes"
+      ]
+    }
+  ],
+  "sourceDimensionChecks": {
+    "motorApertureDiameterMm": 32.00000627305772,
+    "motorHoleDiameterMm": 3.2999977535671654,
+    "motorHolePitchMm": 31.00000271267361,
+    "overallWidthMm": 41.000000635782875,
+    "overallHeightMm": 50.99999855889214,
+    "baseDepthMm": 34.99999945958455,
+    "baseSlotWidthMm": 4.499999872843424,
+    "baseSlotLengthMm": 7.50000517103407
+  },
+  "visualChecks": [
+    "Original PDF rendered and inspected",
+    "Technical front rendered and inspected",
+    "Technical base rendered and inspected",
+    "Source isometric poster rendered and inspected"
+  ],
+  "unchanged": [
+    "Shared renderer",
+    "Existing product assets",
+    "Existing quote records"
+  ],
+  "note": "Mapping confirmations here are in memory only. The operator must confirm and publish through the onboarding flow."
+}

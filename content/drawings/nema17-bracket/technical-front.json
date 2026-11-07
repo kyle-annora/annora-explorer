@@ -1,0 +1,252 @@
+{
+  "id": "nema17-technical-front-v1",
+  "title": "Motor face",
+  "sheetId": "sheet-1",
+  "viewBox": [
+    0,
+    0,
+    1000,
+    720
+  ],
+  "artworkFile": "technical-front.svg",
+  "annotationVariant": "front",
+  "regions": [
+    {
+      "id": "motor-aperture",
+      "label": "Motor aperture",
+      "partId": "nema17-bracket-body",
+      "role": "feature",
+      "bounds": [
+        342.0944869995118,
+        176.77161865234382,
+        299.33864135742186,
+        299.33864135742186
+      ],
+      "geometry": {
+        "type": "circle",
+        "cx": 491.76380767822275,
+        "cy": 326.4409393310548,
+        "r": 149.66932067871093
+      },
+      "featureOutlinePathIds": [
+        "source-path-78"
+      ]
+    },
+    {
+      "id": "motor-mounting-holes",
+      "label": "Motor mounting holes",
+      "partId": "nema17-bracket-body",
+      "role": "feature",
+      "bounds": [
+        331.3370590209961,
+        166.01419067382812,
+        320.8534973144531,
+        320.8534973144531
+      ],
+      "geometry": {
+        "type": "compound",
+        "bounds": [
+          331.3370590209961,
+          166.01419067382812,
+          320.8534973144531,
+          320.8534973144531
+        ],
+        "cx": 491.76380767822263,
+        "cy": 326.44093933105466
+      },
+      "featureOutlinePathIds": [
+        "source-path-75",
+        "source-path-76",
+        "source-path-77",
+        "source-path-79"
+      ]
+    }
+  ],
+  "sourceSha256": "27466fb32d5761b83ca3c563d6dcad3c671eeb5f9da9bd504294099b3ed64c14",
+  "sourceStepSha256": "bc7b546d7062b56d93ad3a82fc90f25aa44e3930a9e98bdc93c5d409e4a84c2d",
+  "canonical": {
+    "sheetId": "sheet-1",
+    "regionId": "motor-aperture",
+    "bounds": [
+      470.5511474609375,
+      464.8818359375,
+      181.4173583984375,
+      181.4173583984375
+    ]
+  },
+  "source": {
+    "file": "source.pdf",
+    "page": 1,
+    "revision": "annora-reference-1",
+    "mappingRevision": "annora-nema17-map-1",
+    "sourceURL": "https://github.com/pzfreo/dw-examples/blob/1678998387693c9a96c7033123f849411e061c93/drawings/nema17-bracket/nema17-bracket.pdf",
+    "units": "mm",
+    "paperUnits": "pt",
+    "sourceScale": "2:1 as printed",
+    "sourceViewBounds": [
+      445.0393371582031,
+      436.535400390625,
+      232.44094848632812,
+      289.13385009765625
+    ],
+    "sourceToPresentation": [
+      1.65,
+      0,
+      0,
+      1.65,
+      -434.3149063110351,
+      -590.2834106445312
+    ],
+    "geometryPathIndices": {
+      "contour": [
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87
+      ],
+      "hidden": [
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202
+      ],
+      "center": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  },
+  "displayedSourceDimensions": [
+    "41",
+    "51",
+    "31",
+    "\u230032 THRU",
+    "4\u00d7 \u23003.3 THRU"
+  ],
+  "status": "derived-reference-not-manufacturing-release",
+  "validation": {
+    "unitChecksMm": {
+      "motorApertureDiameterMm": 32.00000627305772,
+      "motorHoleDiameterMm": 3.2999977535671654,
+      "motorHolePitchMm": 31.00000271267361,
+      "overallWidthMm": 41.000000635782875,
+      "overallHeightMm": 50.99999855889214,
+      "baseDepthMm": 34.99999945958455,
+      "baseSlotWidthMm": 4.499999872843424,
+      "baseSlotLengthMm": 7.50000517103407
+    },
+    "sourcePathCount": 40,
+    "geometryRegenerated": false,
+    "dimensionValuesAdded": false
+  },
+  "presentations": [
+    {
+      "id": "front",
+      "title": "Motor aperture",
+      "viewBox": [
+        0,
+        0,
+        1000,
+        720
+      ],
+      "annotationVariant": "front",
+      "regionId": "motor-aperture",
+      "regions": [
+        {
+          "id": "motor-aperture",
+          "label": "Motor aperture",
+          "partId": "nema17-bracket-body",
+          "role": "feature",
+          "bounds": [
+            342.0944869995118,
+            176.77161865234382,
+            299.33864135742186,
+            299.33864135742186
+          ],
+          "geometry": {
+            "type": "circle",
+            "cx": 491.76380767822275,
+            "cy": 326.4409393310548,
+            "r": 149.66932067871093
+          },
+          "featureOutlinePathIds": [
+            "source-path-78"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mounting",
+      "title": "Motor mounting pattern",
+      "viewBox": [
+        0,
+        0,
+        1000,
+        720
+      ],
+      "annotationVariant": "front",
+      "regionId": "motor-mounting-holes",
+      "regions": [
+        {
+          "id": "motor-mounting-holes",
+          "label": "Motor mounting holes",
+          "partId": "nema17-bracket-body",
+          "role": "feature",
+          "bounds": [
+            331.3370590209961,
+            166.01419067382812,
+            320.8534973144531,
+            320.8534973144531
+          ],
+          "geometry": {
+            "type": "compound",
+            "bounds": [
+              331.3370590209961,
+              166.01419067382812,
+              320.8534973144531,
+              320.8534973144531
+            ],
+            "cx": 491.76380767822263,
+            "cy": 326.44093933105466
+          },
+          "featureOutlinePathIds": [
+            "source-path-75",
+            "source-path-76",
+            "source-path-77",
+            "source-path-79"
+          ]
+        }
+      ]
+    }
+  ]
+}

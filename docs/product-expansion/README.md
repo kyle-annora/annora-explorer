@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 5 · November 6, 2026 · W40 prepared-product reuse published and verified; see the [release receipt](../evidence/prepared-products/release-receipt.json).
+Planning revision 6 · November 6, 2026 · W41 onboarding implementation and fresh-source qualification; publication status is recorded in its [release receipt](../evidence/product-onboarding/release-receipt.json). The prior W40 [release receipt](../evidence/prepared-products/release-receipt.json) remains unchanged.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -13,6 +13,8 @@ production services or claim that planned features are implemented.
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
 | [Prepared product review](../w40-prepared-product-review.md) | W40 product registry, pinned technical stories and second-product qualification |
+| [New product onboarding review](../w41-product-onboarding-review.md) | W41 source checks, confirmed mapping, reviewed export, generic apply and fresh NEMA 17 qualification |
+| [Operator workflow](../product-onboarding.md) | English instructions from prepared assets to verified deployment |
 | [Project activity review](../project-evidence-review.md) | W32 saved project actions, separate local observations and explicit provenance |
 | [SK08 drawing impact review](../drawing-impact-review.md) | W31 per-question and quotation-scope A/B review, exact history and recovery |
 | [Independent questions review](../questions-review.md) | W30 component questions, reviewed resolution, quotation evidence and acceptance |
@@ -63,7 +65,7 @@ The W31 delivery is documented in the [drawing impact review](../drawing-impact-
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Published W31: SK08 per-question and request-scope impact, reviewed A/B working references, pinned quotation snapshots | Follow-up/presentation impact and real customer source qualification remain deferred |
 | F6 · Action workspace and evidence | Published W30 question workflow and W32 read-only saved actions and separate bounded local observations | Representative customer evidence and supported host instrumentation remain deferred |
-| A · Onboarding workbench | W40 adds readiness reporting and proves a second prepared product | W41 intake/mapping workbench and independent fresh-source qualification |
+| A · Onboarding workbench | W41 adds source checks, geometry-backed associations, saved preview/review/export and generic data application; NEMA 17 independently qualified | Broader source preparation and real-customer evidence remain separate; current adapter uses prepared paired drawings |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 
 ## Recommended decisions

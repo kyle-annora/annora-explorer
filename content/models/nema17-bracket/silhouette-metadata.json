@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "model.glb",
+    "sha256": "0352481427da9a0e3e15eca6a184aeb27015be9350136d9de9885757d189eae1"
+  },
+  "contours": {
+    "file": "silhouettes.bin",
+    "compressedFile": "silhouettes.bin.gz",
+    "format": "uint32-oct16-le",
+    "coordinates": "original-mesh-local",
+    "bytesPerSegment": 16,
+    "sha256": "4e0fb3287d0dac8cee15c6ef6ade2f123149052f33615942c8994ded30584033"
+  },
+  "stats": {
+    "meshCount": 1,
+    "uniqueGeometryCount": 1,
+    "bytes": 40272,
+    "uniqueSegments": 2517
+  },
+  "geometries": [
+    {
+      "byteOffset": 0,
+      "segmentCount": 2517,
+      "geometryId": 0,
+      "sourceGeometrySha256": "d71433c8cccf0d56be0d5f2fb7d4d8e5d5ee519d49c05209f41180eec721f58f",
+      "sha256": "4e0fb3287d0dac8cee15c6ef6ade2f123149052f33615942c8994ded30584033"
+    }
+  ],
+  "meshes": {
+    "nema17_bracket_body": {
+      "byteOffset": 0,
+      "segmentCount": 2517,
+      "geometryId": 0
+    }
+  }
+}
