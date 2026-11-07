@@ -1,10 +1,10 @@
 # Customer follow-up delivery review — W00 / W10
 
-## Candidate
+## Delivered scope
 
 The first expansion work package adds a focused customer follow-up to the existing Studio and Product Room. The seller chooses the original project's released story steps or compatible saved views, the customer requests to address, and one exact quotation or open clarification. Preview and explicit review precede confirmation. The buyer can pause, replay, explore, resume and return to the same project.
 
-Review entry points after deployment:
+Live review entry points:
 
 - [Buyer follow-up](https://kyle-annora.github.io/annora-explorer/product-room/?followUpDemo=crank-review-v1#explore)
 - [Seller follow-up editor](https://kyle-annora.github.io/annora-explorer/studio/?followUpDemo=crank-review-v1)
@@ -37,7 +37,7 @@ Compiled end-to-end evidence:
 - Buyer journeys passed at 320×740, 390×844 and 844×390 with one model iframe, visible controls/model, no horizontal overflow and no JavaScript errors. Seller desktop/mobile checks passed eight scenarios, including the actual 3D preview.
 - The existing commercial walkthrough passed desktop, mobile and compact profiles: 21 checkpoints and eight confirmation gates per profile. The existing mobile story-authoring → preview → reviewed release → contextual inquiry journey also passed.
 
-Local evidence: `work/product-expansion/W10/` contains the frozen handoff, test/build logs, fixture export check, compiled journey, seller failure/mobile checks, buyer mobile/navigation checks and legacy walkthrough/story regression. The final publication receipt below must identify the deployed source and target before this candidate is called live.
+Local evidence: `work/product-expansion/W10/` contains the frozen handoff, test/build logs, fixture export check, compiled journey, seller failure/mobile checks, buyer mobile/navigation checks and legacy walkthrough/story regression. Live checks are preserved separately under `live-journey/`, `live-mobile/` and `live-assets.json`.
 
 ## Limits
 
@@ -47,4 +47,11 @@ Mobile evidence uses Chrome touch/viewport emulation, not physical-device certif
 
 ## Publication receipt
 
-Pending target verification. Candidate validation is not evidence of publication.
+- Deployed source: [`66a335e28fda7e7c7387878c238ce32ae4d3affe`](https://github.com/kyle-annora/annora-explorer/commit/66a335e28fda7e7c7387878c238ce32ae4d3affe).
+- GitHub Actions: [run 42318948833](https://github.com/kyle-annora/annora-explorer/actions/runs/42318948833), build and deployment both successful.
+- Pages deployment: `7614045065`, confirmed successful at `2026-11-07T00:34:51Z` (November 6 in Los Angeles).
+- Both live entry pages returned HTTP 200 and their entry bundles matched the compiled candidate: `room-DkGQgXD4.js` and `studio-B7FrmP81.js`.
+- Live full journey passed authoring, preview, review, v2 confirmation, exact question reply, protected unsent reply, resolved-target handling, immutable v1/inquiry/quote, fresh-browser public v1 and missing-local-v2 behavior.
+- Live mobile journeys passed at 320×740, 390×844 and 844×390, with one iframe, no horizontal overflow and no page errors.
+
+The follow-up delivery is complete for W00/W10. Other expansion work packages remain planned. This receipt does not claim production backend readiness, physical-device certification or measured conversion gains. The documentation receipt is recorded after the deployed source with a CI-skipping documentation commit; the runtime remains the source identified above.
