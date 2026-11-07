@@ -182,7 +182,7 @@
       ],
       "qualification": "Original four-profile geometry run passed22checkpoints. Screenshot inspection then found the compact menu issue; corrected compact rerun passed5checks. No actual OS keyboard or physical device was used. Native guided Explorer was not separately tested by this focused harness."
     },
-    "note": "Final compact result replaces the first run after visual inspection found and corrected menu clipping. Other profiles were unaffected by the compact placement correction."
+    "note": "Final compact result replaces the first run after visual inspection found and corrected menu clipping. The final local rerun covered compact only; the other local profile results precede the shared stacking and mobile grid corrections. See the release receipt for final public-target qualification."
   },
   "protectedSourceGroups": [
     {

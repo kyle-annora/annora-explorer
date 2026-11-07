@@ -1,0 +1,37 @@
+{
+  "base": "https://kyle-annora.github.io/annora-explorer/",
+  "results": [
+    {
+      "profile": "intermediate",
+      "status": "passed",
+      "checkpoints": 5,
+      "emulations": []
+    },
+    {
+      "profile": "landscape",
+      "status": "passed",
+      "checkpoints": 5,
+      "emulations": []
+    },
+    {
+      "profile": "mobile",
+      "status": "passed",
+      "checkpoints": 7,
+      "emulations": [
+        {
+          "status": "emulated",
+          "layoutHeight": 844,
+          "visualHeight": 540,
+          "visualOffsetTop": 0,
+          "limitation": "Synthetic VisualViewport getters/events only. Screenshot includes the full layout viewport; no actual keyboard or physical device was used."
+        }
+      ]
+    },
+    {
+      "profile": "compact",
+      "status": "passed",
+      "checkpoints": 5,
+      "emulations": []
+    }
+  ]
+}

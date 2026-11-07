@@ -62,13 +62,23 @@ engineering suitability or create a real customer account.
 
 ## Verification and publication
 
+Published application revision: `0b91bffb129c0a9d4c57d3062f9bdd5a5420f90a`.
+[GitHub Pages deployment succeeded](https://github.com/kyle-annora/annora-explorer/actions/runs/42372816776).
+The public target passed 72 asset and package checks. The public independent-viewer
+journey passed 46 checkpoints and 16 explicit confirmations across desktop and
+mobile; an additional 22 Guide layout checks passed across intermediate, mobile,
+compact and landscape viewports. The repository suite passed 1,014 tests with
+one existing conditional skip and no failures.
+
 See [acceptance evidence](evidence/commercial-polish/acceptance.json) and
 [release receipt](evidence/commercial-polish/release-receipt.json) for the tested
 candidate and published source revision. The earlier request-layout release is
 preserved in its own evidence directory.
 
-The existing full-journey harness verifies eight separate confirmations, exact
+The independent-viewer journey harness verifies eight separate confirmations, exact
 references, history, save failure, reload and storage isolation. Additional checks
 cover ordinary unguided forms, mobile table layouts, Guide reachability and fixed
 action placement. Tests use isolated Chrome contexts and fictional fixtures.
 Viewport and touch emulation are not physical-device or low-end hardware benchmarks.
+The native guided Explorer journey was not separately exercised in this round;
+its source, models and rendering behavior remain outside this presentation change.

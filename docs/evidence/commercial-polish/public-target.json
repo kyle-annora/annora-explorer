@@ -1,0 +1,393 @@
+{
+  "capturedAt": "2026-11-07T12:34:40.410Z",
+  "expectedCommit": "0b91bffb129c0a9d4c57d3062f9bdd5a5420f90a",
+  "base": "https://kyle-annora.github.io/annora-explorer/",
+  "status": "passed",
+  "checks": 72,
+  "paths": [
+    {
+      "path": "index.html",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "walkthrough/index.html",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "product-room/index.html",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "studio/index.html",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integrations/existing-viewer/index.html",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integration-kit/release.json",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/walkthrough-EmIhHc9D.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/inspection-reference-WG_yQLtT.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/project-domain-BAv4LlDq.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/project-repository-tYO7V3Eb.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/session-TzH5gEwc.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/chrome-BOvWwETH.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/chrome-fc6aoKrN.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/studio-C0NoUUcG.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/client-7oo_5qgQ.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/components-B_S4nSGs.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/content-CBAb4k90.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/catalog-CjxupRaY.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/metadata-D-ENTGCd.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/repository-DB3Gu6Jy.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/embed-bridge-_STiZKNo.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/embed-client-DXDGIrLO.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/navigation-DxdBNs-d.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/actions-DDpB_hVf.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/chrome-Ck6UB9rf.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/preload-helper-PPVm8Dsz.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/drawing-view-BeK9CbXd.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/drawing-overview-CiGMLtjs.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/DrawingPreview-YwjNxvbz.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/technical-story-preview-Cw5kaZgH.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/reference-preview-DSDbvdb1.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/project-questions-DeL6d4B1.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/request-items-view-CEDOkou5.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/model-state-D6twAF2P.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/drawing-repository-DappHr-f.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/drawing-inquiry-BMLarY8s.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/components-JF7wnaHu.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/chrome-DpL4rjT_.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/drawing-overview-01itqqL_.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/DrawingPreview-WnUK3xeZ.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/project-questions-DXk5defD.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/request-items-view-Cb9rjNTe.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/studio-DfSS8NB4.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/room-Dw1T_VGN.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/exploration-handoff-Bah7kvx9.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/room-mGhdifxp.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integration-kit/annora-integration-kit-0.2.0.tgz",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-DVQrXQz6.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integrations/existing-viewer/assets/viewer-CUzGPmLQ.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "integrations/existing-viewer/assets/index-DmxLOUtD.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/explorer-BogNhP4K.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/three-C6FFAWLA.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/model-catalog-DzLdvau9.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/model-validation-tGQUoFza.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/presentation-assets-BYC86Mf3.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/explorer-OZRjwBPX.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/pdf-runtime-B1fC-J4m.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/embedded-inquiry-CI_ZmE51.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/inquiry-sample-BVLhc5uf.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/embedded-inquiry-yFCPVQW7.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/technical-story-panel-DNVTkiBS.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/technical-story-panel-h1UM1CAL.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/workspace-entry-Dg1pYyDR.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/workspace-entry-5GhQBu4z.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/explorer-inquiry-context-8Lv4lbz3.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/ui-DgO2iL24.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/ui-txsinmCr.css",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/assembly-linework-Cxzdv2mv.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/jbig2_nowasm_fallback-DHGs-rAY.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/openjpeg_nowasm_fallback-CmMvpOQT.js",
+      "status": "passed",
+      "httpStatus": 200
+    },
+    {
+      "path": "assets/quickjs-eval-CRWuirmK.js",
+      "status": "passed",
+      "httpStatus": 200
+    }
+  ],
+  "packageVerification": [
+    {
+      "path": "integration-kit/release.json",
+      "httpStatus": 200,
+      "localSha256": "be9393b82309e00674fc86e1c2581cc5b10bec858f579aedb0e926ddf5ea70e4",
+      "publicSha256": "16b44b896ffcb64ac2c1165e6dd2fcf4dc2fc6917ef678ff2c8c60aba513c04b",
+      "bytes": 509,
+      "identical": false,
+      "sourceRevision": "0b91bffb129c0a9d4c57d3062f9bdd5a5420f90a",
+      "sameReleaseIdentity": true,
+      "status": "passed"
+    },
+    {
+      "path": "integration-kit/annora-integration-kit-0.2.0.tgz",
+      "httpStatus": 200,
+      "localSha256": "f680ea242ed4ee9df26bf714e39fb0dd408e98996e212142ee020ffd83f4c755",
+      "publicSha256": "7b13fd780bb0d7cf3fb7ef0dcd4843a65b53405739cbef3a4de90329c99edb9b",
+      "bytes": 107893,
+      "identical": false,
+      "sameArchivePayload": true,
+      "payloadFiles": 16,
+      "status": "passed"
+    }
+  ]
+}

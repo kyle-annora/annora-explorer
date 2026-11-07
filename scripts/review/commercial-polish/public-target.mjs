@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,posix} from 'node:path';
+import {gunzipSync} from 'node:zlib';
 const base=new URL(process.env.BASE_URL||'https://kyle-annora.github.io/annora-explorer/');
 const expected=process.env.EXPECTED_COMMIT;
 assert.ok(expected,'Set EXPECTED_COMMIT to the published application commit.');
@@ -10,6 +11,20 @@ const out=resolve(process.env.OUT||'work/commercial-polish/public-target.json');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const routes=['index.html','walkthrough/index.html','product-room/index.html','studio/index.html','integrations/existing-viewer/index.html','integration-kit/release.json'];
 const seen=new Set(), pending=[...routes], results=[];
+let publicPackage;
+// npm tar/gzip headers can vary across macOS and Linux. Compare every regular
+// payload without extracting or executing the downloaded package.
+function archiveFiles(bytes){
+  const tar=gunzipSync(bytes),files=[];
+  for(let offset=0;offset+512<=tar.length;){
+    const header=tar.subarray(offset,offset+512);if(header.every(byte=>byte===0))break;
+    const text=(start,end)=>header.subarray(start,end).toString().replace(/\0.*$/s,'');
+    const name=[text(345,500),text(0,100)].filter(Boolean).join('/');
+    const size=Number.parseInt(text(124,136).trim()||'0',8);assert.ok(Number.isSafeInteger(size)&&size>=0);
+    const type=text(156,157);if(type==='0'||!type)files.push([name,hash(tar.subarray(offset+512,offset+512+size))]);
+    offset+=512+Math.ceil(size/512)*512;
+  }return files.sort((a,b)=>a[0].localeCompare(b[0]));
+}
 function normalizedHTML(html){return JSON.stringify({body:html.replace(/<link\b[^>]*>/gi,'').replace(/\s+/g,' ').trim(),links:[...html.matchAll(/<link\b[^>]*>/gi)].map(m=>m[0]).sort()});}
 function dependencies(text,path){
   const refs=path.endsWith('.html')?[...text.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css))["']/g)].map(m=>m[1]):path.endsWith('.js')?[...text.matchAll(/["']((?:\.{1,2}\/)?[^"'\s]+\.(?:js|css))["']/g)].map(m=>m[1]):[];
@@ -26,11 +41,18 @@ async function inspect(path){
     record.localSha256=hash(local);record.publicSha256=hash(remote);record.bytes=remote.length;
     record.identical=local.equals(remote);
     if(path.endsWith('.html'))record.sameDocumentAndLinkSet=normalizedHTML(local.toString())===normalizedHTML(remote.toString());
-    assert.ok(record.identical||record.sameDocumentAndLinkSet,`${path} differs from the reviewed build`);
     if(path==='integration-kit/release.json'){
       const release=JSON.parse(remote);assert.equal(release.sourceRevision,expected);record.sourceRevision=release.sourceRevision;
+      const stable=({sha256,bytes,...fields})=>fields;
+      assert.deepEqual(stable(release),stable(JSON.parse(local)));record.sameReleaseIdentity=true;publicPackage=release;
       pending.push('integration-kit/'+release.file);
     }
+    if(path.endsWith('.tgz')){
+      assert.equal(hash(remote),publicPackage.sha256);assert.equal(remote.length,publicPackage.bytes);
+      const left=archiveFiles(local),right=archiveFiles(remote);assert.ok(left.length);assert.deepEqual(left,right);
+      record.sameArchivePayload=true;record.payloadFiles=right.length;
+    }
+    assert.ok(record.identical||record.sameDocumentAndLinkSet||record.sameReleaseIdentity||record.sameArchivePayload,`${path} differs from the reviewed build`);
     pending.push(...dependencies(local.toString(),path));record.status='passed';
   }catch(error){record.status='failed';record.error=error.message;}
 }

@@ -1,0 +1,22 @@
+{
+  "base": "https://kyle-annora.github.io/annora-explorer/",
+  "timestamp": "2026-11-07T12:39:24.418Z",
+  "results": [
+    {
+      "profile": "desktop",
+      "status": "passed",
+      "sessionId": "WTI-c28ed282-4a2b-49fe-837c-f961b6e6a9cd",
+      "projectId": "PRJ-DEMO-75C7B2F4",
+      "checkpoints": 23,
+      "confirmations": 8
+    },
+    {
+      "profile": "mobile",
+      "status": "passed",
+      "sessionId": "WTI-502f35d2-4436-42dd-b325-40118fee57d5",
+      "projectId": "PRJ-DEMO-58A9A366",
+      "checkpoints": 23,
+      "confirmations": 8
+    }
+  ]
+}

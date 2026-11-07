@@ -1,4 +1,61 @@
 {
-  "status": "awaiting-publication",
-  "candidateEvidence": "acceptance.json"
+  "status": "published-and-verified",
+  "recordedAt": "2026-11-07T12:40:57.327477+00:00",
+  "applicationRevision": "0b91bffb129c0a9d4c57d3062f9bdd5a5420f90a",
+  "reviewUrl": "https://kyle-annora.github.io/annora-explorer/walkthrough/?viewer=independent&new=1",
+  "repository": "https://github.com/kyle-annora/annora-explorer",
+  "deployment": {
+    "id": 7621186418,
+    "environment": "github-pages",
+    "state": "success",
+    "publishedAt": "2026-11-07T12:32:21Z",
+    "target": "https://kyle-annora.github.io/annora-explorer/",
+    "workflowRun": 42372816776,
+    "workflowUrl": "https://github.com/kyle-annora/annora-explorer/actions/runs/42372816776",
+    "statusSource": "https://api.github.com/repos/kyle-annora/annora-explorer/deployments/7621186418/statuses"
+  },
+  "verification": {
+    "candidate": "acceptance.json",
+    "publicAssets": {
+      "evidence": "public-target.json",
+      "checks": 72,
+      "failed": 0
+    },
+    "publicIndependentViewerJourney": {
+      "evidence": "public-browser.json",
+      "profiles": [
+        "desktop",
+        "mobile"
+      ],
+      "checkpoints": 46,
+      "explicitConfirmations": 16,
+      "failed": 0
+    },
+    "publicGuideLayout": {
+      "evidence": "public-guide.json",
+      "profiles": [
+        "intermediate",
+        "landscape",
+        "mobile",
+        "compact"
+      ],
+      "checkpoints": 22,
+      "failed": 0
+    },
+    "visualInspection": [
+      "Public desktop quotation v2 comparison",
+      "Public mobile quotation v2 layout",
+      "Public compact Guide menu horizontal bounds and last action",
+      "Public landscape inquiry review reading area and confirmation placement"
+    ],
+    "archiveNote": "Local macOS and public Linux npm archives differ in tar/gzip metadata. Public archive SHA-256 and byte count match the public release manifest; every regular-file payload matches the reviewed local package. The published source revision and stable release fields match exactly.",
+    "earlierPublicAttempt": "The earlier incomplete browser attempt is retained under work/commercial-polish/public-browser and is not counted as a pass. The completed final run uses fresh isolated contexts."
+  },
+  "publicationBoundary": "A documentation and verification-only follow-up records this receipt. The application deployed and verified above remains the cited application revision.",
+  "limitations": [
+    "Browser-local fictional data; no backend submission.",
+    "Chrome viewport and touch emulation, not physical-device or low-end hardware benchmarking.",
+    "Keyboard viewport geometry is synthetic.",
+    "The native guided Explorer journey was not separately exercised in this round; protected Explorer and model source files remain unchanged."
+  ]
 }
