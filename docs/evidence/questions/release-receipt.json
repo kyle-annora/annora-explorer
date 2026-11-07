@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-07T02:05:26.513963+00:00",
+  "classification": "public-fictional-example",
+  "status": "published-and-verified",
+  "sourceCommit": "d4e8b79b2dfeabf53b5caefab99fe055e9fff4ec",
+  "previousApplicationCommit": "819b51638f01e9a1a5f6e9c1c58353f3cb5f0112",
+  "deployment": {
+    "provider": "GitHub Pages",
+    "workflowRunId": 42327080140,
+    "url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42327080140",
+    "conclusion": "success",
+    "deploymentId": 7615056993,
+    "created_at": "2026-11-07T02:03:19Z",
+    "environment_url": "https://kyle-annora.github.io/annora-explorer/",
+    "log_url": "https://github.com/kyle-annora/annora-explorer/actions/runs/42327080140/job/128264952596",
+    "state": "success",
+    "updated_at": "2026-11-07T02:03:19Z"
+  },
+  "routes": {
+    "buyer": "https://kyle-annora.github.io/annora-explorer/product-room/?optionDemo=crank-options-v1",
+    "seller": "https://kyle-annora.github.io/annora-explorer/studio/?optionDemo=crank-options-v1"
+  },
+  "publicAssetVerification": {
+    "verifiedAt": "2026-11-07T02:03:21.172Z",
+    "records": [
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/product-room/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/room-DVX6vJZR.js",
+        "sha256": "1148f2dc8c59305baf21c0d0d4c4d952ce7492639a217360309d392fb9b6ee9f",
+        "status": "matched"
+      },
+      {
+        "route": "https://kyle-annora.github.io/annora-explorer/studio/",
+        "entry": "https://kyle-annora.github.io/annora-explorer/assets/studio-CmZQAuF_.js",
+        "sha256": "06c813d63fbb4592241be81e24e352f2b6a52af77b825d6c825209a466da0d65",
+        "status": "matched"
+      }
+    ]
+  },
+  "localAcceptance": "acceptance.json",
+  "liveJourneys": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 960
+      },
+      "status": "passed",
+      "checkpoints": [
+        "buyer-comparison",
+        "preference-guided-handoff-review",
+        "buyer-question-motion-detail-review",
+        "buyer-question-mounting-detail-review",
+        "buyer-two-independent-questions",
+        "seller-one-resolved-one-open",
+        "unresolved-question-blocks-quotation",
+        "seller-clarification-waits-on-buyer",
+        "buyer-clarification-reply",
+        "seller-explicit-question-adoption",
+        "seller-scope-ready",
+        "quotation-v1-review",
+        "buyer-reopened-question-preserves-v1",
+        "seller-v2-reviews-new-evidence",
+        "quotation-v2-review",
+        "buyer-v1-v2-comparison",
+        "buyer-preserved-v1",
+        "buyer-v2"
+      ],
+      "browserErrors": [],
+      "horizontalOverflow": false,
+      "ordinaryNamespaceUnchanged": true,
+      "originalInquiryUnchanged": true,
+      "quoteV1Unchanged": true,
+      "localArtifact": "work/product-expansion/W30/live-1280/result.json"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "passed",
+      "checkpoints": [
+        "buyer-comparison",
+        "preference-guided-handoff-review",
+        "buyer-question-motion-detail-review",
+        "buyer-question-mounting-detail-review",
+        "buyer-two-independent-questions",
+        "seller-one-resolved-one-open",
+        "unresolved-question-blocks-quotation",
+        "seller-clarification-waits-on-buyer",
+        "buyer-clarification-reply",
+        "seller-explicit-question-adoption",
+        "seller-scope-ready",
+        "quotation-v1-review",
+        "buyer-reopened-question-preserves-v1",
+        "seller-v2-reviews-new-evidence",
+        "quotation-v2-review",
+        "buyer-v1-v2-comparison",
+        "buyer-preserved-v1",
+        "buyer-v2"
+      ],
+      "browserErrors": [],
+      "horizontalOverflow": false,
+      "ordinaryNamespaceUnchanged": true,
+      "originalInquiryUnchanged": true,
+      "quoteV1Unchanged": true,
+      "localArtifact": "work/product-expansion/W30/live-390/result.json"
+    }
+  ],
+  "preserved": [
+    "Existing Explorer renderer, controls and motion",
+    "Original inquiry and request-item source snapshots",
+    "Earlier question events and issued quotation snapshots",
+    "Existing option fixture and ordinary project storage",
+    "Legacy commercial and clarification workflows"
+  ],
+  "limits": [
+    "Fictional browser-local records; no backend, email, account sync or authentication.",
+    "Responsive Chrome emulation, not physical-device performance measurements.",
+    "W31 source-change impact and W32 analytics remain planned.",
+    "Later receipt-only commits do not change the deployed application."
+  ]
+}

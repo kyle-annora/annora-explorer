@@ -1,6 +1,6 @@
 # Product expansion scope and execution plan
 
-Planning revision 2 · November 6, 2026 · W10 and W20/W21 published; remaining work is planned.
+Planning revision 2 · November 6, 2026 · W10, W20/W21 and W30 published; remaining work is planned.
 
 The six feature directions and two reuse foundations are approved in the
 [program](../product-expansion-program.md). This pack makes their boundaries,
@@ -46,9 +46,10 @@ retain their applicable validation.
 
 Original planning baseline: `443c40b7c0b514331755e5ba299773877b259edf`.
 The [first delivery receipt](../evidence/product-expansion/release-receipt.json)
-preserves that delivery's evidence. Current W20/W21 application:
-`819b51638f01e9a1a5f6e9c1c58353f3cb5f0112`; see its
-[release receipt](../evidence/option-scope/release-receipt.json).
+preserves that delivery's evidence. Current W30 application:
+`d4e8b79b2dfeabf53b5caefab99fe055e9fff4ec`; see its
+[release receipt](../evidence/questions/release-receipt.json).
+The [W20/W21 receipt](../evidence/option-scope/release-receipt.json) preserves its earlier release.
 This delivery does not change any MK America client artifact.
 
 | Area | Actual state | Next bounded extension |
@@ -58,7 +59,7 @@ This delivery does not change any MK America client artifact.
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Existing A/B drawing adoption and old-history retention | Explicit impact findings across questions, drafts and presentation references |
-| F6 · Action workspace and evidence | W30 implemented: independent component questions, reviewed replies/resolution and frozen quotation evidence; target verification pending | W31 change impact; W32 bounded interaction evidence |
+| F6 · Action workspace and evidence | Published W30: independent component questions, reviewed replies/resolution and frozen quotation evidence | W31 change impact; W32 bounded interaction evidence |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 
@@ -75,7 +76,7 @@ This delivery does not change any MK America client artifact.
 5. Review and publish one coherent journey at a time. New feature breadth never
    substitutes for history, recovery, mobile and live-target evidence.
 
-W30 question-level follow-through is implemented; see its delivery review above.
+W30 question-level follow-through is published and verified; see its delivery review above.
 The next proposed unit is W31 change-impact review in [the execution plan](execution.md).
-W30 must pass target verification and user review before that next slice begins. Confirmed inquiries remain immutable; later
+W30 is ready for user review before that next slice begins. Confirmed inquiries remain immutable; later
 packages remain separate reviewable deliveries.

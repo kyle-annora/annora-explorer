@@ -524,5 +524,9 @@
     "Browser-local demo data with future host adapter seams; no backend, email, authentication or cross-device sharing.",
     "Questions target original saved request items; W31 change impact and W32 analytics remain deferred."
   ],
-  "target": "Pending release receipt"
+  "target": {
+    "status": "published-and-verified",
+    "sourceCommit": "d4e8b79b2dfeabf53b5caefab99fe055e9fff4ec",
+    "receipt": "release-receipt.json"
+  }
 }

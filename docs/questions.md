@@ -1,6 +1,6 @@
 # Independent questions and reviewed resolution
 
-W30 contract · November 6, 2026 · Candidate behavior; integrated review and publication are separate evidence.
+W30 contract · November 6, 2026 · Published behavior; see [delivery and publication evidence](questions-review.md).
 
 The existing crank comparison project can hold several questions about different
 saved request items. Each question keeps its own source, answer, owner and

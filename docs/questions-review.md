@@ -1,6 +1,10 @@
 # Independent component questions — delivery review
 
-W30 · November 6, 2026 · Candidate; target publication is recorded separately.
+W30 · November 6, 2026 · Published and verified on GitHub Pages.
+
+Application commit: `d4e8b79b2dfeabf53b5caefab99fe055e9fff4ec`.
+[Successful deployment](https://github.com/kyle-annora/annora-explorer/actions/runs/42327080140)
+and [publication receipt](evidence/questions/release-receipt.json).
 
 The same crank project now carries several independent component questions from
 buyer clarification through reviewed seller responses and quotation scope.
@@ -74,8 +78,9 @@ confirmation gates per desktop/mobile/compact profile.
 
 See [acceptance evidence](evidence/questions/acceptance.json) for candidate checks,
 viewports, preserved records and regression results. Target commit, workflow and
-observed public assets belong in [the release receipt](evidence/questions/release-receipt.json)
-after publication.
+observed public assets are recorded in [the release receipt](evidence/questions/release-receipt.json).
+Both live desktop and mobile journeys passed all 18 checkpoints with no browser
+errors or horizontal overflow; public JavaScript assets matched the tested build.
 
 Verification caught and corrected a seller projection bug: a confirmed question
 action returned the shared project without the seller-only saved-draft summary,
