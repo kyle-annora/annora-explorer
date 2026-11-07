@@ -45,6 +45,7 @@ async function run(profile){
     await capture('05-unissued-seller-quotation-review');
     await page.getByRole('link',{name:'Reopen saved view',exact:true}).first().click();await wait('reference-return');
     assert.equal(await page.locator('.wt-role').innerText(),'Seller view');assert.equal(await page.locator('.wt-handoff').getAttribute('data-confirmation'),'false');
+    assert.equal(await page.locator('#return-project').evaluate(link=>{const p=document.querySelector('.intro p').getBoundingClientRect(),r=link.getBoundingClientRect();return r.top>=p.bottom-1&&r.height>=44;}),true,'Return link clears the reference description');
     assert.equal(new URL(page.url()).searchParams.get('returnView'),sellerReview.hash);await capture('06-reference-retains-seller-review-role');
     await advance('reference-return','seller-confirm-quotation');
     assert.equal(new URL(page.url()).pathname,sellerReview.pathname);assert.equal(new URL(page.url()).hash,sellerReview.hash);assert.equal(await bytes(),beforeReference);assert.equal((await store()).projects[0].quotes.length,0);

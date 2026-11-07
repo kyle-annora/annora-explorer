@@ -98,11 +98,16 @@ async function run(profile) {
   }
   async function verifyRestored(label, expected=exactContext) {
     await page.waitForFunction(()=>window.annoraExampleDiagnostics?.().state.ready,null,{timeout:90000});
+    await waitStep('reference-return');
     assert.match(page.url(),/\/integrations\/existing-viewer\//);
     const state=await diagnostics(), camera=expected.viewerReference.snapshot.camera;
     assert.equal(state.state.selectedPart.id,expected.part.id);
     for(const name of ['position','target','up'])camera[name].forEach((value,index)=>assert.ok(Math.abs(value-state.viewer.camera[name][index])<1e-8,`${label}: exact ${name}[${index}]`));
     assert.deepEqual(state.viewer.camera.projection,camera.projection);
+    assert.equal(await page.locator('#return-project').evaluate(link=>{
+      const description=document.querySelector('.intro p'),p=description.getBoundingClientRect(),r=link.getBoundingClientRect();
+      return r.top>=p.bottom-1&&r.height>=44;
+    }),true,`${label}: return link clears the reference description`);
     await checkpoint(label,{independent:true});
   }
   try {
