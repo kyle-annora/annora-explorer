@@ -118,7 +118,7 @@ export function QuoteSummary({ quote, previous, productTitle = "Crank-slider ass
         {project && <p className="customer-fine">Customer requested scope: {quoteScopeLabel(project.inquiry.values, project.context)}.</p>}
         <p className="customer-preserve">{quote.scope}</p>
       </section>
-      <QuoteScopeSummary selection={quote.scopeSelection} lineItems={quote.lineItems} project={project} />
+      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} lineItems={quote.lineItems} project={project} />
       <section className="customer-document-section">
         <h3>Pricing</h3>
         <div className="customer-price-table">

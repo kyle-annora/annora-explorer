@@ -12,6 +12,7 @@ production services or claim that planned features are implemented.
 | [Detailed scope](scope.md) | Current capability, proposed behavior, records, exclusions and acceptance for every feature |
 | [Execution and agent plan](execution.md) | Ordered work packages, dependencies, ownership, handoffs and review gates |
 | [Evaluation and evidence](evaluation.md) | Test scenarios, release blockers, performance and customer evidence |
+| [Independent questions review](../questions-review.md) | W30 component questions, reviewed resolution, quotation evidence and acceptance |
 | [Option comparison and scope review](../option-scope-review.md) | W20/W21 published journey, API, acceptance and release receipt |
 | [Customer follow-up review](../customer-follow-up-review.md) | W10 published project follow-up and exact next-action history |
 | [First delivery review](../product-expansion-review.md) | The actual published request-item and crank story-authoring delivery |
@@ -57,7 +58,7 @@ This delivery does not change any MK America client artifact.
 | F3 · Customer follow-up | Published W10; see customer follow-up review above | Project-specific, versioned explanation and a clear next action |
 | F4 · Options and quoted scope | Published W20/W21: reviewed preferences, explicit part-to-line scope, preserved v1/v2 | General option authoring and option-set revisions remain deferred |
 | F5 · Change impact | Existing A/B drawing adoption and old-history retention | Explicit impact findings across questions, drafts and presentation references |
-| F6 · Action workspace and evidence | Existing project queue, replies and next-action ownership | Question-level work and minimal, attributable interaction evidence |
+| F6 · Action workspace and evidence | W30 implemented: independent component questions, reviewed replies/resolution and frozen quotation evidence; target verification pending | W31 change impact; W32 bounded interaction evidence |
 | A · Onboarding workbench | Existing strict GLB importer and prepared packages | Readiness, mapping, preparation report and second-product proof |
 | B · Integration kit | Existing iframe controller and bounded inquiry bundle | Versioned contracts, independent host proof and supported distributions |
 
@@ -74,7 +75,7 @@ This delivery does not change any MK America client artifact.
 5. Review and publish one coherent journey at a time. New feature breadth never
    substitutes for history, recovery, mobile and live-target evidence.
 
-The next proposed unit is W30 in [the execution plan](execution.md): question-level
-follow-through, then W31 change-impact review. W20/W21 is ready for user review
-before that next slice begins. Confirmed inquiries remain immutable; later
+W30 question-level follow-through is implemented; see its delivery review above.
+The next proposed unit is W31 change-impact review in [the execution plan](execution.md).
+W30 must pass target verification and user review before that next slice begins. Confirmed inquiries remain immutable; later
 packages remain separate reviewable deliveries.

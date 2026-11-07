@@ -2,6 +2,8 @@ import { recordContext, projectDrawingContext } from "./drawing-revision.js";
 import { DrawingReference } from "./drawing-reference.jsx";
 import { InspectionReference } from "./inspection-reference.jsx";
 import { RequestItemsSummary } from "./request-items-view.jsx";
+import { ProjectQuestions } from "./project-questions.jsx";
+import { assertQuestionsRepository, assertQuestionRoundTrip } from "./question-repository.js";
 import { OptionComparison } from "./option-comparison.jsx";
 import { QuoteScopeSummary } from "./quote-scope-summary.jsx";
 import { assertOptionScopeRepository, assertOptionPreferenceRoundTrip } from "./option-scope-repository.js";
@@ -399,10 +401,12 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     perQuoteDrafts = useRef({});
   const uiReady = useRef(false);
   const [optionDirty, setOptionDirty] = useState(false);
+  const [questionDirty, setQuestionDirty] = useState(false);
+  const [questionBusy, setQuestionBusy] = useState(false);
   const [optionStage,setOptionStage] = useState("saved"), [showOptionRecords,setShowOptionRecords] = useState(false);
   const setStage = value => { setStageState(value); updateBuyerLocation({stage:value}); };
-  const setTab = value => { if (optionDirty) { report(new Error("Confirm or cancel your preference before changing the project view."),true); return; } setTabState(value); updateBuyerLocation({tab:value}); };
-  const setQuoteId = value => { setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
+  const setTab = value => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before changing the project view."),true); return; } if (optionDirty) { report(new Error("Confirm or cancel your preference before changing the project view."),true); return; } setTabState(value); updateBuyerLocation({tab:value}); };
+  const setQuoteId = value => { if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before switching quotation versions."),true); return; } setQuoteIdState(value); updateBuyerLocation({quoteId:value}); };
   const setMode = value => { setModeState(value); updateBuyerLocation({mode:value,stage:undefined,messageId:value === 'message' ? pendingClarification(project)?.id : undefined}); };
   const setModeStage = value => { setModeStageState(value); updateBuyerLocation({stage:value}); };
   const setAllComparisonFields = value => {
@@ -411,7 +415,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   };
   lifecycle.route = route;
   lifecycle.requestDirty = Boolean(
-    optionDirty || mode &&
+    questionDirty || questionBusy || optionDirty || mode &&
       (mode === "message" ? replyValues.body.trim() : mode === "next"
         ? nextValues.message.trim()
         : changeValues.notes?.trim() ||
@@ -494,7 +498,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
   }
   lifecycle.beforeLeave = async (nextRoute) => {
     const sameWorkspace = nextRoute?.view === route.view && nextRoute?.projectId === route.projectId;
-    if (sameWorkspace && (!mode || nextRoute.mode === mode) && !optionDirty) {
+    if (sameWorkspace && (!mode || nextRoute.mode === mode) && !optionDirty && !questionDirty && !questionBusy) {
       if (route.view === 'inquiry' && draftRef.current) {
         try { await persistDraft(); } catch (error) { report(error,true); return false; }
       }
@@ -506,7 +510,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     if (lifecycle.requestDirty) {
       report(
         new Error(
-          optionDirty ? "Your preference has not been confirmed. Confirm or cancel it before leaving this comparison." : "Your request has not been confirmed. Review and confirm it, or return to the quotation to leave this form.",
+          questionDirty || questionBusy ? "Your question action has not been confirmed. Confirm or cancel it before leaving." : optionDirty ? "Your preference has not been confirmed. Confirm or cancel it before leaving this comparison." : "Your request has not been confirmed. Review and confirm it, or return to the quotation to leave this form.",
         ),
         true,
       );
@@ -639,6 +643,8 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     setUpdateAvailable(false);
     setProject(null);
     setOptionDirty(false);
+    setQuestionDirty(false);
+    setQuestionBusy(false);
     setQuoteIdState(null);
     setProjects([]);
     setDrafts([]);
@@ -680,6 +686,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             );
           if (route.quoteId && !next.quotes.some(item => item.id === route.quoteId)) throw new Error('The exact quotation in this link is unavailable. Return to the project to choose a saved version.');
           if (next.approvedOptionSet) assertOptionScopeRepository(repository);
+          if (next.questionPolicy) assertQuestionsRepository(repository);
           setProject(next);
           const selectedQuote = next.quotes.find(item => item.id === route.quoteId) || next.quotes.at(-1);
           setQuoteIdState(selectedQuote?.id || null);
@@ -771,7 +778,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
           if (disposed || next.revision === project.revision) return;
           // Keep a form's source revision intact. The final write will also reject
           // a stale review, so background updates never replace a customer's input.
-          if (mode || optionDirty) { setUpdateAvailable(true); return; }
+          if (mode || optionDirty || questionDirty || questionBusy) { setUpdateAvailable(true); return; }
           const viewingLatest = quoteId === project.quotes.at(-1)?.id;
           setProject(next);
           if (viewingLatest || !quoteId) setQuoteId(next.quotes.at(-1)?.id || null);
@@ -792,7 +799,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
       window.removeEventListener("storage", refresh);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [route, repository, project, mode, quoteId, loading]);
+  }, [route, repository, project, mode, quoteId, loading, optionDirty, questionDirty, questionBusy]);
   const goto = (next) => navigate(next);
   const quote =
     project?.quotes.find((item) => item.id === quoteId) ||
@@ -832,6 +839,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         !sameProjectValue(draft.context[key], route.context[key]),
     );
   function openMode(nextMode) {
+    if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action first."),true); return; }
     if (optionDirty) { report(new Error("Confirm or cancel your preference first."),true); return; }
     setMode(nextMode);
     setModeStage("details");
@@ -853,6 +861,29 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     setChangeValues(next);
     perQuoteDrafts.current[quote.id] = next;
     setErrors((current) => ({ ...current, [key]: undefined }));
+  }
+  function questionSelection(projectId, value) {
+    const key = `annora.question.selection.buyer.${repository.mode || 'default'}.${projectId}`;
+    try {
+      if (value !== undefined) { sessionStorage.setItem(key,value || ''); return value; }
+      return sessionStorage.getItem(key) || null;
+    } catch { return value || null; }
+  }
+  async function confirmQuestionAction(method, packet) {
+    if (busy.current) throw new Error('Another project action is still saving. Please try confirming again.');
+    assertQuestionsRepository(repository);
+    let failure, saved;
+    await run('confirm-question', async () => {
+      try {
+        saved = await repository[method](packet,{confirmed:true});
+        assertQuestionRoundTrip(packet,saved);
+        setProject(saved); setQuestionDirty(false); setUpdateAvailable(false);
+        setNotice('Question activity confirmed in this project.');
+      } catch (error) { failure=error; throw error; }
+    });
+    if (failure) throw failure;
+    if (!saved) throw new Error('Your question action was not saved. Please confirm again.');
+    return saved;
   }
   async function acceptProject(next, text) {
     if (lifecycle.route !== route || lifecycle.leaving) return;
@@ -914,11 +945,12 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
     </p>
   );
   const sellerLink = project && !isPreview && !inquiryOnly ? (
-    <a className="ar-button pw-role-link" data-variant="quiet" onClick={event => { if (optionDirty) { event.preventDefault(); report(new Error('Confirm or cancel your preference before switching to the seller.'),true); } }} href={contextualURL(sellerURL ? sellerURL(project, { tab: tab === 'activity' ? 'conversation' : tab, quoteId: quote?.id || null }) : `../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
+    <a className="ar-button pw-role-link" data-variant="quiet" onClick={event => { if (questionDirty || questionBusy) { event.preventDefault(); report(new Error("Confirm or cancel your question action before switching to the seller."),true); return; } if (optionDirty) { event.preventDefault(); report(new Error('Confirm or cancel your preference before switching to the seller.'),true); } }} href={contextualURL(sellerURL ? sellerURL(project, { tab: tab === 'activity' ? 'conversation' : tab, quoteId: quote?.id || null }) : `../studio/#project?id=${encodeURIComponent(project.id)}&tab=${tab === 'activity' ? 'conversation' : tab}${quote?.id ? `&quote=${encodeURIComponent(quote.id)}` : ''}`)}>
       View as seller <span aria-hidden="true">↗</span>
     </a>
   ) : null;
   function openReply() {
+    if (questionDirty || questionBusy) { report(new Error("Confirm or cancel your question action before replying."),true); return; }
     if (optionDirty) { report(new Error('Confirm or cancel your preference before replying.'),true); return; }
     if (!question) return;
     setReplyValues({body:"",replyTo:question.id});
@@ -1867,7 +1899,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
         {!inquiryOnly && <ProjectProgress project={project} />}
         <div className="pw-shared-status"><p><strong>{inquiryOnly ? "Inquiry saved" : projectStatus(project).owner === "You" ? "Your next step" : "Seller’s next step"}</strong><span>{inquiryOnly ? "Your confirmed question and exact drawing reference stay together in this preview." : projectStatus(project).next}</span></p>{sellerLink}</div>
         {feedback}
-        {project.approvedOptionSet && <OptionComparison key={project.id} project={project} onDirtyChange={setOptionDirty} onStageChange={setOptionStage} onExplore={onExplore}
+        {project.approvedOptionSet && <fieldset className="pw-guarded-section" disabled={questionDirty || questionBusy}><OptionComparison key={project.id} project={project} onDirtyChange={setOptionDirty} onStageChange={setOptionStage} onExplore={onExplore}
           onConfirmPreference={async review => {
             if (busy.current) throw new Error('Another project action is still saving. Please try confirming again.');
             let failure, completed = false;
@@ -1882,7 +1914,13 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
             });
             if (failure) throw failure;
             if (!completed) throw new Error('Your preference was not saved. Please confirm again.');
-          }} />}
+          }} /></fieldset>}
+        {!inquiryOnly && repository.supportsQuestions && project.inquiry.requestItems?.length > 0 && <ProjectQuestions key={`questions:${project.id}`} project={project} role="buyer" disabled={optionDirty || !!pending} onDirtyChange={setQuestionDirty} onBusyChange={setQuestionBusy}
+          initialQuestionId={questionSelection(project.id)} onQuestionChange={id => questionSelection(project.id,id)} onExplore={onExplore}
+          onConfirmQuestion={packet => confirmQuestionAction("confirmQuestion",packet)}
+          onConfirmReply={packet => confirmQuestionAction("confirmQuestionReply",packet)}
+          onConfirmResolution={packet => confirmQuestionAction("confirmQuestionResolution",packet)}
+          onConfirmReopen={packet => confirmQuestionAction("confirmQuestionReopen",packet)} />}
         {project.approvedOptionSet && optionStage !== 'saved' && <Button variant="quiet" aria-expanded={showOptionRecords} onClick={() => setShowOptionRecords(value=>!value)}>{showOptionRecords ? 'Hide saved inquiry and quotation history' : 'Show saved inquiry and quotation history'}</Button>}
         {!inquiryOnly && <div hidden={project.approvedOptionSet && optionStage !== 'saved' && !showOptionRecords} className="pw-project-navigation">
           <label className="pw-view-choice">
@@ -2047,7 +2085,7 @@ function Workspace({ route, repository, navigate, onExplore, sellerURL, lifecycl
                         </Section>
                       )}
                       <p className="pw-application">{quote.scope}</p>
-                      <QuoteScopeSummary selection={quote.scopeSelection} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
+                      <QuoteScopeSummary selection={quote.scopeSelection} questionScope={quote.questionScope} lineItems={quote.lineItems} project={project} onExplore={onExplore} />
                       <div className="pw-price-list">
                         <div className="pw-price-row pw-price-labels">
                           <span>Proposed scope</span>

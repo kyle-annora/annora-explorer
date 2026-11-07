@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { quoteScopeChoice, quoteScopeReferenceFacts, quoteScopeRow } from '../src/product-room/quote-scope-presentation.js';
+import { quoteScopeChoice, quoteScopeReferenceFacts, quoteScopeRow, quoteScopeQuestions, quoteQuestionEventLabel } from '../src/product-room/quote-scope-presentation.js';
 
 const context = { productTitle: 'Crank-slider mechanism', modelId: 'crank', modelRevision: 'model-A', roomSnapshot: { version: 3 }, part: { id: 'guide', title: 'Linear guide' }, drawing: { title: 'Guide drawing', revision: 'drawing-A-hash', revisionLabel: 'A', sheetTitle: 'Sheet 1', regionLabel: 'Mounting holes', mappingRevision: 'mapping-A', presentationRevision: 'overview-1' } };
 const request = { id: 'guide-request', purpose: 'quote', context, notes: 'Please review the mounting holes.' };
@@ -40,4 +40,29 @@ test('exact-reference facts include engineering, drawing and overview versions w
   assert.equal(facts['Overview version'], 'overview-1');
   assert.equal(facts['Product version'], 3);
   assert.deepEqual(quoteScopeReferenceFacts(), []);
+});
+
+test('question evidence maps only to its own original scope entry and remains the quoted history', () => {
+  const original = Object.freeze({ id: 'question-guide', scopeEntryId: 'request:guide-request', requestItemId: 'guide-request', context, body: 'Can we retain the holes?', events: Object.freeze([
+    Object.freeze({ id: 'question-opened', version: 1, kind: 'opened', body: 'Can we retain the holes?' }),
+    Object.freeze({ id: 'question-answer', version: 2, kind: 'answer', body: 'Yes, retain the pattern.' }),
+    Object.freeze({ id: 'question-resolved', version: 3, kind: 'resolved', body: 'Original pattern confirmed for this scope.' }),
+  ]) });
+  const frozenScope = Object.freeze({ version: 1, questions: Object.freeze([original]) });
+  const laterQuestion = { ...original, events: [...original.events, { id: 'question-reopened', version: 4, kind: 'reopened', body: 'Check the alternate mounting position.' }] };
+  const entry = { id: 'request:guide-request', requestItemId: 'guide-request' };
+  assert.deepEqual(quoteScopeQuestions(entry, frozenScope), [original]);
+  assert.equal(quoteScopeQuestions(entry, frozenScope)[0].events.at(-1).kind, 'resolved');
+  assert.equal(laterQuestion.events.at(-1).kind, 'reopened');
+  assert.deepEqual(quoteScopeQuestions({ id: 'preference' }, frozenScope), []);
+  assert.deepEqual(quoteScopeQuestions({ id: 'request:rod-request' }, frozenScope), []);
+  assert.deepEqual(quoteScopeQuestions(entry), []);
+});
+
+test('question evidence distinguishes answers, clarification and explicit resolution', () => {
+  assert.equal(quoteQuestionEventLabel({ kind: 'answer' }), 'Seller answer');
+  assert.equal(quoteQuestionEventLabel({ kind: 'clarification' }), 'Seller clarification request');
+  assert.equal(quoteQuestionEventLabel({ kind: 'buyer-reply' }), 'Customer reply');
+  assert.equal(quoteQuestionEventLabel({ kind: 'resolved' }), 'Resolution confirmed');
+  assert.equal(quoteQuestionEventLabel({ kind: 'reopened' }), 'Question reopened');
 });

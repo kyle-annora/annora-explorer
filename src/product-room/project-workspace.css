@@ -1069,3 +1069,6 @@
   .room-workspace .pw-next-controls .ar-button { flex: 1 1 160px; min-height: 44px; }
   .room-workspace .pw-next-controls .ar-evidence { justify-content: flex-start; }
 }
+
+/* Native disabled semantics keep parallel project editors from competing. */
+.room-workspace .pw-guarded-section { border: 0; margin: 0; padding: 0; min-inline-size: 0; }

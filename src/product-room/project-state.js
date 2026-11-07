@@ -1,3 +1,4 @@
+import { questionState } from './question-domain.js';
 /** Shared, presentation-independent ownership and resolution rules. */
 export function changeTopics(change) {
   return ['quantity', 'timing', ...(change.values.notes ? ['notes'] : [])];
@@ -24,6 +25,18 @@ export function sellerProjectStatus(project) {
   const quote = project.quotes.at(-1), messages = project.messages || [];
   if (pendingClarification(project)) return { label: 'Information requested', next: 'Customer to answer the question', owner: 'Customer', filter: 'waiting' };
   if (pendingProjectChange(project)) return { label: 'Changes requested', next: 'Review and respond to requested changes', owner: 'Seller', filter: 'attention' };
+  const unresolvedQuestions = (project.questions || []).filter(item => questionState(item).status !== 'resolved');
+  if (unresolvedQuestions.length) {
+    const blocking = unresolvedQuestions.filter(item => item.blocking);
+    const work = blocking.length ? blocking : unresolvedQuestions;
+    const sellerWork = work.filter(item => questionState(item).ownerRole === 'seller');
+    const current = sellerWork[0] || work[0];
+    return { label: blocking.length ? `${blocking.length} scope question${blocking.length === 1 ? '' : 's'} open` : `${work.length} question${work.length === 1 ? '' : 's'} open`,
+      next: sellerWork.length ? 'Reply to each question and review its resolution' : 'Customer to answer the component questions',
+      owner: sellerWork.length ? 'Seller' : 'Customer', filter: sellerWork.length ? 'attention' : 'waiting', questionId: current.id };
+  }
+  if (project.questions?.length && JSON.stringify(quote?.questionScope?.questions) !== JSON.stringify(project.questions))
+    return {label:'Questions resolved',next:'Review the resolved questions and their quotation scope',owner:'Seller',filter:'attention'};
   const lastMessage = messages.at(-1);
   const messageAfterQuote = lastMessage && (!quote || (lastMessage.projectRevision && quote.issuedProjectRevision ? lastMessage.projectRevision > quote.issuedProjectRevision : lastMessage.createdAt > quote.createdAt));
   if (lastMessage?.authorRole === 'buyer' && messageAfterQuote) return { label: 'Customer replied', next: 'Review the customer response', owner: 'Seller', filter: 'attention' };

@@ -4,6 +4,7 @@ export { pendingProjectChange, pendingClarification, changeIsResolved, sellerPro
 
 import { projectDrawingContext, recordContext } from './drawing-context.js';
 import { createQuoteScopeSelection, normalizeQuoteScopeSelection, quoteScopeErrors } from './option-scope-domain.js';
+import { createQuestionScope, normalizeQuestionScope, quoteQuestionErrors, assertNoBlockingQuestions } from './question-domain.js';
 
 const text = value => typeof value === 'string' ? value.trim() : '';
 const numeric = value => /^\d+(\.\d{1,2})?$/.test(value) && Number.isFinite(+value) && +value <= 100000000;
@@ -32,6 +33,7 @@ export function createQuoteDraft(project, id) {
     id, revision: 0, projectId: project.id, projectRevision: project.revision,
     previousQuoteId: quote?.id || null, changeId: change?.id || null,
     ...(project.approvedOptionSet ? {scopeSelection:quote?.scopeSelection ? cloneProjectValue(quote.scopeSelection) : createQuoteScopeSelection(project)} : {}),
+    ...(project.questionPolicy ? {questionScope:quote ? cloneProjectValue(quote.questionScope || {version:1,projectRevision:quote.issuedProjectRevision || 1,questions:[]}) : createQuestionScope(project)} : {}),
     ...(project.context.drawing || project.context.inspection ? {context:cloneProjectValue(projectDrawingContext(project))} : {}),
     replyDraft: pending ? {kind:'change-response',body:'',changeId:pending.id,resolutions:changeTopics(pending).map(topic=>({topic,status:'needs-info',response:''}))} : null,
     values: {
@@ -67,6 +69,7 @@ export function normalizeQuoteDraft(input) {
   return { id:text(input.id), revision:input.revision, projectId:text(input.projectId), projectRevision:input.projectRevision,
     previousQuoteId:input.previousQuoteId,changeId:input.changeId,replyDraft,values,updatedAt:input.updatedAt || null,
     ...(input.context!==undefined ? {context:normalizeProjectContext(input.context)} : {}),
+    ...(input.questionScope!==undefined ? {questionScope:normalizeQuestionScope(input.questionScope)} : {}),
     ...(input.scopeSelection!==undefined ? {scopeSelection:normalizeQuoteScopeSelection(input.scopeSelection)} : {}) };
 }
 export function quoteDraftErrors(input) {
@@ -102,6 +105,7 @@ export function quoteDraftPreview(input, project) {
     proposedLeadTime:values.proposedLeadTime,scope:values.scope,assumptions:lines(values.assumptions),exclusions:lines(values.exclusions),validity:values.validity,
     openItems,
     ...(draft.scopeSelection ? {scopeSelection:cloneProjectValue(draft.scopeSelection)} : {}),
+    ...(draft.questionScope ? {questionScope:cloneProjectValue(draft.questionScope)} : {}),
     previousQuoteId:draft.previousQuoteId,changeId:draft.changeId,replyId:null,source:'seller-demo' };
 }
 function normalizeReply(project,input) {
@@ -124,7 +128,7 @@ export function reviewReply(project,input) {
   return reviewed({kind:'seller-reply',projectId:project.id,projectRevision:project.revision,values});
 }
 export function reviewQuote(project,input,optionalReply = null) {
-  requireProject(project); const draft = normalizeQuoteDraft(input), fields = {...quoteDraftErrors(draft),...quoteScopeErrors(project,draft)};
+  requireProject(project); const draft = normalizeQuoteDraft(input), fields = {...quoteDraftErrors(draft),...quoteScopeErrors(project,draft),...quoteQuestionErrors(project,draft)};
   if (Object.keys(fields).length) throw new ProjectError('VALIDATION','Check the quotation details.',fields);
   if (draft.revision < 1 || draft.projectId !== project.id || draft.projectRevision !== project.revision || draft.previousQuoteId !== (project.quotes.at(-1)?.id || null)) throw new ProjectError('STALE_REVIEW','Save and review the latest quotation draft before issuing it.');
   if(project.context.drawing&&!sameProjectValue(recordContext(project,draft),projectDrawingContext(project))) throw new ProjectError('DRAWING_REVIEW_REQUIRED','This quotation draft uses an earlier drawing reference. Explicitly review and replace it before issuing a new quotation.');
@@ -146,6 +150,7 @@ export function reviewCustomerReply(project,input) {
 }
 export function reviewAcknowledgement(project,input) {
   requireProject(project); const body = text(input?.body), nextStepId = text(input?.nextStepId), step = project.nextSteps.find(item => item.id === nextStepId);
+  assertNoBlockingQuestions(project);
   if (!body || body.length > 4000) throw new ProjectError('VALIDATION','Describe the agreed next step in 1–4,000 characters.',{body:'Describe what happens next.'});
   if (!step || step.quoteId !== project.quotes.at(-1)?.id) throw new ProjectError('STALE_REVIEW','Choose a next-step request for the current quotation.');
   if (pendingProjectChange(project) || pendingClarification(project)) throw new ProjectError('CONFLICT','Resolve the outstanding customer questions before confirming the next step.');

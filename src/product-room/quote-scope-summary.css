@@ -37,6 +37,23 @@
 .ar-quote-scope-related ul { padding-left: 18px; margin: 6px 0 0; }
 .ar-quote-scope-related small { display: block; color: var(--ar-muted); overflow-wrap: anywhere; }
 .ar-quote-scope-footnote { margin: 14px 0 0; color: var(--ar-muted); font-size: 12px; line-height: 1.6; }
+.ar-quote-scope-questions { margin-top: 20px; }
+.ar-quote-scope-questions h4 { margin: 0 0 8px; color: var(--ar-ink); font-size: 13px; line-height: 1.6; font-weight: 500; }
+.ar-quote-question-evidence { min-width: 0; border-top: 1px solid var(--ar-line); }
+.ar-quote-question-evidence > summary { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: flex-start; gap: 12px; min-height: 44px; padding-block: 12px; cursor: pointer; list-style: none; }
+.ar-quote-question-evidence > summary::-webkit-details-marker { display: none; }
+.ar-quote-question-evidence > summary::before { content: ''; width: 6px; height: 6px; margin-top: 6px; border: solid var(--ar-muted); border-width: 0 1px 1px 0; transform: rotate(-45deg); }
+.ar-quote-question-evidence[open] > summary::before { transform: rotate(45deg); }
+.ar-quote-question-evidence > summary > span { min-width: 0; }
+.ar-quote-question-evidence > summary strong { display: block; color: var(--ar-ink); font-size: 13px; line-height: 1.6; font-weight: 500; overflow-wrap: anywhere; }
+.ar-quote-question-evidence > summary small { display: block; color: var(--ar-muted); font-size: 11px; line-height: 1.6; margin-top: 4px; }
+.ar-quote-question-evidence > summary .ar-status { flex: 0 0 auto; margin: 0; }
+.ar-quote-question-evidence > summary:focus-visible { outline: 2px solid var(--ar-ink); outline-offset: 2px; }
+.ar-quote-question-events { list-style: none; margin: 0 0 16px; padding: 0; }
+.ar-quote-question-events li { margin-block: 14px; color: var(--ar-ink); font-size: 13px; line-height: 1.6; }
+.ar-quote-question-events strong { font-weight: 500; }
+.ar-quote-question-events p { margin: 4px 0; max-width: 70ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ar-quote-question-events small { display: block; color: var(--ar-muted); font-size: 11px; overflow-wrap: anywhere; }
 @media (hover: hover) { .ar-quote-scope-reference > summary:hover { color: var(--ar-ink); } }
 @media (max-width: 600px) {
   .ar-quote-scope-summary { margin-block: 22px; }
@@ -44,4 +61,6 @@
   .ar-quote-scope-coverage, .ar-quote-scope-facts > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .ar-quote-scope-facts { gap: 10px; }
   .ar-quote-scope-list > li { padding-block: 18px; }
+  .ar-quote-question-evidence > summary { grid-template-columns: 8px minmax(0, 1fr); gap: 8px; }
+  .ar-quote-question-evidence > summary .ar-status { grid-column: 2; justify-self: start; }
 }

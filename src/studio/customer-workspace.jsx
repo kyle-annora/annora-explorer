@@ -49,6 +49,8 @@ import { recordContext, projectDrawingContext } from "../product-room/drawing-re
 import { DrawingReference } from "../product-room/drawing-reference.jsx";
 import { InspectionReference } from "../product-room/inspection-reference.jsx";
 import { quoteScopeLabel, inquiryIntentLabel, inquiryQuantityLabel } from "../product-room/project-domain.js";
+import { ProjectQuestions } from "../product-room/project-questions.jsx";
+import { assertQuestionsRepository, assertQuestionRoundTrip, assertQuestionScopeRoundTrip } from "../product-room/question-repository.js";
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const nextStep = (p) =>
@@ -76,6 +78,8 @@ export function CustomerWorkspace({
 }) {
   const [drawingEditing, setDrawingEditing] = useState(false), [drawingEpoch, setDrawingEpoch] = useState(0);
   const drawingBusy = useRef(false);
+  const [questionEditing, setQuestionEditing] = useState(false), [questionEpoch, setQuestionEpoch] = useState(0);
+  const questionBusy = useRef(false), questionsSection = useRef(null);
   const [projects, setProjects] = useState([]),
     [project, setProject] = useState(null),
     [filter, setFilter] = useState("attention"),
@@ -101,7 +105,7 @@ export function CustomerWorkspace({
     generation = useRef(0),
     viewGeneration = useRef(0),
     hydratedView = useRef("");
-  const dirty = drawingEditing || (
+  const dirty = drawingEditing || questionEditing || (
     mode === "edit" || mode === "quote-review"
       ? !same(draft, saved) || !same(response, baseline)
       : ["reply", "ack", "reply-review", "ack-review"].includes(mode)
@@ -119,6 +123,7 @@ export function CustomerWorkspace({
     review,
     tab,
     quoteId,
+    questionEditing,
   };
   const change = project ? pendingProjectChange(project) : null,
     clarification = project ? pendingClarification(project) : null,
@@ -131,13 +136,24 @@ export function CustomerWorkspace({
   const obsoleteDrawingDraft = Boolean(project?.context.drawing && draft && !same(recordContext(project, draft).drawing, projectDrawingContext(project).drawing));
   const status = project ? sellerProjectStatus(project) : null;
   const waitingOnCustomer = status?.owner === "Customer" && project?.quotes.length > 0 && !project?.quoteDraft;
-  const primaryIsDraft = !acknowledgement && !clarification && !change && !waitingOnCustomer;
+  const primaryIsDraft = !status?.questionId && !acknowledgement && !clarification && !change && !waitingOnCustomer;
   const nextDestination = status?.label === "Next step confirmed" ? "conversation" : "quotation";
   const quote =
     project?.quotes.find((q) => q.id === quoteId) || project?.quotes.at(-1);
   const walkthrough = readWalkthroughSession();
   const workKey = (id) =>
     `annora.seller.work.${repository.mode === "drawing-preview" ? "drawing-preview" : walkthrough || "default"}.${id}`;
+  function selectedQuestionId() {
+    try { return project ? sessionStorage.getItem(`${workKey(project.id)}.selected-question`) || null : null; }
+    catch { return null; }
+  }
+  function rememberQuestion(id) {
+    try {
+      const key = `${workKey(project.id)}.selected-question`;
+      if (id) sessionStorage.setItem(key, id);
+      else sessionStorage.removeItem(key);
+    } catch {}
+  }
   function moveView(patch, replace = false) {
     const current = currentRef.current;
     const next = {
@@ -194,6 +210,7 @@ export function CustomerWorkspace({
   ]);
   async function restoreView(record, next) {
     if (record?.approvedOptionSet) assertOptionScopeRepository(repository);
+    if (record?.questions?.length) assertQuestionsRepository(repository);
     const turn = ++viewGeneration.current;
     hydratedView.current = routeHash(next);
     setTabState(next.tab || "inquiry");
@@ -290,6 +307,8 @@ export function CustomerWorkspace({
   function resetEditor() {
     setDrawingEditing(false);
     setDrawingEpoch(value => value + 1);
+    setQuestionEditing(false);
+    setQuestionEpoch(value => value + 1);
     setModeState("detail");
     setDraft(null);
     setSaved(null);
@@ -390,7 +409,7 @@ export function CustomerWorkspace({
   }, [route.tab, route.mode, route.quote, route.draft, project?.id]);
   useEffect(() => {
     guardRef.current = (next) => {
-      if (busyRef.current || drawingBusy.current) return true;
+      if (busyRef.current || drawingBusy.current || questionBusy.current) return true;
       const current = currentRef.current;
       const editingBack =
         next.page === "project" &&
@@ -406,7 +425,7 @@ export function CustomerWorkspace({
     };
     const unload = (event) => {
       if (
-        dirtyRef.current ||
+        dirtyRef.current || questionBusy.current ||
         (busyRef.current && busyRef.current !== "loading")
       ) {
         event.preventDefault();
@@ -432,7 +451,13 @@ export function CustomerWorkspace({
           before.project.quoteDraft || null,
         );
         if (!projectChanged && !draftChanged) return;
-        if (dirtyRef.current || currentRef.current.mode !== "detail")
+        if (before.questionEditing) {
+          // Thread editors retain their text and invalidate review when their
+          // source advances, so the customer reply remains available to inspect.
+          setProject(fresh);
+          setProjects(await repository.listSellerProjects());
+          setStale(false);
+        } else if (dirtyRef.current || currentRef.current.mode !== "detail")
           setStale(true);
         else {
           setProject(fresh);
@@ -457,7 +482,7 @@ export function CustomerWorkspace({
     else if (!leave && dialog.current.open) dialog.current.close();
   }, [leave]);
   function localGo(action) {
-    if (busyRef.current || drawingBusy.current) return;
+    if (busyRef.current || drawingBusy.current || questionBusy.current) return;
     if (dirtyRef.current) {
       setLeave({ action });
       return;
@@ -480,6 +505,7 @@ export function CustomerWorkspace({
       replyDraft: current.response,
     });
     assertOptionScopeRoundTrip(current.draft,value);
+    assertQuestionScopeRoundTrip(current.draft,value);
     setDraft(value);
     setSaved(copy(value));
     setResponse(copy(value.replyDraft || null));
@@ -494,7 +520,7 @@ export function CustomerWorkspace({
     return value;
   }
   function openDraft() {
-    task("open-draft", async () => {
+    localGo(() => task("open-draft", async () => {
       const fresh = await repository.getSellerProject(project.id);
       if (fresh.approvedOptionSet) assertOptionScopeRepository(repository);
       const value = await repository.getQuoteDraft(project.id);
@@ -510,9 +536,10 @@ export function CustomerWorkspace({
       moveView({ mode: "edit", draft: value.id });
       setReview(null);
       setStale(Boolean(value.rebasedFromRevision));
-    });
+    }));
   }
   function openReply(kind = "reply") {
+    localGo(() => {
     const value = responseFor(change, kind);
     if (kind === "clarification") value.kind = "clarification";
     setResponse(value);
@@ -520,13 +547,44 @@ export function CustomerWorkspace({
     setMode("reply");
     setReview(null);
     setError("");
+    });
   }
   function openAcknowledgement() {
+    localGo(() => {
     const value = { nextStepId: acknowledgement.id, body: "" };
     setResponse(value);
     setBaseline(copy(value));
     setMode("ack");
     setReview(null);
+    });
+  }
+  function focusQuestions() {
+    rememberQuestion(status?.questionId || selectedQuestionId());
+    setQuestionEpoch(value => value + 1);
+    setTab('inquiry');
+    requestAnimationFrame(() => questionsSection.current?.scrollIntoView({ behavior: 'instant', block: 'start' }));
+  }
+  function showQuestions() {
+    localGo(focusQuestions);
+  }
+  async function confirmQuestionAction(method, packet) {
+    if (busyRef.current || drawingBusy.current) throw new Error('Another project action is still saving. Your reviewed message is preserved; try again when it finishes.');
+    assertQuestionsRepository(repository);
+    busyRef.current = 'question'; setBusy('question');
+    try {
+      const result = await repository[method](packet, { confirmed: true });
+      assertQuestionRoundTrip(packet, result);
+      // Mutation receipts carry shared project records; the seller projection
+      // also carries the saved quotation draft needed by the next action.
+      const fresh = await repository.getSellerProject(result.id);
+      assertQuestionRoundTrip(packet, fresh);
+      setProject(fresh);
+      currentRef.current.project = fresh;
+      setProjects(await repository.listSellerProjects());
+      setStale(false);
+      setMessage('Question activity is saved in this browser and visible in the buyer view.');
+      return fresh;
+    } finally { busyRef.current = ''; setBusy(''); }
   }
   function reviewCurrent() {
     return task("review", async () => {
@@ -542,6 +600,7 @@ export function CustomerWorkspace({
     return task("issue", async () => {
       const result = await repository.issueQuote(review);
       assertOptionScopeRoundTrip(review.draft,result.quotes.at(-1));
+      assertQuestionScopeRoundTrip(review.draft,result.quotes.at(-1));
       setProject(result);
       setProjects(await repository.listSellerProjects());
       setQuoteIdState(result.quotes.at(-1).id);
@@ -743,7 +802,12 @@ export function CustomerWorkspace({
   } catch {}
 
   return (
-    <div className="customer-workspace">
+    <div className="customer-workspace" onClickCapture={event => {
+      const link = event.target.closest?.('a[href]');
+      if (!questionEditing || !link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank') return;
+      event.preventDefault(); event.stopPropagation();
+      localGo(() => location.assign(link.href));
+    }}>
       {error && (
         <div className="customer-feedback" ref={errorRef} tabIndex="-1">
           <Notice kind="error" title="We could not complete that action.">
@@ -979,7 +1043,9 @@ export function CustomerWorkspace({
                     variant="secondary" disabled={Boolean(busy) || drawingEditing}
                     onClick={() => onNavigate({ page: 'project', id: project.id, mode: 'follow-up', tab })}
                   >Prepare follow-up</Button>}
-                  {acknowledgement ? (
+                  {status.questionId ? (
+                    <Button variant={status.owner === 'Seller' ? undefined : 'secondary'} onClick={showQuestions} disabled={Boolean(busy) || drawingEditing} icon="arrow">{status.owner === 'Seller' ? 'Review questions' : 'View questions'}</Button>
+                  ) : acknowledgement ? (
                     <Button
                       onClick={openAcknowledgement}
                       disabled={Boolean(busy) || drawingEditing}
@@ -1062,8 +1128,24 @@ export function CustomerWorkspace({
                   <div className="customer-tab-body">
                     {tab === "inquiry" && (
                       <>
+                        {repository.supportsQuestions && <div ref={questionsSection}>
+                          <ProjectQuestions key={`${project.id}:${questionEpoch}`} project={project} role="seller"
+                            initialQuestionId={selectedQuestionId()} onQuestionChange={rememberQuestion}
+                            disabled={Boolean(busy) || drawingEditing || stale}
+                            onDirtyChange={setQuestionEditing} onBusyChange={value => { questionBusy.current = value; }}
+                            onConfirmReply={packet => confirmQuestionAction('confirmQuestionReply', packet)}
+                            onConfirmResolution={packet => confirmQuestionAction('confirmQuestionResolution', packet)}
+                            onConfirmReopen={packet => confirmQuestionAction('confirmQuestionReopen', packet)}
+                            onExplore={(context, requestItem) => localGo(() => {
+                              const url = new URL(buyerHref({ ...project, context }, true));
+                              url.searchParams.set('project', project.id);
+                              url.searchParams.set('requestItem', requestItem.id);
+                              if (context.drawing) url.searchParams.set('view', 'drawings');
+                              location.assign(url.href);
+                            })} />
+                        </div>}
                         <InquiryDetails project={project} buyerHref={buyerHref} />
-                        {renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy), onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage("Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}
+                        {renderDrawingRevision?.({ key: `${project.id}:${drawingEpoch}`, project, disabled: Boolean(busy) || questionEditing, onEditing: setDrawingEditing, onWorking: value => { drawingBusy.current = value; }, onChanged: async () => { await refresh(); setMessage("Project drawing confirmed. Earlier quotations and discussions retain their original references."); } })}
                         <ActionGroup align="start">
                           <Button
                             variant="secondary"
@@ -1201,6 +1283,7 @@ export function CustomerWorkspace({
                 </Section>
                 <QuoteScopeEditor project={project} draft={draft} errors={errors} disabled={Boolean(busy) || drawingEditing}
                   onChange={next => { setDraft(next); setReview(null); setErrors({}); setMessage(""); }}
+                  onQuestions={() => localGo(() => { closeEditor(); focusQuestions(); })}
                   onExplore={(context,entry) => localGo(() => {
                     const url=new URL(buyerHref({...project,context},true)); url.searchParams.set('project',project.id);
                     if (entry.requestItemId) url.searchParams.set('requestItem',entry.requestItemId);

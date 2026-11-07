@@ -41,6 +41,13 @@
 .studio-quote-scope-missing { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 8px; color: var(--ar-error); font-size: 12px; overflow-wrap: anywhere; }
 .studio-quote-scope-error { margin: 12px 0 0; color: var(--ar-error); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .studio-quote-scope-end { margin-top: 14px; }
+.studio-quote-scope-question-summary { margin-top: 22px; }
+.studio-quote-scope-question-blocked { margin-top: 10px; }
+.studio-quote-scope-question-blocked p { margin: 0; color: var(--ar-muted); font-size: 13px; line-height: 1.6; }
+.studio-quote-scope-question-blocked .ar-button { margin-top: 4px; }
+.studio-quote-scope-evidence-list { margin: 10px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+.studio-quote-scope-evidence-list li { margin-block: 8px; overflow-wrap: anywhere; }
+.studio-quote-scope-evidence-list li small { font-size: 11px; }
 @media (hover: hover) {
   .studio-quote-scope-toggle:hover:not(:disabled), .studio-quote-scope-line:hover:not([data-disabled]) { background: var(--ar-subtle); }
 }

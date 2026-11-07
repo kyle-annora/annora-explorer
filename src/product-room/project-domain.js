@@ -5,6 +5,7 @@ import { validHistoricalRoomSnapshot } from './release-snapshot.js';
 import { drawingVersionKey, recordContext, drawingVersionLabel } from './drawing-context.js';
 import { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity } from './inquiry-rules.js';
 import { normalizeRequestItems, requestItemErrors } from './request-items.js';
+import { assertNoBlockingQuestions, questionStatusLabel } from './question-domain.js';
 export { INQUIRY_INTENTS, INQUIRY_RULES_VERSION, inquiryRequiresQuantity, validInquiryQuantity, inquiryIntentLabel, inquiryQuantityLabel } from './inquiry-rules.js';
 
 /** Customer-owned project records, independent of presentation and transport. */
@@ -170,6 +171,7 @@ export function reviewRevision(project, quoteId, input) {
 }
 export function reviewNextStep(project, quoteId, input) {
   const quote = assertCurrentQuote(project, quoteId);
+  assertNoBlockingQuestions(project);
   const intent = text(input?.intent), message = text(input?.message), fields = {};
   if (!['discussion', 'engineering-review'].includes(intent)) fields.intent = 'Choose a next step.';
   if (!message) fields.message = 'Add what you would like to discuss or review.';
@@ -221,6 +223,20 @@ export function compareQuotes(before, after, project) {
     for(const id of new Set([...left.keys(),...right.keys()])){
       const entry=right.get(id)||left.get(id);
       rows.push([`scope-${id}`,id==='preference'?'Preferred package scope':entry.context.part?.title || 'Requested detail',describe(left.get(id),before),describe(right.get(id),after),!sameProjectValue(left.get(id),right.get(id))]);
+    }
+  }
+  if (before.questionScope || after.questionScope) {
+    const left = new Map((before.questionScope?.questions || []).map(question => [question.id,question]));
+    const right = new Map((after.questionScope?.questions || []).map(question => [question.id,question]));
+    const describe = question => {
+      if (!question) return 'Not in this quotation';
+      const latest=question.events.at(-1);
+      const resolution=latest.kind === 'resolved' ? ` · ${latest.authorRole === 'buyer' ? 'Buyer acknowledged' : 'Seller confirmed'}` : '';
+      return `${questionStatusLabel(question)}${resolution} · ${question.blocking ? 'Scope-affecting' : 'Informational'} · ${latest.body}`;
+    };
+    for (const id of new Set([...left.keys(),...right.keys()])) {
+      const question=right.get(id) || left.get(id);
+      rows.push([`question-${id}`,`Question · ${question.context.part?.title || 'Requested detail'} · ${question.body}`,describe(left.get(id)),describe(right.get(id)),!sameProjectValue(left.get(id),right.get(id))]);
     }
   }
   return rows.map(([key, label, left, right, changed]) => ({ key, label, before: left, after: right, changed: changed ?? left !== right }));
