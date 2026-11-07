@@ -1,6 +1,6 @@
 # SK08 drawing impact — delivery review
 
-Status: implementation and compiled verification passed. Publication is recorded separately in the release receipt.
+Status: published and verified on GitHub Pages. [Release receipt](evidence/drawing-impact/release-receipt.json) records the deployed revision, workflow, asset hashes and public journeys.
 
 ## Review route
 
@@ -28,9 +28,10 @@ Only one affected item expands at a time. Old/candidate previews are opened on d
 - 390px concurrent-tab and failed-storage checks preserved decisions, invalidated stale review and recovered on retry. 320px touch actions were measured at least 44px.
 - The prior crank independent-question journey and all three existing commercial walkthrough profiles passed. Each walkthrough retained 21 checkpoints and eight explicit confirmations.
 - New questions added after B adoption require their own reference review; removed quote-line mappings block issue until repaired. Corrupt/dropped impact evidence and lossy adapters fail explicitly.
+- Public GitHub Pages: the full 15-checkpoint journey passed at 1280px and 390px, with matching deployed asset hashes, no browser errors and no horizontal overflow. Initial Pages timeout/cancellation attempts are preserved in the publication record.
 - `src/explorer/` has no changes. Normal project storage is unchanged.
 
-The [acceptance record](evidence/drawing-impact/acceptance.json) preserves checks. The release receipt records publication separately; see it for the exact deployed commit, workflow and public-target verification.
+The [acceptance record](evidence/drawing-impact/acceptance.json) preserves checks. The [release receipt](evidence/drawing-impact/release-receipt.json) records publication separately; see it for the exact deployed commit, workflow and public-target verification.
 
 ## Limits
 

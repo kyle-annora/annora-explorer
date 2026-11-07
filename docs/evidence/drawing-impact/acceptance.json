@@ -675,7 +675,8 @@
     "Viewport tests on development machine; no customer hardware performance commitment"
   ],
   "publication": {
-    "status": "awaiting-deployment",
+    "status": "published-and-verified",
+    "deployedCommit": "94dc0de9417512e22f0a141823ffa3c188d3bf8f",
     "receipt": "release-receipt.json"
   }
 }
