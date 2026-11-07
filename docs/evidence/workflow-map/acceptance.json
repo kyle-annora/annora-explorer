@@ -1,0 +1,47 @@
+{
+  "status": "candidate-qualified",
+  "scope": "Standalone English workflow guide; no existing commercial or Explorer source changes",
+  "browser": {
+    "passed": 100,
+    "failed": 0,
+    "viewports": [
+      "1440x1000",
+      "1280x900",
+      "390x844",
+      "320x740",
+      "844x390"
+    ],
+    "zoom": "200% equivalent CSS reflow",
+    "physicalDeviceTesting": false,
+    "errors": [],
+    "projectStorageWrites": 0
+  },
+  "regression": {
+    "workflow": "W60 independent viewer to quotation v2 and next-step acknowledgement",
+    "viewport": "390x844",
+    "checkpoints": 23,
+    "confirmations": 8,
+    "status": "passed"
+  },
+  "checks": {
+    "total": 1003,
+    "passed": 1002,
+    "failed": 0,
+    "existingSkipped": 1
+  },
+  "visualReview": {
+    "disposition": "ship",
+    "scope": "Supplied desktop/mobile/expanded captures and code",
+    "knownDetectorWarning": "Inherited Helvetica typography; retained approved Annora design"
+  },
+  "print": {
+    "status": "passed",
+    "checks": [
+      "Print includes all expanded steps and branches",
+      "Demo limitations remain visible in print",
+      "Screen disclosure state restored after print"
+    ],
+    "at": "2026-11-07T10:08:02.988Z"
+  },
+  "publication": "not-yet-verified"
+}

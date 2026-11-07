@@ -43,6 +43,7 @@ export default defineConfig({
         drawingPreview: fileURLToPath(new URL('./drawing-preview/index.html', import.meta.url)),
         designPreview: fileURLToPath(new URL('./design-preview/index.html', import.meta.url)),
         walkthrough: fileURLToPath(new URL('./walkthrough/index.html', import.meta.url)),
+        workflows: fileURLToPath(new URL('./workflows/index.html', import.meta.url)),
         presentationMedia: fileURLToPath(new URL('./presentation-media/index.html', import.meta.url)),
       },
       output: { manualChunks: id => id.includes('/node_modules/three/') ? 'three' : undefined },
